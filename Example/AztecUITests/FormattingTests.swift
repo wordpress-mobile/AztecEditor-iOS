@@ -2,7 +2,6 @@ import XCTest
 
 class FormattingTests: XCTestCase {
     
-//    private var app: XCUIApplication!
     private var richEditorPage: EditorPage!
     
     override func setUp() {
@@ -50,8 +49,10 @@ class FormattingTests: XCTestCase {
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         
-        richEditorPage.toolbarButtonTap(locator: elementStringIDs.boldButton)
-        let text = richEditorPage.switchContentView().getViewContent()
+        let text = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.boldButton)
+            .switchContentView()
+            .getViewContent()
         XCTAssertEqual(text, expectedHTML)
     }
     
@@ -136,9 +137,37 @@ class FormattingTests: XCTestCase {
             .selectAllText()
             .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
             .getViewContent()
-        
-        
-        
         XCTAssertEqual(text, expectedText)
+    }
+    
+    func testQuotedListRemoveListFormatting() {
+        let text = "some text\nsome text\nsome text"
+        let expectedHTML = "<blockquote><ul><li>some text</li><li>some text</li></ul></blockquote><blockquote>some text</blockquote>"
+        
+        let html = richEditorPage
+            .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
+            .addList(type: "ul")
+            .enterText(text: text)
+            .addList(type: "ul")
+            .switchContentView()
+            .getViewContent()
+        
+        XCTAssertEqual(html, expectedHTML)
+    }
+    
+    func testListwithQuoteFormatting() {
+        let text1 = "some text\nsome text\nsome text\n"
+        let text2 = "some text"
+        let expectedHTML = "<ul><li>some text</li><li>some text</li><li>some text</li><li><blockquote>some text</blockquote></li></ul>"
+        
+        let html = richEditorPage
+            .addList(type: "ul")
+            .enterText(text: text1)
+            .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
+            .enterText(text: text2)
+            .switchContentView()
+            .getViewContent()
+        
+        XCTAssertEqual(html, expectedHTML)
     }
 }

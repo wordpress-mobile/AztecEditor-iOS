@@ -809,16 +809,19 @@ extension EditorDemoController {
         let alertController = UIAlertController(title:insertButtonTitle,
                                                 message:nil,
                                                 preferredStyle:UIAlertControllerStyle.alert)
+        alertController.view.accessibilityIdentifier = "linkModal"
 
         alertController.addTextField(configurationHandler: { [weak self]textField in
             textField.clearButtonMode = UITextFieldViewMode.always;
             textField.placeholder = NSLocalizedString("URL", comment:"URL text field placeholder");
-
+            
             textField.text = urlToUse?.absoluteString
 
             textField.addTarget(self,
                 action:#selector(EditorDemoController.alertTextFieldDidChange),
             for:UIControlEvents.editingChanged)
+            
+            textField.accessibilityIdentifier = "linkModalURL"
             })
 
         if allowTextEdit {
@@ -831,6 +834,8 @@ extension EditorDemoController {
                 textField.spellCheckingType = UITextSpellCheckingType.default
 
                 textField.text = text;
+
+                textField.accessibilityIdentifier = "linkModalText"
 
                 })
         }
@@ -860,6 +865,8 @@ extension EditorDemoController {
                                                 self?.richTextView.setLink(url, inRange: range)
                                             }
                                             })
+        
+        insertAction.accessibilityLabel = "insertLinkButton"
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
                                          style:UIAlertActionStyle.destructive,

@@ -61,26 +61,6 @@ extension XCTest {
      */
     func enterTextInField(text: String) -> Void {
         typeToTextField(text: text, to: elementStringIDs.richTextField)
-//        let app = XCUIApplication()
-//        let richTextField = app.textViews[elementStringIDs.richTextField]
-//
-//        richTextField.typeText(text)
-    }
-    
-    /**
-     Enters text into title field.
-     - Parameter text: the test to enter into the title
-     */
-    func enterTextInTitle(text: String) -> Void {
-        typeToTextField(text: text, to: elementStringIDs.titleTextField)
-    }
-    
-    /**
-     Enters text into HTML field.
-     - Parameter text: the test to enter into the title
-     */
-    func enterTextInHTML(text: String) -> Void {
-        typeToTextField(text: text, to: elementStringIDs.htmlTextField)
     }
 
     /**
@@ -89,25 +69,6 @@ extension XCTest {
     func selectAllTextInField() -> Void {
         let app = XCUIApplication()
         let richTextField = app.textViews[elementStringIDs.richTextField]
-        
-        richTextField.press(forDuration: 1.2)
-        app.menuItems.element(boundBy: 1).tap()
-    }
-    
-    /**
-     Selects all entered text in the rich text field
-     */
-    func selectAllTextInHTMLField() -> Void {
-        selectAllText(field: elementStringIDs.htmlTextField)
-    }
-
-    
-    /**
-     Selects all entered text in provided textView element
-     */
-    func selectAllText(field: String) -> Void {
-        let app = XCUIApplication()
-        let richTextField = app.textViews[field]
         
         richTextField.press(forDuration: 1.2)
         app.menuItems.element(boundBy: 1).tap()
@@ -140,38 +101,29 @@ extension XCTest {
         return strippedText
     }
     
-    func getRichTextContent() -> String {
+    func isIPhone() -> Bool {
         let app = XCUIApplication()
-        
-        let richContentTextView = app.textViews[elementStringIDs.richTextField]
-        let text = richContentTextView.value as! String
-        return text
-    }
-    
-    /**
-     Switch Content view between Rich text & HTML
-     */
-    func switchContentView() -> Void {
-        toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
-    }
-    
-    /**
-    Tapping on toolbar button. And swipes if needed.
-    */
-    func toolbarButtonTap(locator: String) {
-        let elementsQuery = XCUIApplication().scrollViews.otherElements
-        let button = elementsQuery.buttons[locator]
-        let swipeElement = elementsQuery.buttons[elementStringIDs.mediaButton].isHittable ? elementsQuery.buttons[elementStringIDs.mediaButton] : elementsQuery.buttons[elementStringIDs.linkButton]
-
-        if !button.exists || !button.isHittable {
-            swipeElement.swipeLeft()
-        }
-        button.tap()
-    }
-    
-    func gotoRootPage() -> Void {
-        let app = XCUIApplication()
-
-        return app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
+        return app.windows.element(boundBy: 0).horizontalSizeClass == .compact || app.windows.element(boundBy: 0).verticalSizeClass == .compact
     }
 }
+    
+    extension XCUIElement {
+        /**
+         Removes any current text in the field before typing in the new value
+         - Parameter text: the text to enter into the field
+         */
+        func replaceText(text: String) {
+            guard let stringValue = self.value as? String else {
+                XCTFail("Tried to clear and enter text into a non string value")
+                return
+            }
+            
+            self.tap()
+            
+//            let deleteString = stringValue.characters.map { _ in "\u{8}" }.joined(separator: "")
+            let deleteString = stringValue.map { _ in "\u{8}" }.joined(separator: "")
+            
+            self.typeText(deleteString)
+            self.typeText(text)
+        }
+    }

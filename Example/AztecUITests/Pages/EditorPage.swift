@@ -35,14 +35,23 @@ class EditorPage: BasePage {
         default:
             textField = "invalid locator. check Editor.init type param"
         }
-        textView = XCUIApplication().textViews[textField]
+        let app = XCUIApplication()
+        textView = app.textViews[textField]
+        
+        if !textView.exists {
+            if app.otherElements[textField].exists {
+                textView = app.otherElements[textField]
+            }
+        }
+        
         super.init(element: textView)
       
         showOptionsStrip()
     }
     
     func showOptionsStrip() -> Void {
-        textView.tap()
+        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
+//        textView.tap()
         expandOptionsSctrip()
     }
     
@@ -92,6 +101,7 @@ class EditorPage: BasePage {
         if !button.exists || !button.isHittable {
             swipeElement.swipeLeft()
         }
+        Logger.log(message: "Tapping on Toolbar button: \(locator)", event: .d)
         button.tap()
         
         return self
@@ -162,13 +172,20 @@ class EditorPage: BasePage {
      Selects all entered text in provided textView element
      */
     func selectAllText() -> EditorPage {
-        textView.tap()
-        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
+//        textView.tap()
+//        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
+        textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
 
-        textView.press(forDuration: 0.9)
+//        textView.press(forDuration: 0.9)
         app.menuItems["Select All"].tap()
         
         return self
+    }
+    
+    func makeLink() -> EditLinkPage {
+        toolbarButtonTap(locator: elementStringIDs.linkButton)
+        
+        return EditLinkPage.init()
     }
     
     private func getHTMLContent() -> String {

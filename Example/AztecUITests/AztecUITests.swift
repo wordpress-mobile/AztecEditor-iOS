@@ -188,7 +188,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         let text = getHTMLContent()
         let expected = "<h3>1</h3>"
-        XCTAssertEqual(expected, text)
+        XCTAssertEqual(expected, text)  
     }
 
     func testHeadingFourText() {
