@@ -244,14 +244,15 @@ private extension AttributedStringSerializer {
             return inheritedAttributes
         }
 
+        // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+        let ignoredElements: [StandardElementType] =  [.li, .figure, .figcaption]
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = inheritedAttributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue {
-            // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+        } else if let elementType = StandardElementType(rawValue: element.name), ignoredElements.contains(elementType) {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
