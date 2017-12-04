@@ -172,11 +172,8 @@ class EditorPage: BasePage {
      Selects all entered text in provided textView element
      */
     func selectAllText() -> EditorPage {
-//        textView.tap()
-//        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
         textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
 
-//        textView.press(forDuration: 0.9)
         app.menuItems["Select All"].tap()
         
         return self
@@ -186,6 +183,19 @@ class EditorPage: BasePage {
         toolbarButtonTap(locator: elementStringIDs.linkButton)
         
         return EditLinkPage.init()
+    }
+    /*
+     Select Image from Camera Roll by its ID. Starts with 0
+     Simulator range: 0..4
+    */
+    func addImageByOrder(id: Int) -> EditorPage {
+        toolbarButtonTap(locator: elementStringIDs.mediaButton)
+        let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
+        cameraRollButton.waitForExistence(timeout: waitTimeout)
+        cameraRollButton.tap()
+        XCUIApplication().cells.element(boundBy: 0).tap()
+        sleep(6) // wait for upload simulation
+        return self
     }
     
     private func getHTMLContent() -> String {
