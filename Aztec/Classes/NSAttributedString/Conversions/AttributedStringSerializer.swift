@@ -358,9 +358,10 @@ extension AttributedStringSerializer {
     }
 }
 
-private extension AttributedStringSerializer {
 
-    // MARK: - Implicit Representations
+// MARK: - Implicit Representations
+//
+private extension AttributedStringSerializer {
 
     /// Some elements have an implicit representation that doesn't really follow the standard
     /// conversion logic.  This method takes care of such specialized conversions.
@@ -376,22 +377,10 @@ private extension AttributedStringSerializer {
         guard let elementType = element.standardName else {
             return nil
         }
-        
-        if let imgElement = linkedImageElement(for: element) {
-            var attributesWithoutLink = attributes
-            attributesWithoutLink[.link] = nil
-            attributesWithoutLink[.linkHtmlRepresentation] = nil
-
-            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-            let attachment = imgAttributes[.attachment] as! ImageAttachment
-            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
-            attachment.linkURL = URL(string: linkText)
-            
-            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
-        }
 
         return implicitRepresentation(for: elementType, inheriting: attributes)
     }
+
 
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  This method takes care of such specialized conversions.
@@ -406,33 +395,16 @@ private extension AttributedStringSerializer {
 
         switch elementType {
         case .hr, .img, .video:
-            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
+            return NSAttributedString(string: .textAttachment, attributes: attributes)
         case .br:
             return NSAttributedString(.lineSeparator, attributes: attributes)
         default:
             return nil
         }
     }
-    
-    /// Checks if the specified node is of type '.a' with one child '.img' node.
-    /// If true, returns the '.img' node.
-    ///
-    /// - Parameters:
-    ///     - element: the node to get the information from
-    ///
-    /// - Returns: the child '.img' node if there is one
-    ///
-    private func linkedImageElement(for element: ElementNode) -> ElementNode? {
-        guard element.isNodeType(.a) && element.children.count == 1,
-            let imgElement = element.children.first as? ElementNode,
-            imgElement.isNodeType(.img) else {
-                return nil
-        }
-        
-        return imgElement
-    }
 }
-    
+
+
 // MARK: - Text Sanitization for Rendering
 
 private extension AttributedStringSerializer {

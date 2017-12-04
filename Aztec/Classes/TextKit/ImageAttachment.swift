@@ -58,7 +58,6 @@ extension ImageAttachment {
 
         clone.size = size
         clone.alignment = alignment
-        clone.linkURL = linkURL
 
         return clone
     }
