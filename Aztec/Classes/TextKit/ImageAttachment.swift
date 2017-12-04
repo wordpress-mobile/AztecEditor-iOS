@@ -54,10 +54,7 @@ extension ImageAttachment {
     override public func copy(with zone: NSZone? = nil) -> Any {
         guard let clone = super.copy(with: nil) as? ImageAttachment else {
             fatalError()
-        }
-
-        clone.size = size
-        clone.alignment = alignment
+        }        
 
         return clone
     }
@@ -67,22 +64,6 @@ extension ImageAttachment {
 // MARL: - Nested Types
 //
 extension ImageAttachment {
-
-    /// Attachment Link URL
-    ///
-    open var linkURL: URL? {
-        get {
-            if let stringURL = extraAttributes["data_wp_link_url"], let url = URL(string: stringURL) {
-                return url
-            } else {
-                return nil
-            }
-        }
-
-        set {
-            extraAttributes["data_wp_link_url"] = newValue?.absoluteString
-        }
-    }
 
     /// Attachment Alignment
     ///
