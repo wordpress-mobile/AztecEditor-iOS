@@ -11,7 +11,7 @@ public struct elementStringIDs {
     static var htmlTextField = "HTMLContentView"
 
     // Alerts
-    static var insertLinkConfirmButton = "Insert Link"
+    static var insertLinkConfirmButton = "insertLinkButton"
     
     // Table cells
     static var unorderedListOption = "Unordered List"
