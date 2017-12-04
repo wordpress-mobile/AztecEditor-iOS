@@ -88,18 +88,39 @@ extension ImageAttachment {
     ///
     open var alignment: Alignment {
         get {
-            if let classValue = extraAttributes["data_wp_class_align"], let value = Alignment.fromHTML(string: classValue) {
-                return value
-            } else {
+            guard let elementClass = extraAttributes["class"] else {
                 return .center
             }
+            let classAttributes = elementClass.components(separatedBy: " ")            
+            for classAttribute in classAttributes {
+                if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
+                    return alignment
+                }
+            }
+            return .center
         }
 
         set {
-            let currentValue = alignment
-            extraAttributes["data_wp_class_align"] = newValue.htmlString()
-            if newValue != currentValue {
-                glyphImage = nil
+            if let elementClass = extraAttributes["class"] {
+                let classAttributes = elementClass.components(separatedBy: " ")
+                var attributesToRemove = [String]()
+                for classAttribute in classAttributes {
+                    if let _ = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attributesToRemove.append(classAttribute)
+                    }
+                }
+                var otherAttributes = classAttributes.filter({ (value) -> Bool in
+                    return !attributesToRemove.contains(value)
+                })
+                otherAttributes.append(newValue.htmlString())
+                let newClassAttributes = otherAttributes.joined(separator: " ")
+                if newClassAttributes.isEmpty {
+                    extraAttributes.removeValue(forKey: "class")
+                } else {
+                    extraAttributes["class"] = newClassAttributes
+                }
+            } else {
+                extraAttributes["class"] = newValue.htmlString()
             }
         }
     }
@@ -108,18 +129,39 @@ extension ImageAttachment {
     ///
     open var size: Size {
         get {
-            if let classValue = extraAttributes["data_wp_class_size"], let value = Size.fromHTML(string: classValue) {
-                return value
-            } else {
+            guard let elementClass = extraAttributes["class"] else {
                 return .none
             }
+            let classAttributes = elementClass.components(separatedBy: " ")
+            for classAttribute in classAttributes {
+                if let alignment = ImageAttachment.Size.fromHTML(string: classAttribute) {
+                    return alignment
+                }
+            }
+            return .none
         }
 
         set {
-            let currentValue = size
-            extraAttributes["data_wp_class_size"] = newValue.htmlString()
-            if newValue != currentValue {
-                glyphImage = nil
+            if let elementClass = extraAttributes["class"] {
+                let classAttributes = elementClass.components(separatedBy: " ")
+                var attributesToRemove = [String]()
+                for classAttribute in classAttributes {
+                    if let _ = ImageAttachment.Size.fromHTML(string: classAttribute) {
+                        attributesToRemove.append(classAttribute)
+                    }
+                }
+                var otherAttributes = classAttributes.filter({ (value) -> Bool in
+                    return !attributesToRemove.contains(value)
+                })
+                otherAttributes.append(newValue.htmlString())
+                let newClassAttributes = otherAttributes.joined(separator: " ")
+                if newClassAttributes.isEmpty {
+                    extraAttributes.removeValue(forKey: "class")
+                } else {
+                    extraAttributes["class"] = newClassAttributes
+                }
+            } else {
+                extraAttributes["class"] = newValue.htmlString()
             }
         }
     }

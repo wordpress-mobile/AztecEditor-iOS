@@ -885,18 +885,8 @@ private extension AttributedStringParser {
             element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        if let attribute = imageClassAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
         for (key,value) in attachment.extraAttributes {
-            var finalValue = value
-            if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
-                let baseComponents = Set(baseValue.components(separatedBy: " "))
-                let extraComponents = Set(value.components(separatedBy: " "))
-                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
-            }
-            element.updateAttribute(named: key, value: .string(finalValue))
+            element.updateAttribute(named: key, value: .string(value))
         }        
 
         return element
@@ -985,26 +975,5 @@ private extension AttributedStringParser {
         }
 
         return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the class attribute from an ImageAttachment Instance.
-    ///
-    private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
-        var style = String()
-        if attachment.alignment != .center {
-            style += attachment.alignment.htmlString()
-        }
-        
-        if attachment.size != .none {
-            style += style.isEmpty ? String() : String(.space)
-            style += attachment.size.htmlString()
-        }
-
-        guard !style.isEmpty else {
-            return nil
-        }
-
-        return Attribute(name: "class", value: .string(style))
     }
 }

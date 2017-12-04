@@ -30,32 +30,7 @@ class ImageFormatter: StandardAttributeFormatter {
                     url = nil
                 }
 
-                    let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
-
-                if let elementClass = element.attribute(named: "class")?.value.toString() {
-                    let classAttributes = elementClass.components(separatedBy: " ")
-                    var attributesToRemove = [String]()
-                    for classAttribute in classAttributes {
-                        if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
-                            attachment.alignment = alignment
-                            attributesToRemove.append(classAttribute)
-                        }
-                        if let size = ImageAttachment.Size.fromHTML(string: classAttribute) {
-                            attachment.size = size
-                            attributesToRemove.append(classAttribute)
-                        }
-                    }
-                    let otherAttributes = classAttributes.filter({ (value) -> Bool in
-                        return !attributesToRemove.contains(value)
-                    })
-                    let remainingClassAttributes = otherAttributes.joined(separator: " ")
-                    if remainingClassAttributes.isEmpty {
-                        extraAttributes.removeValue(forKey: "class")
-                    } else {
-                        extraAttributes["class"] = remainingClassAttributes
-                    }
-                }
-
+                let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
                 attachment.extraAttributes = extraAttributes
                 attributeValue = attachment
             default:
