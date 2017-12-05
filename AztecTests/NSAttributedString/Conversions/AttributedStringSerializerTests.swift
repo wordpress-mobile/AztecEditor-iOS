@@ -164,6 +164,39 @@ class AttributedStringSerializerTests: XCTestCase {
         
         XCTAssertEqual(outHtml, inHtml)
     }
+
+
+    /// Verifies that Figure + Figcaption entities are properly mapped within an Image's caption field.
+    ///
+    /// - Input: <figure><img src="."><figcaption><h1>I'm a caption!</h1></figcaption></figure>
+    ///
+    /// - Output: Expected to he a single ImageAttachment, with it's `.caption` field properly set (and it's contents in h1 format).
+    ///
+    func testFigcaptionElementGetsProperlySerializedIntoImageAttachmentCaptionField() {
+        // <figcaption><h1>I'm a caption!</h1></figcaption>
+        let figcaptionTextNode = TextNode(text: "I'm a caption!")
+        let figcaptionH1Node = ElementNode(type: .h1, attributes: [], children: [figcaptionTextNode])
+        let figcaptionMainNode = ElementNode(type: .figcaption, attributes: [], children: [figcaptionH1Node])
+
+        // <figure><img/><figcaption/></figure>
+        let imageNode = ElementNode(type: .img, attributes: [], children: [])
+        let figureNode = ElementNode(type: .figure, attributes: [], children: [imageNode, figcaptionMainNode])
+
+        // Convert
+        let rootNode = RootNode(children: [figureNode])
+        let output = attributedString(from: rootNode)
+
+        let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment
+        XCTAssertNotNil(imageAttachment)
+
+        guard let caption = imageAttachment?.caption else {
+            XCTFail()
+            return
+        }
+
+        let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:])
+        XCTAssertTrue(formatter.present(in: caption, at: 0))
+    }
 }
 
 
