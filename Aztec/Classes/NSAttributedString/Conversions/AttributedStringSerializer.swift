@@ -160,7 +160,6 @@ class AttributedStringSerializer {
     let h5Formatter = HeaderFormatter(headerLevel: .h5)
     let h6Formatter = HeaderFormatter(headerLevel: .h6)
     let hrFormatter = HRFormatter()
-    let imageFormatter = ImageFormatter()
     let italicFormatter = ItalicFormatter()
     let linkFormatter = LinkFormatter()
     let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
@@ -169,7 +168,11 @@ class AttributedStringSerializer {
     let strikethroughFormatter = StrikethroughFormatter()
     let underlineFormatter = UnderlineFormatter()
     let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
-    let videoFormatter = VideoFormatter()
+
+    // MARK: - Built-in inserter instances
+
+    let imageInserter = ImageInserter()
+    let videoInserter = VideoInserter()
 
     // MARK: - Formatter Maps
 
@@ -188,7 +191,6 @@ class AttributedStringSerializer {
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
             .a: self.linkFormatter,
-            .img: self.imageFormatter,
             .hr: self.hrFormatter,
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
@@ -198,7 +200,6 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
-            .video: self.videoFormatter
         ]
     }()
 
@@ -208,6 +209,15 @@ class AttributedStringSerializer {
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
+
+    // MARK: - Inserter Map
+
+    public lazy var elementInsertersMap: [StandardElementType: MediaInserter] = {
+        return [
+            .img: self.imageInserter,
+            .video: self.videoInserter,
+            ]
+    }()
 
     func parseStyle(style: String) -> [String: String] {
         var stylesDictionary = [String: String]()
@@ -248,7 +258,9 @@ private extension AttributedStringSerializer {
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = inheritedAttributes
 
-        if let elementFormatter = formatter(for: element) {
+        if let mediaInserter = inserter(for: element) {
+            finalAttributes = mediaInserter.insert(into: finalAttributes, from: representation)
+        } else if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
         } else if element.name == StandardElementType.li.rawValue {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
@@ -351,6 +363,24 @@ extension AttributedStringSerializer {
         for (key, formatter) in elementFormattersMap {
             if equivalentNames.contains(key.rawValue) {
                 return formatter
+            }
+        }
+
+        return nil
+    }
+
+    // MARK: - Inserters
+
+    func inserter(for element: ElementNode) -> MediaInserter? {
+        guard let standardType = element.standardName else {
+            return nil
+        }
+
+        let equivalentNames = standardType.equivalentNames
+
+        for (key, inserter) in elementInsertersMap {
+            if equivalentNames.contains(key.rawValue) {
+                return inserter
             }
         }
 
