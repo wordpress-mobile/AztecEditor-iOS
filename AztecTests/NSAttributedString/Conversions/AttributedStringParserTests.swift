@@ -837,6 +837,89 @@ class AttributedStringParserTests: XCTestCase {
         let restoredTextNode = restoredDiv2Node?.children.first as? TextNode
         XCTAssert(restoredTextNode?.contents == text)
     }
+
+
+    /// Verifies that Images with no caption strings do not get wrapped up by a figcaption element.
+    ///
+    /// - Input: Image Attachment, with no caption set.
+    ///
+    /// - Output: <img src="."
+    ///
+    func testImagesWithNoCaptionWillNotProduceFigureNorFigcaptionElements() {
+        let attachment = ImageAttachment(identifier: UUID().uuidString)
+        let string = NSAttributedString(attachment: attachment)
+
+        let node = AttributedStringParser().parse(string)
+        XCTAssert(node.children.count == 1)
+
+        let paragraphNode = node.firstChild(ofType: .p)
+        XCTAssert(paragraphNode?.children.count == 1)
+
+        let imageNode = paragraphNode?.firstChild(ofType: .img)
+        XCTAssertNotNil(imageNode)
+    }
+
+
+    /// Verifies that Images with it's caption field get properly wrapped within a figure element.
+    ///
+    /// - Input: Image Attachment, with it's caption set.
+    ///
+    /// - Output: <figure><img src="."><figcaption>Hello!</figcaption></figure>
+    ///
+    func testImagesWithCaptionProduceFigureAndFigcaptionElements() {
+        let attachment = ImageAttachment(identifier: UUID().uuidString)
+        attachment.caption = NSAttributedString(string: "Hello!")
+
+        let string = NSAttributedString(attachment: attachment)
+
+        let node = AttributedStringParser().parse(string)
+        XCTAssert(node.children.count == 1)
+
+        let paragraphNode = node.firstChild(ofType: .p)
+        XCTAssert(paragraphNode?.children.count == 1)
+
+        let figureNode = paragraphNode?.firstChild(ofType: .figure)
+        XCTAssert(figureNode?.children.count == 2)
+
+        let imageNode = figureNode?.firstChild(ofType: .img)
+        XCTAssertNotNil(imageNode)
+
+        let figcaptionNode = figureNode?.firstChild(ofType: .figcaption)
+        XCTAssertNotNil(figcaptionNode)
+    }
+
+
+    /// Verifies that Images with *Styled* caption fields get properly converted into their corresponding HTML
+    ///
+    /// - Input: Image Attachment, with a caption in Bold + Italics.
+    ///
+    /// - Output: <figure><img src="."><figcaption><strong><em>Bold and Italics</em></strong></figcaption></figure>
+    ///
+    func testFigcaptionGetsItsStyleProperlyParsed() {
+        let boldAttributes = BoldFormatter().apply(to: Constants.sampleAttributes)
+        let boldAndItalicAttributes = ItalicFormatter().apply(to: boldAttributes)
+
+        let sampleCaption = NSAttributedString(string: "Bold And Italics", attributes: boldAndItalicAttributes)
+
+        let sampleAttachment = ImageAttachment(identifier: UUID().uuidString)
+        sampleAttachment.caption = sampleCaption
+
+        let sampleDocument = NSAttributedString(attachment: sampleAttachment)
+
+        let node = AttributedStringParser().parse(sampleDocument)
+        let figcaptionNode = node.firstChild(ofType: .p)?.firstChild(ofType: .figure)?.firstChild(ofType: .figcaption)
+        XCTAssertNotNil(figcaptionNode)
+
+        let strongNode = figcaptionNode?.firstChild(ofType: .strong)
+        XCTAssertNotNil(strongNode)
+
+        let italicsNode = strongNode?.firstChild(ofType: .em)
+        XCTAssertNotNil(italicsNode)
+
+        let textNode = italicsNode?.children.first as? TextNode
+        XCTAssertNotNil(textNode)
+        XCTAssert(textNode?.text() == sampleCaption.string)
+    }
 }
 
 

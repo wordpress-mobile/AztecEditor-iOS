@@ -906,11 +906,11 @@ private extension AttributedStringParser {
         ///
         /// Note that the Figure element is handled by the HTMLFigureFormatter.
         ///
-        guard let figcaptionElement = figcaptionElement(from: attachment) else {
-            return imageElement
+        if let figcaptionElement = figcaptionElement(from: attachment) {
+            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
         }
 
-        return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
+        return imageElement
     }
 
 
