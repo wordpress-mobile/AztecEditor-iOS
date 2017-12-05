@@ -1,11 +1,7 @@
 import UIKit
 
 class VideoInserter: MediaInserter {
-
-    static var htmlRepresentationKey: AttributedStringKey {
-        return .videoHtmlRepresentation
-    }
-
+    
     func attachment(from representation: HTMLRepresentation) -> MediaAttachment? {
         guard case let .element(element) = representation.kind else {
             return nil

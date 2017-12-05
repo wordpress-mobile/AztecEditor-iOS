@@ -2,10 +2,6 @@ import UIKit
 
 class ImageInserter: MediaInserter {
 
-    static var htmlRepresentationKey: AttributedStringKey {
-        return .imageHtmlRepresentation
-    }
-
     func attachment(from representation: HTMLRepresentation) -> MediaAttachment? {
         guard case let .element(element) = representation.kind else {
             return nil
