@@ -114,8 +114,16 @@ class EditorPage: BasePage {
      30:72 - first word in 3d intended line (blockquote)
     */
     func tapByCordinates(x: Int, y: Int) -> EditorPage {
-//        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
-        let vector = CGVector(dx: textView.frame.minX + CGFloat(x), dy: textView.frame.minY + CGFloat(y))
+        // textView frames on different devices:
+        // iPhone X (0.0, 88.0, 375.0, 391.0)
+        // iPhone SE (0.0, 64.0, 320.0, 504.0)
+        let frame = textView.frame
+        var vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY + CGFloat(y))
+        if frame.minY == 88 {
+            let yDiff = frame.minY - 64 // 64 - is minY for "normal" devices
+            vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY - yDiff + CGFloat(y))
+        }
+        
         textView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
         sleep(1) // to make sure that "paste" manu wont show up.
         return self
