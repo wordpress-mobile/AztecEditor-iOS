@@ -260,6 +260,14 @@ open class MediaAttachment: NSTextAttachment {
 //
 extension MediaAttachment {
 
+    /// Returns the Glyph representing the current image, with all of the required add-ons already embedded:
+    ///
+    /// - Overlay Background: Whenever there is a message (OR) upload in progress.
+    /// - Overlay Border: Whenever there is no upload in progress (OR) there is no message visible.
+    /// - Overlay Image: Image to be displayed at the center of the actual attached image
+    /// - OVerlay Message: Message to be displayed below the Overlay Image.
+    /// - Progress Bar: Whenever there's an Upload OP running.
+    ///
     func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
@@ -270,10 +278,9 @@ extension MediaAttachment {
 
         drawOverlayBackground(in: mediaBounds)
         drawOverlayBorder(in: mediaBounds)
-        drawProgress(in: mediaBounds)
-
         let overlaySize = drawOverlayImage(in: mediaBounds)
-        drawMessage(in: mediaBounds, overlaySize: overlaySize)
+        drawOverlayMessage(in: mediaBounds, overlaySize: overlaySize)
+        drawProgress(in: mediaBounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -281,6 +288,9 @@ extension MediaAttachment {
         return result
     }
 
+
+    /// Draws an overlay on top of the image, with a color defined by the `appearance.overlayColor` property.
+    ///
     private func drawOverlayBackground(in bounds: CGRect) {
         guard message != nil || progress != nil else {
             return
@@ -291,12 +301,14 @@ extension MediaAttachment {
         path.fill()
     }
 
+
+    /// Draws a border, surroinding the image. It's width will be defined by `appearance.overlayBorderWidth`, while it's color
+    /// will be taken from `appearance.overlayBorderColor`.
+    ///
+    /// Note that the `progress` is not nil, or there's an overlay message, this border will not be rendered.
+    ///
     private func drawOverlayBorder(in bounds: CGRect) {
-        // Don't display the border if the border width is 0, we are force-hiding it, or message is set with no progress
-        guard appearance.overlayBorderWidth > 0,
-            shouldHideBorder == false,
-            progress == nil && message != nil
-        else {
+        guard appearance.overlayBorderWidth > 0, shouldHideBorder == false, progress == nil, message != nil else {
             return
         }
 
@@ -307,29 +319,9 @@ extension MediaAttachment {
         path.stroke()
     }
 
-    private func drawProgress(in bounds: CGRect) {
-        guard let progress = progress else {
-            return
-        }
 
-        let lineY = bounds.minY + appearance.progressHeight * 0.5
-        let backgroundPath = UIBezierPath()
-
-        backgroundPath.lineWidth = appearance.progressHeight
-        appearance.progressBackgroundColor.setStroke()
-        backgroundPath.move(to: CGPoint(x: bounds.minX, y: lineY))
-        backgroundPath.addLine(to: CGPoint(x: bounds.maxX, y: lineY))
-        backgroundPath.stroke()
-
-        let progressPath = UIBezierPath()
-
-        progressPath.lineWidth = appearance.progressHeight
-        appearance.progressColor.setStroke()
-        progressPath.move(to: CGPoint(x: bounds.minX, y: lineY))
-        progressPath.addLine(to: CGPoint(x: bounds.minX + (bounds.width * CGFloat(max(0, min(progress, 1)))), y: lineY))
-        progressPath.stroke()
-    }
-
+    ///
+    ///
     private func drawOverlayImage(in bounds: CGRect) -> CGSize {
         guard let overlayImage = overlayImage else {
             return .zero
@@ -347,16 +339,19 @@ extension MediaAttachment {
         return resizedOverlayImage.size
     }
 
-    private func drawMessage(in bounds: CGRect, overlaySize: CGSize) {
+
+    ///
+    ///
+    private func drawOverlayMessage(in bounds: CGRect, overlaySize: CGSize) {
         guard let message = message else {
             return
         }
 
         let textRect = message.boundingRect(with: bounds.size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-        var messageY =  bounds.minY + ((bounds.height - textRect.height) / 2.0)
+        var messageY = bounds.minY + (bounds.height - textRect.height) * 0.5
 
         if overlaySize.height != 0 {
-            messageY = bounds.minY + Constants.messageTextTopMargin + ((bounds.height + overlaySize.height) / 2.0)
+            messageY = bounds.minY + Constants.messageTextTopMargin + (bounds.height + overlaySize.height) * 0.5
         }
 
         // Check to see if the message will fit within the image. If not, skip it.
@@ -364,6 +359,32 @@ extension MediaAttachment {
         if messageRect.maxY < bounds.height {
             message.draw(in: messageRect)
         }
+    }
+
+
+    /// Draws a progress bar, at the top of the image, matching the percentage defined by the ivar `progress`.
+    ///
+    private func drawProgress(in bounds: CGRect) {
+        guard let progress = progress else {
+            return
+        }
+
+        let progressY = bounds.minY + appearance.progressHeight * 0.5
+        let progressWidth = bounds.width * CGFloat(max(0, min(progress, 1)))
+
+        let backgroundPath = UIBezierPath()
+        backgroundPath.lineWidth = appearance.progressHeight
+        backgroundPath.move(to: CGPoint(x: bounds.minX, y: progressY))
+        backgroundPath.addLine(to: CGPoint(x: bounds.maxX, y: progressY))
+        appearance.progressBackgroundColor.setStroke()
+        backgroundPath.stroke()
+
+        let progressPath = UIBezierPath()
+        progressPath.lineWidth = appearance.progressHeight
+        progressPath.move(to: CGPoint(x: bounds.minX, y: progressY))
+        progressPath.addLine(to: CGPoint(x: bounds.minX + progressWidth, y: progressY))
+        appearance.progressColor.setStroke()
+        progressPath.stroke()
     }
 }
 
@@ -453,6 +474,7 @@ private extension MediaAttachment {
     /// Constants
     ///
     struct Constants {
+
         /// Maximum number of times to retry downloading the asset, upon error
         ///
         static let maxRetryCount = 3
@@ -498,8 +520,7 @@ extension MediaAttachment {
         ///
         public var progressColor = UIColor.blue
 
-        /// The margin apply to the images being displayed. This is to avoid that two images in a row get
-        /// glued together.
+        /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
         public var imageMargin = CGFloat(10.0)
     }
