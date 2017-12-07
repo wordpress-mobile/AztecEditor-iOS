@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		40A2986D1FD61B0C00AEDF3B /* MediaInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* MediaInserter.swift */; };
+		40359F261FD88A5F00B1C1D2 /* HRInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRInserter.swift */; };
+		40359F281FD88A7900B1C1D2 /* BRInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRInserter.swift */; };
+		40A2986D1FD61B0C00AEDF3B /* Inserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* Inserter.swift */; };
 		40A298711FD61B6F00AEDF3B /* ImageInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298701FD61B6F00AEDF3B /* ImageInserter.swift */; };
 		40A298731FD61E1900AEDF3B /* VideoInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298721FD61E1900AEDF3B /* VideoInserter.swift */; };
 		594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -189,7 +191,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		40A2986C1FD61B0C00AEDF3B /* MediaInserter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaInserter.swift; sourceTree = "<group>"; };
+		40359F251FD88A5F00B1C1D2 /* HRInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRInserter.swift; sourceTree = "<group>"; };
+		40359F271FD88A7900B1C1D2 /* BRInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRInserter.swift; sourceTree = "<group>"; };
+		40A2986C1FD61B0C00AEDF3B /* Inserter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inserter.swift; sourceTree = "<group>"; };
 		40A298701FD61B6F00AEDF3B /* ImageInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInserter.swift; sourceTree = "<group>"; };
 		40A298721FD61E1900AEDF3B /* VideoInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoInserter.swift; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -371,6 +375,8 @@
 		40A2986F1FD61B1C00AEDF3B /* Implementations */ = {
 			isa = PBXGroup;
 			children = (
+				40359F251FD88A5F00B1C1D2 /* HRInserter.swift */,
+				40359F271FD88A7900B1C1D2 /* BRInserter.swift */,
 				40A298701FD61B6F00AEDF3B /* ImageInserter.swift */,
 				40A298721FD61E1900AEDF3B /* VideoInserter.swift */,
 			);
@@ -391,7 +397,7 @@
 		40D513651FD6186800A64501 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				40A2986C1FD61B0C00AEDF3B /* MediaInserter.swift */,
+				40A2986C1FD61B0C00AEDF3B /* Inserter.swift */,
 			);
 			name = Base;
 			path = Aztec/Classes/Inserters/Base;
@@ -1037,6 +1043,7 @@
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
 				F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */,
 				F17BC8AA1F4E512800398E2B /* AttributedStringParser.swift in Sources */,
+				40359F281FD88A7900B1C1D2 /* BRInserter.swift in Sources */,
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
 				599F25371D8BC9A1002871D6 /* InAttributeConverter.swift in Sources */,
 				B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */,
@@ -1101,7 +1108,7 @@
 				F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */,
 				F18986E31EF204180060EDBA /* BoldFormatter.swift in Sources */,
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
-				40A2986D1FD61B0C00AEDF3B /* MediaInserter.swift in Sources */,
+				40A2986D1FD61B0C00AEDF3B /* Inserter.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
 				F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */,
 				B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */,
@@ -1116,6 +1123,7 @@
 				B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */,
 				F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */,
 				599F25361D8BC9A1002871D6 /* Converter.swift in Sources */,
+				40359F261FD88A5F00B1C1D2 /* HRInserter.swift in Sources */,
 				599F25381D8BC9A1002871D6 /* InAttributesConverter.swift in Sources */,
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,

@@ -1,8 +1,8 @@
 import UIKit
 
-class ImageInserter: MediaInserter {
+class ImageInserter: Inserter {
+    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 
-    func attachment(from representation: HTMLRepresentation) -> MediaAttachment? {
         guard case let .element(element) = representation.kind else {
             return nil
         }
@@ -48,9 +48,14 @@ class ImageInserter: MediaInserter {
                 extraAttributes["class"] = remainingClassAttributes
             }
         }
-
+        
         attachment.extraAttributes = extraAttributes
 
         return attachment
     }
+
+    func specialString(for element: ElementNode) -> String {
+        return String(UnicodeScalar(NSAttachmentCharacter)!)
+    }
+
 }

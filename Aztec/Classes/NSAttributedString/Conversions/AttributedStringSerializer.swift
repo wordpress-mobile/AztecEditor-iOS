@@ -105,8 +105,9 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
-            content.append(representation)
+        if let inserter = inserter(for: element) {
+            let insertedString = inserter.insert(for: element, inheritedAttributes: childAttributes)
+            content.append(insertedString)
         } else {
             for child in element.children {
                 let childContent = serialize(child, inheriting: childAttributes)
@@ -173,6 +174,8 @@ class AttributedStringSerializer {
 
     let imageInserter = ImageInserter()
     let videoInserter = VideoInserter()
+    let hrInserter = HRInserter()
+    let brInserter = BRInserter()
 
     // MARK: - Formatter Maps
 
@@ -191,7 +194,6 @@ class AttributedStringSerializer {
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
             .a: self.linkFormatter,
-            .hr: self.hrFormatter,
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
             .h3: self.h3Formatter,
@@ -212,10 +214,12 @@ class AttributedStringSerializer {
 
     // MARK: - Inserter Map
 
-    public lazy var elementInsertersMap: [StandardElementType: MediaInserter] = {
+    public lazy var elementInsertersMap: [StandardElementType: Inserter] = {
         return [
             .img: self.imageInserter,
             .video: self.videoInserter,
+            .hr: self.hrInserter,
+            .br: self.brInserter
             ]
     }()
 
@@ -258,12 +262,11 @@ private extension AttributedStringSerializer {
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = inheritedAttributes
 
-        if let mediaInserter = inserter(for: element) {
-            finalAttributes = mediaInserter.insert(into: finalAttributes, from: representation)
-        } else if let elementFormatter = formatter(for: element) {
+        if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue {
+        } else if element.name == StandardElementType.li.rawValue || nil != inserter(for: element) {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+            // same goes for everything that's handled by inserters.
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -369,9 +372,15 @@ extension AttributedStringSerializer {
         return nil
     }
 
+}
+
+private extension AttributedStringSerializer {
+
     // MARK: - Inserters
 
-    func inserter(for element: ElementNode) -> MediaInserter? {
+    /// Some element types have an implicit representation that doesn't really follow the standard
+    /// conversion logic.  Inserters take care of that.
+    func inserter(for element: ElementNode) -> Inserter? {
         guard let standardType = element.standardName else {
             return nil
         }
@@ -389,50 +398,6 @@ extension AttributedStringSerializer {
 }
 
 
-// MARK: - Implicit Representations
-//
-private extension AttributedStringSerializer {
-
-    /// Some elements have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
-    ///
-    /// - Parameters:
-    ///     - element: the element to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        guard let elementType = element.standardName else {
-            return nil
-        }
-
-        return implicitRepresentation(for: elementType, inheriting: attributes)
-    }
-
-
-    /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
-    ///
-    /// - Parameters:
-    ///     - elementType: the element type to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        switch elementType {
-        case .hr, .img, .video:
-            return NSAttributedString(string: .textAttachment, attributes: attributes)
-        case .br:
-            return NSAttributedString(.lineSeparator, attributes: attributes)
-        default:
-            return nil
-        }
-    }
-}
 
 
 // MARK: - Text Sanitization for Rendering
