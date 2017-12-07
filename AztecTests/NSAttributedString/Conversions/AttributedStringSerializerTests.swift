@@ -118,7 +118,7 @@ class AttributedStringSerializerTests: XCTestCase {
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
         let inHtml = "<span><br>Aztec, don't forget me!</span>"
-        let expectedHtml = "<p><span><br></span><span>Aztec, don't forget me!</span></p>"
+        let expectedHtml = "<p><span><br>Aztec, don't forget me!</span></p>"
 
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
