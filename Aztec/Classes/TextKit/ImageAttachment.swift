@@ -98,26 +98,26 @@ open class ImageAttachment: MediaAttachment {
     }
 
     override func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
-        if let image = image {
-            let targetWidth = onScreenWidth(containerWidth)
-            let scale = targetWidth / image.size.width
-
-            return floor(image.size.height * scale) + (appearance.imageMargin * 2)
-        } else {
+        guard let image = image else {
             return 0
         }
+
+        let targetWidth = onScreenWidth(containerWidth)
+        let scale = targetWidth / image.size.width
+
+        return floor(image.size.height * scale) + (appearance.imageMargin * 2)
     }
 
     override func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
-        if let image = image {
-            switch (size) {	
-            case .full, .none:
-                return floor(min(image.size.width, containerWidth))
-            default:
-                return floor(min(min(image.size.width,size.width), containerWidth))
-            }
-        } else {
+        guard let image = image else {
             return 0
+        }
+
+        switch (size) {
+        case .full, .none:
+            return floor(min(image.size.width, containerWidth))
+        default:
+            return floor(min(min(image.size.width,size.width), containerWidth))
         }
     }
 }
