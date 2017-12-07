@@ -241,7 +241,8 @@ open class MediaAttachment: NSTextAttachment {
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
         if let storage = textContainer?.layoutManager?.textStorage,
-            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle
+        {
             let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
             let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
 
@@ -278,8 +279,10 @@ extension MediaAttachment {
 
         drawOverlayBackground(in: mediaBounds)
         drawOverlayBorder(in: mediaBounds)
-        let overlaySize = drawOverlayImage(in: mediaBounds)
-        drawOverlayMessage(in: mediaBounds, overlaySize: overlaySize)
+
+        let overlayImageSize = drawOverlayImage(in: mediaBounds)
+        drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
+
         drawProgress(in: mediaBounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
@@ -320,7 +323,10 @@ extension MediaAttachment {
     }
 
 
+    /// Draws the overlayImage at the precise center of the Attachment's bounds.
     ///
+    /// - Returns: The actual size of the overlayImage, once displayed onscreen. This size might be actually smaller than the one defined
+    ///   by the actual asset, since we make sure not to render images bigger than the canvas.
     ///
     private func drawOverlayImage(in bounds: CGRect) -> CGSize {
         guard let overlayImage = overlayImage else {
@@ -329,20 +335,20 @@ extension MediaAttachment {
 
         UIColor.white.set()
         let sizeInsideBorder = CGSize(width: bounds.width - appearance.overlayBorderWidth, height: bounds.height - appearance.overlayBorderWidth)
-        let resizedOverlayImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: .white)
+        let resizedImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: .white)
 
-        let overlayOrigin = CGPoint(x: round(bounds.midX - resizedOverlayImage.size.width * 0.5),
-                                    y: round(bounds.midY - resizedOverlayImage.size.height * 0.5))
+        let overlayOrigin = CGPoint(x: round(bounds.midX - resizedImage.size.width * 0.5),
+                                    y: round(bounds.midY - resizedImage.size.height * 0.5))
 
-        resizedOverlayImage.draw(at: overlayOrigin)
+        resizedImage.draw(at: overlayOrigin)
 
-        return resizedOverlayImage.size
+        return resizedImage.size
     }
 
 
+    /// Draws the Overlay's Message below the overlayImage, at the center of the Attachment.
     ///
-    ///
-    private func drawOverlayMessage(in bounds: CGRect, overlaySize: CGSize) {
+    private func drawOverlayMessage(in bounds: CGRect, paddingY: CGFloat) {
         guard let message = message else {
             return
         }
@@ -350,8 +356,8 @@ extension MediaAttachment {
         let textRect = message.boundingRect(with: bounds.size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         var messageY = bounds.minY + (bounds.height - textRect.height) * 0.5
 
-        if overlaySize.height != 0 {
-            messageY = bounds.minY + Constants.messageTextTopMargin + (bounds.height + overlaySize.height) * 0.5
+        if paddingY != 0 {
+            messageY = bounds.minY + Constants.messageTextTopMargin + (bounds.height + paddingY) * 0.5
         }
 
         // Check to see if the message will fit within the image. If not, skip it.
