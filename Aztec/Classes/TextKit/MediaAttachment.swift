@@ -200,6 +200,13 @@ open class MediaAttachment: NSTextAttachment {
         return floor(min(image.size.width, containerWidth))
     }
 
+    func mediaBounds(for bounds: CGRect) -> CGRect {
+        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.width), y: appearance.imageMargin)
+        let size = CGSize(width: onScreenWidth(bounds.width), height: onScreenHeight(bounds.width) - appearance.imageMargin * 2)
+
+        return CGRect(origin: origin, size: size)
+    }
+
 
     // MARK: - NSTextAttachmentContainer
 
@@ -220,102 +227,6 @@ open class MediaAttachment: NSTextAttachment {
         return glyphImage
     }
 
-    func mediaBounds(for bounds: CGRect) -> CGRect {
-        let containerWidth = bounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: appearance.imageMargin)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - appearance.imageMargin * 2)
-        return CGRect(origin: origin, size: size)
-    }
-
-    private func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
-
-        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
-
-        let mediaBounds = self.mediaBounds(for: bounds)
-        let origin = mediaBounds.origin
-        let size = mediaBounds.size
-
-        image.draw(in: mediaBounds)
-
-        drawOverlayBackground(at: origin, size: size)
-        drawOverlayBorder(at: origin, size: size)
-        drawProgress(at: origin, size: size)
-
-        var imagePadding: CGFloat = 0
-        if let overlayImage = overlayImage {
-            UIColor.white.set()
-            let sizeInsideBorder = CGSize(width: size.width - appearance.overlayBorderWidth, height: size.height - appearance.overlayBorderWidth)
-            let newImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: UIColor.white)
-            let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
-            newImage.draw(at: CGPoint(x: round(center.x - (newImage.size.width / 2.0)), y: round(center.y - (newImage.size.height / 2.0))))
-            imagePadding += newImage.size.height
-        }
-
-        if let message = message {
-            let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-            var y =  origin.y + ((size.height - textRect.height) / 2.0)
-            if imagePadding != 0 {
-                y = origin.y + Constants.messageTextTopMargin + ((size.height + imagePadding) / 2.0)
-            }
-            let textPosition = CGPoint(x: origin.x, y: y)
-
-            // Check to see if the message will fit within the image. If not, skip it.
-            if (textPosition.y + textRect.height) < mediaBounds.height {
-                message.draw(in: CGRect(origin: textPosition, size: CGSize(width:size.width, height:textRect.size.height)))
-            }
-        }
-
-        let result = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return result;
-    }
-
-    private func drawOverlayBackground(at origin: CGPoint, size:CGSize) {
-        guard message != nil || progress != nil else {
-            return
-        }
-        let rect = CGRect(origin: origin, size: size)
-        let path = UIBezierPath(rect: rect)
-        appearance.overlayColor.setFill()
-        path.fill()
-    }
-
-    private func drawOverlayBorder(at origin: CGPoint, size:CGSize) {
-        // Don't display the border if the border width is 0, we are force-hiding it, or message is set with no progress
-        guard appearance.overlayBorderWidth > 0,
-            shouldHideBorder == false,
-            progress == nil && message != nil else {
-                return
-        }
-        let rect = CGRect(origin: origin, size: size)
-        let path = UIBezierPath(rect: rect)
-        appearance.overlayBorderColor.setStroke()
-        path.lineWidth = (appearance.overlayBorderWidth * 2.0)
-        path.addClip()
-        path.stroke()
-    }
-
-    private func drawProgress(at origin: CGPoint, size:CGSize) {
-        guard let progress = progress else {
-            return
-        }
-        let lineY = origin.y + (appearance.progressHeight / 2.0)
-
-        let backgroundPath = UIBezierPath()
-        backgroundPath.lineWidth = appearance.progressHeight
-        appearance.progressBackgroundColor.setStroke()
-        backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
-        backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
-        backgroundPath.stroke()
-
-        let path = UIBezierPath()
-        path.lineWidth = appearance.progressHeight
-        appearance.progressColor.setStroke()
-        path.move(to: CGPoint(x:origin.x, y: lineY))
-        path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
-        path.stroke()
-    }
-
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
     /// the attachment will be 'Inline', and thus, we'll return the actual Associated View Size.
     /// Otherwise, we'll always take the whole container's width.
@@ -330,17 +241,129 @@ open class MediaAttachment: NSTextAttachment {
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
         if let storage = textContainer?.layoutManager?.textStorage,
-           let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
             let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
             let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
 
             padding += abs(paragraphStyle.tailIndent) + abs(headIndent)
         }
-        let width = floor(lineFrag.width - padding)
 
+        let width = floor(lineFrag.width - padding)
         let size = CGSize(width: width, height: onScreenHeight(width))
 
         return CGRect(origin: CGPoint.zero, size: size)
+    }
+}
+
+
+// MARK: - Drawing Methods
+//
+extension MediaAttachment {
+
+    func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
+
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
+
+        let mediaBounds = self.mediaBounds(for: bounds)
+
+        image.draw(in: mediaBounds)
+
+        drawOverlayBackground(in: mediaBounds)
+        drawOverlayBorder(in: mediaBounds)
+        drawProgress(in: mediaBounds)
+
+        let overlaySize = drawOverlayImage(in: mediaBounds)
+        drawMessage(in: mediaBounds, overlaySize: overlaySize)
+
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return result
+    }
+
+    private func drawOverlayBackground(in bounds: CGRect) {
+        guard message != nil || progress != nil else {
+            return
+        }
+
+        let path = UIBezierPath(rect: bounds)
+        appearance.overlayColor.setFill()
+        path.fill()
+    }
+
+    private func drawOverlayBorder(in bounds: CGRect) {
+        // Don't display the border if the border width is 0, we are force-hiding it, or message is set with no progress
+        guard appearance.overlayBorderWidth > 0,
+            shouldHideBorder == false,
+            progress == nil && message != nil
+        else {
+            return
+        }
+
+        let path = UIBezierPath(rect: bounds)
+        appearance.overlayBorderColor.setStroke()
+        path.lineWidth = appearance.overlayBorderWidth * 2.0
+        path.addClip()
+        path.stroke()
+    }
+
+    private func drawProgress(in bounds: CGRect) {
+        guard let progress = progress else {
+            return
+        }
+
+        let lineY = bounds.minY + appearance.progressHeight * 0.5
+        let backgroundPath = UIBezierPath()
+
+        backgroundPath.lineWidth = appearance.progressHeight
+        appearance.progressBackgroundColor.setStroke()
+        backgroundPath.move(to: CGPoint(x: bounds.minX, y: lineY))
+        backgroundPath.addLine(to: CGPoint(x: bounds.maxX, y: lineY))
+        backgroundPath.stroke()
+
+        let progressPath = UIBezierPath()
+
+        progressPath.lineWidth = appearance.progressHeight
+        appearance.progressColor.setStroke()
+        progressPath.move(to: CGPoint(x: bounds.minX, y: lineY))
+        progressPath.addLine(to: CGPoint(x: bounds.minX + (bounds.width * CGFloat(max(0, min(progress, 1)))), y: lineY))
+        progressPath.stroke()
+    }
+
+    private func drawOverlayImage(in bounds: CGRect) -> CGSize {
+        guard let overlayImage = overlayImage else {
+            return .zero
+        }
+
+        UIColor.white.set()
+        let sizeInsideBorder = CGSize(width: bounds.width - appearance.overlayBorderWidth, height: bounds.height - appearance.overlayBorderWidth)
+        let resizedOverlayImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: .white)
+
+        let overlayOrigin = CGPoint(x: round(bounds.midX - resizedOverlayImage.size.width * 0.5),
+                                    y: round(bounds.midY - resizedOverlayImage.size.height * 0.5))
+
+        resizedOverlayImage.draw(at: overlayOrigin)
+
+        return resizedOverlayImage.size
+    }
+
+    private func drawMessage(in bounds: CGRect, overlaySize: CGSize) {
+        guard let message = message else {
+            return
+        }
+
+        let textRect = message.boundingRect(with: bounds.size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        var messageY =  bounds.minY + ((bounds.height - textRect.height) / 2.0)
+
+        if overlaySize.height != 0 {
+            messageY = bounds.minY + Constants.messageTextTopMargin + ((bounds.height + overlaySize.height) / 2.0)
+        }
+
+        // Check to see if the message will fit within the image. If not, skip it.
+        let messageRect = CGRect(x: bounds.minX, y: messageY, width: bounds.width, height: textRect.height)
+        if messageRect.maxY < bounds.height {
+            message.draw(in: messageRect)
+        }
     }
 }
 
