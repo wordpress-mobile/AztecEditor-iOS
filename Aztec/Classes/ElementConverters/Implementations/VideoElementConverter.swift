@@ -1,7 +1,7 @@
 import UIKit
 
 class VideoElementConverter: ElementConverter {
-    func attachment(from  representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
+    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 
         guard case let .element(element) = representation.kind else {
             return nil

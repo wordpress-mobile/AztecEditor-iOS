@@ -19,6 +19,14 @@ protocol ElementConverter {
     ///
     /// - Returns: Attachment when appropriate, `nil` when there isn't a valid transformation into an Attachment.
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment?
+
+
+    /// Returns a dictionary of extra attributes that should be added to the result of `specialString(for:_)`,
+    /// e.g. a HTML representation. Conflicting keys will be overwritten with new values returned from this method.
+    /// - Parameters:
+    ///     - representation: HTML element that the attributes should be created for.
+    /// - Returns: Dictionary of extra attributes where applicable, nil otherwise.
+    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]?
 }
 
 
@@ -29,11 +37,15 @@ extension ElementConverter {
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
 
+        var copiedAttributes = inheritedAttributes
+
+        if let extraAttributes = extraAttributes(for: representation) {
+            copiedAttributes.merge(extraAttributes, uniquingKeysWith: {(_, new) in new })
+        }
+
         guard let attachment = attachment(from: representation, inheriting: inheritedAttributes) else {
             return NSAttributedString(string: string, attributes: inheritedAttributes)
         }
-
-        var copiedAttributes = inheritedAttributes
 
         copiedAttributes[.attachment] = attachment
 
@@ -44,4 +56,9 @@ extension ElementConverter {
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
         return nil
     }
+
+    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
+        return nil
+    }
+
 }
