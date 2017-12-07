@@ -1,7 +1,7 @@
 import UIKit
 
-protocol Inserter {
-    func insert(for element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString
+protocol ElementConverter {
+    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString
 
     /// The special string that represents the element — usually `NSAttachmentCharacter`.
     ///
@@ -22,8 +22,8 @@ protocol Inserter {
 }
 
 
-extension Inserter {
-    func insert(for element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
+extension ElementConverter {
+    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
         let string = specialString(for: element)
 
         let elementRepresentation = HTMLElementRepresentation(element)
@@ -33,8 +33,6 @@ extension Inserter {
             return NSAttributedString(string: string, attributes: inheritedAttributes)
         }
 
-
-
         var copiedAttributes = inheritedAttributes
 
         copiedAttributes[.attachment] = attachment
@@ -42,7 +40,7 @@ extension Inserter {
         return NSAttributedString(string: string, attributes: copiedAttributes)
     }
 
-    /// Default implementation, Inserters providing attachments should override this.
+    /// Default implementation, element converters providing attachments should override this.
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
         return nil
     }

@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		40359F261FD88A5F00B1C1D2 /* HRInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRInserter.swift */; };
-		40359F281FD88A7900B1C1D2 /* BRInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRInserter.swift */; };
-		40A2986D1FD61B0C00AEDF3B /* Inserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* Inserter.swift */; };
-		40A298711FD61B6F00AEDF3B /* ImageInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298701FD61B6F00AEDF3B /* ImageInserter.swift */; };
-		40A298731FD61E1900AEDF3B /* VideoInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298721FD61E1900AEDF3B /* VideoInserter.swift */; };
+		40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */; };
+		40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */; };
+		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
+		40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */; };
+		40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */; };
 		594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */; };
 		594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */; };
@@ -191,11 +191,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		40359F251FD88A5F00B1C1D2 /* HRInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRInserter.swift; sourceTree = "<group>"; };
-		40359F271FD88A7900B1C1D2 /* BRInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRInserter.swift; sourceTree = "<group>"; };
-		40A2986C1FD61B0C00AEDF3B /* Inserter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Inserter.swift; sourceTree = "<group>"; };
-		40A298701FD61B6F00AEDF3B /* ImageInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInserter.swift; sourceTree = "<group>"; };
-		40A298721FD61E1900AEDF3B /* VideoInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoInserter.swift; sourceTree = "<group>"; };
+		40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRElementConverter.swift; sourceTree = "<group>"; };
+		40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRElementConverter.swift; sourceTree = "<group>"; };
+		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
+		40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElementConverter.swift; sourceTree = "<group>"; };
+		40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoElementConverter.swift; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5951CB921D8BC93600E1866F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5951CB971D8BC93600E1866F /* AztecTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -375,32 +375,32 @@
 		40A2986F1FD61B1C00AEDF3B /* Implementations */ = {
 			isa = PBXGroup;
 			children = (
-				40359F251FD88A5F00B1C1D2 /* HRInserter.swift */,
-				40359F271FD88A7900B1C1D2 /* BRInserter.swift */,
-				40A298701FD61B6F00AEDF3B /* ImageInserter.swift */,
-				40A298721FD61E1900AEDF3B /* VideoInserter.swift */,
+				40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */,
+				40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */,
+				40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */,
+				40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */,
 			);
 			name = Implementations;
-			path = Aztec/Classes/Inserters/Implementations;
+			path = Aztec/Classes/ElementConverters/Implementations;
 			sourceTree = SOURCE_ROOT;
 		};
-		40D513641FD6185A00A64501 /* Inserters */ = {
+		40D513641FD6185A00A64501 /* ElementConverters */ = {
 			isa = PBXGroup;
 			children = (
 				40A2986F1FD61B1C00AEDF3B /* Implementations */,
 				40D513651FD6186800A64501 /* Base */,
 			);
-			name = Inserters;
-			path = Aztec/Classes/Inserters;
+			name = ElementConverters;
+			path = Aztec/Classes/ElementConverters;
 			sourceTree = SOURCE_ROOT;
 		};
 		40D513651FD6186800A64501 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				40A2986C1FD61B0C00AEDF3B /* Inserter.swift */,
+				40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */,
 			);
 			name = Base;
-			path = Aztec/Classes/Inserters/Base;
+			path = Aztec/Classes/ElementConverters/Base;
 			sourceTree = SOURCE_ROOT;
 		};
 		5951CB841D8BC93600E1866F = {
@@ -460,7 +460,7 @@
 				599F251F1D8BC9A1002871D6 /* Constants */,
 				599F25031D8BC9A1002871D6 /* Converter */,
 				599F25241D8BC9A1002871D6 /* Extensions */,
-				40D513641FD6185A00A64501 /* Inserters */,
+				40D513641FD6185A00A64501 /* ElementConverters */,
 				B5B86D3A1DA41A550083DB3F /* Formatters */,
 				599F25281D8BC9A1002871D6 /* GUI */,
 				599F25071D8BC9A1002871D6 /* Libxml2 */,
@@ -1037,13 +1037,13 @@
 				F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */,
 				F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */,
 				F17BC86B1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift in Sources */,
-				40A298711FD61B6F00AEDF3B /* ImageInserter.swift in Sources */,
+				40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */,
 				F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */,
 				B5AB79F81F5F3E0B00DF26F5 /* String+Paragraph.swift in Sources */,
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
 				F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */,
 				F17BC8AA1F4E512800398E2B /* AttributedStringParser.swift in Sources */,
-				40359F281FD88A7900B1C1D2 /* BRInserter.swift in Sources */,
+				40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */,
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
 				599F25371D8BC9A1002871D6 /* InAttributeConverter.swift in Sources */,
 				B57534501F267D0B009D4904 /* Array+Helpers.swift in Sources */,
@@ -1108,7 +1108,7 @@
 				F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */,
 				F18986E31EF204180060EDBA /* BoldFormatter.swift in Sources */,
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
-				40A2986D1FD61B0C00AEDF3B /* Inserter.swift in Sources */,
+				40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
 				F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */,
 				B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */,
@@ -1123,13 +1123,13 @@
 				B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */,
 				F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */,
 				599F25361D8BC9A1002871D6 /* Converter.swift in Sources */,
-				40359F261FD88A5F00B1C1D2 /* HRInserter.swift in Sources */,
+				40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */,
 				599F25381D8BC9A1002871D6 /* InAttributesConverter.swift in Sources */,
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
 				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
-				40A298731FD61E1900AEDF3B /* VideoInserter.swift in Sources */,
+				40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */,
 				FF24AC991F0146AF003CA91D /* Assets.swift in Sources */,
 				599F254D1D8BC9A1002871D6 /* FormatBar.swift in Sources */,
 				F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */,

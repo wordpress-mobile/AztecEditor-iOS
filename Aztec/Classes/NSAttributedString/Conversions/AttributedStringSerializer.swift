@@ -105,9 +105,9 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let inserter = inserter(for: element) {
-            let insertedString = inserter.insert(for: element, inheritedAttributes: childAttributes)
-            content.append(insertedString)
+        if let converter = converter(for: element) {
+            let convertedString = converter.convert(from: element, inheritedAttributes: childAttributes)
+            content.append(convertedString)
         } else {
             for child in element.children {
                 let childContent = serialize(child, inheriting: childAttributes)
@@ -170,12 +170,12 @@ class AttributedStringSerializer {
     let underlineFormatter = UnderlineFormatter()
     let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
 
-    // MARK: - Built-in inserter instances
+    // MARK: - Built-in element converter instances
 
-    let imageInserter = ImageInserter()
-    let videoInserter = VideoInserter()
-    let hrInserter = HRInserter()
-    let brInserter = BRInserter()
+    let imageElementConverter = ImageElementConverter()
+    let videoElementConverter = VideoElementConverter()
+    let hrElementConverter = HRElementConverter()
+    let brElementConverter = BRElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -212,14 +212,14 @@ class AttributedStringSerializer {
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
 
-    // MARK: - Inserter Map
+    // MARK: - Element Converter Map
 
-    public lazy var elementInsertersMap: [StandardElementType: Inserter] = {
+    public lazy var elementConvertersMap: [StandardElementType: ElementConverter] = {
         return [
-            .img: self.imageInserter,
-            .video: self.videoInserter,
-            .hr: self.hrInserter,
-            .br: self.brInserter
+            .img: self.imageElementConverter,
+            .video: self.videoElementConverter,
+            .hr: self.hrElementConverter,
+            .br: self.brElementConverter,
             ]
     }()
 
@@ -264,9 +264,9 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue || nil != inserter(for: element) {
+        } else if element.name == StandardElementType.li.rawValue || nil != converter(for: element) {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-            // same goes for everything that's handled by inserters.
+            // same goes for everything that's handled by converters.
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -376,20 +376,20 @@ extension AttributedStringSerializer {
 
 private extension AttributedStringSerializer {
 
-    // MARK: - Inserters
+    // MARK: - Element Converters
 
     /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  Inserters take care of that.
-    func inserter(for element: ElementNode) -> Inserter? {
+    /// conversion logic.  Element Converters take care of that.
+    func converter(for element: ElementNode) -> ElementConverter? {
         guard let standardType = element.standardName else {
             return nil
         }
 
         let equivalentNames = standardType.equivalentNames
 
-        for (key, inserter) in elementInsertersMap {
+        for (key, converter) in elementConvertersMap {
             if equivalentNames.contains(key.rawValue) {
-                return inserter
+                return converter
             }
         }
 

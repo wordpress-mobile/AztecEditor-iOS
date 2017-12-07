@@ -1,6 +1,6 @@
 import UIKit
 
-class HRInserter: Inserter {
+class HRElementConverter: ElementConverter {
 
     func attachment(from element: ElementNode, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
         return LineAttachment()
