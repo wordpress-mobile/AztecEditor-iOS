@@ -11,7 +11,7 @@ protocol MediaAttachmentDelegate: class {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
 
-    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
+    func mediaAttachmentPlaceholder(for attachment: MediaAttachment) -> UIImage
 }
 
 // MARK: - MediaAttachment
@@ -208,7 +208,7 @@ open class MediaAttachment: NSTextAttachment {
         ensureImageIsUpToDate(in: textContainer)
 
         guard let image = image else {
-            return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
+            return delegate!.mediaAttachmentPlaceholder(for: self)
         }
 
         if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
@@ -372,7 +372,7 @@ private extension MediaAttachment {
             return
         }
 
-        image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
+        image = delegate!.mediaAttachmentPlaceholder(for: self)
         isFetchingImage = true
         retryCount += 1
 

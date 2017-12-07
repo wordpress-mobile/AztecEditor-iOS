@@ -429,7 +429,7 @@ private extension TextStorage {
 //
 extension TextStorage: MediaAttachmentDelegate {
 
-    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
+    func mediaAttachmentPlaceholder(for attachment: MediaAttachment) -> UIImage {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }
