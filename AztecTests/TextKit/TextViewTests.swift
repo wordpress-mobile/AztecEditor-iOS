@@ -1428,7 +1428,7 @@ class TextViewTests: XCTestCase {
             fatalError()
         }
 
-        videoAttachment.srcURL = URL(string:"newVideo.mp4")!
+        videoAttachment.src = URL(string:"newVideo.mp4")!
         textView.refresh(videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video></p>")
@@ -1576,7 +1576,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(attachment.extraAttributes["title"], "Title", "Title Property should be available")
 
         attachment.extraAttributes["alt"] = "Changed Alt"
-        attachment.extraAttributes["class"] = "wp-image-169"
+        attachment.extraAttributes["class"] = (attachment.extraAttributes["class"] ?? "") + " wp-image-169"
 
         XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" title=\"Title\" alt=\"Changed Alt\"></p>")
     }

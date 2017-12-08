@@ -1283,7 +1283,7 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL
+                videoAttachment.src = videoURL
             }
         }
         richTextView.refresh(attachment)
@@ -1327,7 +1327,7 @@ private extension EditorDemoController
                                                 self.displayDetailsForAttachment(imageAttachment, position: position)
             })
             alertController.addAction(detailsAction)
-        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.srcURL {
+        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.src {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
                                               style: .default,
                                               handler: { (action) in

@@ -90,7 +90,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testDelegateCallbackWhenAttachmentRemoved() {
-        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"test://")!)
+        let attachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"test://")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
         storage.replaceCharacters(in: NSRange(location: 0, length: 1) , with: NSAttributedString(string:""))
@@ -128,7 +128,7 @@ class TextStorageTests: XCTestCase {
     }    
 
     func testInsertImage() {
-        let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        let attachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
         let html = storage.getHTML(serializer: serializer)
@@ -142,7 +142,7 @@ class TextStorageTests: XCTestCase {
     ///
     func testEditingImageAttachmentAfterItHasBeenInsertedCausesItsAttributesToProperlySerialize() {
         let url = URL(string: "https://wordpress.com")!
-        let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
+        let attachment = ImageAttachment(identifier: UUID().uuidString, src: url)
 
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
@@ -311,10 +311,10 @@ class TextStorageTests: XCTestCase {
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
     ///
     func testInsertOneImageAfterTheOther() {
-        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
 
-        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.org")!)
+        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"https://wordpress.org")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
 
         let html = storage.getHTML(serializer: serializer)
@@ -327,10 +327,10 @@ class TextStorageTests: XCTestCase {
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
     ///
     func testInsertSameImageAfterTheOther() {
-        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        let firstAttachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: firstAttachment))
 
-        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
+        let secondAttachment = ImageAttachment(identifier: UUID().uuidString, src: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
         let html = storage.getHTML(serializer: serializer)
 
@@ -352,7 +352,7 @@ class TextStorageTests: XCTestCase {
 
         for _ in 0 ..< count {
             let sourceURL = URL(string:"test://")!
-            let attachment = ImageAttachment(identifier: UUID().uuidString, url: sourceURL)
+            let attachment = ImageAttachment(identifier: UUID().uuidString, src: sourceURL)
             storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
             identifiers.append(attachment.identifier)

@@ -5,56 +5,22 @@ import UIKit
 /// Custom text attachment.
 ///
 open class ImageAttachment: MediaAttachment {
-    
-    /// Attachment Alignment
-    ///
-    open var alignment: Alignment = .center {
-        willSet {
-            if newValue != alignment {
-                glyphImage = nil
-            }
-        }
+
+    required public init(identifier: String, src: URL? = nil) {
+        super.init(identifier: identifier)
+        self.src = src
     }
-
-    /// Attachment Size
-    ///
-    open var size: Size = .none {
-        willSet {
-            if newValue != size {
-                glyphImage = nil
-            }
-        }
-    }
-
-
-    /// Creates a new attachment
-    ///
-    /// - Parameters:
-    ///   - identifier: An unique identifier for the attachment
-    ///   - url: the url that represents the image
-    ///
-    required public init(identifier: String, url: URL? = nil) {
-        super.init(identifier: identifier, url: url)
-    }
-
 
     /// Required Initializer
     ///
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
 
-        if aDecoder.containsValue(forKey: EncodeKeys.alignment.rawValue) {
-            let alignmentRaw = aDecoder.decodeInteger(forKey: EncodeKeys.alignment.rawValue)
-            if let alignment = Alignment(rawValue:alignmentRaw) {
-                self.alignment = alignment
-            }
-        }
-        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue) {
-            let sizeRaw = aDecoder.decodeInteger(forKey: EncodeKeys.size.rawValue)
-            if let size = Size(rawValue:sizeRaw) {
-                self.size = size
-            }
-        }
+    /// Required Initializer
+    ///
+    required public init(identifier: String) {
+        super.init(identifier: identifier)
     }
 
     /// Required Initializer
@@ -62,21 +28,6 @@ open class ImageAttachment: MediaAttachment {
     required public init(data contentData: Data?, ofType uti: String?) {
         super.init(data: contentData, ofType: uti)
     }
-
-
-    // MARK: - NSCoder Support
-
-    override open func encode(with aCoder: NSCoder) {
-        super.encode(with: aCoder)
-        aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
-        aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
-    }
-
-    fileprivate enum EncodeKeys: String {
-        case alignment
-        case size        
-    }
-
 
     // MARK: - Origin calculation
 
@@ -126,10 +77,7 @@ extension ImageAttachment {
     override public func copy(with zone: NSZone? = nil) -> Any {
         guard let clone = super.copy(with: nil) as? ImageAttachment else {
             fatalError()
-        }
-
-        clone.size = size
-        clone.alignment = alignment
+        }        
 
         return clone
     }
@@ -139,6 +87,99 @@ extension ImageAttachment {
 // MARL: - Nested Types
 //
 extension ImageAttachment {
+
+    open var src: URL? {
+        get {
+            return url
+        }
+
+        set {
+            extraAttributes["src"] = newValue?.absoluteString
+            updateURL(newValue)
+        }
+    }
+
+    /// Attachment Alignment
+    ///
+    open var alignment: Alignment {
+        get {
+            guard let elementClass = extraAttributes["class"] else {
+                return .center
+            }
+            let classAttributes = elementClass.components(separatedBy: " ")            
+            for classAttribute in classAttributes {
+                if let alignment = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
+                    return alignment
+                }
+            }
+            return .center
+        }
+
+        set {
+            if let elementClass = extraAttributes["class"] {
+                let classAttributes = elementClass.components(separatedBy: " ")
+                var attributesToRemove = [String]()
+                for classAttribute in classAttributes {
+                    if let _ = ImageAttachment.Alignment.fromHTML(string: classAttribute) {
+                        attributesToRemove.append(classAttribute)
+                    }
+                }
+                var otherAttributes = classAttributes.filter({ (value) -> Bool in
+                    return !attributesToRemove.contains(value)
+                })
+                otherAttributes.append(newValue.htmlString())
+                let newClassAttributes = otherAttributes.joined(separator: " ")
+                if newClassAttributes.isEmpty {
+                    extraAttributes.removeValue(forKey: "class")
+                } else {
+                    extraAttributes["class"] = newClassAttributes
+                }
+            } else {
+                extraAttributes["class"] = newValue.htmlString()
+            }
+        }
+    }
+
+    /// Attachment Size
+    ///
+    open var size: Size {
+        get {
+            guard let elementClass = extraAttributes["class"] else {
+                return .none
+            }
+            let classAttributes = elementClass.components(separatedBy: " ")
+            for classAttribute in classAttributes {
+                if let alignment = ImageAttachment.Size.fromHTML(string: classAttribute) {
+                    return alignment
+                }
+            }
+            return .none
+        }
+
+        set {
+            if let elementClass = extraAttributes["class"] {
+                let classAttributes = elementClass.components(separatedBy: " ")
+                var attributesToRemove = [String]()
+                for classAttribute in classAttributes {
+                    if let _ = ImageAttachment.Size.fromHTML(string: classAttribute) {
+                        attributesToRemove.append(classAttribute)
+                    }
+                }
+                var otherAttributes = classAttributes.filter({ (value) -> Bool in
+                    return !attributesToRemove.contains(value)
+                })
+                otherAttributes.append(newValue.htmlString())
+                let newClassAttributes = otherAttributes.joined(separator: " ")
+                if newClassAttributes.isEmpty {
+                    extraAttributes.removeValue(forKey: "class")
+                } else {
+                    extraAttributes["class"] = newClassAttributes
+                }
+            } else {
+                extraAttributes["class"] = newValue.htmlString()
+            }
+        }
+    }
 
     /// Alignment
     ///

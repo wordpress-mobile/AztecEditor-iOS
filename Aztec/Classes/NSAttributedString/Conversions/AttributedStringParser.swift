@@ -879,24 +879,10 @@ private extension AttributedStringParser {
             element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .img)
-        }
-
-        if let attribute = imageSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        if let attribute = imageClassAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
+        }        
 
         for (key,value) in attachment.extraAttributes {
-            var finalValue = value
-            if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
-                let baseComponents = Set(baseValue.components(separatedBy: " "))
-                let extraComponents = Set(value.components(separatedBy: " "))
-                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
-            }
-            element.updateAttribute(named: key, value: .string(finalValue))
+            element.updateAttribute(named: key, value: .string(value))
         }        
 
         return element
@@ -918,15 +904,7 @@ private extension AttributedStringParser {
             element = representationElement.toElementNode()
         } else {
             element = ElementNode(type: .video)
-        }
-
-        if let attribute = videoSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        if let attribute = videoPosterAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
+        }        
 
         for (key,value) in attachment.extraAttributes {
             element.updateAttribute(named: key, value: .string(value))
@@ -952,59 +930,5 @@ private extension AttributedStringParser {
         }
         
         return output
-    }
-
-
-    /// Extracts the Video Source Attribute from a VideoAttachment Instance.
-    ///
-    private func videoSourceAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let source = attachment.srcURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the Video Poster Attribute from a VideoAttachment Instance.
-    ///
-    private func videoPosterAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let poster = attachment.posterURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "poster", value: .string(poster))
-    }
-
-
-    /// Extracts the src attribute from an ImageAttachment Instance.
-    ///
-    private func imageSourceAttribute(from attachment: ImageAttachment) -> Attribute? {
-        guard let source = attachment.url?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the class attribute from an ImageAttachment Instance.
-    ///
-    private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
-        var style = String()
-        if attachment.alignment != .center {
-            style += attachment.alignment.htmlString()
-        }
-        
-        if attachment.size != .none {
-            style += style.isEmpty ? String() : String(.space)
-            style += attachment.size.htmlString()
-        }
-
-        guard !style.isEmpty else {
-            return nil
-        }
-
-        return Attribute(name: "class", value: .string(style))
     }
 }
