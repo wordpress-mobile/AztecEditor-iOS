@@ -3,22 +3,22 @@ import XCTest
 
 
 class BlogsPage: BasePage {
-    
-    init(appInstance: XCUIApplication) {
-        let expectedElement = appInstance.tables.staticTexts[elementStringIDs.emptyDemo]
-        super.init(appInstance: appInstance, element: expectedElement)
+    init() {
+        let expectedElement = XCUIApplication().tables.staticTexts[elementStringIDs.emptyDemo]
+        super.init(element: expectedElement)
     }
     
-    func gotoEmptyDemo() {
+    func gotoEmptyDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.emptyDemo].tap()
         
-        showOptionsStrip()
+        return EditorPage.init(type: "rich")
     }
     
-    func gotoDemo() {
+    func gotoDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.demo].tap()
         
-        showOptionsStrip()
+        return EditorPage.init(type: "rich")
+
     }
     
     func showOptionsStrip() -> Void {

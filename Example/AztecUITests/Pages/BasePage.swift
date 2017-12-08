@@ -3,18 +3,21 @@ import XCTest
 
 class BasePage {
     var app: XCUIApplication!
-    private var expectedElement: XCUIElement!
+    var expectedElement: XCUIElement!
     var waitTimeout: Double!
 
-    init(appInstance: XCUIApplication, element: XCUIElement) {
-        app = appInstance
+    //init(appInstance: XCUIApplication, element: XCUIElement) {
+    init(element: XCUIElement) {
+        app = XCUIApplication() // appInstance
         expectedElement = element
         waitTimeout = 20
         waitForPage()
     }
     
-    func waitForPage() {
+    func waitForPage() -> BasePage {
         expectedElement.waitForExistence(timeout: waitTimeout)
+        Logger.log(message: "Page \(self) is loaded", event: .i)
+        return self
     }
     
     func isLoaded() -> Bool {
