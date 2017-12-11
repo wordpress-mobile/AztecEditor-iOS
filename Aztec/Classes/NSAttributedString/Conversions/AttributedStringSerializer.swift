@@ -160,7 +160,6 @@ class AttributedStringSerializer {
     let h4Formatter = HeaderFormatter(headerLevel: .h4)
     let h5Formatter = HeaderFormatter(headerLevel: .h5)
     let h6Formatter = HeaderFormatter(headerLevel: .h6)
-    let hrFormatter = HRFormatter()
     let italicFormatter = ItalicFormatter()
     let linkFormatter = LinkFormatter()
     let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)

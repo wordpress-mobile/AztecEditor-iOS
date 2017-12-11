@@ -1,5 +1,6 @@
 import UIKit
 
+/// Provides a representation for `<video>` element.
 class VideoElementConverter: ElementConverter {
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 

@@ -1,5 +1,6 @@
 import UIKit
 
+/// Returns a specialised representation for a `<hr>` element.
 class HRElementConverter: ElementConverter {
 
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey : Any]) -> NSTextAttachment? {

@@ -96,7 +96,6 @@
 		F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58561EF20394008AE298 /* BlockquoteFormatter.swift */; };
 		F12F58681EF20394008AE298 /* ColorFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58571EF20394008AE298 /* ColorFormatter.swift */; };
 		F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58591EF20394008AE298 /* HeaderFormatter.swift */; };
-		F12F586B1EF20394008AE298 /* HRFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F585A1EF20394008AE298 /* HRFormatter.swift */; };
 		F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F585B1EF20394008AE298 /* HTMLParagraphFormatter.swift */; };
 		F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F585D1EF20394008AE298 /* LinkFormatter.swift */; };
 		F12F586F1EF20394008AE298 /* PreFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F585E1EF20394008AE298 /* PreFormatter.swift */; };
@@ -283,7 +282,6 @@
 		F12F58561EF20394008AE298 /* BlockquoteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatter.swift; sourceTree = "<group>"; };
 		F12F58571EF20394008AE298 /* ColorFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorFormatter.swift; sourceTree = "<group>"; };
 		F12F58591EF20394008AE298 /* HeaderFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderFormatter.swift; sourceTree = "<group>"; };
-		F12F585A1EF20394008AE298 /* HRFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HRFormatter.swift; sourceTree = "<group>"; };
 		F12F585B1EF20394008AE298 /* HTMLParagraphFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLParagraphFormatter.swift; sourceTree = "<group>"; };
 		F12F585D1EF20394008AE298 /* LinkFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkFormatter.swift; sourceTree = "<group>"; };
 		F12F585E1EF20394008AE298 /* PreFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreFormatter.swift; sourceTree = "<group>"; };
@@ -728,7 +726,6 @@
 				F18986E21EF204180060EDBA /* BoldFormatter.swift */,
 				F12F58571EF20394008AE298 /* ColorFormatter.swift */,
 				F12F58591EF20394008AE298 /* HeaderFormatter.swift */,
-				F12F585A1EF20394008AE298 /* HRFormatter.swift */,
 				B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */,
 				F12F585B1EF20394008AE298 /* HTMLParagraphFormatter.swift */,
 				F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */,
@@ -1103,7 +1100,6 @@
 				F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */,
 				F17BC8AB1F4E512800398E2B /* AttributedStringSerializer.swift in Sources */,
 				F18986E11EF2040A0060EDBA /* FontFormatter.swift in Sources */,
-				F12F586B1EF20394008AE298 /* HRFormatter.swift in Sources */,
 				FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */,
 				F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */,
 				F18986E31EF204180060EDBA /* BoldFormatter.swift in Sources */,
