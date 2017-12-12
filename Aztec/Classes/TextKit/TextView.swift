@@ -152,8 +152,13 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        return [.font: defaultFont,
-                .paragraphStyle: defaultParagraphStyle]
+        var attributes: [AttributedStringKey: Any] = [.font: defaultFont,
+                                                      .paragraphStyle: defaultParagraphStyle]
+        if let textColor = textColor {
+            attributes[.foregroundColor] = textColor
+        }
+
+        return attributes
     }
 
 
