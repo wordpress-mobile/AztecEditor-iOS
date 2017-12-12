@@ -1801,4 +1801,13 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
     }
 
+    /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.
+    func testHRPeristsAfterAztec() {
+        let textView = createTextView(withHTML: "<h1>Header</h1><p>test<hr></p>")
+
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr></p>")
+    }
+
 }

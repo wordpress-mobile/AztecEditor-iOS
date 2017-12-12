@@ -105,8 +105,9 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
-            content.append(representation)
+        if let converter = converter(for: element) {
+            let convertedString = converter.convert(from: element, inheritedAttributes: childAttributes)
+            content.append(convertedString)
         } else {
             for child in element.children {
                 let childContent = serialize(child, inheriting: childAttributes)
@@ -159,8 +160,6 @@ class AttributedStringSerializer {
     let h4Formatter = HeaderFormatter(headerLevel: .h4)
     let h5Formatter = HeaderFormatter(headerLevel: .h5)
     let h6Formatter = HeaderFormatter(headerLevel: .h6)
-    let hrFormatter = HRFormatter()
-    let imageFormatter = ImageFormatter()
     let italicFormatter = ItalicFormatter()
     let linkFormatter = LinkFormatter()
     let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
@@ -169,7 +168,13 @@ class AttributedStringSerializer {
     let strikethroughFormatter = StrikethroughFormatter()
     let underlineFormatter = UnderlineFormatter()
     let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
-    let videoFormatter = VideoFormatter()
+
+    // MARK: - Built-in element converter instances
+
+    let imageElementConverter = ImageElementConverter()
+    let videoElementConverter = VideoElementConverter()
+    let hrElementConverter = HRElementConverter()
+    let brElementConverter = BRElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -188,8 +193,6 @@ class AttributedStringSerializer {
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
             .a: self.linkFormatter,
-            .img: self.imageFormatter,
-            .hr: self.hrFormatter,
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
             .h3: self.h3Formatter,
@@ -198,7 +201,6 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
-            .video: self.videoFormatter
         ]
     }()
 
@@ -208,6 +210,17 @@ class AttributedStringSerializer {
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
+
+    // MARK: - Element Converter Map
+
+    public lazy var elementConvertersMap: [StandardElementType: ElementConverter] = {
+        return [
+            .img: self.imageElementConverter,
+            .video: self.videoElementConverter,
+            .hr: self.hrElementConverter,
+            .br: self.brElementConverter,
+            ]
+    }()
 
     func parseStyle(style: String) -> [String: String] {
         var stylesDictionary = [String: String]()
@@ -250,8 +263,9 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue {
+        } else if element.name == StandardElementType.li.rawValue || nil != converter(for: element) {
             // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+            // same goes for everything that's handled by converters.
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -356,53 +370,33 @@ extension AttributedStringSerializer {
 
         return nil
     }
+
 }
 
-
-// MARK: - Implicit Representations
-//
 private extension AttributedStringSerializer {
 
-    /// Some elements have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
-    ///
-    /// - Parameters:
-    ///     - element: the element to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        guard let elementType = element.standardName else {
-            return nil
-        }
-
-        return implicitRepresentation(for: elementType, inheriting: attributes)
-    }
-
+    // MARK: - Element Converters
 
     /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
-    ///
-    /// - Parameters:
-    ///     - elementType: the element type to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        switch elementType {
-        case .hr, .img, .video:
-            return NSAttributedString(string: .textAttachment, attributes: attributes)
-        case .br:
-            return NSAttributedString(.lineSeparator, attributes: attributes)
-        default:
+    /// conversion logic.  Element Converters take care of that.
+    func converter(for element: ElementNode) -> ElementConverter? {
+        guard let standardType = element.standardName else {
             return nil
         }
+
+        let equivalentNames = standardType.equivalentNames
+
+        for (key, converter) in elementConvertersMap {
+            if equivalentNames.contains(key.rawValue) {
+                return converter
+            }
+        }
+
+        return nil
     }
 }
+
+
 
 
 // MARK: - Text Sanitization for Rendering
