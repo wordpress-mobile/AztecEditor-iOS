@@ -8,7 +8,7 @@ class HRElementConverter: ElementConverter {
     }
 
     func specialString(for element: ElementNode) -> String {
-        return String(UnicodeScalar(NSAttachmentCharacter)!)
+        return .textAttachment
     }
 
     func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey : Any]? {

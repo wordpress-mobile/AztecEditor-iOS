@@ -42,6 +42,6 @@ class VideoElementConverter: ElementConverter {
     }
 
     func specialString(for element: ElementNode) -> String {
-        return String(UnicodeScalar(NSAttachmentCharacter)!)
+        return .textAttachment
     }
 }
