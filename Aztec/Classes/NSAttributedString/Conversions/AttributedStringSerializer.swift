@@ -171,10 +171,11 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in element converter instances
 
+    let brElementConverter = BRElementConverter()
+    let figureElementConverter = FigureElementConverter()
+    let hrElementConverter = HRElementConverter()
     let imageElementConverter = ImageElementConverter()
     let videoElementConverter = VideoElementConverter()
-    let hrElementConverter = HRElementConverter()
-    let brElementConverter = BRElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -215,10 +216,11 @@ class AttributedStringSerializer {
 
     public lazy var elementConvertersMap: [StandardElementType: ElementConverter] = {
         return [
+            .br: self.brElementConverter,
+            .figure: self.figureElementConverter,
             .img: self.imageElementConverter,
             .video: self.videoElementConverter,
             .hr: self.hrElementConverter,
-            .br: self.brElementConverter,
             ]
     }()
 
@@ -257,16 +259,13 @@ private extension AttributedStringSerializer {
             return inheritedAttributes
         }
 
-        // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-        let ignoredElements: [StandardElementType] =  [.li, .figure, .figcaption]
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = inheritedAttributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-//        } else if let elementType = StandardElementType(rawValue: element.name), ignoredElements.contains(elementType) {
-        } else if element.name == StandardElementType.li.rawValue || nil != converter(for: element) {
+        } else if element.standardName == .li || converter(for: element) != nil {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
