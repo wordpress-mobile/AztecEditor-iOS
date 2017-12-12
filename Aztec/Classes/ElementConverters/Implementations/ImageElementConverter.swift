@@ -1,5 +1,6 @@
 import UIKit
 
+
 /// Provides a representation for `<img>` element.
 ///
 class ImageElementConverter: ElementConverter {
@@ -59,5 +60,9 @@ class ImageElementConverter: ElementConverter {
 
     func specialString(for element: ElementNode) -> String {
         return .textAttachment
+    }
+
+    func supports(element: ElementNode) -> Bool {
+        return element.standardName == .img
     }
 }

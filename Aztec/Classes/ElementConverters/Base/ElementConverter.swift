@@ -81,8 +81,4 @@ extension ElementConverter {
     func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
         return nil
     }
-
-    func supports(element: ElementNode) -> Bool {
-        return true
-    }
 }

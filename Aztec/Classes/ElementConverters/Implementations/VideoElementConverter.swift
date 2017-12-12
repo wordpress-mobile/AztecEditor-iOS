@@ -1,7 +1,10 @@
 import UIKit
 
+
 /// Provides a representation for `<video>` element.
+///
 class VideoElementConverter: ElementConverter {
+
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 
         guard case let .element(element) = representation.kind else {
@@ -43,5 +46,9 @@ class VideoElementConverter: ElementConverter {
 
     func specialString(for element: ElementNode) -> String {
         return .textAttachment
+    }
+
+    func supports(element: ElementNode) -> Bool {
+        return element.standardName == .video
     }
 }
