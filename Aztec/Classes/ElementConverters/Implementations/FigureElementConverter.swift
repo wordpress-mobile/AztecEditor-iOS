@@ -6,7 +6,7 @@ import UIKit
 class FigureElementConverter: ElementConverter {
 
     func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        assert(supports(element: element))
+        assert(canConvert(element: element))
 
         // Extract the Image + Figcaption Elements
         //
@@ -46,7 +46,7 @@ class FigureElementConverter: ElementConverter {
     ///
     /// `<figure><img/><figcaption></figcaption></figure>`
     ///
-    func supports(element: ElementNode) -> Bool {
+    func canConvert(element: ElementNode) -> Bool {
         return element.isNodeType(.figure) &&
             element.children.count == 2 &&
             element.firstChild(ofType: .img) != nil &&

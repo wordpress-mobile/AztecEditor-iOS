@@ -382,7 +382,7 @@ private extension AttributedStringSerializer {
     ///
     func converter(for element: ElementNode) -> ElementConverter? {
         return elementConverters.first { converter in
-            converter.supports(element: element)
+            converter.canConvert(element: element)
         }
     }
 }

@@ -48,7 +48,7 @@ class VideoElementConverter: ElementConverter {
         return .textAttachment
     }
 
-    func supports(element: ElementNode) -> Bool {
+    func canConvert(element: ElementNode) -> Bool {
         return element.standardName == .video
     }
 }

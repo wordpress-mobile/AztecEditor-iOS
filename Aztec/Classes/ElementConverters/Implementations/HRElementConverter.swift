@@ -17,7 +17,7 @@ class HRElementConverter: ElementConverter {
         return [.hrHtmlRepresentation: representation]
     }
 
-    func supports(element: ElementNode) -> Bool {
+    func canConvert(element: ElementNode) -> Bool {
         return element.standardName == .hr
     }
 }

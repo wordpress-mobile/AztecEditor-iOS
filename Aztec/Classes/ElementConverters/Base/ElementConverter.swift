@@ -47,7 +47,7 @@ protocol ElementConverter {
 
     /// Indicates whether the received element can be converted by the current instance, or not.
     ///
-    func supports(element: ElementNode) -> Bool
+    func canConvert(element: ElementNode) -> Bool
 }
 
 

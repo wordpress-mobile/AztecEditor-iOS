@@ -8,7 +8,7 @@ class BRElementConverter: ElementConverter {
         return String(.lineSeparator)
     }
 
-    func supports(element: ElementNode) -> Bool {
+    func canConvert(element: ElementNode) -> Bool {
         return element.standardName == .br
     }
 }
