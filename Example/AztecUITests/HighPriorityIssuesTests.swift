@@ -3,11 +3,10 @@ import XCTest
 class HighPriorityIssuesTests: XCTestCase {
         
     private var app: XCUIApplication!
-    private var richTextField: XCUIElement!
+    private var richEditorPage: EditorPage!
     
     override func setUp() {
         super.setUp()
-        
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
@@ -15,8 +14,8 @@ class HighPriorityIssuesTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
         
-        let blogsPage = BlogsPage.init(appInstance: app)
-        blogsPage.gotoEmptyDemo()
+        let blogsPage = BlogsPage.init()
+        richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
@@ -34,47 +33,50 @@ class HighPriorityIssuesTests: XCTestCase {
         let oneLineTitleHeight = Int(titleTextView.frame.height)
         
         // TODO: Move it into EditorPage
-        if (app.windows.element(boundBy: 0).horizontalSizeClass == .compact || app.windows.element(boundBy: 0).verticalSizeClass == .compact) {
+        if isIPhone() {
             titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
         } else {
             titleTextView.typeText("very very very very very very long title in a galaxy not so far away very very very very very very long title in a galaxy not so far away")
         }
         
         let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight ) // XCTAssert(oneLineTitleHeight < twoLineTitleHeight)
+        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
     func testInfiniteLoopOnAssetDownload() {
-        switchContentView()
-        enterTextInHTML(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
-        switchContentView()
-        gotoRootPage()
-        
-        let editorDemoButton = app.tables.staticTexts[elementStringIDs.emptyDemo]
-        XCTAssert(editorDemoButton.exists, "Editor button not hittable. Are you on the right page?")
-    }
+        let blogsPage = richEditorPage
+            .switchContentView()
+            .enterText(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
+            .switchContentView()
+            .gotoRootPage()
+
+        XCTAssert(blogsPage.isLoaded(), "blogsPage isn't loaded. Are you on the right page?")
+   }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/465
     func testTypeAfterInvalidHTML() {
-        switchContentView()
-        enterTextInHTML(text: "<qaz!>")
-        switchContentView()
+        let invalidHTML = "<qaz!>"
+        let textAfterHTML = "Some text after invalid HTML tag"
+        let expectedHTML = "<p><qaz></qaz>Some text after invalid HTML tag</p>"
+        let frame = richEditorPage.textView.frame
         
-        let field = app.textViews[elementStringIDs.richTextField]
-        // Some magic to move caret to end of the text
-        let vector = CGVector(dx:field.frame.width, dy:field.frame.height - field.frame.minY)
-        field.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
-        enterTextInField(text: "Some text after invalid HTML tag")
+        let html = richEditorPage
+                    .switchContentView()
+                    .enterText(text: invalidHTML)
+                    .switchContentView()
+                    .tapByCordinates(x: Int(frame.width), y: 0)
+                    .enterText(text: textAfterHTML)
+                    .switchContentView()
+                    .getViewContent()
 
-        let text = getHTMLContent()
-        XCTAssertEqual(text, "<p><qaz></qaz>Some text after invalid HTML tag</p>")
+        XCTAssertEqual(html, expectedHTML)
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/768
     func testLooseStylesNoContent() {
-        let boldButton = app.scrollViews.otherElements.buttons[elementStringIDs.boldButton]
-        let italicButton = app.scrollViews.otherElements.buttons[elementStringIDs.italicButton]
+        let boldButton = richEditorPage.boldButton
+        let italicButton = richEditorPage.italicButton
 
         XCTAssert(!boldButton.isSelected && !italicButton.isSelected)
         boldButton.tap()
@@ -89,39 +91,27 @@ class HighPriorityIssuesTests: XCTestCase {
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/771
     func testCopyPasteCrash() {
-//        gotoRootPage()
-//        let blogsPage = BlogsPage.init(appInstance: app)
-//        blogsPage.gotoDemo()
+        let demoEditorPage = richEditorPage
+            .gotoRootPage()
+            .gotoDemo()
+            .switchContentView()
+            .selectAllText()
         
-        let text = "<h1>Sample HTML content</h1> <p>this is some text that is spread out across several lines but is rendered on a single line in a browser</p> <h2>Character Styles</h2> <p><strong>Bold text</strong><br><em>Italic text</em><br><u>Underlined text</u><br><del>Strikethrough</del><br><span style=\"color: #ff0000\">Colors</span><br><span style=\"text-decoration: underline\">Alternative underline text</span><br><a href=\"http://www.wordpress.com\">I'm a link!</a><br><!--more-->Text after the more break</p> <h2>Lists</h2> <h3>Unordered List:</h3> <ul> <li>One</li> <li>Two</li> <li>Three</li> </ul> <h3>Ordered List:</h3> <ol> <li>One</li> <li>Two</li> <li>Three</li> </ol> <p> <hr> </p>"
-        
-        switchContentView()
-//        selectAllTextInHTMLField()
-        enterTextInHTML(text: text)
-       
-        let htmlContentView = app.textViews[elementStringIDs.htmlTextField]
-//        let text = htmlContentView.value as! String
-        
-        selectAllTextInHTMLField()
-        app.menuItems[elementStringIDs.copyButton].tap()
-        htmlContentView.swipeUp()
-        htmlContentView.swipeUp()
-        htmlContentView.swipeUp()
+        let text = demoEditorPage.getViewContent()
+        XCUIApplication().menuItems[elementStringIDs.copyButton].tap()
+        demoEditorPage.textView.tap()
 
-        // determinating where to click to put caret to end of text
-        let frame = htmlContentView.frame
-        let buttonFrame = app.scrollViews.otherElements.buttons[elementStringIDs.mediaButton].frame.height
-        let vector = CGVector(dx: frame.width, dy: frame.height - (buttonFrame + 1))
-        
-        htmlContentView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
-        htmlContentView.typeText("\n\n")
-        htmlContentView.tap()
+        demoEditorPage.textView.swipeDown()
+        demoEditorPage.textView.swipeDown()
+        demoEditorPage.textView.swipeDown()
+        demoEditorPage.textView.swipeDown()
+
+        demoEditorPage.textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
         app.menuItems[elementStringIDs.pasteButton].tap()
-        
         sleep(3) // to make sure everything is updated
-        let newText = htmlContentView.value as! String
+        let newText = demoEditorPage.getViewContent()
         
-        XCTAssertEqual(newText, text + "\n\n" + text)
+        XCTAssertEqual(newText, text + text)
     }
 }
 

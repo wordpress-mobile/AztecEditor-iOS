@@ -15,7 +15,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         app = XCUIApplication()
         app.launch()
 
-        let blogsPage = BlogsPage.init(appInstance: app)
+        let blogsPage = BlogsPage.init()
         blogsPage.gotoEmptyDemo()
     }
 
@@ -188,7 +188,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         let text = getHTMLContent()
         let expected = "<h3>1</h3>"
-        XCTAssertEqual(expected, text)
+        XCTAssertEqual(expected, text)  
     }
 
     func testHeadingFourText() {
