@@ -70,6 +70,7 @@
 		B5D575891F2288E2003A62F6 /* TextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575861F2288E2003A62F6 /* TextViewTests.swift */; };
 		B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DA1C1C1EBD1CCE000AAB45 /* HTMLSerializer.swift */; };
 		B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */; };
+		B5E94D101FE01335000E7C20 /* FigureElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */; };
 		B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */; };
 		B5F84B631E706B720089A76C /* NSAttributedStringAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F84B621E706B720089A76C /* NSAttributedStringAnalyzerTests.swift */; };
 		E109B51C1DC33F2C0099605E /* LayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E109B51B1DC33F2C0099605E /* LayoutManager.swift */; };
@@ -256,6 +257,7 @@
 		B5D575861F2288E2003A62F6 /* TextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewTests.swift; path = TextKit/TextViewTests.swift; sourceTree = "<group>"; };
 		B5DA1C1C1EBD1CCE000AAB45 /* HTMLSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLSerializer.swift; sourceTree = "<group>"; };
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
+		B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FigureElementConverter.swift; sourceTree = "<group>"; };
 		B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Analyzers.swift"; sourceTree = "<group>"; };
 		B5F84B621E706B720089A76C /* NSAttributedStringAnalyzerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringAnalyzerTests.swift; path = Extensions/NSAttributedStringAnalyzerTests.swift; sourceTree = "<group>"; };
 		E109B51B1DC33F2C0099605E /* LayoutManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutManager.swift; sourceTree = "<group>"; };
@@ -373,8 +375,9 @@
 		40A2986F1FD61B1C00AEDF3B /* Implementations */ = {
 			isa = PBXGroup;
 			children = (
-				40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */,
 				40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */,
+				B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */,
+				40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */,
 				40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */,
 				40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */,
 			);
@@ -1104,6 +1107,7 @@
 				F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */,
 				F18986E31EF204180060EDBA /* BoldFormatter.swift in Sources */,
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
+				B5E94D101FE01335000E7C20 /* FigureElementConverter.swift in Sources */,
 				40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
 				F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */,
