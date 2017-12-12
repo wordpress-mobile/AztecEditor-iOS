@@ -212,16 +212,16 @@ class AttributedStringSerializer {
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
 
-    // MARK: - Element Converter Map
+    // MARK: - Element Converters
 
-    public lazy var elementConvertersMap: [StandardElementType: ElementConverter] = {
+    public lazy var elementConverters: [ElementConverter] = {
         return [
-            .br: self.brElementConverter,
-            .figure: self.figureElementConverter,
-            .img: self.imageElementConverter,
-            .video: self.videoElementConverter,
-            .hr: self.hrElementConverter,
-            ]
+            self.brElementConverter,
+            self.figureElementConverter,
+            self.imageElementConverter,
+            self.videoElementConverter,
+            self.hrElementConverter,
+        ]
     }()
 
     func parseStyle(style: String) -> [String: String] {
@@ -379,20 +379,11 @@ private extension AttributedStringSerializer {
 
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  Element Converters take care of that.
+    ///
     func converter(for element: ElementNode) -> ElementConverter? {
-        guard let standardType = element.standardName else {
-            return nil
+        return elementConverters.first { converter in
+            converter.supports(element: element)
         }
-
-        let equivalentNames = standardType.equivalentNames
-
-        for (key, converter) in elementConvertersMap {
-            if equivalentNames.contains(key.rawValue) {
-                return converter
-            }
-        }
-
-        return nil
     }
 }
 
