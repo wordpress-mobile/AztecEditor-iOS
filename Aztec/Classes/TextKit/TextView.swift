@@ -1447,7 +1447,7 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         guard index < storage.length,
-            storage.attribute(.link, at: index, effectiveRange: &effectiveRange) != nil
+            storage.attribute(.link, at: index, longestEffectiveRange: &effectiveRange, in: NSMakeRange(0, storage.length)) != nil
             else {
                 return nil
         }
