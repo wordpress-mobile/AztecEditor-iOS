@@ -105,8 +105,9 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
-            content.append(representation)
+        if let converter = converter(for: element) {
+            let convertedString = converter.convert(from: element, inheritedAttributes: childAttributes)
+            content.append(convertedString)
         } else {
             for child in element.children {
                 let childContent = serialize(child, inheriting: childAttributes)
@@ -159,8 +160,6 @@ class AttributedStringSerializer {
     let h4Formatter = HeaderFormatter(headerLevel: .h4)
     let h5Formatter = HeaderFormatter(headerLevel: .h5)
     let h6Formatter = HeaderFormatter(headerLevel: .h6)
-    let hrFormatter = HRFormatter()
-    let imageFormatter = ImageFormatter()
     let italicFormatter = ItalicFormatter()
     let linkFormatter = LinkFormatter()
     let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
@@ -169,7 +168,14 @@ class AttributedStringSerializer {
     let strikethroughFormatter = StrikethroughFormatter()
     let underlineFormatter = UnderlineFormatter()
     let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
-    let videoFormatter = VideoFormatter()
+
+    // MARK: - Built-in element converter instances
+
+    let brElementConverter = BRElementConverter()
+    let figureElementConverter = FigureElementConverter()
+    let hrElementConverter = HRElementConverter()
+    let imageElementConverter = ImageElementConverter()
+    let videoElementConverter = VideoElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -188,8 +194,6 @@ class AttributedStringSerializer {
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
             .a: self.linkFormatter,
-            .img: self.imageFormatter,
-            .hr: self.hrFormatter,
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
             .h3: self.h3Formatter,
@@ -198,7 +202,6 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
-            .video: self.videoFormatter
         ]
     }()
 
@@ -208,6 +211,18 @@ class AttributedStringSerializer {
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
+
+    // MARK: - Element Converters
+
+    public lazy var elementConverters: [ElementConverter] = {
+        return [
+            self.brElementConverter,
+            self.figureElementConverter,
+            self.imageElementConverter,
+            self.videoElementConverter,
+            self.hrElementConverter,
+        ]
+    }()
 
     func parseStyle(style: String) -> [String: String] {
         var stylesDictionary = [String: String]()
@@ -244,15 +259,13 @@ private extension AttributedStringSerializer {
             return inheritedAttributes
         }
 
-        // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-        let ignoredElements: [StandardElementType] =  [.li, .figure, .figcaption]
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         var finalAttributes = inheritedAttributes
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if let elementType = StandardElementType(rawValue: element.name), ignoredElements.contains(elementType) {
+        } else if element.standardName == .li || converter(for: element) != nil {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -357,87 +370,20 @@ extension AttributedStringSerializer {
 
         return nil
     }
+
 }
 
-
-// MARK: - Implicit Representations
-//
 private extension AttributedStringSerializer {
 
-    /// Some elements have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
-    ///
-    /// - Parameters:
-    ///     - element: the element to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        guard let elementType = element.standardName else {
-            return nil
-        }
-
-        if let captionedImageAttributes = captionedImageAttributes(for: element, inheriting: attributes) {
-            return implicitRepresentation(for: .img, inheriting: captionedImageAttributes)
-        }
-
-        return implicitRepresentation(for: elementType, inheriting: attributes)
-    }
-
+    // MARK: - Element Converters
 
     /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
+    /// conversion logic.  Element Converters take care of that.
     ///
-    /// - Parameters:
-    ///     - elementType: the element type to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        switch elementType {
-        case .hr, .img, .video:
-            return NSAttributedString(string: .textAttachment, attributes: attributes)
-        case .br:
-            return NSAttributedString(.lineSeparator, attributes: attributes)
-        default:
-            return nil
+    func converter(for element: ElementNode) -> ElementConverter? {
+        return elementConverters.first { converter in
+            converter.canConvert(element: element)
         }
-    }
-
-
-    /// Whenever the `element`'s nodeType is `figure` (link!), and there are exactly two children (.img, .figcaption), this method will return
-    /// the NSAttributedString attributes representing a 'Captioned Image' element. Which is, precisely, an ImageAttachment, with it's caption
-    /// set, along with the Figure attributes.
-    ///
-    /// - Parameters:
-    ///     - element: The container element.
-    ///     - attributes: NSAttributedString attributes, to be inherited.
-    ///
-    /// - Returns: The collection of 'Inherited Attributes' with it's internal ImageAttachment modified, so that it carries the 'figcaption'
-    ///   HTML within it's `caption` field. Also, the paragraphStyle is expected to carry all of the `figure` element metadata.
-    ///
-    private func captionedImageAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
-        guard element.isNodeType(.figure),
-            element.children.count == 2,
-            let imgElement = element.firstChild(ofType: .img),
-            let captionElement = element.firstChild(ofType: .figcaption)
-            else {
-                return nil
-        }
-
-        let imgAttributes = self.attributes(for: imgElement, inheriting: attributes)
-        guard let attachment = imgAttributes[.attachment] as? ImageAttachment else {
-            return nil
-        }
-
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
-        attachment.caption = serializer.serialize(captionElement)
-
-        return imgAttributes
     }
 }
 
