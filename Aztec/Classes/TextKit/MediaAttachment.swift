@@ -315,7 +315,9 @@ extension MediaAttachment {
         drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
 
         drawProgress(in: mediaBounds)
-        drawCustomElements(in: mediaBounds)
+
+        // Subclass Drawing Hook: Pass along the actual container bounds
+        drawCustomElements(in: bounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
