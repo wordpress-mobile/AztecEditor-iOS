@@ -152,11 +152,20 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        var attributes: [AttributedStringKey: Any] = [.font: defaultFont,
-                                                      .paragraphStyle: defaultParagraphStyle]
+        var attributes: [AttributedStringKey: Any] = [.paragraphStyle: defaultParagraphStyle]
+
         if let textColor = textColor {
             attributes[.foregroundColor] = textColor
         }
+
+        let font: UIFont
+
+        if #available(iOS 11.0, *) {
+            font = UIFontMetrics.default.scaledFont(for: defaultFont)
+        } else {
+            font = defaultFont
+        }
+        attributes[.font] = font
 
         return attributes
     }
@@ -332,6 +341,9 @@ open class TextView: UITextView {
 
     private func commonInit() {
         allowsEditingTextAttributes = true
+        if #available(iOS 10.0, *) {
+            adjustsFontForContentSizeCategory = true
+        }
         storage.attachmentsDelegate = self
         font = defaultFont
         linkTextAttributesSwifted = [.underlineStyle: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue), .foregroundColor: self.tintColor]
