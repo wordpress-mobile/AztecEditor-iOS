@@ -19,6 +19,8 @@ public enum StandardElementType: String {
     case dt = "dt"
     case em = "em"
     case fieldset = "fieldset"
+    case figure = "figure"
+    case figcaption = "figcaption"
     case form = "form"
     case h1 = "h1"
     case h2 = "h2"
@@ -52,7 +54,7 @@ public enum StandardElementType: String {
     /// Returns an array with all block-level elements.
     ///
     static var blockLevelNodeNames: [StandardElementType] {
-        return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .tr, .td, .ul]
+        return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .tr, .td, .ul, .figcaption, .figure]
     }
 
     static func isBlockLevelNodeName(_ name: String) -> Bool {

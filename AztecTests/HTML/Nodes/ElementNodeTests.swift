@@ -68,4 +68,25 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertNil(parent.onlyChild(ofType: .b))
     }
+
+
+    /// Verifies that `firstChild` returns nil, if there is no matching child with the specified type.
+    ///
+    func testFirstChildReturnsNilIfThereIsNoMatchingChild() {
+        let image = ElementNode(type: .img)
+        let parent = ElementNode(type: .a, attributes: [], children: [image])
+
+        XCTAssertNil(parent.firstChild(ofType: .b))
+    }
+
+
+    /// Verifies that `firstChild` effectively returns the first child that meets the specified criteria.
+    ///
+    func testFirstChildReturnsTheFirstChildThatMatchesTheSpecifiedType() {
+        let image = ElementNode(type: .img)
+        let bold = ElementNode(type: .em)
+        let parent = ElementNode(type: .a, attributes: [], children: [image, bold])
+
+        XCTAssertEqual(parent.firstChild(ofType: .em), bold)
+    }
 }

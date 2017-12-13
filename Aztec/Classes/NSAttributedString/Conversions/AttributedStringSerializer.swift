@@ -171,10 +171,11 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in element converter instances
 
+    let brElementConverter = BRElementConverter()
+    let figureElementConverter = FigureElementConverter()
+    let hrElementConverter = HRElementConverter()
     let imageElementConverter = ImageElementConverter()
     let videoElementConverter = VideoElementConverter()
-    let hrElementConverter = HRElementConverter()
-    let brElementConverter = BRElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -211,15 +212,16 @@ class AttributedStringSerializer {
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
 
-    // MARK: - Element Converter Map
+    // MARK: - Element Converters
 
-    public lazy var elementConvertersMap: [StandardElementType: ElementConverter] = {
+    public lazy var elementConverters: [ElementConverter] = {
         return [
-            .img: self.imageElementConverter,
-            .video: self.videoElementConverter,
-            .hr: self.hrElementConverter,
-            .br: self.brElementConverter,
-            ]
+            self.brElementConverter,
+            self.figureElementConverter,
+            self.imageElementConverter,
+            self.videoElementConverter,
+            self.hrElementConverter,
+        ]
     }()
 
     func parseStyle(style: String) -> [String: String] {
@@ -263,9 +265,7 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue || nil != converter(for: element) {
-            // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
-            // same goes for everything that's handled by converters.
+        } else if element.standardName == .li || converter(for: element) != nil {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -379,24 +379,13 @@ private extension AttributedStringSerializer {
 
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  Element Converters take care of that.
+    ///
     func converter(for element: ElementNode) -> ElementConverter? {
-        guard let standardType = element.standardName else {
-            return nil
+        return elementConverters.first { converter in
+            converter.canConvert(element: element)
         }
-
-        let equivalentNames = standardType.equivalentNames
-
-        for (key, converter) in elementConvertersMap {
-            if equivalentNames.contains(key.rawValue) {
-                return converter
-            }
-        }
-
-        return nil
     }
 }
-
-
 
 
 // MARK: - Text Sanitization for Rendering

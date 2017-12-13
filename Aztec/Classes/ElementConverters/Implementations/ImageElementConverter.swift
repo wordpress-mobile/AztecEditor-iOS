@@ -1,14 +1,17 @@
 import UIKit
 
+
 /// Provides a representation for `<img>` element.
+///
 class ImageElementConverter: ElementConverter {
+
     func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 
         guard case let .element(element) = representation.kind else {
             return nil
         }
 
-        var extraAttributes = [String:String]()
+        var extraAttributes = [String: String]()
         for attribute in element.attributes {
             if let value = attribute.value.toString() {
                 extraAttributes[attribute.name] = value
@@ -56,6 +59,10 @@ class ImageElementConverter: ElementConverter {
     }
 
     func specialString(for element: ElementNode) -> String {
-        return String(UnicodeScalar(NSAttachmentCharacter)!)
+        return .textAttachment
+    }
+
+    func canConvert(element: ElementNode) -> Bool {
+        return element.standardName == .img
     }
 }

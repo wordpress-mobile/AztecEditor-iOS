@@ -5,7 +5,11 @@ import UIKit
 /// Custom text attachment.
 ///
 open class ImageAttachment: MediaAttachment {
-    
+
+    /// Attachment's Caption String
+    ///
+    open var caption: NSAttributedString?
+
     /// Attachment Alignment
     ///
     open var alignment: Alignment = .center {

@@ -870,37 +870,49 @@ private extension AttributedStringParser {
             return nil
         }
 
-        let element: ElementNode
+        let imageElement: ElementNode
         let range = attrString.rangeOfEntireString
 
         if let representation = attrString.attribute(.imageHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
-            element = representationElement.toElementNode()
+            imageElement = representationElement.toElementNode()
         } else {
-            element = ElementNode(type: .img)
+            imageElement = ElementNode(type: .img)
         }
 
         if let attribute = imageSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         if let attribute = imageClassAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         for (key,value) in attachment.extraAttributes {
             var finalValue = value
-            if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
+            if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
                 let baseComponents = Set(baseValue.components(separatedBy: " "))
                 let extraComponents = Set(value.components(separatedBy: " "))
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
-            element.updateAttribute(named: key, value: .string(finalValue))
+            imageElement.updateAttribute(named: key, value: .string(finalValue))
         }        
 
-        return element
+        /// Special Case:
+        /// - Extract the ImageAttachment's caption field
+        /// - Create the Caption Element
+        /// - Wrap everything within a Figure tag!
+        ///
+        /// Note that the Figure element is handled by the HTMLFigureFormatter.
+        ///
+        if let figcaptionElement = figcaptionElement(from: attachment) {
+            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
+        }
+
+        return imageElement
     }
+
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
@@ -1006,5 +1018,18 @@ private extension AttributedStringParser {
         }
 
         return Attribute(name: "class", value: .string(style))
+    }
+
+
+    /// Extracts the Figcaption Element from an ImageAttachment Instance.
+    ///
+    private func figcaptionElement(from attachment: ImageAttachment) -> ElementNode? {
+        guard let caption = attachment.caption,
+            let paragraph = AttributedStringParser().parse(caption).firstChild(ofType: .p)
+            else {
+                return nil
+        }
+
+        return ElementNode(type: .figcaption, attributes: [], children: paragraph.children)
     }
 }
