@@ -177,22 +177,22 @@ open class MediaAttachment: NSTextAttachment {
 
     // MARK: - Position and size calculation
 
-    func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
+    func xPosition(for containerWidth: CGFloat) -> CGFloat {
         return 0
     }
 
-    func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
-        let targetWidth = onScreenWidth(containerWidth)
+        let targetWidth = onScreenWidth(for: containerWidth)
         let scale = targetWidth / image.size.width
 
         return floor(image.size.height * scale) + (appearance.imageMargin * 2)
     }
 
-    func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
@@ -201,8 +201,8 @@ open class MediaAttachment: NSTextAttachment {
     }
 
     func mediaBounds(for bounds: CGRect) -> CGRect {
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.width), y: appearance.imageMargin)
-        let size = CGSize(width: onScreenWidth(bounds.width), height: onScreenHeight(bounds.width) - appearance.imageMargin * 2)
+        let origin = CGPoint(x: xPosition(for: bounds.width), y: appearance.imageMargin)
+        let size = CGSize(width: onScreenWidth(for: bounds.width), height: onScreenHeight(for: bounds.width) - appearance.imageMargin * 2)
 
         return CGRect(origin: origin, size: size)
     }
@@ -259,7 +259,7 @@ open class MediaAttachment: NSTextAttachment {
         }
 
         let width = floor(lineFrag.width - padding)
-        let size = CGSize(width: width, height: onScreenHeight(width))
+        let size = CGSize(width: width, height: onScreenHeight(for: width))
 
         return CGRect(origin: CGPoint.zero, size: size)
     }

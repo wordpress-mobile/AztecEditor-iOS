@@ -84,8 +84,8 @@ open class ImageAttachment: MediaAttachment {
 
     // MARK: - Origin calculation
 
-    override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
-        let imageWidth = onScreenWidth(containerWidth)
+    override func xPosition(for containerWidth: CGFloat) -> CGFloat {
+        let imageWidth = onScreenWidth(for: containerWidth)
 
         switch (alignment) {
         case .center:
@@ -97,18 +97,18 @@ open class ImageAttachment: MediaAttachment {
         }
     }
 
-    override func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    override func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
-        let targetWidth = onScreenWidth(containerWidth)
+        let targetWidth = onScreenWidth(for: containerWidth)
         let scale = targetWidth / image.size.width
 
         return floor(image.size.height * scale) + (appearance.imageMargin * 2)
     }
 
-    override func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    override func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
