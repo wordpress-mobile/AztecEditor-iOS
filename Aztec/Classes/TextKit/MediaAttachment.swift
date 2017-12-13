@@ -208,6 +208,15 @@ open class MediaAttachment: NSTextAttachment {
     }
 
 
+    // MARK: - Stub Methods
+
+    /// Draws custom elements onscreen: Subclasses should implement this method, on a need-to basis.
+    ///
+    func drawCustomElements(in bounds: CGRect) {
+        // NO-OP
+    }
+
+
     // MARK: - NSTextAttachmentContainer
 
     override open func image(forBounds imageBounds: CGRect, textContainer: NSTextContainer?, characterIndex charIndex: Int) -> UIImage? {
@@ -284,6 +293,7 @@ extension MediaAttachment {
         drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
 
         drawProgress(in: mediaBounds)
+        drawCustomElements(in: mediaBounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
