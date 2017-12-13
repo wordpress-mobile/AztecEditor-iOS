@@ -94,7 +94,7 @@ open class VideoAttachment: MediaAttachment {
 
     // MARK: - Origin calculation
 
-    override func xPosition(for containerWidth: CGFloat) -> CGFloat {
+    override func mediaPositionX(for containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(for: containerWidth)
 
         return CGFloat(floor((containerWidth - imageWidth) / 2))
