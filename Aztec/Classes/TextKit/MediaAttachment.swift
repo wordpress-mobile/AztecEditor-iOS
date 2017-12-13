@@ -539,6 +539,10 @@ extension MediaAttachment {
         /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
         public var imageMargin = CGFloat(10.0)
+
+        /// The margin apply to the caption being displayed. Note that this property is actually used by a subclass. Revisit when possible!
+        ///
+        public var captionMargin = CGFloat(10.0)
     }
 }
 
