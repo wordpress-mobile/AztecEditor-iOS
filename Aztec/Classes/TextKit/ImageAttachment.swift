@@ -87,7 +87,7 @@ open class ImageAttachment: MediaAttachment {
     override func xPosition(for containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(for: containerWidth)
 
-        switch (alignment) {
+        switch alignment {
         case .center:
             return CGFloat(floor((containerWidth - imageWidth) / 2))
         case .right:
@@ -113,12 +113,30 @@ open class ImageAttachment: MediaAttachment {
             return 0
         }
 
-        switch (size) {
+        switch size {
         case .full, .none:
             return floor(min(image.size.width, containerWidth))
         default:
             return floor(min(min(image.size.width,size.width), containerWidth))
         }
+    }
+
+
+    // MARK: - Drawing
+
+    /// Draws ImageAttachment specific fields, within the specified bounds.
+    ///
+    override func drawCustomElements(in bounds: CGRect) {
+        guard let caption = caption else {
+            return
+        }
+
+        let textRect = caption.boundingRect(with: bounds.size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        let messageY = bounds.maxY + appearance.captionMargin
+
+        // Check to see if the message will fit within the image. If not, skip it.
+        let messageRect = CGRect(x: bounds.minX, y: messageY, width: bounds.width, height: textRect.height)
+        caption.draw(in: messageRect)
     }
 }
 
