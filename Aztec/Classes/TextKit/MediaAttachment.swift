@@ -564,9 +564,9 @@ extension MediaAttachment {
         ///
         public var imageMargin = CGFloat(10.0)
 
-        /// The margin apply to the caption being displayed. Note that this property is actually used by a subclass. Revisit when possible!
+        /// The Insets to be applied to the Caption text (if any).. Note that this property is actually used by a subclass. Revisit when possible!
         ///
-        public var captionMargin = CGFloat(10.0)
+        public var captionInsets = UIEdgeInsets(top: 5.0, left: 0.0, bottom: 5.0, right: 0.0)
     }
 }
 
