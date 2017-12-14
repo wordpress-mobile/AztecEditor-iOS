@@ -153,14 +153,13 @@ open class ImageAttachment: MediaAttachment {
 
     /// Draws ImageAttachment specific fields, within the specified bounds.
     ///
-    override func drawCustomElements(in bounds: CGRect) {
+    override func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
         guard let caption = caption, let captionSize = captionSize(for: bounds.width) else {
             return
         }
 
-        let mediaBoundz = mediaBounds(for: bounds)
-        let messageY = mediaBoundz.maxY + appearance.captionMargin
-        let messageRect = CGRect(x: bounds.minX, y: messageY, width: bounds.width, height: captionSize.height)
+        let messageY = mediaBounds.maxY + appearance.imageMargin + appearance.captionMargin
+        let messageRect = CGRect(x: 0, y: messageY, width: bounds.width, height: captionSize.height)
 
         caption.draw(in: messageRect)
     }

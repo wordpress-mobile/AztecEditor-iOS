@@ -235,7 +235,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Draws custom elements onscreen: Subclasses should implement this method, on a need-to basis.
     ///
-    func drawCustomElements(in bounds: CGRect) {
+    func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
         // NO-OP
     }
 
@@ -317,7 +317,7 @@ extension MediaAttachment {
         drawProgress(in: mediaBounds)
 
         // Subclass Drawing Hook: Pass along the actual container bounds
-        drawCustomElements(in: bounds)
+        drawCustomElements(in: bounds, mediaBounds: mediaBounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
