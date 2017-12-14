@@ -59,6 +59,12 @@ open class ImageAttachment: MediaAttachment {
                 self.size = size
             }
         }
+        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue),
+            let caption = aDecoder.decodeObject(forKey: EncodeKeys.size.rawValue) as? NSAttributedString
+        {
+            self.caption = caption
+        }
+
     }
 
     /// Required Initializer
@@ -74,11 +80,13 @@ open class ImageAttachment: MediaAttachment {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
         aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
+        aCoder.encode(caption, forKey: EncodeKeys.caption.rawValue)
     }
 
-    fileprivate enum EncodeKeys: String {
+    private enum EncodeKeys: String {
         case alignment
-        case size        
+        case size
+        case caption
     }
 
 
@@ -170,6 +178,7 @@ extension ImageAttachment {
 
         clone.size = size
         clone.alignment = alignment
+        clone.caption = caption
 
         return clone
     }
