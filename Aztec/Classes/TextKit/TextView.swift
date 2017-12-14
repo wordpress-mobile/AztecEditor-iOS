@@ -152,20 +152,14 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        var attributes: [AttributedStringKey: Any] = [.paragraphStyle: defaultParagraphStyle]
+        var attributes: [AttributedStringKey: Any] = [
+            .font: defaultFont,
+            .paragraphStyle: defaultParagraphStyle
+        ]
 
         if let textColor = textColor {
             attributes[.foregroundColor] = textColor
         }
-
-        let font: UIFont
-
-        if #available(iOS 11.0, *) {
-            font = UIFontMetrics.default.scaledFont(for: defaultFont)
-        } else {
-            font = defaultFont
-        }
-        attributes[.font] = font
 
         return attributes
     }
@@ -312,8 +306,12 @@ open class TextView: UITextView {
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
         defaultMissingImage: UIImage) {
-        
-        self.defaultFont = defaultFont
+
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
+        } else {
+            self.defaultFont = defaultFont
+        }
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
@@ -330,8 +328,13 @@ open class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
+        let font = UIFont.systemFont(ofSize: 14)
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
+        } else {
+            self.defaultFont = font
+        }
 
-        defaultFont = UIFont.systemFont(ofSize: 14)
         defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
         
