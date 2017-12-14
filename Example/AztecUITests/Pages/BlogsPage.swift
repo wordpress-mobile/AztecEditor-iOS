@@ -7,13 +7,15 @@ class BlogsPage: BasePage {
         let expectedElement = XCUIApplication().tables.staticTexts[elementStringIDs.emptyDemo]
         super.init(element: expectedElement)
     }
-    
+
+    @discardableResult
     func gotoEmptyDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.emptyDemo].tap()
         
         return EditorPage.init(type: "rich")
     }
-    
+
+    @discardableResult
     func gotoDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.demo].tap()
         
