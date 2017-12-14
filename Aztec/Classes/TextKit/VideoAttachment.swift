@@ -105,7 +105,7 @@ open class VideoAttachment: MediaAttachment {
             let targetWidth = onScreenWidth(for: containerWidth)
             let scale = targetWidth / image.size.width
 
-            return floor(image.size.height * scale) + (appearance.imageMargin * 2)
+            return floor(image.size.height * scale) + appearance.imageInsets.top + appearance.imageInsets.bottom
         } else {
             return 0
         }

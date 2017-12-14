@@ -99,7 +99,7 @@ open class ImageAttachment: MediaAttachment {
             return super.onScreenHeight(for: containerWidth)
         }
 
-        return mediaHeight(for: containerWidth) + appearance.imageMargin * 2 +
+        return  appearance.imageInsets.top + mediaHeight(for: containerWidth) + appearance.imageInsets.bottom +
                 appearance.captionInsets.top + captionSize.height + appearance.captionInsets.bottom
     }
 
@@ -159,7 +159,7 @@ open class ImageAttachment: MediaAttachment {
             return
         }
 
-        let messageY = mediaBounds.maxY + appearance.imageMargin + appearance.captionInsets.top
+        let messageY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
         let messageRect = CGRect(x: 0, y: messageY, width: bounds.width, height: captionSize.height)
 
         caption.draw(in: messageRect)

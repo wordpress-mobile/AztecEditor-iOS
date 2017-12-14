@@ -180,7 +180,7 @@ open class MediaAttachment: NSTextAttachment {
     /// Returns the Attachment's Onscreen Height: should include any margins!
     ///
     func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
-        return mediaHeight(for: containerWidth) + appearance.imageMargin * 2
+        return mediaHeight(for: containerWidth) + appearance.imageInsets.top + appearance.imageInsets.bottom
     }
 
     /// Returns the Attachment's Onscreen Width: should include any margins!
@@ -224,7 +224,7 @@ open class MediaAttachment: NSTextAttachment {
     /// Returns the Image Bounds, for the specified container bounds.
     ///
     func mediaBounds(for bounds: CGRect) -> CGRect {
-        let origin = CGPoint(x: mediaPositionX(for: bounds.width), y: appearance.imageMargin)
+        let origin = CGPoint(x: mediaPositionX(for: bounds.width), y: appearance.imageInsets.top)
         let size = CGSize(width: mediaWidth(for: bounds.width), height: mediaHeight(for: bounds.width))
 
         return CGRect(origin: origin, size: size)
@@ -562,7 +562,7 @@ extension MediaAttachment {
 
         /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
-        public var imageMargin = CGFloat(10.0)
+        public var imageInsets = UIEdgeInsets(top: 10.0, left: 0.0, bottom: 10.0, right: 0.0)
 
         /// The Insets to be applied to the Caption text (if any).. Note that this property is actually used by a subclass. Revisit when possible!
         ///
