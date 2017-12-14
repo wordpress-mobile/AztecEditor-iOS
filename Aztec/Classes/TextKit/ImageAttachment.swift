@@ -99,7 +99,7 @@ open class ImageAttachment: MediaAttachment {
             return super.onScreenHeight(for: containerWidth)
         }
 
-        return  appearance.imageInsets.top + mediaHeight(for: containerWidth) + appearance.imageInsets.bottom +
+        return  appearance.imageInsets.top + imageHeight(for: containerWidth) + appearance.imageInsets.bottom +
                 appearance.captionInsets.top + captionSize.height + appearance.captionInsets.bottom
     }
 
@@ -108,7 +108,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Returns the x position for the image, for the specified container width.
     ///
-    override func mediaPositionX(for containerWidth: CGFloat) -> CGFloat {
+    override func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(for: containerWidth)
 
         switch alignment {
@@ -124,7 +124,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Returns the Image Width, for the specified container width.
     ///
-    override func mediaWidth(for containerWidth: CGFloat) -> CGFloat {
+    override func imageWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }

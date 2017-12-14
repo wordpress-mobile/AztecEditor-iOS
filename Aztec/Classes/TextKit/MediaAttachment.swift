@@ -180,27 +180,27 @@ open class MediaAttachment: NSTextAttachment {
     /// Returns the Attachment's Onscreen Height: should include any margins!
     ///
     func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
-        return mediaHeight(for: containerWidth) + appearance.imageInsets.top + appearance.imageInsets.bottom
+        return imageHeight(for: containerWidth) + appearance.imageInsets.top + appearance.imageInsets.bottom
     }
 
     /// Returns the Attachment's Onscreen Width: should include any margins!
     ///
     func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
-        return mediaWidth(for: containerWidth)
+        return imageWidth(for: containerWidth)
     }
 
 
     // MARK: - Image Sizing + Positioning
 
-    /// Returns the Media's Position X, for the specified container width.
+    /// Returns the Image's Position X, for the specified container width.
     ///
-    func mediaPositionX(for containerWidth: CGFloat) -> CGFloat {
+    func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
         return 0
     }
 
     /// Returns the Image Height, for the specified container width.
     ///
-    func mediaHeight(for containerWidth: CGFloat) -> CGFloat {
+    func imageHeight(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
@@ -213,7 +213,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Returns the Image Width, for the specified container width.
     ///
-    func mediaWidth(for containerWidth: CGFloat) -> CGFloat {
+    func imageWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
@@ -223,9 +223,9 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Returns the Image Bounds, for the specified container bounds.
     ///
-    func mediaBounds(for bounds: CGRect) -> CGRect {
-        let origin = CGPoint(x: mediaPositionX(for: bounds.width), y: appearance.imageInsets.top)
-        let size = CGSize(width: mediaWidth(for: bounds.width), height: mediaHeight(for: bounds.width))
+    func imageBounds(for bounds: CGRect) -> CGRect {
+        let origin = CGPoint(x: imagePositionX(for: bounds.width), y: appearance.imageInsets.top)
+        let size = CGSize(width: imageWidth(for: bounds.width), height: imageHeight(for: bounds.width))
 
         return CGRect(origin: origin, size: size)
     }
@@ -304,7 +304,7 @@ extension MediaAttachment {
     func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
-        let mediaBounds = self.mediaBounds(for: bounds)
+        let mediaBounds = self.imageBounds(for: bounds)
 
         image.draw(in: mediaBounds)
 

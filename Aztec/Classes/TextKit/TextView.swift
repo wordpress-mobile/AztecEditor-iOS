@@ -1357,7 +1357,7 @@ open class TextView: UITextView {
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
-        let mediaBounds = mediaAttachment.mediaBounds(for: bounds)
+        let mediaBounds = mediaAttachment.imageBounds(for: bounds)
 
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
