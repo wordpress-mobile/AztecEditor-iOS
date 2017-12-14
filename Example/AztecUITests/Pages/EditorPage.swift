@@ -201,8 +201,15 @@ class EditorPage: BasePage {
         let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
         cameraRollButton.waitForExistence(timeout: waitTimeout)
         cameraRollButton.tap()
+
+        // Wait for the Camera Roll Animation
+        sleep(2)
+
         XCUIApplication().cells.element(boundBy: 0).tap()
-        sleep(6) // wait for upload simulation
+
+        // wait for upload simulation
+        sleep(6)
+
         return self
     }
     
