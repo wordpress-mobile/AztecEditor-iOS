@@ -63,7 +63,8 @@ class EditorPage: BasePage {
             expandButton.tap()
         }
     }
-    
+
+    @discardableResult
     func addList(type: String) -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.unorderedlistButton)
         var listType = ""
@@ -93,6 +94,7 @@ class EditorPage: BasePage {
     /**
      Tapping on toolbar button. And swipes if needed.
      */
+    @discardableResult
     func toolbarButtonTap(locator: String) -> EditorPage {
         let elementsQuery = app.scrollViews.otherElements
         let button = elementsQuery.buttons[locator]
@@ -142,6 +144,7 @@ class EditorPage: BasePage {
     /**
      Common method to type in different text fields
      */
+    @discardableResult
     func enterText(text: String) -> EditorPage {
         textView.typeText(text)
         return self
@@ -154,7 +157,8 @@ class EditorPage: BasePage {
     func enterTextInTitle(text: String) -> Void {
         app.textViews[titleTextField].typeText(text)
     }
-    
+
+    @discardableResult
     func deleteText(chars: Int) -> EditorPage {
         for _ in 1...chars {
             app.keys["delete"].tap()
@@ -199,10 +203,19 @@ class EditorPage: BasePage {
     func addImageByOrder(id: Int) -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.mediaButton)
         let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
-        cameraRollButton.waitForExistence(timeout: waitTimeout)
+        _ = cameraRollButton.waitForExistence(timeout: waitTimeout)
         cameraRollButton.tap()
+
+        // Wait for the Camera Roll Animation
+        let navigationBar = XCUIApplication().otherElements.navigationBars["Camera Roll"]
+        _ = navigationBar.waitForExistence(timeout: waitTimeout)
+
+        // Inject the first picture
         XCUIApplication().cells.element(boundBy: 0).tap()
-        sleep(6) // wait for upload simulation
+
+        // wait for upload simulation
+        sleep(6)
+
         return self
     }
     
