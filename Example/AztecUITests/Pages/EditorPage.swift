@@ -203,8 +203,10 @@ class EditorPage: BasePage {
         cameraRollButton.tap()
 
         // Wait for the Camera Roll Animation
-        sleep(2)
+        let navigationBar = XCUIApplication().otherElements.navigationBars["Camera Roll"]
+        _ = navigationBar.waitForExistence(timeout: waitTimeout)
 
+        // Inject the first picture
         XCUIApplication().cells.element(boundBy: 0).tap()
 
         // wait for upload simulation
