@@ -8,7 +8,11 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment's Caption String
     ///
-    open var caption: NSAttributedString?
+    open var caption: NSAttributedString? {
+        didSet {
+            styledCaption = applyCaptionAppearance(to: caption)
+        }
+    }
 
     /// Attachment Alignment
     ///
@@ -29,6 +33,10 @@ open class ImageAttachment: MediaAttachment {
             }
         }
     }
+
+    /// Attachment's Caption String, with MediaAttachment's appearance attributes applied.
+    ///
+    private var styledCaption: NSAttributedString?
 
 
     /// Creates a new attachment
@@ -99,7 +107,7 @@ open class ImageAttachment: MediaAttachment {
             return super.onScreenHeight(for: containerWidth)
         }
 
-        return  appearance.imageInsets.top + imageHeight(for: containerWidth) + appearance.imageInsets.bottom +
+        return appearance.imageInsets.top + imageHeight(for: containerWidth) + appearance.imageInsets.bottom +
                 appearance.captionInsets.top + captionSize.height + appearance.captionInsets.bottom
     }
 
@@ -150,19 +158,35 @@ open class ImageAttachment: MediaAttachment {
     }
 
 
+    // MARK: - Private Methods
+    //
+    private func applyCaptionAppearance(to caption: NSAttributedString?) -> NSAttributedString? {
+        guard let updatedCaption = caption?.mutableCopy() as? NSMutableAttributedString else {
+            return nil
+        }
+
+        let captionAttributes = [AttributedStringKey.foregroundColor: appearance.captionColor]
+        let fullRange = updatedCaption.rangeOfEntireString
+
+        updatedCaption.addAttributes(captionAttributes, range: fullRange)
+
+        return updatedCaption
+    }
+
+
     // MARK: - Drawing
 
     /// Draws ImageAttachment specific fields, within the specified bounds.
     ///
     override func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
-        guard let caption = caption, let captionSize = captionSize(for: bounds.width) else {
+        guard let styledCaption = styledCaption, let captionSize = captionSize(for: bounds.width) else {
             return
         }
 
         let messageY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
         let messageRect = CGRect(x: 0, y: messageY, width: bounds.width, height: captionSize.height)
 
-        caption.draw(in: messageRect)
+        styledCaption.draw(in: messageRect)
     }
 }
 

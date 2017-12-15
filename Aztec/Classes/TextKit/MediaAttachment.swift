@@ -567,6 +567,11 @@ extension MediaAttachment {
         /// The Insets to be applied to the Caption text (if any).. Note that this property is actually used by a subclass. Revisit when possible!
         ///
         public var captionInsets = UIEdgeInsets(top: 5.0, left: 0.0, bottom: 5.0, right: 0.0)
+
+        /// The color to use when drawing ImageAttachment's caption (if any). Note that this property is actually used by a subclass.
+        /// Revisit when possible!
+        ///
+        public var captionColor = UIColor.darkGray
     }
 }
 
