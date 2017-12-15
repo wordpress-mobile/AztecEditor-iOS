@@ -241,8 +241,8 @@ open class MediaAttachment: NSTextAttachment {
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
         if let storage = textContainer?.layoutManager?.textStorage,
-            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle
-        {
+            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+
             let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
             let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
 
@@ -526,7 +526,7 @@ extension MediaAttachment {
         ///
         public var progressColor = UIColor.blue
 
-        /// The margin apply to the images being displayed. This is to avoid that two images in a row get glued together.
+        /// The margin to apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
         public var imageMargin = CGFloat(10.0)
     }
