@@ -431,19 +431,7 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
-
-        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
-        // default.  The reason behind this decision is that no text can exist outside block-level
-        // elements in Aztec.
-        //
-        // See here for more info:
-        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
-        //
-        guard let paragraphStyle = paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle,
-            paragraphStyle.properties.count > 0
-        else {
-            return [ElementNode(type: .p)]
-        }
+        let paragraphStyle = (paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle) ?? ParagraphStyle()
 
         return createParagraphNodes(from: paragraphStyle)
     }
@@ -457,10 +445,7 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
-        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
-            paragraphStyle.properties.count > 0 else {
-                return [ElementNode(type: .p)]
-        }
+        let paragraphStyle = (attributes[.paragraphStyle] as? ParagraphStyle) ?? ParagraphStyle()
 
         return createParagraphNodes(from: paragraphStyle)
     }
@@ -474,8 +459,21 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     private func createParagraphNodes(from paragraphStyle: ParagraphStyle) -> [ElementNode] {
+        let extraAttributes = attributes(for: paragraphStyle)
+        
+        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
+        // default.  The reason behind this decision is that no text can exist outside block-level
+        // elements in Aztec.
+        //
+        // See here for more info:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
+        //
+        guard paragraphStyle.properties.count > 0 else {
+            return [ElementNode(type: .p, attributes: extraAttributes)]
+        }
+        
         var paragraphNodes = [ElementNode]()
-
+        
         for property in paragraphStyle.properties.reversed() {
             switch property {
             case let blockquote as Blockquote:
@@ -509,8 +507,31 @@ private extension AttributedStringParser {
                 continue
             }
         }
-
+        
+        let lastElement = paragraphNodes.last! // There's no scenario where having zero paragraph nodes would make sense.
+        lastElement.attributes.append(contentsOf: extraAttributes)
+        
         return paragraphNodes
+    }
+    
+    /// Processes the paragraph style to figure out the attributes that will be applied to the outermost Element
+    /// produced from it.
+    ///
+    /// - Parameters:
+    ///     - paragraphStyle: the paragraph style to process.
+    ///
+    /// - Returns: any attributes necessary to represent the paragraph values.
+    ///
+    private func attributes(for paragraphStyle: ParagraphStyle) -> [Attribute] {
+        var attributes = [Attribute]()
+        
+        if paragraphStyle.baseWritingDirection == .rightToLeft {
+            let rtlAttribute = Attribute(name: "dir", value: .string("rtl"))
+            
+            attributes.append(rtlAttribute)
+        }
+        
+        return attributes
     }
 
 
