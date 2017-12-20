@@ -54,7 +54,15 @@ class EditorDemoController: UIViewController {
     }()
 
     fileprivate(set) lazy var htmlTextView: UITextView = {
-        let storage = HTMLStorage(defaultFont: Constants.defaultContentFont)
+        let defaultFont: UIFont
+
+        if #available(iOS 11, *) {
+            defaultFont = UIFontMetrics.default.scaledFont(for: Constants.defaultContentFont)
+        } else {
+            defaultFont = Constants.defaultContentFont
+        }
+
+        let storage = HTMLStorage(defaultFont: defaultFont)
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
 
@@ -71,6 +79,10 @@ class EditorDemoController: UIViewController {
         textView.accessibilityIdentifier = "HTMLContentView"
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
+
+        if #available(iOS 10, *) {
+            textView.adjustsFontForContentSizeCategory = true
+        }
 
         if #available(iOS 11, *) {
             textView.smartDashesType = .no

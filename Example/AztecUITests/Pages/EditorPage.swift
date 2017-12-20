@@ -203,7 +203,7 @@ class EditorPage: BasePage {
     func addImageByOrder(id: Int) -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.mediaButton)
         let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
-        _ = cameraRollButton.waitForExistence(timeout: waitTimeout)
+        waitFor(element: cameraRollButton, predicate: "isEnabled == true && isHittable == true")
         cameraRollButton.tap()
 
         // Wait for the Camera Roll Animation
