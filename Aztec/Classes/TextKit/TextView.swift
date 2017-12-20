@@ -152,8 +152,11 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        var attributes: [AttributedStringKey: Any] = [.font: defaultFont,
-                                                      .paragraphStyle: defaultParagraphStyle]
+        var attributes: [AttributedStringKey: Any] = [
+            .font: defaultFont,
+            .paragraphStyle: defaultParagraphStyle
+        ]
+
         if let textColor = textColor {
             attributes[.foregroundColor] = textColor
         }
@@ -303,8 +306,12 @@ open class TextView: UITextView {
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
         defaultMissingImage: UIImage) {
-        
-        self.defaultFont = defaultFont
+
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
+        } else {
+            self.defaultFont = defaultFont
+        }
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
@@ -321,8 +328,13 @@ open class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
+        let font = UIFont.systemFont(ofSize: 14)
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
+        } else {
+            self.defaultFont = font
+        }
 
-        defaultFont = UIFont.systemFont(ofSize: 14)
         defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
         
@@ -332,6 +344,9 @@ open class TextView: UITextView {
 
     private func commonInit() {
         allowsEditingTextAttributes = true
+        if #available(iOS 10.0, *) {
+            adjustsFontForContentSizeCategory = true
+        }
         storage.attachmentsDelegate = self
         font = defaultFont
         linkTextAttributesSwifted = [.underlineStyle: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue), .foregroundColor: self.tintColor]
