@@ -402,7 +402,7 @@ private extension TextStorage {
         let newLevel = newStyle?.headers.last?.level ?? .none
         let oldLevel = oldStyle?.headers.last?.level ?? .none
 
-        guard oldLevel != newLevel else {
+        guard oldLevel != newLevel && newLevel != .none else {
             return attrs
         }
         
