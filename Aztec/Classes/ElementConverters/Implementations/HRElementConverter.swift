@@ -3,21 +3,47 @@ import UIKit
 
 /// Returns a specialised representation for a `<hr>` element.
 ///
-class HRElementConverter: ElementConverter {
+class HRElementConverter: AttachmentElementConverter, ElementConverter {
 
-    func attachment(from representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey : Any]) -> NSTextAttachment? {
-        return LineAttachment()
-    }
-
-    func specialString(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        return NSAttributedString(.textAttachment, attributes: attributes)
-    }
-
-    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey : Any]? {
-        return [.hrHtmlRepresentation: representation]
-    }
-
+    typealias T = NSTextAttachment
+    
+    // MARK: - ElementConverter
+    
     func canConvert(element: ElementNode) -> Bool {
         return element.standardName == .hr
+    }
+    
+    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+        let (_, output) = convert(element, inheriting: attributes)
+        
+        return output
+    }
+    
+    // MARK: - AttachmentElementConverter
+    
+    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: NSTextAttachment, string: NSAttributedString) {
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
+        
+        let attributes = combine(attributes, with: representation)
+        let attachment = self.attachment(for: element)
+        
+        return (attachment, NSAttributedString(attachment: attachment, attributes: attributes))
+    }
+    
+    // MARK: - Attachment Creation
+    
+    private func attachment(for element: ElementNode) -> NSTextAttachment {
+        return LineAttachment()
+    }
+    
+    // MARK: - Additional HTMLRepresentation Logic
+    
+    private func combine(_ attributes: [AttributedStringKey: Any], with representation: HTMLRepresentation) -> [AttributedStringKey : Any] {
+        var combinedAttributes = attributes
+        
+        combinedAttributes[.hrHtmlRepresentation] = representation
+        
+        return combinedAttributes
     }
 }

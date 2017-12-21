@@ -4,8 +4,19 @@ import UIKit
 /// Returns a specialised representation for a `<figure>` element.
 ///
 class FigureElementConverter: ElementConverter {
-
-    func convert(from element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    
+    /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
+    ///
+    /// `<figure><img/><figcaption></figcaption></figure>`
+    ///
+    func canConvert(element: ElementNode) -> Bool {
+        return element.isNodeType(.figure) &&
+            element.children.count == 2 &&
+            element.firstChild(ofType: .img) != nil &&
+            element.firstChild(ofType: .figcaption) != nil
+    }
+    
+    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         assert(canConvert(element: element))
 
         // Extract the Image + Figcaption Elements
@@ -18,10 +29,7 @@ class FigureElementConverter: ElementConverter {
 
         // Convert the Image Element
         //
-        let output = ImageElementConverter().convert(from: imgElement, inheriting: attributes)
-        guard let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
-            fatalError()
-        }
+        let (imageAttachment, output) = ImageElementConverter().convert(imgElement, inheriting: attributes)
 
         // Serialize the Figcaption:
         // We're wrapping the Figcaption's children within a figcaption, so that the `<figcaption>` element itself doesn't get mapped
@@ -34,22 +42,7 @@ class FigureElementConverter: ElementConverter {
         return output
     }
 
-    func specialString(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        return NSAttributedString(.textAttachment, attributes: attributes)
-    }
-
-    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
+    private func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
         return [.hrHtmlRepresentation: representation]
-    }
-
-    /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
-    ///
-    /// `<figure><img/><figcaption></figcaption></figure>`
-    ///
-    func canConvert(element: ElementNode) -> Bool {
-        return element.isNodeType(.figure) &&
-            element.children.count == 2 &&
-            element.firstChild(ofType: .img) != nil &&
-            element.firstChild(ofType: .figcaption) != nil
     }
 }
