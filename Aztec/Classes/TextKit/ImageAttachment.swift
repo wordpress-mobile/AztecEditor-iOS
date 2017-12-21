@@ -153,7 +153,8 @@ open class ImageAttachment: MediaAttachment {
             return nil
         }
 
-        let containerSize = CGSize(width: containerWidth, height: .greatestFiniteMagnitude)
+        let captionWidth = imageWidth(for: containerWidth)
+        let containerSize = CGSize(width: captionWidth, height: .greatestFiniteMagnitude)
         return caption.boundingRect(with: containerSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
     }
 
@@ -183,8 +184,9 @@ open class ImageAttachment: MediaAttachment {
             return
         }
 
+        let messageX = imagePositionX(for: bounds.width)
         let messageY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
-        let messageRect = CGRect(x: 0, y: messageY, width: bounds.width, height: captionSize.height)
+        let messageRect = CGRect(x: messageX, y: messageY, width: captionSize.width, height: captionSize.height)
 
         styledCaption.draw(in: messageRect)
     }
