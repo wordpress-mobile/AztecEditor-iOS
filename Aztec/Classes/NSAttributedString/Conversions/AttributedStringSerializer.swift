@@ -106,7 +106,7 @@ class AttributedStringSerializer {
         let content = NSMutableAttributedString()
 
         if let converter = converter(for: element) {
-            let convertedString = converter.convert(from: element, inheritedAttributes: childAttributes)
+            let convertedString = converter.convert(from: element, inheriting: childAttributes)
             content.append(convertedString)
         } else {
             for child in element.children {

@@ -5,7 +5,7 @@ import UIKit
 ///
 class HRElementConverter: ElementConverter {
 
-    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey : Any]) -> NSTextAttachment? {
+    func attachment(from representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey : Any]) -> NSTextAttachment? {
         return LineAttachment()
     }
 
@@ -13,7 +13,7 @@ class HRElementConverter: ElementConverter {
         return NSAttributedString(.textAttachment, attributes: attributes)
     }
 
-    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey : Any]? {
+    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey : Any]? {
         return [.hrHtmlRepresentation: representation]
     }
 

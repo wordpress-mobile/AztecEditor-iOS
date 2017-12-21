@@ -5,7 +5,7 @@ import UIKit
 ///
 class ImageElementConverter: ElementConverter {
 
-    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
+    func attachment(from representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
 
         guard case let .element(element) = representation.kind else {
             return nil

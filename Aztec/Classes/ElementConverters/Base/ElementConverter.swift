@@ -14,7 +14,7 @@ protocol ElementConverter {
     ///
     /// - Returns: NSAttributedString instance, representing the received element.
     ///
-    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString
+    func convert(from element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString
 
 
     /// The special string that represents the element — usually `NSAttachmentCharacter`.
@@ -32,7 +32,7 @@ protocol ElementConverter {
     ///
     /// - Returns: Attachment when appropriate, `nil` when there isn't a valid transformation into an Attachment.
     ///
-    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment?
+    func attachment(from representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> NSTextAttachment?
 
 
     /// Returns a dictionary of extra attributes that should be added to the result of `specialString(for:_)`,
@@ -42,7 +42,7 @@ protocol ElementConverter {
     ///
     /// - Returns: Dictionary of extra attributes where applicable, nil otherwise.
     ///
-    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]?
+    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]
 
 
     /// Indicates whether the received element can be converted by the current instance, or not.
@@ -52,18 +52,14 @@ protocol ElementConverter {
 
 
 extension ElementConverter {
-    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func convert(from element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
 
-        var copiedAttributes = inheritedAttributes
+        var copiedAttributes = extraAttributes(for: representation, inheriting: attributes)
 
-        if let extraAttributes = extraAttributes(for: representation) {
-            copiedAttributes.merge(extraAttributes, uniquingKeysWith: {(_, new) in new })
-        }
-        
-        guard let attachment = attachment(from: representation, inheriting: inheritedAttributes) else {
-            return specialString(for: element, inheriting: inheritedAttributes)
+        guard let attachment = attachment(from: representation, inheriting: attributes) else {
+            return specialString(for: element, inheriting: attributes)
         }
 
         copiedAttributes[.attachment] = attachment
@@ -76,7 +72,7 @@ extension ElementConverter {
         return nil
     }
 
-    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
-        return nil
+    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+        return attributes
     }
 }

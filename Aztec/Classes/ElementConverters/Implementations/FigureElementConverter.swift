@@ -5,7 +5,7 @@ import UIKit
 ///
 class FigureElementConverter: ElementConverter {
 
-    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func convert(from element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         assert(canConvert(element: element))
 
         // Extract the Image + Figcaption Elements
@@ -18,7 +18,7 @@ class FigureElementConverter: ElementConverter {
 
         // Convert the Image Element
         //
-        let output = ImageElementConverter().convert(from: imgElement, inheritedAttributes: inheritedAttributes)
+        let output = ImageElementConverter().convert(from: imgElement, inheriting: attributes)
         guard let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
             fatalError()
         }
@@ -28,7 +28,7 @@ class FigureElementConverter: ElementConverter {
         // as UnknownHTML
         //
         let wrappedCaptionChildren = RootNode(children: captionElement.children)
-        let serializer = AttributedStringSerializer(defaultAttributes: inheritedAttributes)
+        let serializer = AttributedStringSerializer(defaultAttributes: attributes)
         imageAttachment.caption = serializer.serialize(wrappedCaptionChildren)
 
         return output
@@ -38,7 +38,7 @@ class FigureElementConverter: ElementConverter {
         return NSAttributedString(.textAttachment, attributes: attributes)
     }
 
-    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
+    func extraAttributes(for representation: HTMLRepresentation, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any]? {
         return [.hrHtmlRepresentation: representation]
     }
 
