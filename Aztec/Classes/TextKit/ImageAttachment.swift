@@ -167,8 +167,7 @@ open class ImageAttachment: MediaAttachment {
             return .zero
         }
 
-        let captionWidth = imageWidth(for: containerWidth)
-        let containerSize = CGSize(width: captionWidth, height: .greatestFiniteMagnitude)
+        let containerSize = CGSize(width: containerWidth, height: .greatestFiniteMagnitude)
         return caption.boundingRect(with: containerSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
     }
 
@@ -207,11 +206,15 @@ private extension ImageAttachment {
             return nil
         }
 
-        let captionAttributes = [AttributedStringKey.foregroundColor: appearance.captionColor]
-        let fullRange = updatedCaption.rangeOfEntireString
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = alignment.textAlignment()
 
-        updatedCaption.addAttributes(captionAttributes, range: fullRange)
+        let captionAttributes: [AttributedStringKey: Any] = [
+            .foregroundColor: appearance.captionColor,
+            .paragraphStyle: paragraphStyle
+        ]
 
+        updatedCaption.addAttributes(captionAttributes, range: updatedCaption.rangeOfEntireString)
         return updatedCaption
     }
 }
@@ -257,6 +260,19 @@ extension ImageAttachment {
                     return "alignright"
                 case .none:
                     return "alignnone"
+            }
+        }
+
+        func textAlignment() -> NSTextAlignment {
+            switch self {
+            case .center:
+                return .center
+            case .left:
+                return .left
+            case .right:
+                return .right
+            case .none:
+                return .natural
             }
         }
 
