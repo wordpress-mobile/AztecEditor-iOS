@@ -3,7 +3,7 @@ import UIKit
 
 /// Provides a representation for `<video>` element.
 ///
-class VideoElementConverter: AttachmentElementConverter, ElementConverter {
+class VideoElementConverter: AttachmentElementConverter {
     
     // MARK: - ElementConverter
     

@@ -3,7 +3,7 @@ import UIKit
 
 /// Provides a representation for `<img>` element.
 ///
-class ImageElementConverter: AttachmentElementConverter, ElementConverter {
+class ImageElementConverter: AttachmentElementConverter {
     
     // MARK: - ElementConverter
     

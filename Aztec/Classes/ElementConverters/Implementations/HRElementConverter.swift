@@ -3,7 +3,7 @@ import UIKit
 
 /// Returns a specialised representation for a `<hr>` element.
 ///
-class HRElementConverter: AttachmentElementConverter, ElementConverter {
+class HRElementConverter: AttachmentElementConverter {
 
     typealias T = NSTextAttachment
     
@@ -11,12 +11,6 @@ class HRElementConverter: AttachmentElementConverter, ElementConverter {
     
     func canConvert(element: ElementNode) -> Bool {
         return element.standardName == .hr
-    }
-    
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        let (_, output) = convert(element, inheriting: attributes)
-        
-        return output
     }
     
     // MARK: - AttachmentElementConverter
