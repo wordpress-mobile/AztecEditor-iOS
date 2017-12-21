@@ -25,22 +25,23 @@ class HighPriorityIssuesTests: XCTestCase {
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/385
     func testLongTitle() {
-        //    Title line height is about 22px, so it might be useing for comparing the height difference should make it precise.
-        //    But may be fragile due to different font sizes etc
-        let titleLineHeight = 22
+        let longTitle = "long title in a galaxy not so far away"
+        // Title heigh contains of actual textfield height + bottom line.
+        // 16px - is the height of that bottom line. Its not changing with different font sizes
         let titleTextView = app.textViews[elementStringIDs.titleTextField]
+        let titleLineHeight = titleTextView.frame.height - 16
+        let oneLineTitleHeight = titleTextView.frame.height
         titleTextView.tap()
-        let oneLineTitleHeight = Int(titleTextView.frame.height)
         
         // TODO: Move it into EditorPage
         if isIPhone() {
-            titleTextView.typeText("very very very very very very long title in a galaxy not so far away")
+            titleTextView.typeText(String(repeating: "very ", count: 6) + longTitle)
         } else {
-            titleTextView.typeText("very very very very very very long title in a galaxy not so far away very very very very very very long title in a galaxy not so far away")
+            titleTextView.typeText(String(repeating: "very ", count: 20) + longTitle)
         }
         
-        let twoLineTitleHeight = Int(titleTextView.frame.height)
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight == titleLineHeight )
+        let twoLineTitleHeight = titleTextView.frame.height
+        XCTAssert(twoLineTitleHeight - oneLineTitleHeight >= titleLineHeight )
     }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
