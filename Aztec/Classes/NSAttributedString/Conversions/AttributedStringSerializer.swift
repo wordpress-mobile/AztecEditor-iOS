@@ -172,7 +172,7 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    let genericElementConverter = GenericElementConverter()
+    private(set) lazy var genericElementConverter = GenericElementConverter(with: self)
     
     let brElementConverter = BRElementConverter()
     let figureElementConverter = FigureElementConverter()

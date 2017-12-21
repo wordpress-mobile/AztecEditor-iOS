@@ -5,7 +5,11 @@ import UIKit
 ///
 class GenericElementConverter: ElementConverter {
     
-    let serializer = AttributedStringSerializer()
+    let serializer: AttributedStringSerializer
+    
+    init(with serializer: AttributedStringSerializer) {
+        self.serializer = serializer
+    }
     
     // MARK: - ElementConverter
     
