@@ -10,7 +10,7 @@ open class ImageAttachment: MediaAttachment {
     ///
     open var caption: NSAttributedString? {
         didSet {
-            styledCaption = applyCaptionAppearance(to: caption)
+            styledCaptionCache = nil
         }
     }
 
@@ -20,6 +20,7 @@ open class ImageAttachment: MediaAttachment {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
+                styledCaptionCache = nil
             }
         }
     }
@@ -36,7 +37,18 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment's Caption String, with MediaAttachment's appearance attributes applied.
     ///
-    private var styledCaption: NSAttributedString?
+    private var styledCaptionCache: NSAttributedString?
+
+    /// Returns the cached caption (with our custom attributes applied), or regenerates the Styled Caption, if needed.
+    ///
+    private var styledCaption: NSAttributedString? {
+        if let caption = styledCaptionCache {
+            return caption
+        }
+
+        styledCaptionCache = applyCaptionAppearance(to: caption)
+        return styledCaptionCache
+    }
 
 
     /// Creates a new attachment
@@ -190,6 +202,7 @@ open class ImageAttachment: MediaAttachment {
         guard let styledCaption = styledCaption else {
             return
         }
+        
 
         let styledBounds = captionBounds(containerBounds: bounds, mediaBounds: mediaBounds)
         styledCaption.draw(in: styledBounds)
