@@ -108,15 +108,10 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let converter = converter(for: element) {
-            let convertedString = converter.convert(element, inheriting: childAttributes)
-            content.append(convertedString)
-        } else {
-            for child in element.children {
-                let childContent = serialize(child, inheriting: childAttributes)
-                content.append(childContent)
-            }
-        }
+        let converter = self.converter(for: element)
+        let convertedString = converter.convert(element, inheriting: childAttributes)
+        
+        content.append(convertedString)
 
         guard !element.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: content, inheriting: childAttributes)
@@ -174,6 +169,11 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in element converter instances
 
+    // This converter should not be added to `elementFormattersMap`.  This converter is returned
+    // whenever the map doesn't find a proper match.
+    //
+    let genericElementConverter = GenericElementConverter()
+    
     let brElementConverter = BRElementConverter()
     let figureElementConverter = FigureElementConverter()
     let hrElementConverter = HRElementConverter()
@@ -383,10 +383,12 @@ private extension AttributedStringSerializer {
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  Element Converters take care of that.
     ///
-    func converter(for element: ElementNode) -> ElementConverter? {
-        return elementConverters.first { converter in
+    func converter(for element: ElementNode) -> ElementConverter {
+        let converter = elementConverters.first { converter in
             converter.canConvert(element: element)
         }
+        
+        return converter ?? genericElementConverter
     }
 }
 
