@@ -243,7 +243,7 @@ class TextStorageTests: XCTestCase {
 
         html = storage.getHTML(serializer: serializer)
 
-        XCTAssertEqual(html, "Apply a header")
+        XCTAssertEqual(html, "<p>Apply a header</p>")
     }
 
     /// This test verifies that after merging two lines with different Header Format, the Font Size will

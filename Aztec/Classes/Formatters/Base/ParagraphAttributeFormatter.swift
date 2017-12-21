@@ -37,19 +37,12 @@ extension ParagraphAttributeFormatter {
         let rangeToApply = applicationRange(for: range, in: text)
 
         text.replaceOcurrences(of: String(.paragraphSeparator), with: String(.lineFeed), within: rangeToApply)
-
+        
         text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
             let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
             let attributes = remove(from: currentAttributes)
-
-            let currentKeys = Set(currentAttributes.keys)
-            let newKeys = Set(attributes.keys)
-            let removedKeys = currentKeys.subtracting(newKeys)
-            for key in removedKeys {
-                text.removeAttribute(key, range: range)
-            }
-
-            text.addAttributes(attributes, range: range)
+            
+            text.setAttributes(attributes, range: range)
         }
 
         return rangeToApply
