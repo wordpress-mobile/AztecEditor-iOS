@@ -8,7 +8,11 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment's Caption String
     ///
-    open var caption: NSAttributedString?
+    open var caption: NSAttributedString? {
+        didSet {
+            styledCaptionCache = nil
+        }
+    }
 
     /// Attachment Alignment
     ///
@@ -16,6 +20,7 @@ open class ImageAttachment: MediaAttachment {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
+                styledCaptionCache = nil
             }
         }
     }
@@ -28,6 +33,21 @@ open class ImageAttachment: MediaAttachment {
                 glyphImage = nil
             }
         }
+    }
+
+    /// Attachment's Caption String, with MediaAttachment's appearance attributes applied.
+    ///
+    private var styledCaptionCache: NSAttributedString?
+
+    /// Returns the cached caption (with our custom attributes applied), or regenerates the Styled Caption, if needed.
+    ///
+    private var styledCaption: NSAttributedString? {
+        if let caption = styledCaptionCache {
+            return caption
+        }
+
+        styledCaptionCache = applyCaptionAppearance(to: caption)
+        return styledCaptionCache
     }
 
 
@@ -59,6 +79,12 @@ open class ImageAttachment: MediaAttachment {
                 self.size = size
             }
         }
+        if aDecoder.containsValue(forKey: EncodeKeys.size.rawValue),
+            let caption = aDecoder.decodeObject(forKey: EncodeKeys.size.rawValue) as? NSAttributedString
+        {
+            self.caption = caption
+        }
+
     }
 
     /// Required Initializer
@@ -74,20 +100,38 @@ open class ImageAttachment: MediaAttachment {
         super.encode(with: aCoder)
         aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
         aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
+        aCoder.encode(caption, forKey: EncodeKeys.caption.rawValue)
     }
 
-    fileprivate enum EncodeKeys: String {
+    private enum EncodeKeys: String {
         case alignment
-        case size        
+        case size
+        case caption
     }
 
 
-    // MARK: - Origin calculation
+    // MARK: - OnScreen Metrics
 
-    override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
-        let imageWidth = onScreenWidth(containerWidth)
+    /// Returns the Attachment's Onscreen Height: should include any margins!
+    ///
+    override func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
+        guard let _ = caption else {
+            return super.onScreenHeight(for: containerWidth)
+        }
 
-        switch (alignment) {
+        return appearance.imageInsets.top + imageHeight(for: containerWidth) + appearance.imageInsets.bottom +
+                appearance.captionInsets.top + captionSize(for: containerWidth).height + appearance.captionInsets.bottom
+    }
+
+
+    // MARK: - Image Metrics
+
+    /// Returns the x position for the image, for the specified container width.
+    ///
+    override func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
+        let imageWidth = onScreenWidth(for: containerWidth)
+
+        switch alignment {
         case .center:
             return CGFloat(floor((containerWidth - imageWidth) / 2))
         case .right:
@@ -97,28 +141,94 @@ open class ImageAttachment: MediaAttachment {
         }
     }
 
-    override func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Image Width, for the specified container width.
+    ///
+    override func imageWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
-        let targetWidth = onScreenWidth(containerWidth)
-        let scale = targetWidth / image.size.width
-
-        return floor(image.size.height * scale) + (appearance.imageMargin * 2)
-    }
-
-    override func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
-        guard let image = image else {
-            return 0
-        }
-
-        switch (size) {
+        switch size {
         case .full, .none:
             return floor(min(image.size.width, containerWidth))
         default:
             return floor(min(min(image.size.width,size.width), containerWidth))
         }
+    }
+
+
+    // MARK: - Caption Metrics
+
+    /// Returns the Caption's Position X for the current Caption's Width, to be displayed within a specific Container's Width.
+    ///
+    func captionPositionX(for captionWidth: CGFloat, within containerWidth: CGFloat) -> CGFloat {
+        switch alignment {
+        case .center:
+            return CGFloat(floor((containerWidth - captionWidth) * 0.5))
+        case .right:
+            return CGFloat(floor(containerWidth - captionWidth))
+        default:
+            return 0
+        }
+    }
+
+    /// Returns the Caption Size for the specified container width. (.zero if there is no caption!).
+    ///
+    func captionSize(for containerWidth: CGFloat) -> CGSize {
+        guard let caption = caption else {
+            return .zero
+        }
+
+        let containerSize = CGSize(width: containerWidth, height: .greatestFiniteMagnitude)
+        return caption.boundingRect(with: containerSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
+    }
+
+    /// Returns the Caption's Bounds for a given Container and Media Bounds Set.
+    ///
+    func captionBounds(containerBounds: CGRect, mediaBounds: CGRect) -> CGRect {
+        let captionSize = self.captionSize(for: containerBounds.width)
+        let captionX = captionPositionX(for: captionSize.width, within: containerBounds.width)
+        let captionY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
+
+        return CGRect(x: captionX, y: captionY, width: captionSize.width, height: captionSize.height)
+    }
+
+
+    // MARK: - Drawing
+
+    /// Draws ImageAttachment specific fields, within the specified bounds.
+    ///
+    override func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
+        guard let styledCaption = styledCaption else {
+            return
+        }
+        
+
+        let styledBounds = captionBounds(containerBounds: bounds, mediaBounds: mediaBounds)
+        styledCaption.draw(in: styledBounds)
+    }
+}
+
+
+// MARK: - Private Methods
+//
+private extension ImageAttachment {
+
+    func applyCaptionAppearance(to caption: NSAttributedString?) -> NSAttributedString? {
+        guard let updatedCaption = caption?.mutableCopy() as? NSMutableAttributedString else {
+            return nil
+        }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = alignment.textAlignment()
+
+        let captionAttributes: [AttributedStringKey: Any] = [
+            .foregroundColor: appearance.captionColor,
+            .paragraphStyle: paragraphStyle
+        ]
+
+        updatedCaption.addAttributes(captionAttributes, range: updatedCaption.rangeOfEntireString)
+        return updatedCaption
     }
 }
 
@@ -134,6 +244,7 @@ extension ImageAttachment {
 
         clone.size = size
         clone.alignment = alignment
+        clone.caption = caption
 
         return clone
     }
@@ -165,14 +276,27 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues:[String:Alignment] = [
+        func textAlignment() -> NSTextAlignment {
+            switch self {
+            case .center:
+                return .center
+            case .left:
+                return .left
+            case .right:
+                return .right
+            case .none:
+                return .natural
+            }
+        }
+
+        static let mappedValues:[String: Alignment] = [
             Alignment.none.htmlString():.none,
             Alignment.left.htmlString():.left,
             Alignment.center.htmlString():.center,
             Alignment.right.htmlString():.right
         ]
 
-        static func fromHTML(string value:String) -> Alignment? {
+        static func fromHTML(string value: String) -> Alignment? {
             return mappedValues[value]
         }
     }
@@ -201,7 +325,7 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues:[String:Size] = [
+        static let mappedValues: [String: Size] = [
             Size.thumbnail.htmlString():.thumbnail,
             Size.medium.htmlString():.medium,
             Size.large.htmlString():.large,
@@ -209,7 +333,7 @@ extension ImageAttachment {
             Size.none.htmlString():.none
         ]
 
-        static func fromHTML(string value:String) -> Size? {
+        static func fromHTML(string value: String) -> Size? {
             return mappedValues[value]
         }
 

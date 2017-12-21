@@ -175,24 +175,45 @@ open class MediaAttachment: NSTextAttachment {
     }
 
 
-    // MARK: - Position and size calculation
+    // MARK: - OnScreen Metrics
 
-    func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Attachment's Onscreen Height: should include any margins!
+    ///
+    func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
+        return imageHeight(for: containerWidth) + appearance.imageInsets.top + appearance.imageInsets.bottom
+    }
+
+    /// Returns the Attachment's Onscreen Width: should include any margins!
+    ///
+    func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
+        return imageWidth(for: containerWidth)
+    }
+
+
+    // MARK: - Image Metrics
+
+    /// Returns the Image's Position X, for the specified container width.
+    ///
+    func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
         return 0
     }
 
-    func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Image Height, for the specified container width.
+    ///
+    func imageHeight(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
-        let targetWidth = onScreenWidth(containerWidth)
+        let targetWidth = onScreenWidth(for: containerWidth)
         let scale = targetWidth / image.size.width
 
-        return floor(image.size.height * scale) + (appearance.imageMargin * 2)
+        return floor(image.size.height * scale)
     }
 
-    func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Image Width, for the specified container width.
+    ///
+    func imageWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
@@ -200,11 +221,22 @@ open class MediaAttachment: NSTextAttachment {
         return floor(min(image.size.width, containerWidth))
     }
 
-    func mediaBounds(for bounds: CGRect) -> CGRect {
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.width), y: appearance.imageMargin)
-        let size = CGSize(width: onScreenWidth(bounds.width), height: onScreenHeight(bounds.width) - appearance.imageMargin * 2)
+    /// Returns the Image Bounds, for the specified container bounds.
+    ///
+    func imageBounds(for bounds: CGRect) -> CGRect {
+        let origin = CGPoint(x: imagePositionX(for: bounds.width), y: appearance.imageInsets.top)
+        let size = CGSize(width: imageWidth(for: bounds.width), height: imageHeight(for: bounds.width))
 
         return CGRect(origin: origin, size: size)
+    }
+
+
+    // MARK: - Stub Methods
+
+    /// Draws custom elements onscreen: Subclasses should implement this method, on a need-to basis.
+    ///
+    func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
+        // NO-OP
     }
 
 
@@ -250,7 +282,7 @@ open class MediaAttachment: NSTextAttachment {
         }
 
         let width = floor(lineFrag.width - padding)
-        let size = CGSize(width: width, height: onScreenHeight(width))
+        let size = CGSize(width: width, height: onScreenHeight(for: width))
 
         return CGRect(origin: CGPoint.zero, size: size)
     }
@@ -272,8 +304,7 @@ extension MediaAttachment {
     func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
 
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
-
-        let mediaBounds = self.mediaBounds(for: bounds)
+        let mediaBounds = self.imageBounds(for: bounds)
 
         image.draw(in: mediaBounds)
 
@@ -284,6 +315,9 @@ extension MediaAttachment {
         drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
 
         drawProgress(in: mediaBounds)
+
+        // Subclass Drawing Hook: Pass along the actual container bounds
+        drawCustomElements(in: bounds, mediaBounds: mediaBounds)
 
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -528,7 +562,16 @@ extension MediaAttachment {
 
         /// The margin to apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
-        public var imageMargin = CGFloat(10.0)
+        public var imageInsets = UIEdgeInsets(top: 10.0, left: 0.0, bottom: 10.0, right: 0.0)
+
+        /// The Insets to be applied to the Caption text (if any).. Note that this property is actually used by a subclass. Revisit when possible!
+        ///
+        public var captionInsets = UIEdgeInsets(top: 5.0, left: 0.0, bottom: 5.0, right: 0.0)
+
+        /// The color to use when drawing ImageAttachment's caption (if any). Note that this property is actually used by a subclass.
+        /// Revisit when possible!
+        ///
+        public var captionColor = UIColor.darkGray
     }
 }
 
