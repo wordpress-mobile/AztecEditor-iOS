@@ -13,6 +13,9 @@ class AttributedStringSerializer {
         self.defaultAttributes = defaultAttributes
     }
 
+    convenience init() {
+        self.init(defaultAttributes: [:])
+    }
 
     // MARK: - Conversion
 
@@ -35,7 +38,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)

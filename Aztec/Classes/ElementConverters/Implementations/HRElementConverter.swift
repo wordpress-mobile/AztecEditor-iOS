@@ -4,8 +4,6 @@ import UIKit
 /// Returns a specialised representation for a `<hr>` element.
 ///
 class HRElementConverter: AttachmentElementConverter {
-
-    typealias T = NSTextAttachment
     
     // MARK: - ElementConverter
     
@@ -14,6 +12,8 @@ class HRElementConverter: AttachmentElementConverter {
     }
     
     // MARK: - AttachmentElementConverter
+    
+    typealias T = NSTextAttachment
     
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: NSTextAttachment, string: NSAttributedString) {
         let elementRepresentation = HTMLElementRepresentation(element)
