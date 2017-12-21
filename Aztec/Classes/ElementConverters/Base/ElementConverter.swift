@@ -21,7 +21,7 @@ protocol ElementConverter {
     ///
     /// - Parameter element: Element that should be represented by the replacement String.
     ///
-    func specialString(for element: ElementNode) -> String
+    func specialString(for element: ElementNode, inheriting: [AttributedStringKey: Any]) -> NSAttributedString
 
 
     /// Returns an attachment representing the HTML element.
@@ -53,8 +53,6 @@ protocol ElementConverter {
 
 extension ElementConverter {
     func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        let string = specialString(for: element)
-
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
 
@@ -63,14 +61,14 @@ extension ElementConverter {
         if let extraAttributes = extraAttributes(for: representation) {
             copiedAttributes.merge(extraAttributes, uniquingKeysWith: {(_, new) in new })
         }
-
+        
         guard let attachment = attachment(from: representation, inheriting: inheritedAttributes) else {
-            return NSAttributedString(string: string, attributes: inheritedAttributes)
+            return specialString(for: element, inheriting: inheritedAttributes)
         }
 
         copiedAttributes[.attachment] = attachment
 
-        return NSAttributedString(string: string, attributes: copiedAttributes)
+        return specialString(for: element, inheriting: copiedAttributes)
     }
 
     /// Default implementation, element converters providing attachments should override this.

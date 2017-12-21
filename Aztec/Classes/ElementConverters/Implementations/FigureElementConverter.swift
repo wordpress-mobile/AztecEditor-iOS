@@ -34,8 +34,8 @@ class FigureElementConverter: ElementConverter {
         return output
     }
 
-    func specialString(for element: ElementNode) -> String {
-        return .textAttachment
+    func specialString(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+        return NSAttributedString(.textAttachment, attributes: attributes)
     }
 
     func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
