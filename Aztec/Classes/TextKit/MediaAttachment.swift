@@ -190,7 +190,7 @@ open class MediaAttachment: NSTextAttachment {
     }
 
 
-    // MARK: - Image Sizing + Positioning
+    // MARK: - Image Metrics
 
     /// Returns the Image's Position X, for the specified container width.
     ///

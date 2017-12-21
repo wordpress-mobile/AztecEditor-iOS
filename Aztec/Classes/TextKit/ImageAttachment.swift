@@ -103,16 +103,16 @@ open class ImageAttachment: MediaAttachment {
     /// Returns the Attachment's Onscreen Height: should include any margins!
     ///
     override func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
-        guard let captionSize = captionSize(for: containerWidth) else {
+        guard let _ = caption else {
             return super.onScreenHeight(for: containerWidth)
         }
 
         return appearance.imageInsets.top + imageHeight(for: containerWidth) + appearance.imageInsets.bottom +
-                appearance.captionInsets.top + captionSize.height + appearance.captionInsets.bottom
+                appearance.captionInsets.top + captionSize(for: containerWidth).height + appearance.captionInsets.bottom
     }
 
 
-    // MARK: - Image Sizing + Positioning
+    // MARK: - Image Metrics
 
     /// Returns the x position for the image, for the specified container width.
     ///
@@ -128,7 +128,6 @@ open class ImageAttachment: MediaAttachment {
             return 0
         }
     }
-
 
     /// Returns the Image Width, for the specified container width.
     ///
@@ -146,11 +145,26 @@ open class ImageAttachment: MediaAttachment {
     }
 
 
-    /// Returns the Caption Size for the specified container width. (Or nil if there is no caption!).
+    // MARK: - Caption Metrics
+
+    /// Returns the Caption's Position X for the current Caption's Width, to be displayed within a specific Container's Width.
     ///
-    func captionSize(for containerWidth: CGFloat) -> CGSize? {
+    func captionPositionX(for captionWidth: CGFloat, within containerWidth: CGFloat) -> CGFloat {
+        switch alignment {
+        case .center:
+            return CGFloat(floor((containerWidth - captionWidth) * 0.5))
+        case .right:
+            return CGFloat(floor(containerWidth - captionWidth))
+        default:
+            return 0
+        }
+    }
+
+    /// Returns the Caption Size for the specified container width. (.zero if there is no caption!).
+    ///
+    func captionSize(for containerWidth: CGFloat) -> CGSize {
         guard let caption = caption else {
-            return nil
+            return .zero
         }
 
         let captionWidth = imageWidth(for: containerWidth)
@@ -158,10 +172,37 @@ open class ImageAttachment: MediaAttachment {
         return caption.boundingRect(with: containerSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
     }
 
+    /// Returns the Caption's Bounds for a given Container and Media Bounds Set.
+    ///
+    func captionBounds(containerBounds: CGRect, mediaBounds: CGRect) -> CGRect {
+        let captionSize = self.captionSize(for: containerBounds.width)
+        let captionX = captionPositionX(for: captionSize.width, within: containerBounds.width)
+        let captionY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
 
-    // MARK: - Private Methods
-    //
-    private func applyCaptionAppearance(to caption: NSAttributedString?) -> NSAttributedString? {
+        return CGRect(x: captionX, y: captionY, width: captionSize.width, height: captionSize.height)
+    }
+
+
+    // MARK: - Drawing
+
+    /// Draws ImageAttachment specific fields, within the specified bounds.
+    ///
+    override func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
+        guard let styledCaption = styledCaption else {
+            return
+        }
+
+        let styledBounds = captionBounds(containerBounds: bounds, mediaBounds: mediaBounds)
+        styledCaption.draw(in: styledBounds)
+    }
+}
+
+
+// MARK: - Private Methods
+//
+private extension ImageAttachment {
+
+    func applyCaptionAppearance(to caption: NSAttributedString?) -> NSAttributedString? {
         guard let updatedCaption = caption?.mutableCopy() as? NSMutableAttributedString else {
             return nil
         }
@@ -172,23 +213,6 @@ open class ImageAttachment: MediaAttachment {
         updatedCaption.addAttributes(captionAttributes, range: fullRange)
 
         return updatedCaption
-    }
-
-
-    // MARK: - Drawing
-
-    /// Draws ImageAttachment specific fields, within the specified bounds.
-    ///
-    override func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
-        guard let styledCaption = styledCaption, let captionSize = captionSize(for: bounds.width) else {
-            return
-        }
-
-        let messageX = imagePositionX(for: bounds.width)
-        let messageY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
-        let messageRect = CGRect(x: messageX, y: messageY, width: captionSize.width, height: captionSize.height)
-
-        styledCaption.draw(in: messageRect)
     }
 }
 
@@ -236,14 +260,14 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues:[String:Alignment] = [
+        static let mappedValues:[String: Alignment] = [
             Alignment.none.htmlString():.none,
             Alignment.left.htmlString():.left,
             Alignment.center.htmlString():.center,
             Alignment.right.htmlString():.right
         ]
 
-        static func fromHTML(string value:String) -> Alignment? {
+        static func fromHTML(string value: String) -> Alignment? {
             return mappedValues[value]
         }
     }
@@ -272,7 +296,7 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues:[String:Size] = [
+        static let mappedValues: [String: Size] = [
             Size.thumbnail.htmlString():.thumbnail,
             Size.medium.htmlString():.medium,
             Size.large.htmlString():.large,
@@ -280,7 +304,7 @@ extension ImageAttachment {
             Size.none.htmlString():.none
         ]
 
-        static func fromHTML(string value:String) -> Size? {
+        static func fromHTML(string value: String) -> Size? {
             return mappedValues[value]
         }
 
