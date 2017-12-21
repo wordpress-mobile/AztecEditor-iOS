@@ -3,7 +3,7 @@ import UIKit
 
 /// Returns a specialised representation for a `<figure>` element.
 ///
-class FigureElementConverter: AttachmentElementConverter, ElementConverter {
+class FigureElementConverter: AttachmentElementConverter {
     
     // MARK: - ElementConverter
     
@@ -16,12 +16,6 @@ class FigureElementConverter: AttachmentElementConverter, ElementConverter {
             element.children.count == 2 &&
             element.firstChild(ofType: .img) != nil &&
             element.firstChild(ofType: .figcaption) != nil
-    }
-    
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        let (_, output) = convert(element, inheriting: attributes)
-        
-        return output
     }
     
     // MARK: - AttachmentElementConverter

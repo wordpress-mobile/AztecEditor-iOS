@@ -11,12 +11,6 @@ class VideoElementConverter: AttachmentElementConverter, ElementConverter {
         return element.standardName == .video
     }
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey : Any]) -> NSAttributedString {
-        let (_, output) = convert(element, inheriting: attributes)
-        
-        return output
-    }
-    
     // MARK: - AttachmentElementConverter
     
     typealias AttachmentType = VideoAttachment
