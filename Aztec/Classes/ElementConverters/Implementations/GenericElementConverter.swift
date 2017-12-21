@@ -7,7 +7,7 @@ class GenericElementConverter: ElementConverter {
     
     let serializer: AttributedStringSerializer
     
-    init(with serializer: AttributedStringSerializer) {
+    init(using serializer: AttributedStringSerializer) {
         self.serializer = serializer
     }
     
