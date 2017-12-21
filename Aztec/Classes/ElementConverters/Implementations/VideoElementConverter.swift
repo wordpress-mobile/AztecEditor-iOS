@@ -4,8 +4,6 @@ import UIKit
 /// Provides a representation for `<video>` element.
 ///
 class VideoElementConverter: AttachmentElementConverter, ElementConverter {
-
-    typealias T = VideoAttachment
     
     // MARK: - ElementConverter
     
@@ -20,6 +18,8 @@ class VideoElementConverter: AttachmentElementConverter, ElementConverter {
     }
     
     // MARK: - AttachmentElementConverter
+    
+    typealias AttachmentType = VideoAttachment
     
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: VideoAttachment, string: NSAttributedString) {
         let attachment = self.attachment(for: element)

@@ -4,8 +4,6 @@ import UIKit
 /// Provides a representation for `<img>` element.
 ///
 class ImageElementConverter: AttachmentElementConverter, ElementConverter {
-
-    typealias T = ImageAttachment
     
     // MARK: - ElementConverter
     
@@ -20,6 +18,8 @@ class ImageElementConverter: AttachmentElementConverter, ElementConverter {
     }
     
     // MARK: - AttachmentElementConverter
+    
+    typealias AttachmentType = ImageAttachment
     
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
         let attachment = self.attachment(for: element)
