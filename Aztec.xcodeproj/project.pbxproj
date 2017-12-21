@@ -69,6 +69,7 @@
 		B5D575881F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */; };
 		B5D575891F2288E2003A62F6 /* TextViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D575861F2288E2003A62F6 /* TextViewTests.swift */; };
 		B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DA1C1C1EBD1CCE000AAB45 /* HTMLSerializer.swift */; };
+		B5E583B31FEC366D00F25C7C /* captions.html in Resources */ = {isa = PBXBuildFile; fileRef = B5E583B21FEC366D00F25C7C /* captions.html */; };
 		B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */; };
 		B5E94D101FE01335000E7C20 /* FigureElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */; };
 		B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */; };
@@ -256,6 +257,7 @@
 		B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewStubAttachmentDelegate.swift; path = TextKit/TextViewStubAttachmentDelegate.swift; sourceTree = "<group>"; };
 		B5D575861F2288E2003A62F6 /* TextViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextViewTests.swift; path = TextKit/TextViewTests.swift; sourceTree = "<group>"; };
 		B5DA1C1C1EBD1CCE000AAB45 /* HTMLSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLSerializer.swift; sourceTree = "<group>"; };
+		B5E583B21FEC366D00F25C7C /* captions.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = captions.html; path = Example/Example/SampleContent/captions.html; sourceTree = SOURCE_ROOT; };
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
 		B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FigureElementConverter.swift; sourceTree = "<group>"; };
 		B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Analyzers.swift"; sourceTree = "<group>"; };
@@ -659,6 +661,7 @@
 			isa = PBXGroup;
 			children = (
 				B50CE7331F1FABA00018CAA1 /* content.html */,
+				B5E583B21FEC366D00F25C7C /* captions.html */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1022,6 +1025,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B50CE7341F1FABA00018CAA1 /* content.html in Resources */,
+				B5E583B31FEC366D00F25C7C /* captions.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
