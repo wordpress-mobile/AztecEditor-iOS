@@ -3,45 +3,12 @@ import UIKit
 
 /// Returns a specialised representation for a `<figure>` element.
 ///
-class FigureElementConverter: ElementConverter {
-
-    func convert(from element: ElementNode, inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
-        assert(canConvert(element: element))
-
-        // Extract the Image + Figcaption Elements
-        //
-        guard let imgElement = element.firstChild(ofType: .img),
-            let captionElement = element.firstChild(ofType: .figcaption)
-        else {
-            fatalError()
-        }
-
-        // Convert the Image Element
-        //
-        let output = ImageElementConverter().convert(from: imgElement, inheritedAttributes: inheritedAttributes)
-        guard let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
-            fatalError()
-        }
-
-        // Serialize the Figcaption:
-        // We're wrapping the Figcaption's children within a figcaption, so that the `<figcaption>` element itself doesn't get mapped
-        // as UnknownHTML
-        //
-        let wrappedCaptionChildren = RootNode(children: captionElement.children)
-        let serializer = AttributedStringSerializer(defaultAttributes: inheritedAttributes)
-        imageAttachment.caption = serializer.serialize(wrappedCaptionChildren)
-
-        return output
-    }
-
-    func specialString(for element: ElementNode) -> String {
-        return .textAttachment
-    }
-
-    func extraAttributes(for representation: HTMLRepresentation) -> [AttributedStringKey: Any]? {
-        return [.hrHtmlRepresentation: representation]
-    }
-
+class FigureElementConverter: AttachmentElementConverter {
+    
+    let serializer = AttributedStringSerializer()
+    
+    // MARK: - ElementConverter
+    
     /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
     ///
     /// `<figure><img/><figcaption></figcaption></figure>`
@@ -51,5 +18,45 @@ class FigureElementConverter: ElementConverter {
             element.children.count == 2 &&
             element.firstChild(ofType: .img) != nil &&
             element.firstChild(ofType: .figcaption) != nil
+    }
+    
+    // MARK: - AttachmentElementConverter
+    
+    typealias AttachmentType = ImageAttachment
+    
+    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
+        assert(canConvert(element: element))
+        
+        let attributes = extraAttributes(for: element, inheriting: attributes)
+        
+        // Extract the Image + Figcaption Elements
+        //
+        guard let imgElement = element.firstChild(ofType: .img),
+            let captionElement = element.firstChild(ofType: .figcaption)
+            else {
+                fatalError()
+        }
+        
+        // Convert the Image Element
+        //
+        let (imageAttachment, output) = ImageElementConverter().convert(imgElement, inheriting: attributes)
+        
+        // Serialize the Figcaption:
+        // We're wrapping the Figcaption's children within a figcaption, so that the `<figcaption>` element itself doesn't get mapped
+        // as UnknownHTML
+        //
+        let wrappedCaptionChildren = RootNode(children: captionElement.children)
+        imageAttachment.caption = serializer.serialize(wrappedCaptionChildren, inheriting: attributes)
+        
+        return (imageAttachment, output)
+    }
+    
+    // MARK: - Extra attributes
+
+    private func extraAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
+        
+        return [.hrHtmlRepresentation: representation]
     }
 }

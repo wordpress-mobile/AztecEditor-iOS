@@ -3,14 +3,27 @@ import UIKit
 
 /// Provides a representation for `<img>` element.
 ///
-class ImageElementConverter: ElementConverter {
-
-    func attachment(from representation: HTMLRepresentation, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSTextAttachment? {
-
-        guard case let .element(element) = representation.kind else {
-            return nil
-        }
-
+class ImageElementConverter: AttachmentElementConverter {
+    
+    // MARK: - ElementConverter
+    
+    func canConvert(element: ElementNode) -> Bool {
+        return element.standardName == .img
+    }
+    
+    // MARK: - AttachmentElementConverter
+    
+    typealias AttachmentType = ImageAttachment
+    
+    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
+        let attachment = self.attachment(for: element)
+        
+        return (attachment, NSAttributedString(attachment: attachment, attributes: attributes))
+    }
+    
+    // MARK: - Attachment Creation
+    
+    private func attachment(for element: ElementNode) -> ImageAttachment {
         var extraAttributes = [String: String]()
         for attribute in element.attributes {
             if let value = attribute.value.toString() {
@@ -19,8 +32,9 @@ class ImageElementConverter: ElementConverter {
         }
 
         let url: URL?
-
-        if let urlString = element.attribute(named: "src")?.value.toString() {
+        let srcAttribute = element.attributes.first(where: { $0.name == "src" })
+        
+        if let urlString = srcAttribute?.value.toString() {
             extraAttributes.removeValue(forKey: "src")
             url = URL(string: urlString)
         } else {
@@ -28,8 +42,9 @@ class ImageElementConverter: ElementConverter {
         }
 
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: url)
-
-        if let elementClass = element.attribute(named: "class")?.value.toString() {
+        let classAttribute = element.attributes.first(where: { $0.name == "class" })
+        
+        if let elementClass = classAttribute?.value.toString() {
             let classAttributes = elementClass.components(separatedBy: " ")
             var attributesToRemove = [String]()
             for classAttribute in classAttributes {
@@ -56,13 +71,5 @@ class ImageElementConverter: ElementConverter {
         attachment.extraAttributes = extraAttributes
 
         return attachment
-    }
-
-    func specialString(for element: ElementNode) -> String {
-        return .textAttachment
-    }
-
-    func canConvert(element: ElementNode) -> Bool {
-        return element.standardName == .img
     }
 }

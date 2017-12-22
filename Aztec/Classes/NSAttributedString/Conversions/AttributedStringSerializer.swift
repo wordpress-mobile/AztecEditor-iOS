@@ -13,6 +13,9 @@ class AttributedStringSerializer {
         self.defaultAttributes = defaultAttributes
     }
 
+    convenience init() {
+        self.init(defaultAttributes: [:])
+    }
 
     // MARK: - Conversion
 
@@ -35,7 +38,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -105,15 +108,10 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let converter = converter(for: element) {
-            let convertedString = converter.convert(from: element, inheritedAttributes: childAttributes)
-            content.append(convertedString)
-        } else {
-            for child in element.children {
-                let childContent = serialize(child, inheriting: childAttributes)
-                content.append(childContent)
-            }
-        }
+        let converter = self.converter(for: element)
+        let convertedString = converter.convert(element, inheriting: childAttributes)
+        
+        content.append(convertedString)
 
         guard !element.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: content, inheriting: childAttributes)
@@ -171,6 +169,11 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in element converter instances
 
+    // This converter should not be added to `elementFormattersMap`.  This converter is returned
+    // whenever the map doesn't find a proper match.
+    //
+    private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
+    
     let brElementConverter = BRElementConverter()
     let figureElementConverter = FigureElementConverter()
     let hrElementConverter = HRElementConverter()
@@ -380,10 +383,12 @@ private extension AttributedStringSerializer {
     /// Some element types have an implicit representation that doesn't really follow the standard
     /// conversion logic.  Element Converters take care of that.
     ///
-    func converter(for element: ElementNode) -> ElementConverter? {
-        return elementConverters.first { converter in
+    func converter(for element: ElementNode) -> ElementConverter {
+        let converter = elementConverters.first { converter in
             converter.canConvert(element: element)
         }
+        
+        return converter ?? genericElementConverter
     }
 }
 
