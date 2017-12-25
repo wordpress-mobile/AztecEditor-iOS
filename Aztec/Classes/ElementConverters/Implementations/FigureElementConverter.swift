@@ -5,8 +5,6 @@ import UIKit
 ///
 class FigureElementConverter: AttachmentElementConverter {
     
-    let serializer = AttributedStringSerializer()
-    
     // MARK: - ElementConverter
     
     /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
@@ -46,6 +44,7 @@ class FigureElementConverter: AttachmentElementConverter {
         // as UnknownHTML
         //
         let wrappedCaptionChildren = RootNode(children: captionElement.children)
+        let serializer = AttributedStringSerializer()
         imageAttachment.caption = serializer.serialize(wrappedCaptionChildren, inheriting: attributes)
         
         return (imageAttachment, output)
