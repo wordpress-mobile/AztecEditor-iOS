@@ -664,6 +664,7 @@ open class TextView: UITextView {
         storage.setHTML(processedHTML,
                         defaultAttributes: defaultAttributes,
                         postProcessingHTMLWith: inputTreeProcessor)
+        text = storage.string.replacingOccurrences(of: "\n", with: "\n")
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
