@@ -268,7 +268,7 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.standardName == .li || converter(for: element) != nil {
+        } else if element.standardName == .li || isAnySpecializedConverter(for: element) {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -380,15 +380,23 @@ private extension AttributedStringSerializer {
 
     // MARK: - Element Converters
 
-    /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  Element Converters take care of that.
+    /// Some element types have an implicit representation that doesn't really follow the standard conversion logic.
+    /// Element Converters take care of that.
     ///
     func converter(for element: ElementNode) -> ElementConverter {
         let converter = elementConverters.first { converter in
             converter.canConvert(element: element)
         }
-        
+
         return converter ?? genericElementConverter
+    }
+
+    /// Indicates if there's a specialized converter (AKA anything but the default GenericConverter) that can handle a given element.
+    ///
+    func isAnySpecializedConverter(for element: ElementNode) -> Bool {
+        return elementConverters.contains { converter in
+            converter.canConvert(element: element)
+        }
     }
 }
 
