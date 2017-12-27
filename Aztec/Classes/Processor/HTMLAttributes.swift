@@ -5,14 +5,33 @@ import Foundation
 public struct HTMLAttributes {
 
     /// Attributes that have a form key=value or key="value" or key='value'
+    ///
     public let named: [String: String]
 
     /// Attributes that have a form value "value"
+    ///
     public let unamed: [String]
 
     public init(named: [String: String], unamed: [String]) {
         self.named = named
         self.unamed = unamed
+    }
+
+    /// Serializes the current HTMLAttribute Collection into a plain string
+    ///
+    public func toString() -> String {
+        var html = String()
+        for (key, value) in named {
+            html += html.isEmpty ? String() : String(.space)
+            html += "\(key)=\"\(value)\""
+        }
+
+        for value in unamed {
+            html += html.isEmpty ? String() : String(.space)
+            html += "\(value)"
+        }
+
+        return html
     }
 }
 
