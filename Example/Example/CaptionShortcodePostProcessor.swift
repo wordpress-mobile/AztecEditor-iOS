@@ -1,29 +1,38 @@
 import Aztec
 import Foundation
 
-class CaptionShortcodePostProcessor: Aztec.HTMLProcessor {
+
+// MARK: - CaptionShortcodePostProcessor: Converts <figure><img><figcaption> structures into a [caption] shortcode.
+//
+class CaptionShortcodePostProcessor: HTMLProcessor {
 
     init() {
-        super.init(tag: "div") { (shortcode) in
-
-            let dataShortcodeAttributeKey = "data-shortcode"
-
-            guard let shortcodeType = shortcode.attributes.named[dataShortcodeAttributeKey],
-                shortcodeType.lowercased() == "caption" else {
-                    return nil
+        super.init(tag: StandardElementType.figure.rawValue) { shortcode in
+            guard let payload = shortcode.content else {
+                return nil
             }
 
-            var html = "[caption "
-
-            for (key, value) in shortcode.attributes.named where key != dataShortcodeAttributeKey {
-                html += "\(key)=\"\(value)\" "
+            /// Parse the Shortcode's Payload: We expect an [IMG, Figcaption]
+            ///
+            let parsed = HTMLParser().parse(payload)
+            guard let image = parsed.firstChild(ofType: .img),
+                let figcaption = parsed.firstChild(ofType: .figcaption)
+            else {
+                return nil
             }
 
-            for value in shortcode.attributes.unamed {
-                html += "\(value) "
+            /// Serialize the Caption's Shortcode!
+            ///
+            let serializer = DefaultHTMLSerializer()
+            var html = "[caption" + shortcode.attributes.toString() + "]"
+
+            html += serializer.serialize(image)
+
+            for child in figcaption.children {
+                html += serializer.serialize(child)
             }
 
-            html += "]" + (shortcode.content ?? "") + "[/caption]"
+            html += "[/caption]"
             
             return html
         }
