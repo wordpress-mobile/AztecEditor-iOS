@@ -25,14 +25,27 @@ class CaptionShortcodePreProcessor: ShortcodeProcessor {
 
             /// Figcaption: Figure Children (minus) the image
             ///
-            var caption = Set(payloadNode.children)
-            caption.remove(imageNode)
+            let captionChildren = payloadNode.children.filter { node in
+                return node != imageNode
+            }
 
-            let figcaptionNode = ElementNode(type: .figcaption, attributes: [], children: Array(caption))
+            let figcaptionNode = ElementNode(type: .figcaption, attributes: [], children: captionChildren)
+
+            /// Map Shortcode Attributes into ElementNode Attributes
+            ///
+            let unnamed = shortcode.attributes.unamed.map { attribute in
+                return Attribute(name: attribute)
+            }
+
+            let named = shortcode.attributes.named.map { attribute in
+                return Attribute(name: attribute.key, value: .string(attribute.value))
+            }
+
+            let figureAttributes = named + unnamed
 
             /// Figure: Image + Figcaption! Woo!
             ///
-            let figure = ElementNode(type: .figure, attributes: [], children: [imageNode, figcaptionNode])
+            let figure = ElementNode(type: .figure, attributes: figureAttributes, children: [imageNode, figcaptionNode])
 
             /// Final Step: Serialize back to string.
             /// This is expected to produce a `<figure><img<figcaption/></figure>` snippet.
