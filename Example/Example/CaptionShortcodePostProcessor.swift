@@ -24,7 +24,10 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
-            var html = "[caption" + shortcode.attributes.toString() + "]"
+            let attributes = shortcode.attributes.toString()
+            let padding = attributes.isEmpty ? "" : " "
+
+            var html = "[caption" + padding + attributes + "]"
 
             html += serializer.serialize(image)
 
