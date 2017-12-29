@@ -149,23 +149,23 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in formatter instances
 
-    let blockquoteFormatter = BlockquoteFormatter()
-    let boldFormatter = BoldFormatter()
-    let divFormatter = HTMLDivFormatter()
-    let h1Formatter = HeaderFormatter(headerLevel: .h1)
-    let h2Formatter = HeaderFormatter(headerLevel: .h2)
-    let h3Formatter = HeaderFormatter(headerLevel: .h3)
-    let h4Formatter = HeaderFormatter(headerLevel: .h4)
-    let h5Formatter = HeaderFormatter(headerLevel: .h5)
-    let h6Formatter = HeaderFormatter(headerLevel: .h6)
-    let italicFormatter = ItalicFormatter()
-    let linkFormatter = LinkFormatter()
-    let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
-    let paragraphFormatter = HTMLParagraphFormatter()
-    let preFormatter = PreFormatter()
-    let strikethroughFormatter = StrikethroughFormatter()
-    let underlineFormatter = UnderlineFormatter()
-    let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
+    lazy var blockquoteFormatter = BlockquoteFormatter()
+    lazy var boldFormatter = BoldFormatter()
+    lazy var divFormatter = HTMLDivFormatter()
+    lazy var h1Formatter = HeaderFormatter(headerLevel: .h1)
+    lazy var h2Formatter = HeaderFormatter(headerLevel: .h2)
+    lazy var h3Formatter = HeaderFormatter(headerLevel: .h3)
+    lazy var h4Formatter = HeaderFormatter(headerLevel: .h4)
+    lazy var h5Formatter = HeaderFormatter(headerLevel: .h5)
+    lazy var h6Formatter = HeaderFormatter(headerLevel: .h6)
+    lazy var italicFormatter = ItalicFormatter()
+    lazy var linkFormatter = LinkFormatter()
+    lazy var orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
+    lazy var paragraphFormatter = HTMLParagraphFormatter()
+    lazy var preFormatter = PreFormatter()
+    lazy var strikethroughFormatter = StrikethroughFormatter()
+    lazy var underlineFormatter = UnderlineFormatter()
+    lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
 
     // MARK: - Built-in element converter instances
 
@@ -174,11 +174,11 @@ class AttributedStringSerializer {
     //
     private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
     
-    let brElementConverter = BRElementConverter()
-    let figureElementConverter = FigureElementConverter()
-    let hrElementConverter = HRElementConverter()
-    let imageElementConverter = ImageElementConverter()
-    let videoElementConverter = VideoElementConverter()
+    lazy var brElementConverter = BRElementConverter()
+    lazy var figureElementConverter = FigureElementConverter()
+    lazy var hrElementConverter = HRElementConverter()
+    lazy var imageElementConverter = ImageElementConverter()
+    lazy var videoElementConverter = VideoElementConverter()
 
     // MARK: - Formatter Maps
 
