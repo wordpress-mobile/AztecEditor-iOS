@@ -310,6 +310,10 @@ extension ImageAttachment {
         case full
         case none
 
+        var shouldResizeAsset: Bool {
+            return width != Settings.maximum
+        }
+
         func htmlString() -> String {
             switch self {
             case .thumbnail:
