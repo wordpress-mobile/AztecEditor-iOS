@@ -24,9 +24,7 @@ class FigureElementConverter: AttachmentElementConverter {
     
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
         assert(canConvert(element: element))
-        
-        let attributes = extraAttributes(for: element, inheriting: attributes)
-        
+
         // Extract the Image + Figcaption Elements
         //
         guard let imgElement = element.firstChild(ofType: .img),
@@ -48,14 +46,5 @@ class FigureElementConverter: AttachmentElementConverter {
         imageAttachment.caption = serializer.serialize(wrappedCaptionChildren, inheriting: attributes)
         
         return (imageAttachment, output)
-    }
-    
-    // MARK: - Extra attributes
-
-    private func extraAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
-        let elementRepresentation = HTMLElementRepresentation(element)
-        let representation = HTMLRepresentation(for: .element(elementRepresentation))
-        
-        return [.hrHtmlRepresentation: representation]
-    }
+    }    
 }

@@ -13,13 +13,14 @@ class LinkTests: XCTestCase {
         XCUIDevice.shared().orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments = ["NoAnimations"]
-        app.launch()
+        app.activate()
         
         let blogsPage = BlogsPage.init()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
+        _ = richEditorPage.gotoRootPage()
         super.tearDown()
     }
     
