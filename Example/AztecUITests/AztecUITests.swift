@@ -3,7 +3,7 @@ import XCTest
 class AztecSimpleTextFormattingTests: XCTestCase {
 
     private var app: XCUIApplication!
-    private var richTextField: XCUIElement!
+    private var richEditorPage: EditorPage!
 
     override func setUp() {
         super.setUp()
@@ -14,14 +14,14 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         XCUIDevice.shared().orientation = .portrait
         app = XCUIApplication()
         app.launchArguments = ["NoAnimations"]
-        app.launch()
+        app.activate()
 
         let blogsPage = BlogsPage.init()
-        blogsPage.gotoEmptyDemo()
+        richEditorPage = blogsPage.gotoEmptyDemo()
     }
 
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        _ = richEditorPage.gotoRootPage()
         super.tearDown()
     }
 

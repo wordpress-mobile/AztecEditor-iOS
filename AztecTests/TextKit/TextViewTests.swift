@@ -1438,7 +1438,7 @@ class TextViewTests: XCTestCase {
         let videoHTML = "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video>"
         let textView = createTextView(withHTML: videoHTML)
 
-        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" data-wpvideopress=\"videopress\" poster=\"video.jpg\"></video></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
             XCTFail("An video attachment should be present")
@@ -1448,7 +1448,7 @@ class TextViewTests: XCTestCase {
 
         attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
 
-        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" data-wpvideopress=\"ABCDE\" poster=\"video.jpg\"></video></p>")
     }
 
 

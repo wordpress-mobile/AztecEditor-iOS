@@ -4,9 +4,7 @@ import UIKit
 /// Returns a specialised representation for a `<figure>` element.
 ///
 class FigureElementConverter: AttachmentElementConverter {
-    
-    let serializer = AttributedStringSerializer()
-    
+
     // MARK: - ElementConverter
     
     /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
@@ -26,9 +24,7 @@ class FigureElementConverter: AttachmentElementConverter {
     
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
         assert(canConvert(element: element))
-        
-        let attributes = extraAttributes(for: element, inheriting: attributes)
-        
+
         // Extract the Image + Figcaption Elements
         //
         guard let imgElement = element.firstChild(ofType: .img),
@@ -45,18 +41,10 @@ class FigureElementConverter: AttachmentElementConverter {
         // We're wrapping the Figcaption's children within a figcaption, so that the `<figcaption>` element itself doesn't get mapped
         // as UnknownHTML
         //
+        let serializer = AttributedStringSerializer()
         let wrappedCaptionChildren = RootNode(children: captionElement.children)
         imageAttachment.caption = serializer.serialize(wrappedCaptionChildren, inheriting: attributes)
         
         return (imageAttachment, output)
-    }
-    
-    // MARK: - Extra attributes
-
-    private func extraAttributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
-        let elementRepresentation = HTMLElementRepresentation(element)
-        let representation = HTMLRepresentation(for: .element(elementRepresentation))
-        
-        return [.hrHtmlRepresentation: representation]
-    }
+    }    
 }
