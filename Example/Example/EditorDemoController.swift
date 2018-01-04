@@ -11,11 +11,11 @@ class EditorDemoController: UIViewController {
 
     fileprivate var mediaErrorMode = false
 
-    fileprivate(set) lazy var formatBar: Aztec.FormatBar = { [unowned self] in
+    fileprivate(set) lazy var formatBar: Aztec.FormatBar = {
         return self.createToolbar()
     }()
 
-    fileprivate(set) lazy var richTextView: Aztec.TextView = { [weak self] in
+    fileprivate(set) lazy var richTextView: Aztec.TextView = {
 
         let paragraphStyle = Aztec.ParagraphStyle.default
         
@@ -53,7 +53,7 @@ class EditorDemoController: UIViewController {
         return textView
     }()
 
-    fileprivate(set) lazy var htmlTextView: UITextView = { [weak self] in
+    fileprivate(set) lazy var htmlTextView: UITextView = { in
         let defaultFont: UIFont
 
         if #available(iOS 11, *) {
