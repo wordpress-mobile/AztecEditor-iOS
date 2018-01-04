@@ -1371,7 +1371,9 @@ private extension EditorDemoController
         }
         
         detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt) in
-            self?.richTextView.edit(attachment) { updated in
+            guard let `self` = self else { return }
+            
+            self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
                 }
@@ -1383,9 +1385,9 @@ private extension EditorDemoController
             }
             // Update associated link
             if let updatedURL = linkURL {
-                self?.richTextView.setLink(updatedURL, inRange: attachmentRange)
+                self.richTextView.setLink(updatedURL, inRange: attachmentRange)
             } else if oldURL != nil && linkURL == nil {
-                self?.richTextView.removeLink(inRange: attachmentRange)
+                self.richTextView.removeLink(inRange: attachmentRange)
             }
         }
 
