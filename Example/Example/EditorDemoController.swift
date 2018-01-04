@@ -230,10 +230,10 @@ class EditorDemoController: UIViewController {
     // MARK: - Title and Title placeholder position methods
     func updateTitlePosition() {
         let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
-        titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top) + 5
+        titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top) + Constants.titleInsets.top
 
         var contentInset = referenceView.contentInset
-        contentInset.top = titleHeightConstraint.constant - 10
+        contentInset.top = titleHeightConstraint.constant - (Constants.titleInsets.top + Constants.titleInsets.bottom)
         referenceView.contentInset = contentInset
     }
 
@@ -250,7 +250,7 @@ class EditorDemoController: UIViewController {
     private func configureConstraints() {
 
         titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
-        titleTopConstraint = titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 5)
+        titleTopConstraint = titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.titleInsets.top)
         let layoutGuide = view.layoutMarginsGuide
 
         NSLayoutConstraint.activate([
@@ -1364,6 +1364,7 @@ extension EditorDemoController {
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let lists                = [TextList.Style.unordered, .ordered]        
         static let moreAttachmentText   = "more"
+        static let titleInsets          = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
     }
 
     struct MediaProgressKey {
