@@ -56,13 +56,14 @@ class EditorPage: BasePage {
       
         showOptionsStrip()
     }
-    
-    func showOptionsStrip() -> Void {
+
+
+    func showOptionsStrip() {
         textView.coordinate(withNormalizedOffset: .zero).tap()
         expandOptionsSctrip()
     }
     
-    func expandOptionsSctrip() -> Void {
+    func expandOptionsSctrip() {
         let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
         let htmlButton = app.scrollViews.otherElements.buttons[elementStringIDs.sourcecodeButton]
         
@@ -159,7 +160,7 @@ class EditorPage: BasePage {
      Enters text into title field.
      - Parameter text: the test to enter into the title
      */
-    func enterTextInTitle(text: String) -> Void {
+    func enterTextInTitle(text: String) {
         app.textFields[titleTextField].typeText(text)
     }
 
