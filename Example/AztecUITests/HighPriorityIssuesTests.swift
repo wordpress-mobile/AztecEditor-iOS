@@ -13,14 +13,14 @@ class HighPriorityIssuesTests: XCTestCase {
         XCUIDevice.shared().orientation = .portrait
         app = XCUIApplication()
         app.launchArguments = ["NoAnimations"]
-        app.launch()
+        app.activate()
         
         let blogsPage = BlogsPage.init()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        _ = richEditorPage.gotoRootPage()
         super.tearDown()
     }
     
@@ -47,13 +47,12 @@ class HighPriorityIssuesTests: XCTestCase {
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
     func testInfiniteLoopOnAssetDownload() {
-        let blogsPage = richEditorPage
+        _ = richEditorPage
             .switchContentView()
             .enterText(text: "<img src=\"https://someinvalid.url/with-an-invalid-resource\">")
             .switchContentView()
             .gotoRootPage()
-
-        XCTAssert(blogsPage.isLoaded(), "blogsPage isn't loaded. Are you on the right page?")
+            .gotoEmptyDemo()
    }
     
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/465
@@ -84,7 +83,7 @@ class HighPriorityIssuesTests: XCTestCase {
         boldButton.tap()
         italicButton.tap()
         
-        enterTextInField(text: "q")
+        richEditorPage.enterText(text: "q")
         let deleteButton = app.keys["delete"]
         deleteButton.tap()
         deleteButton.tap()
