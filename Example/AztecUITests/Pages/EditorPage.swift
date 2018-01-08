@@ -20,18 +20,18 @@ class EditorPage: BasePage {
     private var richTextField = "richContentView"
     private var htmlTextField = "HTMLContentView"
     
-    var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
-    var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
-    var boldButton = XCUIApplication().buttons["formatToolbarToggleBold"]
-    var italicButton = XCUIApplication().buttons["formatToolbarToggleItalic"]
-    var underlineButton = XCUIApplication().buttons["formatToolbarToggleUnderline"]
-    var strikethroughButton = XCUIApplication().buttons["formatToolbarToggleStrikethrough"]
-    var blockquoteButton = XCUIApplication().buttons["formatToolbarToggleBlockquote"]
-    var unorderedlistButton = XCUIApplication().buttons["formatToolbarToggleListUnordered"]
-    var linkButton = XCUIApplication().buttons["formatToolbarInsertLink"]
-    var horizontalrulerButton = XCUIApplication().buttons["formatToolbarInsertHorizontalRuler"]
-    var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
-    var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
+    lazy var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
+    lazy var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
+    lazy var boldButton = XCUIApplication().buttons["formatToolbarToggleBold"]
+    lazy var italicButton = XCUIApplication().buttons["formatToolbarToggleItalic"]
+    lazy var underlineButton = XCUIApplication().buttons["formatToolbarToggleUnderline"]
+    lazy var strikethroughButton = XCUIApplication().buttons["formatToolbarToggleStrikethrough"]
+    lazy var blockquoteButton = XCUIApplication().buttons["formatToolbarToggleBlockquote"]
+    lazy var unorderedlistButton = XCUIApplication().buttons["formatToolbarToggleListUnordered"]
+    lazy var linkButton = XCUIApplication().buttons["formatToolbarInsertLink"]
+    lazy var horizontalrulerButton = XCUIApplication().buttons["formatToolbarInsertHorizontalRuler"]
+    lazy var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
+    lazy var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
 
     init(mode: Mode) {
         textField = ""
