@@ -154,7 +154,7 @@ class EditorPage: BasePage {
      - Parameter text: the test to enter into the title
      */
     func enterTextInTitle(text: String) -> Void {
-        app.textViews[titleTextField].typeText(text)
+        app.textFields[titleTextField].typeText(text)
     }
 
     @discardableResult
