@@ -43,19 +43,19 @@ class EditLinkPage: BasePage {
     func ok() -> EditorPage {
         insertButton.tap()
         
-        return EditorPage.init(type: "rich")
+        return EditorPage(mode: .rich)
     }
     
     func cancel() -> EditorPage {
         cancelButton.tap()
         
-        return EditorPage.init(type: "rich")
+        return EditorPage(mode: .rich)
     }
     
     func remove() -> EditorPage {
         removeButton.tap()
         
-        return EditorPage.init(type: "rich")
+        return EditorPage(mode: .rich)
     }
 
 }

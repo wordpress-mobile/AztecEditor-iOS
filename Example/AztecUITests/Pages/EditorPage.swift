@@ -2,9 +2,18 @@ import Foundation
 import XCTest
 
 class EditorPage: BasePage {
-    
+
+    enum Mode {
+        case rich
+        case html
+
+        func toggle() -> Mode {
+            return self == .rich ? .html : .rich
+        }
+    }
+
     var textField: String!
-    var type: String!
+    var mode: Mode
     var textView: XCUIElement
 
     private var titleTextField = "Title"
@@ -24,17 +33,16 @@ class EditorPage: BasePage {
     var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
     var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
 
-    init(type: String) {
+    init(mode: Mode) {
         textField = ""
-        self.type = type
-        switch type {
-        case "rich":
+        self.mode = mode
+        switch mode {
+        case .rich:
             textField = richTextField
-        case "html":
+        case .html:
             textField = htmlTextField
-        default:
-            textField = "invalid locator. check Editor.init type param"
         }
+
         let app = XCUIApplication()
         textView = app.textViews[textField]
         
@@ -135,9 +143,7 @@ class EditorPage: BasePage {
      */
     func switchContentView() -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
-        
-        let newType = type == "rich" ? "html" : "rich"
-        return EditorPage.init(type: newType)
+        return EditorPage(mode: mode.toggle())
     }
     
     /**
@@ -162,17 +168,17 @@ class EditorPage: BasePage {
         for _ in 1...chars {
             app.keys["delete"].tap()
         }
-        
+
         return self
     }
     
     func gotoRootPage() -> BlogsPage {
         app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
-        return BlogsPage.init()
+        return BlogsPage()
     }
     
     func getViewContent() -> String {
-        if  type == "rich" {
+        if mode == .rich {
             return getTextContent()
         }
         
