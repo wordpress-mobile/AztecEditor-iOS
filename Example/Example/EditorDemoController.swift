@@ -38,7 +38,7 @@ class EditorDemoController: UIViewController {
                                VideoShortcodePostProcessor()])
 
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
-        self?.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
+        self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
 
         textView.delegate = self
         textView.formattingDelegate = self
@@ -53,7 +53,7 @@ class EditorDemoController: UIViewController {
         return textView
     }()
 
-    fileprivate(set) lazy var htmlTextView: UITextView = { in
+    fileprivate(set) lazy var htmlTextView: UITextView = {
         let defaultFont: UIFont
 
         if #available(iOS 11, *) {
@@ -72,7 +72,7 @@ class EditorDemoController: UIViewController {
         let textView = UITextView(frame: .zero, textContainer: container)
 
         let accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        self?.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
+        self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
 
         textView.isHidden = true
         textView.delegate = self
