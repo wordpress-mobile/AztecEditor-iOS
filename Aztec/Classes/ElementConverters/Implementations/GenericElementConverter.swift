@@ -5,7 +5,7 @@ import UIKit
 ///
 class GenericElementConverter: ElementConverter {
     
-    let serializer: AttributedStringSerializer
+    unowned let serializer: AttributedStringSerializer
     
     init(using serializer: AttributedStringSerializer) {
         self.serializer = serializer

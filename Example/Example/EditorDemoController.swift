@@ -241,7 +241,7 @@ class EditorDemoController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        var safeInsets = self.view.layoutMargins
+        var safeInsets = view.layoutMargins
         safeInsets.top = richTextView.textContainerInset.top
         richTextView.textContainerInset = safeInsets
         htmlTextView.textContainerInset = safeInsets
@@ -276,10 +276,10 @@ class EditorDemoController: UIViewController {
             ])
 
         NSLayoutConstraint.activate([
-            htmlTextView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            htmlTextView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            htmlTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            htmlTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
-            htmlTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            htmlTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             ])
     }
 
@@ -348,8 +348,8 @@ class EditorDemoController: UIViewController {
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
         let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
 
-        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + self.view.layoutMargins.bottom), right: 0)
-        let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + self.view.layoutMargins.bottom), right: 0)
+        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom), right: 0)
+        let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom), right: 0)
 
         htmlTextView.scrollIndicatorInsets = scrollInsets
         htmlTextView.contentInset = contentInset
@@ -572,7 +572,7 @@ extension EditorDemoController {
             return OptionsTableViewOption(image: headerType.iconImage, title: title)
         }
 
-        let selectedIndex = Constants.headers.index(of: self.headerLevelForSelectedText())
+        let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
 
         showOptionsTableViewControllerWithOptions(headerOptions,
                                                   fromBarItem: item,
@@ -687,7 +687,7 @@ extension EditorDemoController {
     }
 
     private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
-        self.addChildViewController(optionsViewController)
+        addChildViewController(optionsViewController)
         changeRichTextInputView(to: optionsViewController.view)
         optionsViewController.didMove(toParentViewController: self)
     }
@@ -865,7 +865,7 @@ extension EditorDemoController {
             insertAction.isEnabled = !text.isEmpty
         }
 
-        self.present(alertController, animated:true, completion:nil)
+        present(alertController, animated:true, completion:nil)
     }
 
     @objc func alertTextFieldDidChange(_ textField: UITextField) {
@@ -1277,32 +1277,32 @@ private extension EditorDemoController
         let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
         let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
                                           style: .cancel,
-                                          handler: { (action) in
-                                            self.resetMediaAttachmentOverlay(attachment)
-                                            self.richTextView.refresh(attachment)
+                                          handler: { [weak self] (action) in
+                                            self?.resetMediaAttachmentOverlay(attachment)
+                                            self?.richTextView.refresh(attachment)
         }
         )
         alertController.addAction(dismissAction)
 
         let removeAction = UIAlertAction(title: NSLocalizedString("Remove Media", comment: "User action to remove media."),
                                          style: .destructive,
-                                         handler: { (action) in
-                                            self.richTextView.remove(attachmentID: mediaID)
+                                         handler: { [weak self] (action) in
+                                            self?.richTextView.remove(attachmentID: mediaID)
         })
         alertController.addAction(removeAction)
 
         if let imageAttachment = attachment as? ImageAttachment {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to change media details."),
                                               style: .default,
-                                              handler: { (action) in
-                                                self.displayDetailsForAttachment(imageAttachment, position: position)
+                                              handler: { [weak self] (action) in
+                                                self?.displayDetailsForAttachment(imageAttachment, position: position)
             })
             alertController.addAction(detailsAction)
         } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.srcURL {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
                                               style: .default,
-                                              handler: { (action) in
-                                                self.displayVideoPlayer(for: videoURL)
+                                              handler: { [weak self] (action) in
+                                                self?.displayVideoPlayer(for: videoURL)
             })
             alertController.addAction(detailsAction)
         }
@@ -1328,8 +1328,12 @@ private extension EditorDemoController
            oldURL = url
            detailsViewController.linkURL = url
         }
-        
-        detailsViewController.onUpdate = { (alignment, size, url, linkURL, alt, caption) in
+
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
+            guard let `self` = self else {
+                return
+            }
+
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
