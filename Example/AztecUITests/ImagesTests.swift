@@ -15,7 +15,7 @@ class ImagesTests: XCTestCase {
         app.launchArguments = ["NoAnimations"]
         app.activate()
         
-        let blogsPage = BlogsPage.init()
+        let blogsPage = BlogsPage()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     

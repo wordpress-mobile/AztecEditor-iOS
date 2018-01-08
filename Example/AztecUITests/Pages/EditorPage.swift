@@ -199,7 +199,7 @@ class EditorPage: BasePage {
     func makeLink() -> EditLinkPage {
         toolbarButtonTap(locator: elementStringIDs.linkButton)
         
-        return EditLinkPage.init()
+        return EditLinkPage()
     }
     /*
      Select Image from Camera Roll by its ID. Starts with 0
