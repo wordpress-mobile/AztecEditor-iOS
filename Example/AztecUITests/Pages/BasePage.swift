@@ -6,7 +6,6 @@ class BasePage {
     var expectedElement: XCUIElement!
     var waitTimeout: Double!
 
-    //init(appInstance: XCUIApplication, element: XCUIElement) {
     init(element: XCUIElement) {
         app = XCUIApplication() // appInstance
         expectedElement = element
