@@ -23,28 +23,7 @@ class HighPriorityIssuesTests: XCTestCase {
         _ = richEditorPage.gotoRootPage()
         super.tearDown()
     }
-    
-    // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/385
-    func testLongTitle() {
-        let longTitle = "long title in a galaxy not so far away"
-        // Title heigh contains of actual textfield height + bottom line.
-        // 16px - is the height of that bottom line. Its not changing with different font sizes
-        let titleTextView = app.textViews[elementStringIDs.titleTextField]
-        let titleLineHeight = titleTextView.frame.height - 16
-        let oneLineTitleHeight = titleTextView.frame.height
-        titleTextView.tap()
         
-        // TODO: Move it into EditorPage
-        if isIPhone() {
-            titleTextView.typeText(String(repeating: "very ", count: 6) + longTitle)
-        } else {
-            titleTextView.typeText(String(repeating: "very ", count: 20) + longTitle)
-        }
-        
-        let twoLineTitleHeight = titleTextView.frame.height
-        XCTAssert(twoLineTitleHeight - oneLineTitleHeight >= titleLineHeight )
-    }
-    
     // Github issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/675
     func testInfiniteLoopOnAssetDownload() {
         _ = richEditorPage
