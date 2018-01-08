@@ -2,17 +2,17 @@ import Foundation
 import XCTest
 
 class BasePage {
-    var app: XCUIApplication!
-    var expectedElement: XCUIElement!
-    var waitTimeout: Double!
+    let app: XCUIApplication
+    let expectedElement: XCUIElement
+    let waitTimeout = Double(20)
 
     init(element: XCUIElement) {
-        app = XCUIApplication() // appInstance
+        app = XCUIApplication()
         expectedElement = element
-        waitTimeout = 20
-        _ = waitForPage()
+        waitForPage()
     }
-    
+
+    @discardableResult
     func waitForPage() -> BasePage {
         _ = expectedElement.waitForExistence(timeout: waitTimeout)
         Logger.log(message: "Page \(self) is loaded", event: .i)
