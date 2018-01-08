@@ -50,8 +50,7 @@ class EditorPage: BasePage {
     }
     
     func showOptionsStrip() -> Void {
-        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
-//        textView.tap()
+        textView.coordinate(withNormalizedOffset: .zero).tap()
         expandOptionsSctrip()
     }
     
@@ -231,8 +230,7 @@ class EditorPage: BasePage {
     }
     
     private func getTextContent() -> String {
-        let text = textView.value as! String
-        return text
+        return textView.value as! String
     }
 }
 
