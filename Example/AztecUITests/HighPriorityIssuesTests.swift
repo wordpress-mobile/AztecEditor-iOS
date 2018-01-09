@@ -90,12 +90,12 @@ class HighPriorityIssuesTests: XCTestCase {
         demoEditorPage.textView.coordinate(withNormalizedOffset: .zero).press(forDuration: 1)
 
         let pasteButton = app.menuItems[elementStringIDs.pasteButton]
-        pasteButton.waitForExistence(timeout: waitTimeout)
+        pasteButton.waitForExistence(timeout: demoEditorPage.waitTimeout)
         pasteButton.tap()
 
         sleep(3) // to make sure everything is updated
 
-        let newText = demoEditorPage.getViewContent()        
+        let newText = demoEditorPage.getViewContent()
         XCTAssertEqual(newText, text + text)
     }
 }
