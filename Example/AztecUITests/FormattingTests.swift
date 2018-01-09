@@ -30,10 +30,10 @@ class FormattingTests: XCTestCase {
 
         richEditorPage
             .addListWithLines(type: "ol", lines: values)
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2)
             .textView.tap()
         XCUIApplication().menuItems["Select"].tap()
-        
+
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .switchContentView()
