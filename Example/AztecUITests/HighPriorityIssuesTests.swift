@@ -74,9 +74,13 @@ class HighPriorityIssuesTests: XCTestCase {
             .gotoRootPage()
             .gotoDemo()
             .switchContentView()
+
+        sleep(2)
+
+        let text = demoEditorPage
             .selectAllText()
-        
-        let text = demoEditorPage.getViewContent()
+            .getViewContent()
+
         XCUIApplication().menuItems[elementStringIDs.copyButton].tap()
         demoEditorPage.textView.tap()
 
@@ -85,7 +89,7 @@ class HighPriorityIssuesTests: XCTestCase {
         demoEditorPage.textView.swipeDown()
         demoEditorPage.textView.swipeDown()
 
-        demoEditorPage.textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
+        demoEditorPage.textView.coordinate(withNormalizedOffset: .zero).press(forDuration: 1)
         app.menuItems[elementStringIDs.pasteButton].tap()
         sleep(3) // to make sure everything is updated
         let newText = demoEditorPage.getViewContent()

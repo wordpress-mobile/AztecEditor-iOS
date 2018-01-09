@@ -199,7 +199,7 @@ class EditorPage: BasePage {
     /// Selects all entered text in provided textView element
     ///
     func selectAllText() -> EditorPage {
-        textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
+        textView.coordinate(withNormalizedOffset: .zero).press(forDuration: 1)
 
         app.menuItems["Select All"].tap()
         
