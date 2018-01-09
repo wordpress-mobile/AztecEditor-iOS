@@ -136,26 +136,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         XCTAssertEqual(expected, text)
     }
 
-    /*
-    Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
-    func testMoreTag() {
-        app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
-
-        let text = getHTMLContent()
-        let expected = "<!--more-->"
-        XCTAssertEqual(expected, text)
-    }
-
-    func testMoreTagWithText() {
-        enterTextInField(text: "1\n")
-        app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
-        enterTextInField(text: "\n2")
-
-        let text = getHTMLContent()
-        let expected = "1<br><!--more--><br>2"
-        XCTAssertEqual(expected, text)
-    }*/
-
     func testHeadingOneText() {
         enterTextInField(text: "1")
         selectAllTextInField()
