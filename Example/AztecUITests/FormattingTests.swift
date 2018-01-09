@@ -99,13 +99,13 @@ class FormattingTests: XCTestCase {
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
             .enterText(text: text)
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
-            .tapByCordinates(x: 30, y: 72)
+            .tapLineNumber(3, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
             

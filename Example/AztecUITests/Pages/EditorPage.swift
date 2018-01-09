@@ -10,6 +10,7 @@ class EditorPage: BasePage {
     //
     private enum Constants {
         static let defaultFont = UIFont.systemFont(ofSize: 14)
+        static let blockquoteSpacing = CGFloat(16)
     }
 
     // MARK: - Edition Mode
@@ -143,8 +144,10 @@ class EditorPage: BasePage {
 
     /// Taps over the specified line number.
     ///
-    func tapLineNumber(_ lineNumber: Int) -> EditorPage {
-        let positionY = Constants.defaultFont.lineHeight * CGFloat(lineNumber)
+    func tapLineNumber(_ lineNumber: Int, isBlockquote: Bool = false) -> EditorPage {
+        let spacing = isBlockquote ? Constants.blockquoteSpacing : 0
+        let positionY = (Constants.defaultFont.lineHeight + spacing) * CGFloat(lineNumber)
+
         return tapByCordinates(x: 0, y: positionY)
     }
 
