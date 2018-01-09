@@ -20,7 +20,7 @@ class ImagesTests: XCTestCase {
     }
     
     override func tearDown() {
-        _ = richEditorPage.gotoRootPage()
+        richEditorPage.gotoRootPage()
         super.tearDown()
     }
     

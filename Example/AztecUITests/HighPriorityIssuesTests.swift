@@ -82,12 +82,6 @@ class HighPriorityIssuesTests: XCTestCase {
         XCUIApplication().menuItems[elementStringIDs.copyButton].tap()
         demoEditorPage.textView.tap()
 
-        demoEditorPage.textView.swipeDown()
-        demoEditorPage.textView.swipeDown()
-        demoEditorPage.textView.swipeDown()
-        demoEditorPage.textView.swipeDown()
-
-
         demoEditorPage.textView.press(forDuration: 1)
 
         let pasteButton = app.menuItems[elementStringIDs.pasteButton]
