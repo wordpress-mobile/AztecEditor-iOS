@@ -39,13 +39,12 @@ class HighPriorityIssuesTests: XCTestCase {
         let invalidHTML = "<qaz!>"
         let textAfterHTML = "Some text after invalid HTML tag"
         let expectedHTML = "<p><qaz></qaz>Some text after invalid HTML tag</p>"
-        let frame = richEditorPage.textView.frame
-        
+
         let html = richEditorPage
                     .switchContentView()
                     .enterText(text: invalidHTML)
                     .switchContentView()
-                    .tapByCordinates(x: frame.width, y: 0)
+                    .tapLineNumber(10)
                     .enterText(text: textAfterHTML)
                     .switchContentView()
                     .getViewContent()
@@ -94,5 +93,3 @@ class HighPriorityIssuesTests: XCTestCase {
         XCTAssertEqual(newText, text + text)
     }
 }
-
-
