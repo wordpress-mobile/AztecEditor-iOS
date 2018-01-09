@@ -6,6 +6,14 @@ import XCTest
 //
 class EditorPage: BasePage {
 
+    // MARK: - Editor's Contants
+    //
+    private enum Constants {
+        static let defaultFont = UIFont.systemFont(ofSize: 14)
+    }
+
+    // MARK: - Edition Mode
+    //
     enum Mode {
         case rich
         case html
@@ -125,20 +133,23 @@ class EditorPage: BasePage {
     ///
     func tapByCordinates(x: CGFloat, y: CGFloat) -> EditorPage {
         let frame = textView.frame
-        var vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY + CGFloat(y))
-        if frame.minY == 88 {
-            let yDiff = frame.minY - 64 // 64 - is minY for "normal" devices
-            vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY - yDiff + CGFloat(y))
-        }
-        
-        textView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
+        let vector = CGVector(dx: x + frame.minX, dy: y + frame.minY)
+
+        app.coordinate(withNormalizedOffset: .zero).withOffset(vector).tap()
         sleep(1) // to make sure that "paste" manu wont show up.
         return self
     }
-    
-    /**
-     Switches between Rich and HTML view.
-     */
+
+
+    /// Taps over the specified line number.
+    ///
+    func tapLineNumber(_ lineNumber: Int) -> EditorPage {
+        let positionY = Constants.defaultFont.lineHeight * CGFloat(lineNumber)
+        return tapByCordinates(x: 0, y: positionY)
+    }
+
+    /// Switches between Rich and HTML view.
+    ///
     func switchContentView() -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
         return EditorPage(mode: mode.toggle())
