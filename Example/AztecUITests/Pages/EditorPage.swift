@@ -1,24 +1,33 @@
 import Foundation
 import XCTest
 
+
+// MARK: - EditorPage
+//
 class EditorPage: BasePage {
 
     enum Mode {
         case rich
         case html
 
+        var textFieldName: String {
+            switch self {
+            case .rich:
+                return "richContentView"
+            case .html:
+                return "HTMLContentView"
+            }
+        }
+
         func toggle() -> Mode {
             return self == .rich ? .html : .rich
         }
     }
 
-    var textField: String!
-    var mode: Mode
+    let mode: Mode
     var textView: XCUIElement
 
     private var titleTextField = "Title"
-    private var richTextField = "richContentView"
-    private var htmlTextField = "HTMLContentView"
     
     lazy var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
     lazy var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
@@ -34,21 +43,14 @@ class EditorPage: BasePage {
     lazy var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
 
     init(mode: Mode) {
-        textField = ""
         self.mode = mode
-        switch mode {
-        case .rich:
-            textField = richTextField
-        case .html:
-            textField = htmlTextField
-        }
 
         let app = XCUIApplication()
-        textView = app.textViews[textField]
+        textView = app.textViews[mode.textFieldName]
         
         if !textView.exists {
-            if app.otherElements[textField].exists {
-                textView = app.otherElements[textField]
+            if app.otherElements[mode.textFieldName].exists {
+                textView = app.otherElements[mode.textFieldName]
             }
         }
         
