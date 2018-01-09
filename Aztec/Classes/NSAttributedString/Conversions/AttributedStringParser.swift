@@ -910,6 +910,10 @@ private extension AttributedStringParser {
             imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
+        for attribute in imageSizeAttributes(from: attachment) {
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
+        }
+
         for (key,value) in attachment.extraAttributes {
             var finalValue = value
             if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
@@ -1039,6 +1043,24 @@ private extension AttributedStringParser {
         }
 
         return Attribute(name: "class", value: .string(style))
+    }
+
+
+    /// Extracts the Image's Width and Height attributes, whenever the Attachment's Size is set to (anything) but .none.
+    ///
+    private func imageSizeAttributes(from attachment: ImageAttachment) -> [Attribute] {
+        guard let imageSize = attachment.image?.size, attachment.size.shouldResizeAsset else {
+            return []
+        }
+
+        let calculatedHeight = floor(attachment.size.width * imageSize.height / imageSize.width)
+        let heightValue = String(describing: Int(calculatedHeight))
+        let widthValue = String(describing: Int(attachment.size.width))
+
+        return [
+            Attribute(name: "width", value: .string(widthValue)),
+            Attribute(name: "height", value: .string(heightValue))
+        ]
     }
 
 
