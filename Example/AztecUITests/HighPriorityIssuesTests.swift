@@ -45,7 +45,7 @@ class HighPriorityIssuesTests: XCTestCase {
                     .switchContentView()
                     .enterText(text: invalidHTML)
                     .switchContentView()
-                    .tapByCordinates(x: Int(frame.width), y: 0)
+                    .tapByCordinates(x: frame.width, y: 0)
                     .enterText(text: textAfterHTML)
                     .switchContentView()
                     .getViewContent()
