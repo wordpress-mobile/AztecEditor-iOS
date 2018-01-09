@@ -98,10 +98,9 @@ class EditorPage: BasePage {
         }
         return self
     }
-    
-    /**
-     Tapping on toolbar button. And swipes if needed.
-     */
+
+    /// Tapping on toolbar button. And swipes if needed.
+    ///
     @discardableResult
     func toolbarButtonTap(locator: String) -> EditorPage {
         let elementsQuery = app.scrollViews.otherElements
@@ -117,16 +116,12 @@ class EditorPage: BasePage {
         return self
     }
     
-    /**
-    Tapping in to textView by specific coordinate. Its always tricky to know what cooridnates to click.
-     Here is a list of "known" coordinates:
-     30:32 - first word in 2d indented line (list)
-     30:72 - first word in 3d intended line (blockquote)
-    */
-    func tapByCordinates(x: Int, y: Int) -> EditorPage {
-        // textView frames on different devices:
-        // iPhone X (0.0, 88.0, 375.0, 391.0)
-        // iPhone SE (0.0, 64.0, 320.0, 504.0)
+    /// Tapping in to textView by specific coordinate. Its always tricky to know what cooridnates to click.
+    /// Here is a list of "known" coordinates:
+    /// 30:32 - first word in 2d indented line (list)
+    /// 30:72 - first word in 3d intended line (blockquote)
+    ///
+    func tapByCordinates(x: CGFloat, y: CGFloat) -> EditorPage {
         let frame = textView.frame
         var vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY + CGFloat(y))
         if frame.minY == 88 {
@@ -146,20 +141,18 @@ class EditorPage: BasePage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
         return EditorPage(mode: mode.toggle())
     }
-    
-    /**
-     Common method to type in different text fields
-     */
+
+    /// Common method to type in different text fields
+    ///
     @discardableResult
     func enterText(text: String) -> EditorPage {
         textView.typeText(text)
         return self
     }
     
-    /**
-     Enters text into title field.
-     - Parameter text: the test to enter into the title
-     */
+    /// Enters text into title field.
+    ///     - Parameter text: the test to enter into the title
+    ///
     func enterTextInTitle(text: String) {
         app.textFields[titleTextField].typeText(text)
     }
@@ -186,9 +179,8 @@ class EditorPage: BasePage {
         return getHTMLContent()
     }
     
-    /**
-     Selects all entered text in provided textView element
-     */
+    /// Selects all entered text in provided textView element
+    ///
     func selectAllText() -> EditorPage {
         textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
 
@@ -202,10 +194,10 @@ class EditorPage: BasePage {
         
         return EditLinkPage()
     }
-    /*
-     Select Image from Camera Roll by its ID. Starts with 0
-     Simulator range: 0..4
-    */
+
+    /// Select Image from Camera Roll by its ID. Starts with 0
+    /// Simulator range: 0..4
+    ///
     func addImageByOrder(id: Int) -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.mediaButton)
         let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
@@ -240,4 +232,3 @@ class EditorPage: BasePage {
         return textView.value as! String
     }
 }
-
