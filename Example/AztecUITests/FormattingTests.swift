@@ -48,7 +48,7 @@ class FormattingTests: XCTestCase {
         richEditorPage.switchContentView()
             .enterText(text: htmlList)
             .switchContentView()
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         
