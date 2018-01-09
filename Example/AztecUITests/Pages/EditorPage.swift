@@ -35,6 +35,9 @@ class EditorPage: BasePage {
 
     let mode: Mode
     var textView: XCUIElement
+    var textViewFrame: CGRect {
+        return textView.frame
+    }
 
     private var titleTextField = "Title"
     
@@ -71,7 +74,7 @@ class EditorPage: BasePage {
 
 
     func becomeFirstResponder() {
-        let offset = CGVector(dx: textView.frame.midX, dy: textView.frame.midY)
+        let offset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
         app.coordinate(withNormalizedOffset: .zero).withOffset(offset).tap()
     }
 
@@ -134,8 +137,7 @@ class EditorPage: BasePage {
     /// 30:72 - first word in 3d intended line (blockquote)
     ///
     func tapByCordinates(x: CGFloat, y: CGFloat) -> EditorPage {
-        let frame = textView.frame
-        let vector = CGVector(dx: x + frame.minX, dy: y + frame.minY)
+        let vector = CGVector(dx: x + textViewFrame.minX, dy: y + textViewFrame.minY)
 
         app.coordinate(withNormalizedOffset: .zero).withOffset(vector).tap()
         sleep(1) // to make sure that "paste" manu wont show up.
@@ -145,6 +147,7 @@ class EditorPage: BasePage {
 
     /// Taps over the specified line number.
     ///
+    @discardableResult
     func tapLineNumber(_ lineNumber: Int, isBlockquote: Bool = false) -> EditorPage {
         let spacing = isBlockquote ? Constants.blockquoteSpacing : 0
         let positionY = (Constants.defaultFont.lineHeight + spacing) * CGFloat(lineNumber)
@@ -154,6 +157,7 @@ class EditorPage: BasePage {
 
     /// Switches between Rich and HTML view.
     ///
+    @discardableResult
     func switchContentView() -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
         return EditorPage(mode: mode.toggle())
@@ -182,7 +186,8 @@ class EditorPage: BasePage {
 
         return self
     }
-    
+
+    @discardableResult
     func gotoRootPage() -> BlogsPage {
         app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
         return BlogsPage()
@@ -199,7 +204,7 @@ class EditorPage: BasePage {
     /// Selects all entered text in provided textView element
     ///
     func selectAllText() -> EditorPage {
-        let textViewOffset = CGVector(dx: textView.frame.midX, dy: textView.frame.midY)
+        let textViewOffset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
         app.coordinate(withNormalizedOffset: .zero).withOffset(textViewOffset).press(forDuration: 1)
 
         let selectAllKey = "Select All"
