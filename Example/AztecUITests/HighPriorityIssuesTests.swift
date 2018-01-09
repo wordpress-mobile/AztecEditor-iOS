@@ -87,10 +87,11 @@ class HighPriorityIssuesTests: XCTestCase {
         demoEditorPage.textView.swipeDown()
         demoEditorPage.textView.swipeDown()
 
-        demoEditorPage.textView.coordinate(withNormalizedOffset: .zero).press(forDuration: 1)
+
+        demoEditorPage.textView.press(forDuration: 1)
 
         let pasteButton = app.menuItems[elementStringIDs.pasteButton]
-        pasteButton.waitForExistence(timeout: demoEditorPage.waitTimeout)
+        _ = pasteButton.waitForExistence(timeout: demoEditorPage.waitTimeout)
         pasteButton.tap()
 
         sleep(3) // to make sure everything is updated
