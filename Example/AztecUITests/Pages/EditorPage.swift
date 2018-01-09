@@ -199,9 +199,12 @@ class EditorPage: BasePage {
     /// Selects all entered text in provided textView element
     ///
     func selectAllText() -> EditorPage {
-        textView.coordinate(withNormalizedOffset: .zero).press(forDuration: 1)
+        let textViewOffset = CGVector(dx: textView.frame.midX, dy: textView.frame.midY)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(textViewOffset).press(forDuration: 1)
 
-        app.menuItems["Select All"].tap()
+        let selectAllKey = "Select All"
+        _ = app.menuItems[selectAllKey].waitForExistence(timeout: waitTimeout)
+        app.menuItems[selectAllKey].tap()
         
         return self
     }

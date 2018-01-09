@@ -75,8 +75,6 @@ class HighPriorityIssuesTests: XCTestCase {
             .gotoDemo()
             .switchContentView()
 
-        sleep(2)
-
         let text = demoEditorPage
             .selectAllText()
             .getViewContent()
