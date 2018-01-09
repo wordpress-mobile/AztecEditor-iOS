@@ -2,12 +2,11 @@ import Foundation
 import XCTest
 
 class BasePage {
-    let app: XCUIApplication
+    let app = XCUIApplication()
     let expectedElement: XCUIElement
     let waitTimeout = Double(20)
 
     init(element: XCUIElement) {
-        app = XCUIApplication()
         expectedElement = element
         waitForPage()
     }

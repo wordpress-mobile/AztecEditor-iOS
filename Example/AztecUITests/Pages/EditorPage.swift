@@ -64,17 +64,18 @@ class EditorPage: BasePage {
         }
         
         super.init(element: textView)
-      
+
+        becomeFirstResponder()
         showOptionsStrip()
     }
 
 
-    func showOptionsStrip() {
-        textView.coordinate(withNormalizedOffset: .zero).tap()
-        expandOptionsSctrip()
+    func becomeFirstResponder() {
+        let offset = CGVector(dx: textView.frame.midX, dy: textView.frame.midY)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(offset).tap()
     }
-    
-    func expandOptionsSctrip() {
+
+    func showOptionsStrip() {
         let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
         let htmlButton = app.scrollViews.otherElements.buttons[elementStringIDs.sourcecodeButton]
         
