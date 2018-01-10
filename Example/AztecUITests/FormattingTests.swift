@@ -133,13 +133,20 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .tapLineNumber(1, isBlockquote: true)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
+
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
         
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .tapLineNumber(2, isBlockquote: true)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
         
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.italicButton)

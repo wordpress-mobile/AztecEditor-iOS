@@ -42,6 +42,7 @@ public struct elementStringIDs {
     static let copyButton = "Copy"
     static let pasteButton = "Paste"
     static let selectButton = "Select"
+    static let selectAllButton = "Select All"
 }
 
 extension XCTest {

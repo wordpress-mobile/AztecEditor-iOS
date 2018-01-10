@@ -207,7 +207,7 @@ class EditorPage: BasePage {
         let textViewOffset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
         app.coordinate(withNormalizedOffset: .zero).withOffset(textViewOffset).press(forDuration: 1)
 
-        waitForMenuItem(with: elementStringIDs.selectButton) { item in
+        waitForMenuItem(with: elementStringIDs.selectAllButton) { item in
             item.tap()
         }
 
