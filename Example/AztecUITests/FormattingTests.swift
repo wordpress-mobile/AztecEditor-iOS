@@ -39,7 +39,7 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .getViewContent()
         XCTAssertEqual(text, expectedHTML)
-        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", false)
+        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", "")
     }
     
     func testUnorderedListWithRemovedStyles() {
@@ -58,7 +58,7 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .getViewContent()
         XCTAssertEqual(text, expectedHTML)
-        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", false)
+        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", "")
     }
     
     // test behavior of highlighted style at 0 index of editor with 1 line of text (EOB marker at the 1 line)
