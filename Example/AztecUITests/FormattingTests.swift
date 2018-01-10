@@ -32,14 +32,16 @@ class FormattingTests: XCTestCase {
             .addListWithLines(type: "ol", lines: values)
             .tapLineNumber(2)
             .textView.tap()
-        XCUIApplication().menuItems["Select"].tap()
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
 
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .switchContentView()
             .getViewContent()
         XCTAssertEqual(text, expectedHTML)
-        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", "")
     }
     
     func testUnorderedListWithRemovedStyles() {
@@ -51,14 +53,16 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .tapLineNumber(2)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
-        
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
+
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .switchContentView()
             .getViewContent()
         XCTAssertEqual(text, expectedHTML)
-        XCTAssertEqual("Travis Bounds: \(UIScreen.main.bounds)", "")
     }
     
     // test behavior of highlighted style at 0 index of editor with 1 line of text (EOB marker at the 1 line)
@@ -127,13 +131,13 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .enterText(text: html)
             .switchContentView()
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(1, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
-            .tapByCordinates(x: 30, y: 72)
+            .tapLineNumber(2, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         

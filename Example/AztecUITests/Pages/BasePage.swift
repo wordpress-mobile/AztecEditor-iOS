@@ -22,7 +22,15 @@ class BasePage {
         Logger.log(message: "Page \(self) is loaded", event: .i)
         return self
     }
-    
+
+    /// Waits (synchronously) until a given MenuItem pops into existance. When that happens, the onExistance callback gets called.
+    ///
+    func waitForMenuItem(with identifier: String, onExistance: (XCUIElement) -> ()) {
+        let item = app.menuItems[identifier]
+        _ = item.waitForExistence(timeout: waitTimeout)
+        onExistance(item)
+    }
+
     /// Waits (synchronously) until a given XCUIElement fulfills a given predicate. (With timeout!).
     ///
     func waitFor(element: XCUIElement, predicate: String, timeout: Int? = nil) {

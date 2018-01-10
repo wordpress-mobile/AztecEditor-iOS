@@ -207,13 +207,13 @@ class EditorPage: BasePage {
         let textViewOffset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
         app.coordinate(withNormalizedOffset: .zero).withOffset(textViewOffset).press(forDuration: 1)
 
-        let selectAllKey = "Select All"
-        _ = app.menuItems[selectAllKey].waitForExistence(timeout: waitTimeout)
-        app.menuItems[selectAllKey].tap()
-        
+        waitForMenuItem(with: elementStringIDs.selectButton) { item in
+            item.tap()
+        }
+
         return self
     }
-    
+
     func makeLink() -> EditLinkPage {
         toolbarButtonTap(locator: elementStringIDs.linkButton)
         
