@@ -2,46 +2,46 @@
 
 public struct elementStringIDs {
     // Demo Menu
-    static var emptyDemo = "Empty Editor Demo"
-    static var demo = "Editor Demo"
+    static let emptyDemo = "Empty Editor Demo"
+    static let demo = "Editor Demo"
 
     // Text Fields
-    static var titleTextField = "Title"
-    static var richTextField = "richContentView"
-    static var htmlTextField = "HTMLContentView"
+    static let titleTextField = "Title"
+    static let richTextField = "richContentView"
+    static let htmlTextField = "HTMLContentView"
 
     // Alerts
-    static var insertLinkConfirmButton = "insertLinkButton"
+    static let insertLinkConfirmButton = "insertLinkButton"
     
     // Table cells
-    static var unorderedListOption = "Unordered List"
-    static var orderedListOption = "Ordered List"
+    static let unorderedListOption = "Unordered List"
+    static let orderedListOption = "Ordered List"
 
     // Toolbar
-    static var mediaButton = "formatToolbarInsertMedia"
-    static var headerButton = "formatToolbarSelectParagraphStyle"
-    static var boldButton = "formatToolbarToggleBold"
-    static var italicButton = "formatToolbarToggleItalic"
-    static var underlineButton = "formatToolbarToggleUnderline"
-    static var strikethroughButton = "formatToolbarToggleStrikethrough"
-    static var blockquoteButton = "formatToolbarToggleBlockquote"
-    static var orderedlistButton = "formatToolbarToggleListOrdered"
-    static var unorderedlistButton = "formatToolbarToggleListUnordered"
-    static var linkButton = "formatToolbarInsertLink"
-    static var horizontalrulerButton = "formatToolbarInsertHorizontalRuler"
-    static var sourcecodeButton = "formatToolbarToggleHtmlView"
-    static var moreButton = "formatToolbarInsertMore"
-    static var header1Button = "Heading 1"
-    static var header2Button = "Heading 2"
-    static var header3Button = "Heading 3"
-    static var header4Button = "Heading 4"
-    static var header5Button = "Heading 5"
-    static var header6Button = "Heading 6"
+    static let mediaButton = "formatToolbarInsertMedia"
+    static let headerButton = "formatToolbarSelectParagraphStyle"
+    static let boldButton = "formatToolbarToggleBold"
+    static let italicButton = "formatToolbarToggleItalic"
+    static let underlineButton = "formatToolbarToggleUnderline"
+    static let strikethroughButton = "formatToolbarToggleStrikethrough"
+    static let blockquoteButton = "formatToolbarToggleBlockquote"
+    static let orderedlistButton = "formatToolbarToggleListOrdered"
+    static let unorderedlistButton = "formatToolbarToggleListUnordered"
+    static let linkButton = "formatToolbarInsertLink"
+    static let horizontalrulerButton = "formatToolbarInsertHorizontalRuler"
+    static let sourcecodeButton = "formatToolbarToggleHtmlView"
+    static let moreButton = "formatToolbarInsertMore"
+    static let header1Button = "Heading 1"
+    static let header2Button = "Heading 2"
+    static let header3Button = "Heading 3"
+    static let header4Button = "Heading 4"
+    static let header5Button = "Heading 5"
+    static let header6Button = "Heading 6"
     
     // Menu items
-    static var copyButton = "Copy"
-    static var pasteButton = "Paste"
-    
+    static let copyButton = "Copy"
+    static let pasteButton = "Paste"
+    static let selectButton = "Select"
 }
 
 extension XCTest {
