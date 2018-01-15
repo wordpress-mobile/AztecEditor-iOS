@@ -190,7 +190,7 @@ open class ImageAttachment: MediaAttachment {
         let captionX = captionPositionX(for: captionSize.width, within: containerBounds.width)
         let captionY = mediaBounds.maxY + appearance.imageInsets.bottom + appearance.captionInsets.top
 
-        return CGRect(x: captionX, y: captionY, width: captionSize.width, height: captionSize.height)
+        return CGRect(x: captionX, y: captionY, width: captionSize.width, height: captionSize.height).integral
     }
 
 
@@ -309,6 +309,10 @@ extension ImageAttachment {
         case large
         case full
         case none
+
+        var shouldResizeAsset: Bool {
+            return width != Settings.maximum
+        }
 
         func htmlString() -> String {
             switch self {

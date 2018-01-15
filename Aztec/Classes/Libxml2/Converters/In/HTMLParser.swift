@@ -2,11 +2,16 @@ import Foundation
 import libxml2
 
 
-class HTMLParser {
+open class HTMLParser {
     
     enum Error: String, Swift.Error {
         case NoRootNode = "No root node"
     }
+
+    /// Public initializer
+    ///
+    public init() { }
+
 
     /// Parses HTML data into an HTML Node representing the same data.
     ///
@@ -15,7 +20,7 @@ class HTMLParser {
     ///
     /// - Returns: the HTML root node.
     ///
-    func parse(_ html: String) -> RootNode {
+    open func parse(_ html: String) -> RootNode {
 
         // We wrap the HTML into a special root node, since it helps avoid conversion issues
         // with libxml2, where the library would add custom tags to "fix" the HTML code we

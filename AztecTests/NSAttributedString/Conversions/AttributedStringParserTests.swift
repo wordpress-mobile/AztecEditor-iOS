@@ -860,6 +860,71 @@ class AttributedStringParserTests: XCTestCase {
     }
 
 
+    /// Verifies that Images with their .size property set to [.thumbnail, .medium, .large] do get explicit `width` and `height` attributes.
+    ///
+    /// - Input: Image Attachment, with it's size set to [.thumbnail, .medium, .large].
+    ///
+    /// - Output: <img width=".." height=".">, matching the tested size
+    ///
+    func testImagesWithNonDefaultSizeGetsExplicitWidthAndHeightAttributes() {
+        let attachment = ImageAttachment(identifier: UUID().uuidString)
+        attachment.image = Assets.imageIcon
+
+        let string = NSAttributedString(attachment: attachment)
+        let parser = AttributedStringParser()
+
+        for targetSize in [ImageAttachment.Size.thumbnail, .medium, .large] {
+
+            attachment.size = targetSize
+
+            let node = parser.parse(string)
+            XCTAssert(node.children.count == 1)
+
+            let imageNode = node.firstChild(ofType: .p)?.firstChild(ofType: .img)
+            XCTAssertNotNil(imageNode)
+
+            let widthAttribute = imageNode?.attributes.first { $0.name == "width" }
+            XCTAssertNotNil(widthAttribute)
+            XCTAssertEqual(widthAttribute?.value.toString(), String(describing: Int(targetSize.width)))
+
+            let heightAttribute = imageNode?.attributes.first { $0.name == "height" }
+            XCTAssertNotNil(heightAttribute)
+        }
+    }
+
+
+    /// Verifies that Images with their .size property set to [.full, .none] do NOT get explicit `width` and `height` attributes.
+    ///
+    /// - Input: Image Attachment, with it's size set to [.full, .none].
+    ///
+    /// - Output: <img />, with no "height=" nor "width=" attributes.
+    ///
+    func testImagesWithDefaultSizesDoNotGetExplicitDimensionAttributes() {
+        let attachment = ImageAttachment(identifier: UUID().uuidString)
+        attachment.image = Assets.imageIcon
+
+        let string = NSAttributedString(attachment: attachment)
+        let parser = AttributedStringParser()
+
+        for targetSize in [ImageAttachment.Size.full, .none] {
+
+            attachment.size = targetSize
+
+            let node = parser.parse(string)
+            XCTAssert(node.children.count == 1)
+
+            let imageNode = node.firstChild(ofType: .p)?.firstChild(ofType: .img)
+            XCTAssertNotNil(imageNode)
+
+            let widthAttribute = imageNode?.attributes.first { $0.name == "width" }
+            XCTAssertNil(widthAttribute)
+
+            let heightAttribute = imageNode?.attributes.first { $0.name == "height" }
+            XCTAssertNil(heightAttribute)
+        }
+    }
+
+
     /// Verifies that Images with it's caption field get properly wrapped within a figure element.
     ///
     /// - Input: Image Attachment, with it's caption set.

@@ -28,14 +28,12 @@ class EditorDemoController: UIViewController {
 
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
 
-        textView.inputProcessor =
-            PipelineProcessor([CaptionShortcodePreProcessor(),
-                               VideoShortcodePreProcessor(),
-                               WPVideoShortcodePreProcessor()])
+        textView.inputProcessor = PipelineProcessor([CaptionShortcodePreProcessor(),
+                                                     VideoShortcodePreProcessor(),
+                                                     WPVideoShortcodePreProcessor()])
 
-        textView.outputProcessor =
-            PipelineProcessor([CaptionShortcodePostProcessor(),
-                               VideoShortcodePostProcessor()])
+        textView.outputProcessor = PipelineProcessor([CaptionShortcodePostProcessor(),
+                                                      VideoShortcodePostProcessor()])
 
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
