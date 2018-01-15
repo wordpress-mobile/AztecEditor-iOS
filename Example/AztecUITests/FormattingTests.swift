@@ -15,7 +15,7 @@ class FormattingTests: XCTestCase {
         app.launchArguments = ["NoAnimations"]
         app.activate()
 
-        let blogsPage = BlogsPage.init()
+        let blogsPage = BlogsPage()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
@@ -30,10 +30,13 @@ class FormattingTests: XCTestCase {
 
         richEditorPage
             .addListWithLines(type: "ol", lines: values)
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2)
             .textView.tap()
-        XCUIApplication().menuItems["Select"].tap()
-        
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
+
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .switchContentView()
@@ -48,10 +51,13 @@ class FormattingTests: XCTestCase {
         richEditorPage.switchContentView()
             .enterText(text: htmlList)
             .switchContentView()
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
-        
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
+
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
             .switchContentView()
@@ -99,13 +105,13 @@ class FormattingTests: XCTestCase {
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.blockquoteButton)
             .enterText(text: text)
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(2, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
         
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
-            .tapByCordinates(x: 30, y: 72)
+            .tapLineNumber(3, isBlockquote: true)
             .textView.press(forDuration: 1)
         XCUIApplication().menuItems["Select"].tap()
             
@@ -125,15 +131,22 @@ class FormattingTests: XCTestCase {
             .switchContentView()
             .enterText(text: html)
             .switchContentView()
-            .tapByCordinates(x: 30, y: 32)
+            .tapLineNumber(1, isBlockquote: true)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
+
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
         
         richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.boldButton)
-            .tapByCordinates(x: 30, y: 72)
+            .tapLineNumber(2, isBlockquote: true)
             .textView.press(forDuration: 1)
-        XCUIApplication().menuItems["Select"].tap()
+
+        richEditorPage.waitForMenuItem(with: elementStringIDs.selectButton) { selectButton in
+            selectButton.tap()
+        }
         
         let text = richEditorPage
             .toolbarButtonTap(locator: elementStringIDs.italicButton)

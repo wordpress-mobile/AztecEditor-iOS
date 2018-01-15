@@ -12,14 +12,14 @@ class BlogsPage: BasePage {
     func gotoEmptyDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.emptyDemo].tap()
         
-        return EditorPage.init(type: "rich")
+        return EditorPage(mode: .rich)
     }
 
     @discardableResult
     func gotoDemo() -> EditorPage {
         app.staticTexts[elementStringIDs.demo].tap()
         
-        return EditorPage.init(type: "rich")
+        return EditorPage(mode: .rich)
 
     }
     
