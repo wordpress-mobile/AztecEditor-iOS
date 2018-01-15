@@ -1326,10 +1326,12 @@ private extension EditorDemoController
            oldURL = url
            detailsViewController.linkURL = url
         }
-        
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt) in
-            guard let `self` = self else { return }
-            
+
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
+            guard let `self` = self else {
+                return
+            }
+
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
@@ -1337,6 +1339,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
+                updated.caption = caption
 
                 updated.updateURL(url)
             }
