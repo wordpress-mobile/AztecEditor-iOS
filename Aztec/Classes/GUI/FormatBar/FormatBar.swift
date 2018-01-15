@@ -443,7 +443,10 @@ open class FormatBar: UIView {
             heightConstraint?.constant = newHeight
             updateDividerInsets()
             invalidateIntrinsicContentSize()
-            layoutIfNeeded()
+
+            DispatchQueue.main.async {
+                self.layoutIfNeeded()
+            }
         }
     }
 
