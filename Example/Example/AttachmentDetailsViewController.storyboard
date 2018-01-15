@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -151,6 +151,33 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Caption" id="Yk0-Hw-bwx" userLabel="Caption">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="88" id="Vsi-4F-3AH">
+                                        <rect key="frame" x="0.0" y="555.5" width="375" height="88"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Vsi-4F-3AH" id="XxC-Rh-9GO">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="87.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="-" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="nuE-0m-d6p">
+                                                    <rect key="frame" x="8" y="0.0" width="352" height="87.5"/>
+                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                </textView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="nuE-0m-d6p" firstAttribute="leading" secondItem="XxC-Rh-9GO" secondAttribute="leading" constant="8" id="Qw1-Hs-EcT"/>
+                                                <constraint firstAttribute="bottom" secondItem="nuE-0m-d6p" secondAttribute="bottom" id="WTI-FN-93y"/>
+                                                <constraint firstAttribute="trailing" secondItem="nuE-0m-d6p" secondAttribute="trailing" constant="15" id="hHS-km-bup"/>
+                                                <constraint firstItem="nuE-0m-d6p" firstAttribute="centerY" secondItem="XxC-Rh-9GO" secondAttribute="centerY" id="tHt-6n-l0b"/>
+                                                <constraint firstItem="nuE-0m-d6p" firstAttribute="top" secondItem="XxC-Rh-9GO" secondAttribute="top" id="yFc-Xq-BOC"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="nVK-TC-d6M" id="7oj-Be-sj7"/>
@@ -160,6 +187,7 @@
                     <connections>
                         <outlet property="alignmentSegmentedControl" destination="hM7-SO-P7P" id="PmN-Ow-kgM"/>
                         <outlet property="altTextField" destination="fBd-rD-kOx" id="mbm-a3-pyI"/>
+                        <outlet property="captionTextView" destination="nuE-0m-d6p" id="L0A-Hm-jNa"/>
                         <outlet property="linkURLTextField" destination="fsr-eq-4v0" id="Qxl-b5-hw6"/>
                         <outlet property="sizeSegmentedControl" destination="qWp-hq-exU" id="4SD-YC-4G2"/>
                         <outlet property="sourceURLTextField" destination="6H9-eI-Wgd" id="tvl-R1-1GN"/>

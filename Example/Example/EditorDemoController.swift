@@ -28,14 +28,12 @@ class EditorDemoController: UIViewController {
 
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
 
-        textView.inputProcessor =
-            PipelineProcessor([CaptionShortcodePreProcessor(),
-                               VideoShortcodePreProcessor(),
-                               WPVideoShortcodePreProcessor()])
+        textView.inputProcessor = PipelineProcessor([CaptionShortcodePreProcessor(),
+                                                     VideoShortcodePreProcessor(),
+                                                     WPVideoShortcodePreProcessor()])
 
-        textView.outputProcessor =
-            PipelineProcessor([CaptionShortcodePostProcessor(),
-                               VideoShortcodePostProcessor()])
+        textView.outputProcessor = PipelineProcessor([CaptionShortcodePostProcessor(),
+                                                      VideoShortcodePostProcessor()])
 
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
@@ -1328,10 +1326,12 @@ private extension EditorDemoController
            oldURL = url
            detailsViewController.linkURL = url
         }
-        
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt) in
-            guard let `self` = self else { return }
-            
+
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
+            guard let `self` = self else {
+                return
+            }
+
             self.richTextView.edit(attachment) { updated in
                 if let alt = alt {
                     updated.extraAttributes["alt"] = alt
@@ -1339,6 +1339,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
+                updated.caption = caption
 
                 updated.updateURL(url)
             }
