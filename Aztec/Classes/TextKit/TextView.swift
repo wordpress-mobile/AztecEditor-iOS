@@ -660,8 +660,10 @@ open class TextView: UITextView {
         //          https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/58
         //
         font = defaultFont
-
-        storage.setHTML(processedHTML, defaultAttributes: defaultAttributes, postProcessingHTMLWith: inputTreeProcessor)
+        
+        storage.setHTML(processedHTML,
+                        defaultAttributes: defaultAttributes,
+                        postProcessingHTMLWith: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
