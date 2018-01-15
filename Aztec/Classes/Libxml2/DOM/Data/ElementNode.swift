@@ -265,7 +265,7 @@ public class ElementNode: Node {
     ///
     /// - Returns: the first child in the children collection, that matches the specified type.
     ///
-    func firstChild(ofType type: StandardElementType) -> ElementNode? {
+    public func firstChild(ofType type: StandardElementType) -> ElementNode? {
         let elements = children.flatMap { node in
             return node as? ElementNode
         }

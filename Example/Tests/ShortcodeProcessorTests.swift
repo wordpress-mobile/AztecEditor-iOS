@@ -1,16 +1,11 @@
 import XCTest
 @testable import AztecExample
 
+
+// MARK: - ShortcodeProcessorTests
+//
 class ShortcodeProcessorTests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
-    
+
     func testParserOfVideoPressCode() {
         let shortCodeParser = ShortcodeProcessor(tag:"wpvideo", replacer:{ (shortcode) in
             var html = "<video "
@@ -45,5 +40,4 @@ class ShortcodeProcessorTests: XCTestCase {
         let parsedText = shortCodeParser.process(sampleText)
         XCTAssertEqual(parsedText, "<video src=\"video-source.mp4\" />")
     }
-    
 }
