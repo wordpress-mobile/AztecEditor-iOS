@@ -444,6 +444,10 @@ open class FormatBar: UIView {
             updateDividerInsets()
             invalidateIntrinsicContentSize()
 
+            // Fixes https://github.com/wordpress-mobile/WordPress-iOS/issues/8413.
+            // Despite this method always being called on the main thread, without
+            // this dispatch the toolbar's vertical position sometimes doesn't get
+            // to be adjusted by the system to account for its height change.
             DispatchQueue.main.async {
                 self.layoutIfNeeded()
             }
