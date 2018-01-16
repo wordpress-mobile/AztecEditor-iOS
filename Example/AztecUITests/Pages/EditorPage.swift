@@ -1,61 +1,84 @@
 import Foundation
 import XCTest
 
+
+// MARK: - EditorPage
+//
 class EditorPage: BasePage {
-    
-    var textField: String!
-    var type: String!
+
+    // MARK: - Editor's Contants
+    //
+    private enum Constants {
+        static let defaultFont = UIFont.systemFont(ofSize: 14)
+        static let blockquoteSpacing = CGFloat(16)
+    }
+
+    // MARK: - Edition Mode
+    //
+    enum Mode {
+        case rich
+        case html
+
+        var textFieldName: String {
+            switch self {
+            case .rich:
+                return "richContentView"
+            case .html:
+                return "HTMLContentView"
+            }
+        }
+
+        func toggle() -> Mode {
+            return self == .rich ? .html : .rich
+        }
+    }
+
+    let mode: Mode
     var textView: XCUIElement
+    var textViewFrame: CGRect {
+        return textView.frame
+    }
 
     private var titleTextField = "Title"
-    private var richTextField = "richContentView"
-    private var htmlTextField = "HTMLContentView"
     
-    var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
-    var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
-    var boldButton = XCUIApplication().buttons["formatToolbarToggleBold"]
-    var italicButton = XCUIApplication().buttons["formatToolbarToggleItalic"]
-    var underlineButton = XCUIApplication().buttons["formatToolbarToggleUnderline"]
-    var strikethroughButton = XCUIApplication().buttons["formatToolbarToggleStrikethrough"]
-    var blockquoteButton = XCUIApplication().buttons["formatToolbarToggleBlockquote"]
-    var unorderedlistButton = XCUIApplication().buttons["formatToolbarToggleListUnordered"]
-    var linkButton = XCUIApplication().buttons["formatToolbarInsertLink"]
-    var horizontalrulerButton = XCUIApplication().buttons["formatToolbarInsertHorizontalRuler"]
-    var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
-    var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
+    lazy var mediaButton = XCUIApplication().buttons["formatToolbarInsertMedia"]
+    lazy var headerButton = XCUIApplication().buttons["formatToolbarSelectParagraphStyle"]
+    lazy var boldButton = XCUIApplication().buttons["formatToolbarToggleBold"]
+    lazy var italicButton = XCUIApplication().buttons["formatToolbarToggleItalic"]
+    lazy var underlineButton = XCUIApplication().buttons["formatToolbarToggleUnderline"]
+    lazy var strikethroughButton = XCUIApplication().buttons["formatToolbarToggleStrikethrough"]
+    lazy var blockquoteButton = XCUIApplication().buttons["formatToolbarToggleBlockquote"]
+    lazy var unorderedlistButton = XCUIApplication().buttons["formatToolbarToggleListUnordered"]
+    lazy var linkButton = XCUIApplication().buttons["formatToolbarInsertLink"]
+    lazy var horizontalrulerButton = XCUIApplication().buttons["formatToolbarInsertHorizontalRuler"]
+    lazy var sourcecodeButton = XCUIApplication().buttons["formatToolbarToggleHtmlView"]
+    lazy var moreButton = XCUIApplication().buttons["formatToolbarInsertMore"]
 
-    init(type: String) {
-        textField = ""
-        self.type = type
-        switch type {
-        case "rich":
-            textField = richTextField
-        case "html":
-            textField = htmlTextField
-        default:
-            textField = "invalid locator. check Editor.init type param"
-        }
+    init(mode: Mode) {
+        self.mode = mode
+
         let app = XCUIApplication()
-        textView = app.textViews[textField]
+        textView = app.textViews[mode.textFieldName]
         
         if !textView.exists {
-            if app.otherElements[textField].exists {
-                textView = app.otherElements[textField]
+            if app.otherElements[mode.textFieldName].exists {
+                textView = app.otherElements[mode.textFieldName]
             }
         }
         
         super.init(element: textView)
-      
+
+        becomeFirstResponder()
         showOptionsStrip()
     }
-    
-    func showOptionsStrip() -> Void {
-        textView.coordinate(withNormalizedOffset:CGVector.zero).tap()
-//        textView.tap()
-        expandOptionsSctrip()
+
+
+    func becomeFirstResponder() {
+        let offset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(offset).tap()
     }
-    
-    func expandOptionsSctrip() -> Void {
+
+    func showOptionsStrip() {
         let expandButton = app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .button).element
         let htmlButton = app.scrollViews.otherElements.buttons[elementStringIDs.sourcecodeButton]
         
@@ -90,10 +113,9 @@ class EditorPage: BasePage {
         }
         return self
     }
-    
-    /**
-     Tapping on toolbar button. And swipes if needed.
-     */
+
+    /// Tapping on toolbar button. And swipes if needed.
+    ///
     @discardableResult
     func toolbarButtonTap(locator: String) -> EditorPage {
         let elementsQuery = app.scrollViews.otherElements
@@ -109,53 +131,51 @@ class EditorPage: BasePage {
         return self
     }
     
-    /**
-    Tapping in to textView by specific coordinate. Its always tricky to know what cooridnates to click.
-     Here is a list of "known" coordinates:
-     30:32 - first word in 2d indented line (list)
-     30:72 - first word in 3d intended line (blockquote)
-    */
-    func tapByCordinates(x: Int, y: Int) -> EditorPage {
-        // textView frames on different devices:
-        // iPhone X (0.0, 88.0, 375.0, 391.0)
-        // iPhone SE (0.0, 64.0, 320.0, 504.0)
-        let frame = textView.frame
-        var vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY + CGFloat(y))
-        if frame.minY == 88 {
-            let yDiff = frame.minY - 64 // 64 - is minY for "normal" devices
-            vector = CGVector(dx: frame.minX + CGFloat(x), dy: frame.minY - yDiff + CGFloat(y))
-        }
-        
-        textView.coordinate(withNormalizedOffset:CGVector.zero).withOffset(vector).tap()
+    /// Tapping in to textView by specific coordinate. Its always tricky to know what cooridnates to click.
+    /// Here is a list of "known" coordinates:
+    /// 30:32 - first word in 2d indented line (list)
+    /// 30:72 - first word in 3d intended line (blockquote)
+    ///
+    func tapByCordinates(x: CGFloat, y: CGFloat) -> EditorPage {
+        let vector = CGVector(dx: x + textViewFrame.minX, dy: y + textViewFrame.minY)
+
+        app.coordinate(withNormalizedOffset: .zero).withOffset(vector).tap()
         sleep(1) // to make sure that "paste" manu wont show up.
         return self
     }
-    
-    /**
-     Switches between Rich and HTML view.
-     */
+
+
+    /// Taps over the specified line number.
+    ///
+    @discardableResult
+    func tapLineNumber(_ lineNumber: Int, isBlockquote: Bool = false) -> EditorPage {
+        let spacing = isBlockquote ? Constants.blockquoteSpacing : 0
+        let positionY = (Constants.defaultFont.lineHeight + spacing) * CGFloat(lineNumber)
+
+        return tapByCordinates(x: 0, y: positionY)
+    }
+
+    /// Switches between Rich and HTML view.
+    ///
+    @discardableResult
     func switchContentView() -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.sourcecodeButton)
-        
-        let newType = type == "rich" ? "html" : "rich"
-        return EditorPage.init(type: newType)
+        return EditorPage(mode: mode.toggle())
     }
-    
-    /**
-     Common method to type in different text fields
-     */
+
+    /// Common method to type in different text fields
+    ///
     @discardableResult
     func enterText(text: String) -> EditorPage {
         textView.typeText(text)
         return self
     }
     
-    /**
-     Enters text into title field.
-     - Parameter text: the test to enter into the title
-     */
-    func enterTextInTitle(text: String) -> Void {
-        app.textViews[titleTextField].typeText(text)
+    /// Enters text into title field.
+    ///     - Parameter text: the test to enter into the title
+    ///
+    func enterTextInTitle(text: String) {
+        app.textFields[titleTextField].typeText(text)
     }
 
     @discardableResult
@@ -163,43 +183,46 @@ class EditorPage: BasePage {
         for _ in 1...chars {
             app.keys["delete"].tap()
         }
-        
+
         return self
     }
-    
+
+    @discardableResult
     func gotoRootPage() -> BlogsPage {
         app.navigationBars["AztecExample.EditorDemo"].buttons["Root View Controller"].tap()
-        return BlogsPage.init()
+        return BlogsPage()
     }
     
     func getViewContent() -> String {
-        if  type == "rich" {
+        if mode == .rich {
             return getTextContent()
         }
         
         return getHTMLContent()
     }
     
-    /**
-     Selects all entered text in provided textView element
-     */
+    /// Selects all entered text in provided textView element
+    ///
     func selectAllText() -> EditorPage {
-        textView.coordinate(withNormalizedOffset:CGVector.zero).press(forDuration: 1)
+        let textViewOffset = CGVector(dx: textViewFrame.midX, dy: textViewFrame.midY)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(textViewOffset).press(forDuration: 1)
 
-        app.menuItems["Select All"].tap()
-        
+        waitForMenuItem(with: elementStringIDs.selectAllButton) { item in
+            item.tap()
+        }
+
         return self
     }
-    
+
     func makeLink() -> EditLinkPage {
         toolbarButtonTap(locator: elementStringIDs.linkButton)
         
-        return EditLinkPage.init()
+        return EditLinkPage()
     }
-    /*
-     Select Image from Camera Roll by its ID. Starts with 0
-     Simulator range: 0..4
-    */
+
+    /// Select Image from Camera Roll by its ID. Starts with 0
+    /// Simulator range: 0..4
+    ///
     func addImageByOrder(id: Int) -> EditorPage {
         toolbarButtonTap(locator: elementStringIDs.mediaButton)
         let cameraRollButton = XCUIApplication().otherElements.cells["Camera Roll"]
@@ -231,8 +254,6 @@ class EditorPage: BasePage {
     }
     
     private func getTextContent() -> String {
-        let text = textView.value as! String
-        return text
+        return textView.value as! String
     }
 }
-

@@ -15,12 +15,12 @@ class ImagesTests: XCTestCase {
         app.launchArguments = ["NoAnimations"]
         app.activate()
         
-        let blogsPage = BlogsPage.init()
+        let blogsPage = BlogsPage()
         richEditorPage = blogsPage.gotoEmptyDemo()
     }
     
     override func tearDown() {
-        _ = richEditorPage.gotoRootPage()
+        richEditorPage.gotoRootPage()
         super.tearDown()
     }
     
