@@ -47,9 +47,9 @@ protocol TextStorageAttachmentsDelegate: class {
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
-    ///   - attachmentID: The attachment identifier of the media removed.
+    ///   - attachment: The media attachment that was removed.
     ///
-    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String)
+    func storage(_ storage: TextStorage, deletedAttachment: MediaAttachment)
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
@@ -213,7 +213,7 @@ open class TextStorage: NSTextStorage {
         }
 
         textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
-            delegate.storage(self, deletedAttachmentWith: attachment.identifier)
+            delegate.storage(self, deletedAttachment: attachment)
         }
     }
 
