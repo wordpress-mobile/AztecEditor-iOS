@@ -48,7 +48,7 @@ class EditorDemoController: UIViewController {
         textField.textColor = UIColor.darkText
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.isScrollEnabled = false
-        textField.backgroundColor = .clear
+        textField.backgroundColor = .white
         let toolbar = self.createToolbar(htmlMode: false)
         toolbar.enabled = false
         textField.inputAccessoryView = toolbar
@@ -738,7 +738,7 @@ extension EditorDemoController : Aztec.FormatBarDelegate {
 
 extension EditorDemoController: TextViewMediaDelegate {
 
-    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping (Void) -> Void) -> UIImage {
+    func textView(_ textView: TextView, imageAtUrl url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) -> UIImage {
 
         let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, urlResponse, error) in
             DispatchQueue.main.async(execute: {
