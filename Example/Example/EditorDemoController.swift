@@ -386,7 +386,7 @@ extension EditorDemoController : UITextViewDelegate {
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateTitlePosition()
+//        updateTitlePosition()
     }
 }
 
