@@ -1,24 +1,24 @@
 import UIKit
 
 
-/// Returns a specialised representation for a `<figure>` element.
+/// Returns a specialised representation for a `<figcaption>` element.
 ///
-class FigureElementConverter: ElementConverter {
-    
+class FigcaptionElementConverter: ElementConverter {
+
     unowned let serializer: AttributedStringSerializer
-    
+
     // MARK: - Initializer
     
     init(using serializer: AttributedStringSerializer) {
         self.serializer = serializer
     }
-    
+
     // MARK: - ElementConverter
-    
+
     func canConvert(element: ElementNode) -> Bool {
-        return element.isNodeType(.figure)
+        return element.isNodeType(.figcaption)
     }
-    
+
     func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         assert(canConvert(element: element))
         
@@ -35,10 +35,11 @@ class FigureElementConverter: ElementConverter {
     
     private func attributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
         let paragraphStyle = ParagraphStyle.retrieve(from: attributes)
-        paragraphStyle.appendProperty(Figure())
+        paragraphStyle.appendProperty(Figcaption())
         
         var finalAttributes = attributes
         finalAttributes[.paragraphStyle] = paragraphStyle
         return finalAttributes
     }
 }
+

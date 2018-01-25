@@ -5,6 +5,39 @@ import UIKit
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
+    // MARK: - Initializers
+    
+    init(for paragraphStyle: NSParagraphStyle) {
+        super.init()
+        
+        setParagraphStyle(paragraphStyle)
+    }
+    
+    // MARK: - Convenience Construction
+    
+    /// Retrieves the `ParagraphStyle` instance from the specified attributes, or constructs a
+    /// new one if necessary.
+    ///
+    /// - Note: if the attributes have an `NSParagraphStyle` instance, all of it's style information
+    ///     is copied into the new `ParagraphStyle` object.
+    ///
+    /// - Parameters:
+    ///     - attributes: the attributes to obtain the paragraph style from.
+    ///
+    /// - Returns: the requested `ParagraphStyle` object.
+    ///
+    static func retrieve(from attributes: [AttributedStringKey: Any]) -> ParagraphStyle {
+        guard let existingParagraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle else {
+            return ParagraphStyle()
+        }
+        
+        guard let finalParagraphStyle = existingParagraphStyle as? ParagraphStyle else {
+            return ParagraphStyle(for: existingParagraphStyle)
+        }
+        
+        return finalParagraphStyle
+    }
+    
     // MARK: - CustomReflectable
     
     public var customMirror: Mirror {

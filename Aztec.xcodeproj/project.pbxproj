@@ -145,6 +145,9 @@
 		F1FA0E861E6EF514009D98EE /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7E1E6EF514009D98EE /* Node.swift */; };
 		F1FA0E871E6EF514009D98EE /* StandardElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */; };
 		F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E801E6EF514009D98EE /* TextNode.swift */; };
+		F1FF7D9D201A147B007B0B32 /* Figure.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7D9C201A147B007B0B32 /* Figure.swift */; };
+		F1FF7D9F201A1D24007B0B32 /* Figcaption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7D9E201A1D24007B0B32 /* Figcaption.swift */; };
+		F1FF7DA1201A1D3E007B0B32 /* FigcaptionElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */; };
 		FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF0714001EFD78AF00E50713 /* Media.xcassets */; };
 		FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */; };
 		FF20D6401EDC389A00294B78 /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */; };
@@ -337,6 +340,9 @@
 		F1FA0E7E1E6EF514009D98EE /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		F1FA0E7F1E6EF514009D98EE /* StandardElementType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardElementType.swift; sourceTree = "<group>"; };
 		F1FA0E801E6EF514009D98EE /* TextNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
+		F1FF7D9C201A147B007B0B32 /* Figure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Figure.swift; sourceTree = "<group>"; };
+		F1FF7D9E201A1D24007B0B32 /* Figcaption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Figcaption.swift; sourceTree = "<group>"; };
+		F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigcaptionElementConverter.swift; sourceTree = "<group>"; };
 		FF0714001EFD78AF00E50713 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRangeConversionTests.swift; sourceTree = "<group>"; };
 		FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
@@ -385,6 +391,7 @@
 			children = (
 				40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */,
 				B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */,
+				F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */,
 				F1E1D5871FEC52EE0086B339 /* GenericElementConverter.swift */,
 				40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */,
 				40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */,
@@ -712,6 +719,8 @@
 			isa = PBXGroup;
 			children = (
 				F11326A91EF1AA91007FEE9A /* Blockquote.swift */,
+				F1FF7D9C201A147B007B0B32 /* Figure.swift */,
+				F1FF7D9E201A1D24007B0B32 /* Figcaption.swift */,
 				F11326AA1EF1AA91007FEE9A /* Header.swift */,
 				B524228C1F30C039002E7C6C /* HTMLDiv.swift */,
 				F11326AB1EF1AA91007FEE9A /* HTMLParagraph.swift */,
@@ -1096,6 +1105,7 @@
 				F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
 				B5834C841FA2413E00D46FC0 /* DefaultHTMLSerializer.swift in Sources */,
+				F1FF7D9F201A1D24007B0B32 /* Figcaption.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */,
 				B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */,
@@ -1118,12 +1128,14 @@
 				F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */,
 				F17BC8AB1F4E512800398E2B /* AttributedStringSerializer.swift in Sources */,
 				F18986E11EF2040A0060EDBA /* FontFormatter.swift in Sources */,
+				F1FF7D9D201A147B007B0B32 /* Figure.swift in Sources */,
 				FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */,
 				F12F58651EF20394008AE298 /* ParagraphAttributeFormatter.swift in Sources */,
 				F18986E31EF204180060EDBA /* BoldFormatter.swift in Sources */,
 				FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */,
 				B5E94D101FE01335000E7C20 /* FigureElementConverter.swift in Sources */,
 				40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */,
+				F1FF7DA1201A1D3E007B0B32 /* FigcaptionElementConverter.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
 				F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */,
 				B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */,

@@ -54,7 +54,7 @@ public enum StandardElementType: String {
     /// Returns an array with all block-level elements.
     ///
     static var blockLevelNodeNames: [StandardElementType] {
-        return [.address, .blockquote, .div, .dl, .fieldset, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .tr, .td, .ul, .figcaption, .figure]
+        return [.address, .blockquote, .div, .dl, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .tr, .td, .ul]
     }
 
     static func isBlockLevelNodeName(_ name: String) -> Bool {

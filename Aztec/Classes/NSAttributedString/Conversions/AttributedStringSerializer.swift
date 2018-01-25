@@ -175,7 +175,8 @@ class AttributedStringSerializer {
     private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
     
     lazy var brElementConverter = BRElementConverter()
-    lazy var figureElementConverter = FigureElementConverter()
+    lazy var figcaptionElementConverter = FigcaptionElementConverter(using: self)
+    lazy var figureElementConverter = FigureElementConverter(using: self)
     lazy var hrElementConverter = HRElementConverter()
     lazy var imageElementConverter = ImageElementConverter()
     lazy var videoElementConverter = VideoElementConverter()
@@ -220,10 +221,11 @@ class AttributedStringSerializer {
     public lazy var elementConverters: [ElementConverter] = {
         return [
             self.brElementConverter,
+            self.figcaptionElementConverter,
             self.figureElementConverter,
+            self.hrElementConverter,
             self.imageElementConverter,
             self.videoElementConverter,
-            self.hrElementConverter,
         ]
     }()
 
