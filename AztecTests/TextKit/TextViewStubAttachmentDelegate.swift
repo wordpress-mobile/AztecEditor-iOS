@@ -31,7 +31,7 @@ class TextViewStubAttachmentDelegate: TextViewAttachmentDelegate, TextViewAttach
         return nil
     }
 
-    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
+    func textView(_ textView: TextView, deletedAttachment attachment: MediaAttachment) {
 
     }
 

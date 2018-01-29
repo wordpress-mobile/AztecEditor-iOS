@@ -1026,8 +1026,8 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         return saveToDisk(image: image)
     }
 
-    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String) {
-        print("Attachment \(attachmentID) removed.\n")
+    func textView(_ textView: TextView, deletedAttachment attachment: MediaAttachment) {
+        print("Attachment \(attachment.identifier) removed.\n")
     }
 
     func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
