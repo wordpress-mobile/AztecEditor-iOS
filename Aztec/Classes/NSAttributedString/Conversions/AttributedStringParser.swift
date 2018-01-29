@@ -431,19 +431,7 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
-
-        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
-        // default.  The reason behind this decision is that no text can exist outside block-level
-        // elements in Aztec.
-        //
-        // See here for more info:
-        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
-        //
-        guard let paragraphStyle = paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle,
-            paragraphStyle.properties.count > 0
-        else {
-            return [ElementNode(type: .p)]
-        }
+        let paragraphStyle = (paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle) ?? ParagraphStyle()
 
         return createParagraphNodes(from: paragraphStyle)
     }
@@ -457,10 +445,7 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     func createParagraphNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
-        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
-            paragraphStyle.properties.count > 0 else {
-                return [ElementNode(type: .p)]
-        }
+        let paragraphStyle = (attributes[.paragraphStyle] as? ParagraphStyle) ?? ParagraphStyle()
 
         return createParagraphNodes(from: paragraphStyle)
     }
@@ -474,8 +459,21 @@ private extension AttributedStringParser {
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
     private func createParagraphNodes(from paragraphStyle: ParagraphStyle) -> [ElementNode] {
+        let extraAttributes = attributes(for: paragraphStyle)
+        
+        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
+        // default.  The reason behind this decision is that no text can exist outside block-level
+        // elements in Aztec.
+        //
+        // See here for more info:
+        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
+        //
+        guard paragraphStyle.properties.count > 0 else {
+            return [ElementNode(type: .p, attributes: extraAttributes)]
+        }
+        
         var paragraphNodes = [ElementNode]()
-
+        
         for property in paragraphStyle.properties.reversed() {
             switch property {
             case let blockquote as Blockquote:
@@ -509,8 +507,31 @@ private extension AttributedStringParser {
                 continue
             }
         }
-
+        
+        let lastElement = paragraphNodes.last! // There's no scenario where having zero paragraph nodes would make sense.
+        lastElement.attributes.append(contentsOf: extraAttributes)
+        
         return paragraphNodes
+    }
+    
+    /// Processes the paragraph style to figure out the attributes that will be applied to the outermost Element
+    /// produced from it.
+    ///
+    /// - Parameters:
+    ///     - paragraphStyle: the paragraph style to process.
+    ///
+    /// - Returns: any attributes necessary to represent the paragraph values.
+    ///
+    private func attributes(for paragraphStyle: ParagraphStyle) -> [Attribute] {
+        var attributes = [Attribute]()
+        
+        if paragraphStyle.baseWritingDirection == .rightToLeft {
+            let rtlAttribute = Attribute(name: "dir", value: .string("rtl"))
+            
+            attributes.append(rtlAttribute)
+        }
+        
+        return attributes
     }
 
 
@@ -870,45 +891,53 @@ private extension AttributedStringParser {
             return nil
         }
 
-        let element: ElementNode
+        let imageElement: ElementNode
         let range = attrString.rangeOfEntireString
 
         if let representation = attrString.attribute(.imageHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
-            element = representationElement.toElementNode()
+            imageElement = representationElement.toElementNode()
         } else {
-            element = ElementNode(type: .img)
+            imageElement = ElementNode(type: .img)
         }
 
         if let attribute = imageSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         if let attribute = imageClassAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
+        }
+
+        for attribute in imageSizeAttributes(from: attachment) {
+            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
         for (key,value) in attachment.extraAttributes {
             var finalValue = value
-            if key == "class", let baseValue = element.stringValueForAttribute(named: "class"){
+            if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
                 let baseComponents = Set(baseValue.components(separatedBy: " "))
                 let extraComponents = Set(value.components(separatedBy: " "))
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
-            element.updateAttribute(named: key, value: .string(finalValue))
+            imageElement.updateAttribute(named: key, value: .string(finalValue))
+        }        
+
+        /// Special Case:
+        /// - Extract the ImageAttachment's caption field
+        /// - Create the Caption Element
+        /// - Wrap everything within a Figure tag!
+        ///
+        /// Note that the Figure element is handled by the HTMLFigureFormatter.
+        ///
+        if let figcaptionElement = figcaptionElement(from: attachment) {
+            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
         }
 
-        if let linkText = attachment.linkURL?.absoluteString {
-            let hrefValue = Attribute.Value(withString: linkText)
-            let hrefAttribute = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: hrefValue)
-            let linkElement = ElementNode(type: .a, attributes: [hrefAttribute], children: [element])
-
-            return linkElement
-        }
-
-        return element
+        return imageElement
     }
+
 
     /// Converts an Video Attachment into it's representing nodes.
     ///
@@ -1014,5 +1043,36 @@ private extension AttributedStringParser {
         }
 
         return Attribute(name: "class", value: .string(style))
+    }
+
+
+    /// Extracts the Image's Width and Height attributes, whenever the Attachment's Size is set to (anything) but .none.
+    ///
+    private func imageSizeAttributes(from attachment: ImageAttachment) -> [Attribute] {
+        guard let imageSize = attachment.image?.size, attachment.size.shouldResizeAsset else {
+            return []
+        }
+
+        let calculatedHeight = floor(attachment.size.width * imageSize.height / imageSize.width)
+        let heightValue = String(describing: Int(calculatedHeight))
+        let widthValue = String(describing: Int(attachment.size.width))
+
+        return [
+            Attribute(name: "width", value: .string(widthValue)),
+            Attribute(name: "height", value: .string(heightValue))
+        ]
+    }
+
+
+    /// Extracts the Figcaption Element from an ImageAttachment Instance.
+    ///
+    private func figcaptionElement(from attachment: ImageAttachment) -> ElementNode? {
+        guard let caption = attachment.caption,
+            let paragraph = AttributedStringParser().parse(caption).firstChild(ofType: .p)
+            else {
+                return nil
+        }
+
+        return ElementNode(type: .figcaption, attributes: [], children: paragraph.children)
     }
 }

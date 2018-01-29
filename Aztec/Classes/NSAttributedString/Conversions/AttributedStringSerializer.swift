@@ -13,6 +13,9 @@ class AttributedStringSerializer {
         self.defaultAttributes = defaultAttributes
     }
 
+    convenience init() {
+        self.init(defaultAttributes: [:])
+    }
 
     // MARK: - Conversion
 
@@ -35,7 +38,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -105,14 +108,10 @@ class AttributedStringSerializer {
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
-        if let representation = implicitRepresentation(for: element, inheriting: childAttributes) {
-            content.append(representation)
-        } else {
-            for child in element.children {
-                let childContent = serialize(child, inheriting: childAttributes)
-                content.append(childContent)
-            }
-        }
+        let converter = self.converter(for: element)
+        let convertedString = converter.convert(element, inheriting: childAttributes)
+        
+        content.append(convertedString)
 
         guard !element.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: content, inheriting: childAttributes)
@@ -150,26 +149,36 @@ class AttributedStringSerializer {
 
     // MARK: - Built-in formatter instances
 
-    let blockquoteFormatter = BlockquoteFormatter()
-    let boldFormatter = BoldFormatter()
-    let divFormatter = HTMLDivFormatter()
-    let h1Formatter = HeaderFormatter(headerLevel: .h1)
-    let h2Formatter = HeaderFormatter(headerLevel: .h2)
-    let h3Formatter = HeaderFormatter(headerLevel: .h3)
-    let h4Formatter = HeaderFormatter(headerLevel: .h4)
-    let h5Formatter = HeaderFormatter(headerLevel: .h5)
-    let h6Formatter = HeaderFormatter(headerLevel: .h6)
-    let hrFormatter = HRFormatter()
-    let imageFormatter = ImageFormatter()
-    let italicFormatter = ItalicFormatter()
-    let linkFormatter = LinkFormatter()
-    let orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
-    let paragraphFormatter = HTMLParagraphFormatter()
-    let preFormatter = PreFormatter()
-    let strikethroughFormatter = StrikethroughFormatter()
-    let underlineFormatter = UnderlineFormatter()
-    let unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
-    let videoFormatter = VideoFormatter()
+    lazy var blockquoteFormatter = BlockquoteFormatter()
+    lazy var boldFormatter = BoldFormatter()
+    lazy var divFormatter = HTMLDivFormatter()
+    lazy var h1Formatter = HeaderFormatter(headerLevel: .h1)
+    lazy var h2Formatter = HeaderFormatter(headerLevel: .h2)
+    lazy var h3Formatter = HeaderFormatter(headerLevel: .h3)
+    lazy var h4Formatter = HeaderFormatter(headerLevel: .h4)
+    lazy var h5Formatter = HeaderFormatter(headerLevel: .h5)
+    lazy var h6Formatter = HeaderFormatter(headerLevel: .h6)
+    lazy var italicFormatter = ItalicFormatter()
+    lazy var linkFormatter = LinkFormatter()
+    lazy var orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
+    lazy var paragraphFormatter = HTMLParagraphFormatter()
+    lazy var preFormatter = PreFormatter()
+    lazy var strikethroughFormatter = StrikethroughFormatter()
+    lazy var underlineFormatter = UnderlineFormatter()
+    lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
+
+    // MARK: - Built-in element converter instances
+
+    // This converter should not be added to `elementFormattersMap`.  This converter is returned
+    // whenever the map doesn't find a proper match.
+    //
+    private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
+    
+    lazy var brElementConverter = BRElementConverter()
+    lazy var figureElementConverter = FigureElementConverter()
+    lazy var hrElementConverter = HRElementConverter()
+    lazy var imageElementConverter = ImageElementConverter()
+    lazy var videoElementConverter = VideoElementConverter()
 
     // MARK: - Formatter Maps
 
@@ -188,8 +197,6 @@ class AttributedStringSerializer {
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
             .a: self.linkFormatter,
-            .img: self.imageFormatter,
-            .hr: self.hrFormatter,
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
             .h3: self.h3Formatter,
@@ -198,7 +205,6 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
-            .video: self.videoFormatter
         ]
     }()
 
@@ -208,6 +214,18 @@ class AttributedStringSerializer {
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
+
+    // MARK: - Element Converters
+
+    public lazy var elementConverters: [ElementConverter] = {
+        return [
+            self.brElementConverter,
+            self.figureElementConverter,
+            self.imageElementConverter,
+            self.videoElementConverter,
+            self.hrElementConverter,
+        ]
+    }()
 
     func parseStyle(style: String) -> [String: String] {
         var stylesDictionary = [String: String]()
@@ -250,8 +268,7 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.name == StandardElementType.li.rawValue {
-            // ^ Since LI is handled by the OL and UL formatters, we can safely ignore it here.
+        } else if element.standardName == .li || isAnySpecializedConverter(for: element) {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -356,83 +373,34 @@ extension AttributedStringSerializer {
 
         return nil
     }
+
 }
 
 private extension AttributedStringSerializer {
 
-    // MARK: - Implicit Representations
+    // MARK: - Element Converters
 
-    /// Some elements have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
+    /// Some element types have an implicit representation that doesn't really follow the standard conversion logic.
+    /// Element Converters take care of that.
     ///
-    /// - Parameters:
-    ///     - element: the element to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    func implicitRepresentation(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        guard let elementType = element.standardName else {
-            return nil
-        }
-        
-        if let imgElement = linkedImageElement(for: element) {
-            var attributesWithoutLink = attributes
-            attributesWithoutLink[.link] = nil
-            attributesWithoutLink[.linkHtmlRepresentation] = nil
-
-            let imgAttributes = self.attributes(for: imgElement, inheriting: attributesWithoutLink)
-            let attachment = imgAttributes[.attachment] as! ImageAttachment
-            let linkText = element.stringValueForAttribute(named: HTMLLinkAttribute.Href.rawValue) ?? ""
-            attachment.linkURL = URL(string: linkText)
-            
-            return implicitRepresentation(for: imgElement, inheriting: imgAttributes)!
+    func converter(for element: ElementNode) -> ElementConverter {
+        let converter = elementConverters.first { converter in
+            converter.canConvert(element: element)
         }
 
-        return implicitRepresentation(for: elementType, inheriting: attributes)
+        return converter ?? genericElementConverter
     }
 
-    /// Some element types have an implicit representation that doesn't really follow the standard
-    /// conversion logic.  This method takes care of such specialized conversions.
+    /// Indicates if there's a specialized converter (AKA anything but the default GenericConverter) that can handle a given element.
     ///
-    /// - Parameters:
-    ///     - elementType: the element type to request an implicit representation for.
-    ///     - attributes: the attributes that the output attributed string will inherit.
-    ///
-    /// - Returns: the requested implicit representation, if one exists, or `nil`.
-    ///
-    private func implicitRepresentation(for elementType: StandardElementType, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString? {
-
-        switch elementType {
-        case .hr, .img, .video:
-            return NSAttributedString(string: String(UnicodeScalar(NSAttachmentCharacter)!), attributes: attributes)
-        case .br:
-            return NSAttributedString(.lineSeparator, attributes: attributes)
-        default:
-            return nil
+    func isAnySpecializedConverter(for element: ElementNode) -> Bool {
+        return elementConverters.contains { converter in
+            converter.canConvert(element: element)
         }
-    }
-    
-    /// Checks if the specified node is of type '.a' with one child '.img' node.
-    /// If true, returns the '.img' node.
-    ///
-    /// - Parameters:
-    ///     - element: the node to get the information from
-    ///
-    /// - Returns: the child '.img' node if there is one
-    ///
-    private func linkedImageElement(for element: ElementNode) -> ElementNode? {
-        guard element.isNodeType(.a) && element.children.count == 1,
-            let imgElement = element.children.first as? ElementNode,
-            imgElement.isNodeType(.img) else {
-                return nil
-        }
-        
-        return imgElement
     }
 }
-    
+
+
 // MARK: - Text Sanitization for Rendering
 
 private extension AttributedStringSerializer {

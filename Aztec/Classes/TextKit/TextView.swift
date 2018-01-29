@@ -46,9 +46,9 @@ public protocol TextViewAttachmentDelegate: class {
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
-    ///   - attachmentID: The attachment identifier of the media removed.
+    ///   - attachment: The media attachment that was removed.
     ///
-    func textView(_ textView: TextView, deletedAttachmentWith attachmentID: String)
+    func textView(_ textView: TextView, deletedAttachment attachment: MediaAttachment)
 
     /// Called after an attachment is selected with a single tap.
     ///
@@ -152,8 +152,16 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        return [.font: defaultFont,
-                .paragraphStyle: defaultParagraphStyle]
+        var attributes: [AttributedStringKey: Any] = [
+            .font: defaultFont,
+            .paragraphStyle: defaultParagraphStyle
+        ]
+
+        if let textColor = textColor {
+            attributes[.foregroundColor] = textColor
+        }
+
+        return attributes
     }
 
 
@@ -248,7 +256,6 @@ open class TextView: UITextView {
         }
     }
 
-
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
     /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
     ///
@@ -295,12 +302,16 @@ open class TextView: UITextView {
 
     // MARK: - Init & deinit
 
-    public init(
+    @objc public init(
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
         defaultMissingImage: UIImage) {
-        
-        self.defaultFont = defaultFont
+
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
+        } else {
+            self.defaultFont = defaultFont
+        }
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
@@ -317,8 +328,13 @@ open class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
+        let font = UIFont.systemFont(ofSize: 14)
+        if #available(iOS 11.0, *) {
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
+        } else {
+            self.defaultFont = font
+        }
 
-        defaultFont = UIFont.systemFont(ofSize: 14)
         defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
         
@@ -328,6 +344,9 @@ open class TextView: UITextView {
 
     private func commonInit() {
         allowsEditingTextAttributes = true
+        if #available(iOS 10.0, *) {
+            adjustsFontForContentSizeCategory = true
+        }
         storage.attachmentsDelegate = self
         font = defaultFont
         linkTextAttributesSwifted = [.underlineStyle: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue), .foregroundColor: self.tintColor]
@@ -599,6 +618,20 @@ open class TextView: UITextView {
 
         return caretRect
     }
+    
+    /// When typing with the Chinese keyboard, the text is automatically marked in the editor.
+    /// You have to press ENTER once to confirm your chosen input.  The problem is that in iOS 11
+    /// the typing attributes are lost when the text is unmarked, causing the font to be lost.
+    /// Since localized characters need specific fonts to be rendered, this causes some characters
+    /// to stop rendering completely.
+    ///
+    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/811
+    ///
+    override open func unmarkText() {
+        preserveTypingAttributesForInsertion {
+            super.unmarkText()
+        }
+    }
 
     // MARK: - HTML Interaction
 
@@ -606,7 +639,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML() -> String {
+    @objc public func getHTML() -> String {
         let pristineHTML = storage.getHTML(serializer: outputSerializer)
         let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 
@@ -617,7 +650,7 @@ open class TextView: UITextView {
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    public func setHTML(_ html: String) {
+    @objc public func setHTML(_ html: String) {
         let processedHTML = inputProcessor?.process(html) ?? html
         
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
@@ -768,12 +801,12 @@ open class TextView: UITextView {
 
         let applicationRange = formatter.applicationRange(for: range, in: textStorage)
         let originalString = storage.attributedSubstring(from: applicationRange)
-
-        storage.toggle(formatter: formatter, at: range)
-
+        
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
         })
+
+        storage.toggle(formatter: formatter, at: range)
 
         if applicationRange.length == 0 {
             typingAttributesSwifted = formatter.toggle(in: typingAttributesSwifted)
@@ -1339,7 +1372,7 @@ open class TextView: UITextView {
         }
 
         // Correct the bounds taking in account the dimesion of the media image being used
-        let mediaBounds = mediaAttachment.mediaBounds(for: bounds)
+        let mediaBounds = mediaAttachment.imageBounds(for: bounds)
 
         bounds.origin.x += mediaBounds.origin.x
         bounds.origin.y += mediaBounds.origin.y
@@ -1383,7 +1416,9 @@ open class TextView: UITextView {
         if let attachment = attachmentAtPoint(point) as? MediaAttachment {
             let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: index, length: 1), actualCharacterRange: nil)
             let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (2 * attachment.appearance.imageMargin)) {
+            let imageInsets = attachment.appearance.imageInsets
+
+            if point.y >= rect.origin.y && point.y <= (rect.origin.y + (imageInsets.top + imageInsets.bottom)) {
                 return true
             }
         }
@@ -1429,7 +1464,7 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         guard index < storage.length,
-            storage.attribute(.link, at: index, effectiveRange: &effectiveRange) != nil
+            storage.attribute(.link, at: index, longestEffectiveRange: &effectiveRange, in: NSMakeRange(0, storage.length)) != nil
             else {
                 return nil
         }
@@ -1757,8 +1792,8 @@ extension TextView: TextStorageAttachmentsDelegate {
         return textAttachmentDelegate.textView(self, urlFor: imageAttachment)
     }
 
-    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
-        textAttachmentDelegate?.textView(self, deletedAttachmentWith: attachmentID)
+    func storage(_ storage: TextStorage, deletedAttachment attachment: MediaAttachment) {
+        textAttachmentDelegate?.textView(self, deletedAttachment: attachment)
     }
 
     func storage(_ storage: TextStorage, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {

@@ -47,9 +47,9 @@ protocol TextStorageAttachmentsDelegate: class {
     ///
     /// - Parameters:
     ///   - textView: The textView where the attachment was removed.
-    ///   - attachmentID: The attachment identifier of the media removed.
+    ///   - attachment: The media attachment that was removed.
     ///
-    func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String)
+    func storage(_ storage: TextStorage, deletedAttachment: MediaAttachment)
 
     /// Provides the Bounds required to represent a given attachment, within a specified line fragment.
     ///
@@ -213,7 +213,7 @@ open class TextStorage: NSTextStorage {
         }
 
         textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
-            delegate.storage(self, deletedAttachmentWith: attachment.identifier)
+            delegate.storage(self, deletedAttachment: attachment)
         }
     }
 
@@ -266,9 +266,6 @@ open class TextStorage: NSTextStorage {
         replaceTextStoreString(range, with: attrString.string)
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
-
-        let invalidateRange = NSMakeRange(range.location, attrString.length)
-        invalidateAttributes(in: invalidateRange)
 
         endEditing()
     }
@@ -405,10 +402,10 @@ private extension TextStorage {
         let newLevel = newStyle?.headers.last?.level ?? .none
         let oldLevel = oldStyle?.headers.last?.level ?? .none
 
-        guard oldLevel != newLevel else {
+        guard oldLevel != newLevel && newLevel != .none else {
             return attrs
         }
-
+        
         return fixFontAttribute(in: attrs, headerLevel: newLevel)
     }
 
@@ -432,7 +429,7 @@ private extension TextStorage {
 //
 extension TextStorage: MediaAttachmentDelegate {
 
-    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage {
+    func mediaAttachmentPlaceholder(for attachment: MediaAttachment) -> UIImage {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }

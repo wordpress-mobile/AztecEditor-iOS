@@ -18,7 +18,15 @@ open class PreFormatter: ParagraphAttributeFormatter {
     /// Designated Initializer
     ///
     init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [AttributedStringKey : Any]? = nil) {
-        self.monospaceFont = monospaceFont
+        let font: UIFont
+
+        if #available(iOS 11.0, *) {
+            font = UIFontMetrics.default.scaledFont(for: monospaceFont)
+        } else {
+            font = monospaceFont
+        }
+
+        self.monospaceFont = font
         self.placeholderAttributes = placeholderAttributes
     }
 

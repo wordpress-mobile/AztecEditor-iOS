@@ -3,7 +3,7 @@ import XCTest
 class AztecSimpleTextFormattingTests: XCTestCase {
 
     private var app: XCUIApplication!
-    private var richTextField: XCUIElement!
+    private var richEditorPage: EditorPage!
 
     override func setUp() {
         super.setUp()
@@ -13,17 +13,15 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
         XCUIDevice.shared().orientation = .portrait
         app = XCUIApplication()
-        app.launch()
+        app.launchArguments = ["NoAnimations"]
+        app.activate()
 
-        let tablesQuery = app.tables
-        tablesQuery.staticTexts[elementStringIDs.emptyDemo].tap()
-
-        let richTextField = app.textViews[elementStringIDs.richTextField]
-        richTextField.tap()
+        let blogsPage = BlogsPage()
+        richEditorPage = blogsPage.gotoEmptyDemo()
     }
 
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        _ = richEditorPage.gotoRootPage()
         super.tearDown()
     }
 
@@ -138,26 +136,6 @@ class AztecSimpleTextFormattingTests: XCTestCase {
         XCTAssertEqual(expected, text)
     }
 
-    /*
-     Commenting these out because they fail. Should not be wrapped in a <p> tag, see #818.
-    func testMoreTag() {
-        app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
-
-        let text = getHTMLContent()
-        let expected = "<!--more-->"
-        XCTAssertEqual(expected, text)
-    }
-
-    func testMoreTagWithText() {
-        enterTextInField(text: "1\n")
-        app.scrollViews.otherElements.buttons[elementStringIDs.moreButton].tap()
-        enterTextInField(text: "\n2")
-
-        let text = getHTMLContent()
-        let expected = "1<br><!--more--><br>2"
-        XCTAssertEqual(expected, text)
-    }*/
-
     func testHeadingOneText() {
         enterTextInField(text: "1")
         selectAllTextInField()
@@ -191,7 +169,7 @@ class AztecSimpleTextFormattingTests: XCTestCase {
 
         let text = getHTMLContent()
         let expected = "<h3>1</h3>"
-        XCTAssertEqual(expected, text)
+        XCTAssertEqual(expected, text)  
     }
 
     func testHeadingFourText() {

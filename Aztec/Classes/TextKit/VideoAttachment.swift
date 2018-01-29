@@ -94,24 +94,24 @@ open class VideoAttachment: MediaAttachment {
 
     // MARK: - Origin calculation
 
-    override func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
-        let imageWidth = onScreenWidth(containerWidth)
+    override func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
+        let imageWidth = onScreenWidth(for: containerWidth)
 
         return CGFloat(floor((containerWidth - imageWidth) / 2))
     }
 
-    override func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    override func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
         if let image = image {
-            let targetWidth = onScreenWidth(containerWidth)
+            let targetWidth = onScreenWidth(for: containerWidth)
             let scale = targetWidth / image.size.width
 
-            return floor(image.size.height * scale) + (appearance.imageMargin * 2)
+            return floor(image.size.height * scale) + appearance.imageInsets.top + appearance.imageInsets.bottom
         } else {
             return 0
         }
     }
 
-    override func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    override func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
         if let image = image {
             return floor(min(image.size.width, containerWidth))
         } else {

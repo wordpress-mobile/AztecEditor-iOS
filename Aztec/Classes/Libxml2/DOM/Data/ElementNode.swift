@@ -22,7 +22,7 @@ public class ElementNode: Node {
         return headerLevels[headerLevel - 1]
     }
 
-    private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
+    private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
     private static let mergeableBlocklevelElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .li, .blockquote, .div]
     private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u]
 
@@ -231,6 +231,48 @@ public class ElementNode: Node {
     ///
     func lastChild(matching filter: (Node) -> Bool) -> Node? {
         return children.filter(filter).last
+    }
+
+
+    /// If there's exactly just one child node, this method will return it's instance. Otherwise, nil will be returned
+    ///
+    func onlyChild() -> ElementNode? {
+        guard children.count == 1 else {
+            return nil
+        }
+
+        return children.first as? ElementNode
+    }
+
+
+    /// Returns the child ElementNode of the specified nodeType -whenever there's a *single* child-, or nil otherwise.
+    ///
+    /// - Parameter type: Type of the 'single child' node to be retrieved.
+    ///
+    /// - Returns: the requested child (if it's the only children in the collection, and if the type matches), or nil otherwise.
+    ///
+    func onlyChild(ofType type: StandardElementType) -> ElementNode? {
+        guard let child = onlyChild(), child.isNodeType(type) else {
+            return nil
+        }
+
+        return child
+    }
+
+    /// Returns the first child ElementNode that matches the specified nodeType, or nil if there were no matches.
+    ///
+    /// - Parameter type: Type of the 'first child' node to be retrieved.
+    ///
+    /// - Returns: the first child in the children collection, that matches the specified type.
+    ///
+    public func firstChild(ofType type: StandardElementType) -> ElementNode? {
+        let elements = children.flatMap { node in
+            return node as? ElementNode
+        }
+
+        return elements.first { element in
+            return element.isNodeType(type)
+        }
     }
 
 

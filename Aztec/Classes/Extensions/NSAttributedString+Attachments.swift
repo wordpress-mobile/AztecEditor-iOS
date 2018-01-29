@@ -10,13 +10,6 @@ extension NSAttributedString
     ///
     static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
 
-
-    /// String containing the NSTextAttachment Character
-    ///
-    static let textAttachmentString = String(UnicodeScalar(NSAttachmentCharacter)!)
-
-
-
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
@@ -24,7 +17,7 @@ extension NSAttributedString
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
-        self.init(string: NSAttributedString.textAttachmentString, attributes: attributesWithAttachment)
+        self.init(.textAttachment, attributes: attributesWithAttachment)
     }
 
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.

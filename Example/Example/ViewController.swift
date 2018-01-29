@@ -14,19 +14,20 @@ class ViewController: UITableViewController
         super.viewDidLoad()
 
         rows = [
-            DemoRow(title: "Editor Demo", action: { self.showEditorDemo() }),
-            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo(loadSampleHTML: false) }),
+            DemoRow(title: "Editor Demo", action: { self.showEditorDemo(filename: "content") }),
+            DemoRow(title: "Captions Demo", action: { self.showEditorDemo(filename: "captions") }),
+            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo() }),
         ]
     }
 
     // MARK: Actions
 
-    func showEditorDemo(loadSampleHTML: Bool = true) {
+    func showEditorDemo(filename: String? = nil) {
         let controller: EditorDemoController
             
-        if loadSampleHTML {
-            let sampleHTML = getSampleHTML(fromHTMLFileNamed: "content")
-            
+        if let filename = filename {
+            let sampleHTML = getSampleHTML(fromHTMLFileNamed: filename)
+
             controller = EditorDemoController(withSampleHTML: sampleHTML)
         } else {
             controller = EditorDemoController()

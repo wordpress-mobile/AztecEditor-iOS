@@ -102,8 +102,8 @@ class TextStorageTests: XCTestCase {
 
         var deletedAttachmendIDCalledWithString: String?
 
-        func storage(_ storage: TextStorage, deletedAttachmentWith attachmentID: String) {
-            deletedAttachmendIDCalledWithString = attachmentID
+        func storage(_ storage: TextStorage, deletedAttachment attachment: MediaAttachment) {
+            deletedAttachmendIDCalledWithString = attachment.identifier
         }
 
         func storage(_ storage: TextStorage, urlFor imageAttachment: ImageAttachment) -> URL? {
@@ -243,7 +243,7 @@ class TextStorageTests: XCTestCase {
 
         html = storage.getHTML(serializer: serializer)
 
-        XCTAssertEqual(html, "Apply a header")
+        XCTAssertEqual(html, "<p>Apply a header</p>")
     }
 
     /// This test verifies that after merging two lines with different Header Format, the Font Size will

@@ -13,6 +13,9 @@ extension Character {
         case space = " "
         case tab = "\t"
         case zeroWidthSpace = "\u{200B}"
+        
+        // Aliases
+        static let textAttachment = objectReplacement
     }
     
     init(_ characterName: Name) {

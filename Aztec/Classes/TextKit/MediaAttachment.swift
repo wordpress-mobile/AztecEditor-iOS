@@ -11,7 +11,7 @@ protocol MediaAttachmentDelegate: class {
         onSuccess success: @escaping (UIImage) -> (),
         onFailure failure: @escaping () -> ())
 
-    func mediaAttachmentPlaceholderImageFor(attachment: MediaAttachment) -> UIImage
+    func mediaAttachmentPlaceholder(for attachment: MediaAttachment) -> UIImage
 }
 
 // MARK: - MediaAttachment
@@ -175,29 +175,68 @@ open class MediaAttachment: NSTextAttachment {
     }
 
 
-    // MARK: - Position and size calculation
+    // MARK: - OnScreen Metrics
 
-    func xPosition(forContainerWidth containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Attachment's Onscreen Height: should include any margins!
+    ///
+    func onScreenHeight(for containerWidth: CGFloat) -> CGFloat {
+        return imageHeight(for: containerWidth) + appearance.imageInsets.top + appearance.imageInsets.bottom
+    }
+
+    /// Returns the Attachment's Onscreen Width: should include any margins!
+    ///
+    func onScreenWidth(for containerWidth: CGFloat) -> CGFloat {
+        return imageWidth(for: containerWidth)
+    }
+
+
+    // MARK: - Image Metrics
+
+    /// Returns the Image's Position X, for the specified container width.
+    ///
+    func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
         return 0
     }
 
-    func onScreenHeight(_ containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Image Height, for the specified container width.
+    ///
+    func imageHeight(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
-        let targetWidth = onScreenWidth(containerWidth)
+        let targetWidth = onScreenWidth(for: containerWidth)
         let scale = targetWidth / image.size.width
 
-        return floor(image.size.height * scale) + (appearance.imageMargin * 2)
+        return floor(image.size.height * scale)
     }
 
-    func onScreenWidth(_ containerWidth: CGFloat) -> CGFloat {
+    /// Returns the Image Width, for the specified container width.
+    ///
+    func imageWidth(for containerWidth: CGFloat) -> CGFloat {
         guard let image = image else {
             return 0
         }
 
         return floor(min(image.size.width, containerWidth))
+    }
+
+    /// Returns the Image Bounds, for the specified container bounds.
+    ///
+    func imageBounds(for bounds: CGRect) -> CGRect {
+        let origin = CGPoint(x: imagePositionX(for: bounds.width), y: appearance.imageInsets.top)
+        let size = CGSize(width: imageWidth(for: bounds.width), height: imageHeight(for: bounds.width))
+
+        return CGRect(origin: origin, size: size)
+    }
+
+
+    // MARK: - Stub Methods
+
+    /// Draws custom elements onscreen: Subclasses should implement this method, on a need-to basis.
+    ///
+    func drawCustomElements(in bounds: CGRect, mediaBounds: CGRect) {
+        // NO-OP
     }
 
 
@@ -208,7 +247,7 @@ open class MediaAttachment: NSTextAttachment {
         ensureImageIsUpToDate(in: textContainer)
 
         guard let image = image else {
-            return delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
+            return delegate!.mediaAttachmentPlaceholder(for: self)
         }
 
         if let cachedImage = glyphImage, imageBounds.size.equalTo(cachedImage.size) {
@@ -218,102 +257,6 @@ open class MediaAttachment: NSTextAttachment {
         glyphImage = glyph(for:image, in: imageBounds)
 
         return glyphImage
-    }
-
-    func mediaBounds(for bounds: CGRect) -> CGRect {
-        let containerWidth = bounds.size.width
-        let origin = CGPoint(x: xPosition(forContainerWidth: bounds.size.width), y: appearance.imageMargin)
-        let size = CGSize(width: onScreenWidth(containerWidth), height: onScreenHeight(containerWidth) - appearance.imageMargin * 2)
-        return CGRect(origin: origin, size: size)
-    }
-
-    private func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
-
-        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
-
-        let mediaBounds = self.mediaBounds(for: bounds)
-        let origin = mediaBounds.origin
-        let size = mediaBounds.size
-
-        image.draw(in: mediaBounds)
-
-        drawOverlayBackground(at: origin, size: size)
-        drawOverlayBorder(at: origin, size: size)
-        drawProgress(at: origin, size: size)
-
-        var imagePadding: CGFloat = 0
-        if let overlayImage = overlayImage {
-            UIColor.white.set()
-            let sizeInsideBorder = CGSize(width: size.width - appearance.overlayBorderWidth, height: size.height - appearance.overlayBorderWidth)
-            let newImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: UIColor.white)
-            let center = CGPoint(x: round(origin.x + (size.width / 2.0)), y: round(origin.y + (size.height / 2.0)))
-            newImage.draw(at: CGPoint(x: round(center.x - (newImage.size.width / 2.0)), y: round(center.y - (newImage.size.height / 2.0))))
-            imagePadding += newImage.size.height
-        }
-
-        if let message = message {
-            let textRect = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-            var y =  origin.y + ((size.height - textRect.height) / 2.0)
-            if imagePadding != 0 {
-                y = origin.y + Constants.messageTextTopMargin + ((size.height + imagePadding) / 2.0)
-            }
-            let textPosition = CGPoint(x: origin.x, y: y)
-
-            // Check to see if the message will fit within the image. If not, skip it.
-            if (textPosition.y + textRect.height) < mediaBounds.height {
-                message.draw(in: CGRect(origin: textPosition, size: CGSize(width:size.width, height:textRect.size.height)))
-            }
-        }
-
-        let result = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return result;
-    }
-
-    private func drawOverlayBackground(at origin: CGPoint, size:CGSize) {
-        guard message != nil || progress != nil else {
-            return
-        }
-        let rect = CGRect(origin: origin, size: size)
-        let path = UIBezierPath(rect: rect)
-        appearance.overlayColor.setFill()
-        path.fill()
-    }
-
-    private func drawOverlayBorder(at origin: CGPoint, size:CGSize) {
-        // Don't display the border if the border width is 0, we are force-hiding it, or message is set with no progress
-        guard appearance.overlayBorderWidth > 0,
-            shouldHideBorder == false,
-            progress == nil && message != nil else {
-                return
-        }
-        let rect = CGRect(origin: origin, size: size)
-        let path = UIBezierPath(rect: rect)
-        appearance.overlayBorderColor.setStroke()
-        path.lineWidth = (appearance.overlayBorderWidth * 2.0)
-        path.addClip()
-        path.stroke()
-    }
-
-    private func drawProgress(at origin: CGPoint, size:CGSize) {
-        guard let progress = progress else {
-            return
-        }
-        let lineY = origin.y + (appearance.progressHeight / 2.0)
-
-        let backgroundPath = UIBezierPath()
-        backgroundPath.lineWidth = appearance.progressHeight
-        appearance.progressBackgroundColor.setStroke()
-        backgroundPath.move(to: CGPoint(x:origin.x, y: lineY))
-        backgroundPath.addLine(to: CGPoint(x: origin.x + size.width, y: lineY ))
-        backgroundPath.stroke()
-
-        let path = UIBezierPath()
-        path.lineWidth = appearance.progressHeight
-        appearance.progressColor.setStroke()
-        path.move(to: CGPoint(x:origin.x, y: lineY))
-        path.addLine(to: CGPoint(x: origin.x + (size.width * CGFloat(max(0,min(progress,1)))), y: lineY ))
-        path.stroke()
     }
 
     /// Returns the "Onscreen Character Size" of the attachment range. When we're in Alignment.None,
@@ -330,17 +273,158 @@ open class MediaAttachment: NSTextAttachment {
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
         if let storage = textContainer?.layoutManager?.textStorage,
-           let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+            let paragraphStyle = storage.attribute(.paragraphStyle, at: charIndex, effectiveRange: nil) as? NSParagraphStyle {
+
             let attachmentString = storage.attributedSubstring(from: NSMakeRange(charIndex, 1)).string
             let headIndent = storage.string.isStartOfParagraph(at: attachmentString.startIndex) ? paragraphStyle.firstLineHeadIndent : paragraphStyle.headIndent
 
             padding += abs(paragraphStyle.tailIndent) + abs(headIndent)
         }
-        let width = floor(lineFrag.width - padding)
 
-        let size = CGSize(width: width, height: onScreenHeight(width))
+        let width = floor(lineFrag.width - padding)
+        let size = CGSize(width: width, height: onScreenHeight(for: width))
 
         return CGRect(origin: CGPoint.zero, size: size)
+    }
+}
+
+
+// MARK: - Drawing Methods
+//
+extension MediaAttachment {
+
+    /// Returns the Glyph representing the current image, with all of the required add-ons already embedded:
+    ///
+    /// - Overlay Background: Whenever there is a message (OR) upload in progress.
+    /// - Overlay Border: Whenever there is no upload in progress (OR) there is no message visible.
+    /// - Overlay Image: Image to be displayed at the center of the actual attached image
+    /// - OVerlay Message: Message to be displayed below the Overlay Image.
+    /// - Progress Bar: Whenever there's an Upload OP running.
+    ///
+    func glyph(for image: UIImage, in bounds: CGRect) -> UIImage? {
+
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
+        let mediaBounds = self.imageBounds(for: bounds)
+
+        image.draw(in: mediaBounds)
+
+        drawOverlayBackground(in: mediaBounds)
+        drawOverlayBorder(in: mediaBounds)
+
+        let overlayImageSize = drawOverlayImage(in: mediaBounds)
+        drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
+
+        drawProgress(in: mediaBounds)
+
+        // Subclass Drawing Hook: Pass along the actual container bounds
+        drawCustomElements(in: bounds, mediaBounds: mediaBounds)
+
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return result
+    }
+
+
+    /// Draws an overlay on top of the image, with a color defined by the `appearance.overlayColor` property.
+    ///
+    private func drawOverlayBackground(in bounds: CGRect) {
+        guard message != nil || progress != nil else {
+            return
+        }
+
+        let path = UIBezierPath(rect: bounds)
+        appearance.overlayColor.setFill()
+        path.fill()
+    }
+
+
+    /// Draws a border, surroinding the image. It's width will be defined by `appearance.overlayBorderWidth`, while it's color
+    /// will be taken from `appearance.overlayBorderColor`.
+    ///
+    /// Note that the `progress` is not nil, or there's an overlay message, this border will not be rendered.
+    ///
+    private func drawOverlayBorder(in bounds: CGRect) {
+        guard appearance.overlayBorderWidth > 0, shouldHideBorder == false, progress == nil, message != nil else {
+            return
+        }
+
+        let path = UIBezierPath(rect: bounds)
+        appearance.overlayBorderColor.setStroke()
+        path.lineWidth = appearance.overlayBorderWidth * 2.0
+        path.addClip()
+        path.stroke()
+    }
+
+
+    /// Draws the overlayImage at the precise center of the Attachment's bounds.
+    ///
+    /// - Returns: The actual size of the overlayImage, once displayed onscreen. This size might be actually smaller than the one defined
+    ///   by the actual asset, since we make sure not to render images bigger than the canvas.
+    ///
+    private func drawOverlayImage(in bounds: CGRect) -> CGSize {
+        guard let overlayImage = overlayImage else {
+            return .zero
+        }
+
+        UIColor.white.set()
+        let sizeInsideBorder = CGSize(width: bounds.width - appearance.overlayBorderWidth, height: bounds.height - appearance.overlayBorderWidth)
+        let resizedImage = overlayImage.resizedImageWithinRect(rectSize: sizeInsideBorder, maxImageSize: overlayImage.size, color: .white)
+
+        let overlayOrigin = CGPoint(x: round(bounds.midX - resizedImage.size.width * 0.5),
+                                    y: round(bounds.midY - resizedImage.size.height * 0.5))
+
+        resizedImage.draw(at: overlayOrigin)
+
+        return resizedImage.size
+    }
+
+
+    /// Draws the Overlay's Message below the overlayImage, at the center of the Attachment.
+    ///
+    private func drawOverlayMessage(in bounds: CGRect, paddingY: CGFloat) {
+        guard let message = message else {
+            return
+        }
+
+        let textRect = message.boundingRect(with: bounds.size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        var messageY = bounds.minY + (bounds.height - textRect.height) * 0.5
+
+        if paddingY != 0 {
+            messageY = bounds.minY + Constants.messageTextTopMargin + (bounds.height + paddingY) * 0.5
+        }
+
+        // Check to see if the message will fit within the image. If not, skip it.
+        let messageRect = CGRect(x: bounds.minX, y: messageY, width: bounds.width, height: textRect.height)
+        if messageRect.maxY < bounds.height {
+            message.draw(in: messageRect)
+        }
+    }
+
+
+    /// Draws a progress bar, at the top of the image, matching the percentage defined by the ivar `progress`.
+    ///
+    private func drawProgress(in bounds: CGRect) {
+        guard let progress = progress else {
+            return
+        }
+
+        let progressY = bounds.minY + appearance.progressHeight * 0.5
+        let progressWidth = bounds.width * CGFloat(max(0, min(progress, 1)))
+
+        let backgroundPath = UIBezierPath()
+        backgroundPath.lineWidth = appearance.progressHeight
+        backgroundPath.move(to: CGPoint(x: bounds.minX, y: progressY))
+        backgroundPath.addLine(to: CGPoint(x: bounds.maxX, y: progressY))
+        appearance.progressBackgroundColor.setStroke()
+        backgroundPath.stroke()
+
+        let progressPath = UIBezierPath()
+        progressPath.lineWidth = appearance.progressHeight
+        progressPath.move(to: CGPoint(x: bounds.minX, y: progressY))
+        progressPath.addLine(to: CGPoint(x: bounds.minX + progressWidth, y: progressY))
+        appearance.progressColor.setStroke()
+        progressPath.stroke()
     }
 }
 
@@ -372,7 +456,7 @@ private extension MediaAttachment {
             return
         }
 
-        image = delegate!.mediaAttachmentPlaceholderImageFor(attachment: self)
+        image = delegate!.mediaAttachmentPlaceholder(for: self)
         isFetchingImage = true
         retryCount += 1
 
@@ -430,6 +514,7 @@ private extension MediaAttachment {
     /// Constants
     ///
     struct Constants {
+
         /// Maximum number of times to retry downloading the asset, upon error
         ///
         static let maxRetryCount = 3
@@ -475,10 +560,18 @@ extension MediaAttachment {
         ///
         public var progressColor = UIColor.blue
 
-        /// The margin apply to the images being displayed. This is to avoid that two images in a row get
-        /// glued together.
+        /// The margin to apply to the images being displayed. This is to avoid that two images in a row get glued together.
         ///
-        public var imageMargin = CGFloat(10.0)
+        public var imageInsets = UIEdgeInsets(top: 10.0, left: 0.0, bottom: 10.0, right: 0.0)
+
+        /// The Insets to be applied to the Caption text (if any).. Note that this property is actually used by a subclass. Revisit when possible!
+        ///
+        public var captionInsets = UIEdgeInsets(top: 5.0, left: 0.0, bottom: 5.0, right: 0.0)
+
+        /// The color to use when drawing ImageAttachment's caption (if any). Note that this property is actually used by a subclass.
+        /// Revisit when possible!
+        ///
+        public var captionColor = UIColor.darkGray
     }
 }
 

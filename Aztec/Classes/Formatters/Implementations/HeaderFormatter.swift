@@ -42,12 +42,15 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         } else {
             newParagraphStyle.replaceProperty(ofType: Header.self, with: header)
         }
-
-        let targetFontSize = headerFontSize(for: headerLevel, defaultSize: defaultSize)
+ 
+        let targetFontSize = CGFloat(headerFontSize(for: headerLevel, defaultSize: defaultSize))
         var resultingAttributes = attributes
+        
+        let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
+        
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.font] = font.withSize(CGFloat(targetFontSize))
-
+        resultingAttributes[.font] = UIFont(descriptor: newDescriptor, size: targetFontSize)
+        
         return resultingAttributes
     }
 
