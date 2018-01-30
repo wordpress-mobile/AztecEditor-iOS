@@ -387,7 +387,7 @@ private extension AttributedStringSerializer {
     ///
     func converter(for element: ElementNode) -> ElementConverter {
         let converter = elementConverters.first { converter in
-            converter.canConvert(element: element)
+            return converter.canConvert(element: element)
         }
 
         return converter ?? genericElementConverter

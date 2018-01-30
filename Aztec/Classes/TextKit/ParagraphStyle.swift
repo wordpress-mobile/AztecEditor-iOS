@@ -7,7 +7,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - Initializers
     
-    init(for paragraphStyle: NSParagraphStyle) {
+    init(with paragraphStyle: NSParagraphStyle) {
         super.init()
         
         setParagraphStyle(paragraphStyle)
@@ -15,27 +15,21 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     // MARK: - Convenience Construction
     
-    /// Retrieves the `ParagraphStyle` instance from the specified attributes, or constructs a
-    /// new one if necessary.
+    /// Creates a copy of the paragraph style object contained within the specified string attributes.
     ///
-    /// - Note: if the attributes have an `NSParagraphStyle` instance, all of it's style information
-    ///     is copied into the new `ParagraphStyle` object.
+    /// - Note: works both with `NSParagraphStyle` and `ParagraphStyle` source instances.
     ///
     /// - Parameters:
     ///     - attributes: the attributes to obtain the paragraph style from.
     ///
     /// - Returns: the requested `ParagraphStyle` object.
     ///
-    static func retrieve(from attributes: [AttributedStringKey: Any]) -> ParagraphStyle {
+    static func copy(from attributes: [AttributedStringKey: Any]) -> ParagraphStyle {
         guard let existingParagraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle else {
             return ParagraphStyle()
         }
         
-        guard let finalParagraphStyle = existingParagraphStyle as? ParagraphStyle else {
-            return ParagraphStyle(for: existingParagraphStyle)
-        }
-        
-        return finalParagraphStyle
+        return ParagraphStyle(with: existingParagraphStyle)
     }
     
     // MARK: - CustomReflectable

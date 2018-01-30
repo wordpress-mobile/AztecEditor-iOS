@@ -335,12 +335,11 @@ private extension AttributedStringParser {
     /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
     ///
     private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
-
+        assert(mergeableNodes.count > 0)
+        
         // Business logic: The last mergeable node is never merged, so we need more than 1 node to continue.
         //
-        guard mergeableNodes.count > 1,
-            let lastNodeName = mergeableNodes.last?.left.name
-        else {
+        guard let lastNodeName = mergeableNodes.last?.left.name else {
             return nil
         }
 
@@ -479,7 +478,15 @@ private extension AttributedStringParser {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
                 paragraphNodes.append(element)
+                
+            case let figcaption as Figcaption:
+                let element = processFigcaptionStyle(figcaption: figcaption)
+                paragraphNodes.append(element)
 
+            case let figure as Figure:
+                let element = processFigureStyle(figure: figure)
+                paragraphNodes.append(element)
+                
             case let header as Header:
                 guard let element = processHeaderStyle(header: header) else {
                     continue
@@ -560,6 +567,38 @@ private extension AttributedStringParser {
         }
 
         return representationElement.toElementNode()
+    }
+    
+    
+    private func processFigcaptionStyle(figcaption: Figcaption) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figcaption.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figcaption)
+        }
+        
+        return element
+    }
+    
+    
+    private func processFigureStyle(figure: Figure) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figure.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figure)
+        }
+        
+        return element
     }
 
 

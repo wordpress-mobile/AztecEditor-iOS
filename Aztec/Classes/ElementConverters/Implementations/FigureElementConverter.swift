@@ -34,7 +34,7 @@ class FigureElementConverter: ElementConverter {
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
-        let paragraphStyle = ParagraphStyle.retrieve(from: attributes)
+        let paragraphStyle = ParagraphStyle.copy(from: attributes)
         paragraphStyle.appendProperty(Figure())
         
         var finalAttributes = attributes
