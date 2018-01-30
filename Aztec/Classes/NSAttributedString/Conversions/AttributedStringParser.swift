@@ -508,8 +508,9 @@ private extension AttributedStringParser {
             }
         }
         
-        let lastElement = paragraphNodes.last! // There's no scenario where having zero paragraph nodes would make sense.
-        lastElement.attributes.append(contentsOf: extraAttributes)
+        if let lastElement = paragraphNodes.last {
+            lastElement.attributes.append(contentsOf: extraAttributes)
+        }
         
         return paragraphNodes
     }
