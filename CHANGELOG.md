@@ -9,6 +9,14 @@ Aztec adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [1.beta18.1](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/1.beta18.1)
+Released on 2018-02-01. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/AztecEditor-iOS/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Version+1.0+Beta+18.1%22).
+
+### Fixed
+
+- Fix paragraph style related crash.
+
 ## [1.beta18](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/1.beta18)
 Released on 2018-01-29. All issues associated with this milestone can be found using this
 [filter](https://github.com/wordpress-mobile/AztecEditor-iOS/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Version+1.0+Beta+18%22).
