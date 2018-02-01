@@ -1511,12 +1511,15 @@ open class TextView: UITextView {
     /// - Parameters:
     ///   - attachment: the attachment to update
     ///
-    open func refresh(_ attachment: NSTextAttachment) {
+    open func refresh(_ attachment: NSTextAttachment, overlayUpdateOnly: Bool = false) {
         guard let range = storage.range(for: attachment) else {
             return
         }
-
-        storage.edited(.editedAttributes, range: range, changeInLength: 0)
+        if overlayUpdateOnly {
+            layoutManager.invalidateDisplay(forCharacterRange: range)
+        } else {
+            storage.edited(.editedAttributes, range: range, changeInLength: 0)
+        }
     }
 
     /// Helper that allows us to Edit a NSTextAttachment instance, with two extras:
