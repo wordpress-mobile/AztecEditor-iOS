@@ -22,9 +22,9 @@ public class ElementNode: Node {
         return headerLevels[headerLevel - 1]
     }
 
-    private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video]
+    private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
     private static let mergeableBlocklevelElements: [StandardElementType] = [.p, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .ol, .ul, .li, .blockquote, .div]
-    private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u]
+    private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u, .code]
 
     public var standardName: StandardElementType? {
         get {

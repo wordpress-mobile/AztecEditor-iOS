@@ -41,4 +41,8 @@ public extension AttributedStringKey {
     /// Key used to store VideoHTMLRepresentations, by our VideoFormatter.
     ///
     public static let videoHtmlRepresentation = AttributedStringKey(key: "Video.htmlRepresentation")
+
+    /// Key used to store codeHTMLRepresentations, by our VideoFormatter.
+    ///
+    public static let codeHtmlRepresentation = AttributedStringKey(key: "Code.htmlRepresentation")
 }

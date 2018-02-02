@@ -166,6 +166,7 @@ class AttributedStringSerializer {
     lazy var strikethroughFormatter = StrikethroughFormatter()
     lazy var underlineFormatter = UnderlineFormatter()
     lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
+    lazy var codeFormatter = CodeFormatter()
 
     // MARK: - Built-in element converter instances
 
@@ -205,6 +206,7 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
+            .code: self.codeFormatter
         ]
     }()
 
