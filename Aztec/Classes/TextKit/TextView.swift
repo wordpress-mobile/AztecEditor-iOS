@@ -1510,13 +1510,17 @@ open class TextView: UITextView {
     ///
     /// - Parameters:
     ///   - attachment: the attachment to update
+    ///   - overlayUpdateOnly: when this arguments is true, the attachment is only marked to refresh it's display, witthout the need to relayout. This should only be used when changes done to the attachment don't affect it's previous dimensions.
     ///
-    open func refresh(_ attachment: NSTextAttachment) {
+    open func refresh(_ attachment: NSTextAttachment, overlayUpdateOnly: Bool = false) {
         guard let range = storage.range(for: attachment) else {
             return
         }
-
-        storage.edited(.editedAttributes, range: range, changeInLength: 0)
+        if overlayUpdateOnly {
+            layoutManager.invalidateDisplay(forCharacterRange: range)
+        } else {
+            storage.edited(.editedAttributes, range: range, changeInLength: 0)
+        }
     }
 
     /// Helper that allows us to Edit a NSTextAttachment instance, with two extras:
