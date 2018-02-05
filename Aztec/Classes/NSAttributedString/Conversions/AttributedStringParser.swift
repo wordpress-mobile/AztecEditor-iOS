@@ -672,6 +672,10 @@ private extension AttributedStringParser {
             nodes.append(element)
         }
 
+        if let element = processCodeStyle(in: attributes) {
+            nodes.append(element)
+        }
+
         nodes += processUnsupportedHTML(in: attributes)
 
         return nodes
@@ -775,6 +779,16 @@ private extension AttributedStringParser {
         }
 
         return ElementNode(type: .u)
+    }
+
+    /// Extracts all of the Underline Elements contained within a collection of Attributes.
+    ///
+    private func processCodeStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+        guard let _ = attributes[.codeHtmlRepresentation] as? HTMLRepresentation else {
+            return nil
+        }
+
+        return ElementNode(type: .code)
     }
 
 
