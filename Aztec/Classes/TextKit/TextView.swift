@@ -1060,6 +1060,10 @@ open class TextView: UITextView {
         typingAttributesSwifted.removeValue(forKey: .link)
     }
 
+    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
+    ///
+    /// - Parameter range: the range where the new text will be inserted
+    ///
     private func ensureCopyOfCodeCustomTypingAttributes(at range: NSRange) {
         guard typingAttributesSwifted[AttributedStringKey.codeHtmlRepresentation] == nil else {
             return
