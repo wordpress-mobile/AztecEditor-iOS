@@ -544,6 +544,8 @@ open class TextView: UITextView {
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
+        ensureCopyOfCodeCustomTypingAttributes(at: selectedRange)
+
         // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
         // attributes under certain circumstances.  The attributes are lost exactly after the call
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
@@ -1056,6 +1058,18 @@ open class TextView: UITextView {
         }
 
         typingAttributesSwifted.removeValue(forKey: .link)
+    }
+
+    private func ensureCopyOfCodeCustomTypingAttributes(at range: NSRange) {
+        guard typingAttributesSwifted[AttributedStringKey.codeHtmlRepresentation] == nil else {
+            return
+        }
+
+        guard storage.isLocation(range.location, preceededBy: .codeHtmlRepresentation) else {
+            return
+        }
+
+        typingAttributesSwifted[AttributedStringKey.codeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
     }
 
 
