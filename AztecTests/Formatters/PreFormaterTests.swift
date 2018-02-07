@@ -10,12 +10,12 @@ class PreFormatterTests: XCTestCase {
     /// to the formatter's behavior.
     ///
     func testPreFormatterDoesNotLooseAttachmentAttribuesOnRemove() {
-        let placeholderAttributes: [AttributedStringKey: Any] = [
+        let placeholderAttributes: [NSAttributedStringKey: Any] = [
             .font: "Value",
             .paragraphStyle: NSParagraphStyle()
         ]
 
-        let stringAttributes: [AttributedStringKey: Any] = [
+        let stringAttributes: [NSAttributedStringKey: Any] = [
             .attachment: NSTextAttachment(),
         ]
 

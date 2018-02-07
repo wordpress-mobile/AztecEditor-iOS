@@ -1255,7 +1255,7 @@ private extension EditorDemoController
                 videoAttachment.srcURL = videoURL
             }
         }
-        richTextView.refresh(attachment)
+        richTextView.refresh(attachment, overlayUpdateOnly: true)
     }
 
     var mediaMessageAttributes: [NSAttributedStringKey: Any] {

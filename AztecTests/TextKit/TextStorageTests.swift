@@ -30,7 +30,7 @@ class TextStorageTests: XCTestCase {
     // MARK: - Test Traits
 
     func testFontTraitExistsAtIndex() {
-        let attributes: [AttributedStringKey: Any] = [
+        let attributes: [NSAttributedStringKey: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
@@ -51,7 +51,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testFontTraitSpansRange() {
-        let attributes: [AttributedStringKey: Any] = [
+        let attributes: [NSAttributedStringKey: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
@@ -65,7 +65,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testToggleTraitInRange() {
-        let attributes: [AttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 10)]
+        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 10)]
 
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
@@ -163,7 +163,7 @@ class TextStorageTests: XCTestCase {
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                              .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
@@ -379,7 +379,7 @@ class TextStorageTests: XCTestCase {
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
 
-        let defaultAttributes: [AttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                              .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
