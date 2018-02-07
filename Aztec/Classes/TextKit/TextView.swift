@@ -1141,23 +1141,23 @@ open class TextView: UITextView {
         // We're only wrapping the call to super in `preserveTypingAttributesForInsertion` to make sure
         // that the style is not lost due to an iOS 11 issue.
         //
-//        preserveTypingAttributesForInsertion{ [weak self] in
-//            guard let `self` = self else {
-//                return
-//            }
-//
-//            // From here on, it's just calling the same method in `super`.
-//            //
-//            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
-//            let imp = class_getMethodImplementation(TextView.superclass(), selector)
-//
-//            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
-//            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-//
-//            superMethod(self, selector, range, replacementText)
-//        }
-        let attributedString = NSAttributedString(string: replacementText, attributes: self.typingAttributesSwifted)
-        self.textStorage.replaceCharacters(in: rangeFrom(uiTextRange: range), with: attributedString)
+        preserveTypingAttributesForInsertion{ [weak self] in
+            guard let `self` = self else {
+                return
+            }
+
+            // From here on, it's just calling the same method in `super`.
+            //
+            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
+            let imp = class_getMethodImplementation(TextView.superclass(), selector)
+
+            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
+            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
+            let currentAttributes = self.typingAttributesSwifted
+            superMethod(self, selector, range, replacementText)
+            // apply all attributes that where set before the call to the new text
+            self.textStorage.setAttributes(currentAttributes, range: rangeFrom(uiTextRange: range))
+        }
     }
 
     func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
