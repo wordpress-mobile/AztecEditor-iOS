@@ -22,7 +22,7 @@ class FigureElementConverter: AttachmentElementConverter {
     
     typealias AttachmentType = ImageAttachment
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
         assert(canConvert(element: element))
 
         // Extract the Image + Figcaption Elements

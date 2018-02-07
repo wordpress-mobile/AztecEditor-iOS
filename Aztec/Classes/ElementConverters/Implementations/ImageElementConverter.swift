@@ -15,7 +15,7 @@ class ImageElementConverter: AttachmentElementConverter {
     
     typealias AttachmentType = ImageAttachment
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
         let attachment = self.attachment(for: element)
         
         return (attachment, NSAttributedString(attachment: attachment, attributes: attributes))

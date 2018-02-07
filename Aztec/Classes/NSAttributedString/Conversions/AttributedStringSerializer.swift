@@ -5,11 +5,11 @@ import UIKit
 ///
 class AttributedStringSerializer {
 
-    private let defaultAttributes: [AttributedStringKey: Any]
+    private let defaultAttributes: [NSAttributedStringKey: Any]
 
     // MARK: - Initializers
 
-    required init(defaultAttributes: [AttributedStringKey: Any]) {
+    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
     }
 
@@ -38,7 +38,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func serialize(_ node: Node, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -59,7 +59,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: TextNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: TextNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let text = sanitizeText(from: node)
         
@@ -84,7 +84,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -99,7 +99,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         guard element.isSupportedByEditor() else {
             return serialize(unsupported: element, inheriting: attributes)
@@ -126,7 +126,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let serializer = DefaultHTMLSerializer()
         let attachment = HTMLAttachment()
 
@@ -138,7 +138,7 @@ class AttributedStringSerializer {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -258,7 +258,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
         guard !(element is RootNode) else {
             return inheritedAttributes
@@ -290,9 +290,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [AttributedStringKey: Any] in
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedStringKey: Any] in
             return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
 
@@ -309,9 +309,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let attributes: [AttributedStringKey: Any]
+        let attributes: [NSAttributedStringKey: Any]
 
         if let attributeFormatter = formatter(for: attribute) {
             let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
@@ -333,7 +333,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)

@@ -17,7 +17,7 @@ class GenericElementConverter: ElementConverter {
         return true
     }
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let content = NSMutableAttributedString()
         
         for child in element.children {

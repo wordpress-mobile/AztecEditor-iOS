@@ -110,7 +110,6 @@
 		F14665451EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F168DB851F6381A00009BD0E /* CSSParserTests.swift */; };
 		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
-		F177FF801FB6443F00CBBE35 /* AttributedStringKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */; };
 		F17BC86B1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC86A1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift */; };
 		F17BC8751F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8741F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
@@ -302,7 +301,6 @@
 		F14665441EA7C230008DE2B8 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F168DB851F6381A00009BD0E /* CSSParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParserTests.swift; sourceTree = "<group>"; };
 		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
-		F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedStringKey.swift; sourceTree = "<group>"; };
 		F17BC86A1F4E466100398E2B /* NSAttributedString+HTMLInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+HTMLInitializer.swift"; sourceTree = "<group>"; };
 		F17BC8741F4E48FF00398E2B /* NSAttributedStringHTMLInitializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringHTMLInitializerTests.swift; path = Extensions/NSAttributedStringHTMLInitializerTests.swift; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
@@ -479,7 +477,6 @@
 				599F25071D8BC9A1002871D6 /* Libxml2 */,
 				F16DD2C51EE998280083A098 /* NSAttributedString */,
 				FF20D63C1EDC389A00294B78 /* Processor */,
-				F177FF7E1FB6442C00CBBE35 /* Swift4 */,
 				599F252E1D8BC9A1002871D6 /* TextKit */,
 			);
 			name = Classes;
@@ -769,14 +766,6 @@
 				F17BC8A71F4E512800398E2B /* Conversions */,
 			);
 			path = NSAttributedString;
-			sourceTree = "<group>";
-		};
-		F177FF7E1FB6442C00CBBE35 /* Swift4 */ = {
-			isa = PBXGroup;
-			children = (
-				F177FF7F1FB6443F00CBBE35 /* AttributedStringKey.swift */,
-			);
-			path = Swift4;
 			sourceTree = "<group>";
 		};
 		F17BC88E1F4E4BA500398E2B /* Attributes */ = {
@@ -1102,7 +1091,6 @@
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */,
 				B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */,
-				F177FF801FB6443F00CBBE35 /* AttributedStringKey.swift in Sources */,
 				F12F58681EF20394008AE298 /* ColorFormatter.swift in Sources */,
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */,

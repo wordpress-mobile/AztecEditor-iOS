@@ -4,11 +4,11 @@ import UIKit
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string.
 class CodeFormatter: AttributeFormatter {
 
-    var placeholderAttributes: [AttributedStringKey: Any]? { return nil }
+    var placeholderAttributes: [NSAttributedStringKey: Any]? { return nil }
 
     let monospaceFont: UIFont
     let backgroundColor: UIColor
-    let htmlRepresentationKey: AttributedStringKey
+    let htmlRepresentationKey: NSAttributedStringKey
 
     // MARK: - Init
 
@@ -33,33 +33,33 @@ class CodeFormatter: AttributeFormatter {
         return false
     }
 
-    func apply(to attributes: [AttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [AttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
 
-        resultingAttributes[AttributedStringKey.font] = monospaceFont
-        resultingAttributes[AttributedStringKey.backgroundColor] = self.backgroundColor
+        resultingAttributes[.font] = monospaceFont
+        resultingAttributes[.backgroundColor] = self.backgroundColor
         resultingAttributes[htmlRepresentationKey] = representation
 
         return resultingAttributes
     }
 
-    func remove(from attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
 
-        resultingAttributes.removeValue(forKey: AttributedStringKey.font)
-        resultingAttributes.removeValue(forKey: AttributedStringKey.backgroundColor)
+        resultingAttributes.removeValue(forKey: .font)
+        resultingAttributes.removeValue(forKey: .backgroundColor)
         resultingAttributes.removeValue(forKey: htmlRepresentationKey)
 
         if let placeholderAttributes = self.placeholderAttributes {
-            resultingAttributes[AttributedStringKey.font] = placeholderAttributes[AttributedStringKey.font]
-            resultingAttributes[AttributedStringKey.backgroundColor] = placeholderAttributes[AttributedStringKey.backgroundColor]
+            resultingAttributes[.font] = placeholderAttributes[.font]
+            resultingAttributes[.backgroundColor] = placeholderAttributes[.backgroundColor]
         }
 
         return resultingAttributes
     }
 
-    func present(in attributes: [AttributedStringKey: Any]) -> Bool {
-        if let font = attributes[AttributedStringKey.font] as? UIFont {
+    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+        if let font = attributes[NSAttributedStringKey.font] as? UIFont {
             return font == monospaceFont
         } else {
             return false
