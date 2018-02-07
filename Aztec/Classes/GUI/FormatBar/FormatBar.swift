@@ -646,9 +646,7 @@ private extension FormatBar {
         scrollableStackView.alignment = .center
         scrollableStackView.distribution = .equalSpacing
         scrollableStackView.translatesAutoresizingMaskIntoConstraints = false
-        if layoutDirection == .rightToLeft {
-            scrollableStackView.transform = CGAffineTransform(scaleX: -1, y: 1)
-        }
+        scrollableStackView.flipIfNeeded(for: layoutDirection)
     }
 
 
@@ -660,9 +658,7 @@ private extension FormatBar {
         scrollView.alwaysBounceHorizontal = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
-        if layoutDirection == .rightToLeft {
-            scrollView.transform = CGAffineTransform(scaleX: -1, y: 1)
-        }
+        scrollView.flipIfNeeded(for: layoutDirection)
         updateScrollViewInsets()
     }
 
@@ -912,6 +908,16 @@ private extension UIView {
 
         get {
             return isHidden
+        }
+    }
+
+    /// Flips the receiver horizontally if the given layout direction is .rightToLeft
+    /// It is necesary for ScrollViews and its content to have a right-to-left scroll behavior
+    ///
+    /// - Parameter layoutDirection: The current user interface layout direction
+    func flipIfNeeded(for layoutDirection: UIUserInterfaceLayoutDirection) {
+        if layoutDirection == .rightToLeft {
+            transform = CGAffineTransform(scaleX: -1, y: 1)
         }
     }
 }
