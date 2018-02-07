@@ -1141,21 +1141,29 @@ open class TextView: UITextView {
         // We're only wrapping the call to super in `preserveTypingAttributesForInsertion` to make sure
         // that the style is not lost due to an iOS 11 issue.
         //
-        preserveTypingAttributesForInsertion{ [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            
-            // From here on, it's just calling the same method in `super`.
-            //
-            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
-            let imp = class_getMethodImplementation(TextView.superclass(), selector)
-            
-            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
-            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            
-            superMethod(self, selector, range, replacementText)
-        }
+//        preserveTypingAttributesForInsertion{ [weak self] in
+//            guard let `self` = self else {
+//                return
+//            }
+//
+//            // From here on, it's just calling the same method in `super`.
+//            //
+//            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
+//            let imp = class_getMethodImplementation(TextView.superclass(), selector)
+//
+//            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
+//            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
+//
+//            superMethod(self, selector, range, replacementText)
+//        }
+        let attributedString = NSAttributedString(string: replacementText, attributes: self.typingAttributesSwifted)
+        self.textStorage.replaceCharacters(in: rangeFrom(uiTextRange: range), with: attributedString)
+    }
+
+    func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
+            let location = offset(from: beginningOfDocument, to: range.start)
+            let length = offset(from: range.start, to: range.end)
+            return NSRange(location: location, length: length)
     }
 
     /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
