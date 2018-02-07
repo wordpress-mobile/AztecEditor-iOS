@@ -1161,9 +1161,9 @@ open class TextView: UITextView {
     }
 
     func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
-            let location = offset(from: beginningOfDocument, to: range.start)
-            let length = offset(from: range.start, to: range.end)
-            return NSRange(location: location, length: length)
+        let location = offset(from: beginningOfDocument, to: range.start)
+        let length = offset(from: range.start, to: range.end)
+        return NSRange(location: location, length: length)
     }
 
     /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
