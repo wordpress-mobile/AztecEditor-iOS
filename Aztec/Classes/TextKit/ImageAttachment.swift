@@ -16,7 +16,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment Alignment
     ///
-    open var alignment: Alignment = .center {
+    open var alignment: Alignment = .none {
         willSet {
             if newValue != alignment {
                 glyphImage = nil

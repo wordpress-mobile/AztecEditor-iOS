@@ -1030,9 +1030,7 @@ private extension AttributedStringParser {
     ///
     private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
         var style = String()
-        if attachment.alignment != .center {
-            style += attachment.alignment.htmlString()
-        }
+        style += attachment.alignment.htmlString()        
         
         if attachment.size != .none {
             style += style.isEmpty ? String() : String(.space)
