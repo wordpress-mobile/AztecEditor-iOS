@@ -151,8 +151,8 @@ open class TextView: UITextView {
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
-    fileprivate var defaultAttributes: [AttributedStringKey: Any] {
-        var attributes: [AttributedStringKey: Any] = [
+    fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
+        var attributes: [NSAttributedStringKey: Any] = [
             .font: defaultFont,
             .paragraphStyle: defaultParagraphStyle
         ]
@@ -259,31 +259,31 @@ open class TextView: UITextView {
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
     /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
     ///
-    open var typingAttributesSwifted: [AttributedStringKey: Any] {
+    open var typingAttributesSwifted: [NSAttributedStringKey: Any] {
         get {
-            return AttributedStringKey.convertFromRaw(typingAttributes)
+            return NSAttributedStringKey.convertFromRaw(typingAttributes)
         }
         set {
-            typingAttributes = AttributedStringKey.convertToRaw(newValue)
+            typingAttributes = NSAttributedStringKey.convertToRaw(newValue)
         }
     }
     
     /// The attributes for link text in his view.  Required since the underlying property is not compatible with the
     /// recent Swift 4.0 changes.
     ///
-    open var linkTextAttributesSwifted: [AttributedStringKey: Any] {
+    open var linkTextAttributesSwifted: [NSAttributedStringKey: Any] {
         get {
-            return AttributedStringKey.convertFromRaw(linkTextAttributes)
+            return NSAttributedStringKey.convertFromRaw(linkTextAttributes)
         }
         set {
-            linkTextAttributes = AttributedStringKey.convertToRaw(newValue)
+            linkTextAttributes = NSAttributedStringKey.convertToRaw(newValue)
         }
     }
 
 
     /// This property returns the Attributes associated to the Extra Line Fragment.
     ///
-    public var extraLineFragmentTypingAttributes: [AttributedStringKey: Any] {
+    public var extraLineFragmentTypingAttributes: [NSAttributedStringKey: Any] {
         guard selectedTextRange?.start != endOfDocument else {
             return typingAttributesSwifted
         }
@@ -1747,13 +1747,13 @@ private extension TextView {
         ]
 
         for formatter in formatters {
-            let activeTypingAttributes = AttributedStringKey.convertFromRaw(super.typingAttributes)
+            let activeTypingAttributes = NSAttributedStringKey.convertFromRaw(super.typingAttributes)
             guard formatter.present(in: activeTypingAttributes) else {
                 continue
             }
 
             let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
-            super.typingAttributes = AttributedStringKey.convertToRaw(updatedTypingAttributes)
+            super.typingAttributes = NSAttributedStringKey.convertToRaw(updatedTypingAttributes)
 
             let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
             formatter.removeAttributes(from: textStorage, at: applicationRange)

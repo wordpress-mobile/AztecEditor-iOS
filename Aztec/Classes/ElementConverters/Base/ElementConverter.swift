@@ -17,5 +17,5 @@ protocol ElementConverter {
     ///
     /// - Returns: NSAttributedString instance, representing the received element.
     ///
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString
 }

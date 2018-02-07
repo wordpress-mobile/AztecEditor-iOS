@@ -11,7 +11,7 @@ class BRElementConverter: ElementConverter {
         return element.standardName == .br
     }
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         return NSAttributedString(.lineSeparator, attributes: attributes)
     }
 }
