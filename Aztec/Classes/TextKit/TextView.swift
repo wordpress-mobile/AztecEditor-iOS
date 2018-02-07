@@ -1065,11 +1065,8 @@ open class TextView: UITextView {
     /// - Parameter range: the range where the new text will be inserted
     ///
     private func ensureCopyOfCodeCustomTypingAttributes(at range: NSRange) {
-        guard typingAttributesSwifted[.codeHtmlRepresentation] == nil else {
-            return
-        }
-
-        guard storage.isLocation(range.location, preceededBy: .codeHtmlRepresentation) else {
+        guard typingAttributesSwifted[.codeHtmlRepresentation] == nil,
+            storage.isLocation(range.location, preceededBy: .codeHtmlRepresentation) else {
             return
         }
 

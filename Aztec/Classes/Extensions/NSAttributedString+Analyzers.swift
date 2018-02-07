@@ -6,7 +6,7 @@ import UIKit
 //
 extension NSAttributedString {
 
-    /// Returns true if the text preceding a given location contains the NSLinkAttribute.
+    /// Returns true if the text preceding a given location contains the specified attribute key.
     ///
     /// - Parameters:
     ///   - location: location to check
