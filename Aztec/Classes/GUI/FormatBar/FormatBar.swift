@@ -528,8 +528,7 @@ open class FormatBar: UIView {
 
         formatter?.formatBar(self, didChangeOverflowState: (shouldExpand) ? .visible : .hidden)
 
-        overflowToggleItemRTLLeadingConstraint?.isActive = shouldExpand
-        updateOverflowToggleItemRTLConstraints()
+        updateOverflowToggleItemRTLLayout(expand: shouldExpand, animated: true)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -539,6 +538,20 @@ open class FormatBar: UIView {
         let items = visible ? hiddenItems : (overflowedDefaultItems + overflowItems).reversed()
 
         popItems(items, visible: visible, animated: animated)
+    }
+
+    /// Updates the position of the overflow toggle item. This is necesary only for Right-to-Left layouts due to the special leading constraint.
+    ///
+    private func updateOverflowToggleItemRTLLayout(expand shouldExpand: Bool, animated: Bool) {
+        guard layoutDirection == .rightToLeft else { return }
+
+        overflowToggleItemRTLLeadingConstraint?.isActive = shouldExpand
+        updateOverflowToggleItemRTLConstraints()
+        if animated {
+            UIView.animate(withDuration: Animations.durationShort) {
+                self.layoutIfNeeded()
+            }
+        }
     }
 
     private func popItems(_ items: [FormatBarItem], visible: Bool, animated: Bool = true) {
