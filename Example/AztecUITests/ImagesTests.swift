@@ -66,7 +66,7 @@ class ImagesTests: XCTestCase {
     // Tests the issue described in
     // https://github.com/wordpress-mobile/AztecEditor-Android/issues/196
     func testParsingOfImagesWithLink() {
-        let imageHtml = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\"><img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\"></a>"
+        let imageHtml = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\"><img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" class=\"alignnone\"></a>"
         let expectedHTML = "<p>" + imageHtml + "</p>"
         
         let html = richEditorPage
