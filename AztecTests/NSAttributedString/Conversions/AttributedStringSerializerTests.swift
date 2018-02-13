@@ -154,7 +154,7 @@ class AttributedStringSerializerTests: XCTestCase {
     /// Verifies that a linked image is properly converted from HTML to attributed string and back to HTML.
     ///
     func testLinkedImageGetsProperlyEncodedAndDecoded() {
-        let inHtml = "<p><a href=\"https://wordpress.com\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\"></a></p>"
+        let inHtml = "<p><a href=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\" class=\"alignnone\"></a></p>"
         
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)

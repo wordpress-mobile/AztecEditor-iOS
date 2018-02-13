@@ -1204,6 +1204,7 @@ private extension EditorDemoController
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         attachment.size = .full
+        attachment.alignment = .none
         if let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first {
             richTextView.setLink(fileURL, inRange: attachmentRange)
         }
