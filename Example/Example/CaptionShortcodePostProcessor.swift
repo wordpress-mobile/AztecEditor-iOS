@@ -15,7 +15,7 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             /// Parse the Shortcode's Payload: We expect an [IMG, Figcaption]
             ///
             let parsed = HTMLParser().parse(payload)
-            guard let image = parsed.firstChild(ofType: .img),
+            guard let imageContainerElement = parsed.firstChild(ofType: .img) ?? parsed.firstChild(ofType: .a),
                 let figcaption = parsed.firstChild(ofType: .figcaption)
             else {
                 return nil
@@ -29,7 +29,7 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
 
             var html = "[caption" + padding + attributes + "]"
 
-            html += serializer.serialize(image)
+            html += serializer.serialize(imageContainerElement)
 
             for child in figcaption.children {
                 html += serializer.serialize(child)

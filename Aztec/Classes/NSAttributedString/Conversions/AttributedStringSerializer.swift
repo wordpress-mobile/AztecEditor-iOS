@@ -159,7 +159,6 @@ class AttributedStringSerializer {
     lazy var h5Formatter = HeaderFormatter(headerLevel: .h5)
     lazy var h6Formatter = HeaderFormatter(headerLevel: .h6)
     lazy var italicFormatter = ItalicFormatter()
-    lazy var linkFormatter = LinkFormatter()
     lazy var orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)
     lazy var paragraphFormatter = HTMLParagraphFormatter()
     lazy var preFormatter = PreFormatter()
@@ -175,9 +174,11 @@ class AttributedStringSerializer {
     private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
     
     lazy var brElementConverter = BRElementConverter()
-    lazy var figureElementConverter = FigureElementConverter()
+    lazy var figureElementConverter = FigureElementConverter(using: self, and: imageElementConverter, and: linkedImageElementConverter)
     lazy var hrElementConverter = HRElementConverter()
     lazy var imageElementConverter = ImageElementConverter()
+    lazy var linkElementConverter = LinkElementConverter(using: self)
+    lazy var linkedImageElementConverter = LinkedImageElementConverter(using: self, and: imageElementConverter)
     lazy var videoElementConverter = VideoElementConverter()
 
     // MARK: - Formatter Maps
@@ -186,6 +187,8 @@ class AttributedStringSerializer {
         return [:]
     }()
 
+    // IMPORTANT: these have to be migrated to specific ElementConverter subclasses.
+    // Comment out the migrated ones for clarity.
     public lazy var elementFormattersMap: [StandardElementType: AttributeFormatter] = {
         return [
             .blockquote: self.blockquoteFormatter,
@@ -196,7 +199,7 @@ class AttributedStringSerializer {
             .em: self.italicFormatter,
             .u: self.underlineFormatter,
             .del: self.strikethroughFormatter,
-            .a: self.linkFormatter,
+            //.a: self.linkFormatter, -- migrated
             .h1: self.h1Formatter,
             .h2: self.h2Formatter,
             .h3: self.h3Formatter,
@@ -221,9 +224,11 @@ class AttributedStringSerializer {
         return [
             self.brElementConverter,
             self.figureElementConverter,
-            self.imageElementConverter,
-            self.videoElementConverter,
             self.hrElementConverter,
+            self.imageElementConverter,
+            self.linkElementConverter,
+            // self.linkedImageElementConverter -- Disabled on purpose for documentation, since for regular usage the linkElementConverter will do.
+            self.videoElementConverter,
         ]
     }()
 
