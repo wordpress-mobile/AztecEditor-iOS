@@ -13,35 +13,11 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         setParagraphStyle(paragraphStyle)
     }
     
-    // MARK: - Convenience Construction
-    
-    /// Creates a copy of the paragraph style object contained within the specified string attributes.
-    ///
-    /// - Note: works both with `NSParagraphStyle` and `ParagraphStyle` source instances.
-    ///
-    /// - Parameters:
-    ///     - attributes: the attributes to obtain the paragraph style from.
-    ///
-    /// - Returns: the requested `ParagraphStyle` object.
-    ///
-    static func copy(from attributes: [AttributedStringKey: Any]) -> ParagraphStyle {
-        guard let existingParagraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle else {
-            return ParagraphStyle()
-        }
-        
-        return ParagraphStyle(with: existingParagraphStyle)
-    }
-    
     // MARK: - CustomReflectable
     
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes,
-                                           "headerLevel": headerLevel,
-                                           "htmlDiv": htmlDiv,
-                                           "htmlParagraph": htmlParagraph,
-                                           "textList": lists,
-                                           "properties": properties])
+            return Mirror(self, children: ["properties": properties])
         }
     }
 
@@ -341,12 +317,20 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description +
-            " Blockquotes: \(String(describing:blockquotes)),\n" +
-            " HeaderLevel: \(headerLevel),\n" +
-            " HTMLDiv: \(String(describing: htmlDiv)),\n" +
-            " HTMLParagraph: \(String(describing: htmlParagraph)),\n" +
-            " TextLists: \(lists)"
+        
+        var description = super.description + ", paragraphProperties: ["
+        
+        for (index, property) in properties.enumerated() {
+            description.append(property.debugDescription)
+            
+            if index < properties.count - 1 {
+                description.append(", ")
+            }
+        }
+        
+        description.append("]")
+        
+        return description
     }
 }
 

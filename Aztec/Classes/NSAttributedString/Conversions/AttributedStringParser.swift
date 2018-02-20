@@ -961,17 +961,6 @@ private extension AttributedStringParser {
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
             imageElement.updateAttribute(named: key, value: .string(finalValue))
-        }        
-
-        /// Special Case:
-        /// - Extract the ImageAttachment's caption field
-        /// - Create the Caption Element
-        /// - Wrap everything within a Figure tag!
-        ///
-        /// Note that the Figure element is handled by the HTMLFigureFormatter.
-        ///
-        if let figcaptionElement = figcaptionElement(from: attachment) {
-            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
         }
 
         return imageElement
@@ -1100,18 +1089,5 @@ private extension AttributedStringParser {
             Attribute(name: "width", value: .string(widthValue)),
             Attribute(name: "height", value: .string(heightValue))
         ]
-    }
-
-
-    /// Extracts the Figcaption Element from an ImageAttachment Instance.
-    ///
-    private func figcaptionElement(from attachment: ImageAttachment) -> ElementNode? {
-        guard let caption = attachment.caption,
-            let paragraph = AttributedStringParser().parse(caption).firstChild(ofType: .p)
-            else {
-                return nil
-        }
-
-        return ElementNode(type: .figcaption, attributes: [], children: paragraph.children)
     }
 }

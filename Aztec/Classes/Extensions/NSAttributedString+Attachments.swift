@@ -19,6 +19,26 @@ extension NSAttributedString
 
         self.init(.textAttachment, attributes: attributesWithAttachment)
     }
+    
+    convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [AttributedStringKey: Any]) {
+        let figure = Figure()
+        let figcaption = Figcaption()
+        
+        let figureAttributes = attributes.appending(figure)
+        let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)
+        
+        let mutableCaption = NSMutableAttributedString(attributedString: caption)
+        mutableCaption.append(figure)
+        mutableCaption.append(figcaption)
+        
+        let paragraphSeparator = NSAttributedString(.paragraphSeparator, attributes: [:])
+        
+        finalString.append(paragraphSeparator)
+        finalString.append(mutableCaption)
+        finalString.append(paragraphSeparator)
+        
+        self.init(attributedString: finalString)
+    }
 
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
     ///

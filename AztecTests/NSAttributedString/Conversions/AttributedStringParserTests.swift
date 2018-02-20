@@ -933,9 +933,9 @@ class AttributedStringParserTests: XCTestCase {
     ///
     func testImagesWithCaptionProduceFigureAndFigcaptionElements() {
         let attachment = ImageAttachment(identifier: UUID().uuidString)
-        attachment.caption = NSAttributedString(string: "Hello!")
-
-        let string = NSAttributedString(attachment: attachment)
+        let caption = NSAttributedString(string: "Hello!")
+        
+        let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
         XCTAssert(node.children.count == 1)
