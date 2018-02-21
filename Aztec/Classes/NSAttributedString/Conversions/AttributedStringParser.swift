@@ -312,8 +312,6 @@ private extension AttributedStringParser {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
-    /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
-    ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
         guard let mergeableCandidates = findMergeableNodes(left: left, right: right) else {
             return false
@@ -343,7 +341,15 @@ private extension AttributedStringParser {
             return nil
         }
 
-        var mergeCandidates = mergeableNodes.dropLast()
+        var mergeCandidates: ArraySlice<MergeablePair>
+        
+        // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
+        // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
+        if mergeableNodes.last?.left.standardName == .figure {
+            mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
+        } else {
+            mergeCandidates = mergeableNodes.dropLast()
+        }
 
         if lastNodeName != StandardElementType.li.rawValue {
             mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)

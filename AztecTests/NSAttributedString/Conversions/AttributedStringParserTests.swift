@@ -940,11 +940,8 @@ class AttributedStringParserTests: XCTestCase {
         let node = AttributedStringParser().parse(string)
         XCTAssert(node.children.count == 1)
 
-        let paragraphNode = node.firstChild(ofType: .p)
-        XCTAssert(paragraphNode?.children.count == 1)
-
-        let figureNode = paragraphNode?.firstChild(ofType: .figure)
-        XCTAssert(figureNode?.children.count == 2)
+        let figureNode = node.firstChild(ofType: .figure)
+        XCTAssertEqual(figureNode?.children.count, 2)
 
         let imageNode = figureNode?.firstChild(ofType: .img)
         XCTAssertNotNil(imageNode)
