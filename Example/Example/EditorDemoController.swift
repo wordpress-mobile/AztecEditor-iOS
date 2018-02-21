@@ -1317,14 +1317,18 @@ private extension EditorDemoController
         guard let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first else {
             return
         }
+        
+        let fullRange = richTextView.linkFullRange(forRange: attachmentRange) ?? attachmentRange
+        
         let detailsViewController = AttachmentDetailsViewController.controller()
         detailsViewController.attachment = attachment
-        var oldURL: URL?
-        if let linkRange = richTextView.linkFullRange(forRange: attachmentRange),
-           let url = richTextView.linkURL(forRange: attachmentRange),
-           attachmentRange == linkRange {
-           oldURL = url
-           detailsViewController.linkURL = url
+        let oldURL: URL?
+        
+        if let linkURL = richTextView.linkURL(for: attachment) {
+            oldURL = linkURL
+            detailsViewController.linkURL = linkURL
+        } else {
+            oldURL = nil
         }
 
         detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
@@ -1343,11 +1347,11 @@ private extension EditorDemoController
 
                 updated.updateURL(url)
             }
-            // Update associated link
+            
             if let updatedURL = linkURL {
-                self.richTextView.setLink(updatedURL, inRange: attachmentRange)
+                self.richTextView.setLink(updatedURL, inRange: fullRange)
             } else if oldURL != nil && linkURL == nil {
-                self.richTextView.removeLink(inRange: attachmentRange)
+                self.richTextView.removeLink(inRange: fullRange)
             }
         }
 

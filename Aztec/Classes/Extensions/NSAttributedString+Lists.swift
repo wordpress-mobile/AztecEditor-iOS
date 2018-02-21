@@ -183,6 +183,13 @@ extension NSAttributedString {
 
         return string.utf16NSRange(from: outRange)
     }
+    
+    func paragraphRange(for attachment: NSTextAttachment) -> NSRange {
+        // We assume the attachment IS in the string.  This method should not be called otherwise.
+        let attachmentRange = ranges(forAttachment: attachment).first!
+        
+        return paragraphRange(for: attachmentRange)
+    }
 
 
     /// Enumerates all of the paragraphs spanning a NSRange

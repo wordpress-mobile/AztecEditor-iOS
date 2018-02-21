@@ -91,4 +91,8 @@ extension NSAttributedString
         
         return attachmentRanges
     }
+    
+    public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
+        
+    }
 }

@@ -1427,6 +1427,14 @@ open class TextView: UITextView {
 
     // MARK: - Links
 
+    open func linkURL(for attachment: NSTextAttachment) -> URL? {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
+            return nil
+        }
+        
+        return linkURL(forRange: attachmentRange)
+    }
+    
     /// Returns an NSURL if the specified range as attached a link attribute
     ///
     /// - Parameter range: The NSRange to inspect
@@ -1471,6 +1479,14 @@ open class TextView: UITextView {
 
         return effectiveRange
     }
+    
+    // MARK: - Captions
+    
+    open func captionRange(for attachment: NSTextAttachment) -> NSRange? {
+        let paragraphRange = textStorage.paragraphRange(for: attachment)
+    }
+    
+    // MARK: - Storage Indexes (WTF?)
 
 
     /// The maximum index should never exceed the length of the text storage minus one,
