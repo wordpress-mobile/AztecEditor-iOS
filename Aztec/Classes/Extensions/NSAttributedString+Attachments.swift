@@ -10,6 +10,8 @@ extension NSAttributedString
     ///
     static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
 
+    // MARK: - Initializers
+    
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
@@ -91,8 +93,18 @@ extension NSAttributedString
         
         return attachmentRanges
     }
-    
-    public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
+
+    // MARK: - Captions
+
+    public func captionRange(for attachment: NSTextAttachment) -> (range: NSRange, enclosingRange: NSRange)? {
+        guard let attachmentRange = ranges(forAttachment: attachment).first else {
+            return nil
+        }
         
+        let paragraphRange = self.paragraphRange(for: attachmentRange)
+        
+        // find surrounding paragraphs and look for the figcaption
+        
+        return nil
     }
 }

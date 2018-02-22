@@ -1427,6 +1427,16 @@ open class TextView: UITextView {
 
     // MARK: - Links
 
+    open func linkInfo(for attachment: NSTextAttachment) -> (range: NSRange, url: URL)? {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first,
+            let linkFullRange = self.linkFullRange(forRange: attachmentRange),
+            let linkURL = self.linkURL(for: attachment)  else {
+                return nil
+        }
+
+        return (linkFullRange, linkURL)
+    }
+    
     open func linkURL(for attachment: NSTextAttachment) -> URL? {
         guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
             return nil
@@ -1484,6 +1494,8 @@ open class TextView: UITextView {
     
     open func captionRange(for attachment: NSTextAttachment) -> NSRange? {
         let paragraphRange = textStorage.paragraphRange(for: attachment)
+        
+        return paragraphRange
     }
     
     // MARK: - Storage Indexes (WTF?)
