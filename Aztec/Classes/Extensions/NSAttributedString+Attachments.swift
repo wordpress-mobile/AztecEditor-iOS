@@ -97,14 +97,25 @@ extension NSAttributedString
     // MARK: - Captions
 
     public func captionRange(for attachment: NSTextAttachment) -> (range: NSRange, enclosingRange: NSRange)? {
+        return nil
+    }
+
+    // MARK: - Captions: Figure and Figcaption property ranges
+
+    private func figureRange(for attachment: NSTextAttachment) -> NSRange? {
         guard let attachmentRange = ranges(forAttachment: attachment).first else {
             return nil
         }
         
         let paragraphRange = self.paragraphRange(for: attachmentRange)
-        
-        // find surrounding paragraphs and look for the figcaption
-        
-        return nil
+
+        guard let paragraphStyle = self.attribute(.paragraphStyle, at: paragraphRange.lowerBound, effectiveRange: nil) as? ParagraphStyle,
+            let figure = paragraphStyle.property(where: { $0 is Figure }) as? Figure else {
+                return nil
+        }
+
+        return self.paragraphRange(around: attachmentRange) { (properties) -> Bool in
+            return properties.contains { $0 === figure }
+        }
     }
 }

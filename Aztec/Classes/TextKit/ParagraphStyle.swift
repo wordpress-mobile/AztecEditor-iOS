@@ -335,7 +335,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 }
 
 
-// MARK: - Add method to manipulate properties array
+// MARK: - Properties
 //
 extension ParagraphStyle {
 
@@ -364,6 +364,14 @@ extension ParagraphStyle {
         }
 
         properties.insert(property, at: targetIndex + 1)
+    }
+    
+    func hasProperty(where match: (ParagraphProperty) -> Bool) -> Bool {
+        return property { match($0) } != nil
+    }
+    
+    func property(where match: (ParagraphProperty) -> Bool) -> ParagraphProperty? {
+        return properties.first { match($0) }
     }
 
     /// Removes the first ParagraphProperty present in the Properties collection that matches the specified kind.
