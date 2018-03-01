@@ -90,17 +90,37 @@ extension NSAttributedString
             }
             attachmentRanges.append(effectiveRange)
         }
-        
+
         return attachmentRanges
     }
 
     // MARK: - Captions
 
-    public func captionRange(for attachment: NSTextAttachment) -> (range: NSRange, enclosingRange: NSRange)? {
-        return nil
+    public func captionRanges(for attachment: NSTextAttachment) -> NSRange? {
+        guard let figureRange = self.figureRange(for: attachment) else {
+            return nil
+        }
+        
+        return figcaptionRanges(within: figureRange).first
     }
 
     // MARK: - Captions: Figure and Figcaption property ranges
+
+    private func figcaptionRanges(within range: NSRange) -> [NSRange] {
+        var ranges = [NSRange]()
+        
+        enumerateParagraphRanges(spanning: range) { (_, enclosingRange) in
+            guard let paragraphStyle = attribute(.paragraphStyle, at: enclosingRange.lowerBound, effectiveRange: nil) as? ParagraphStyle else {
+                return
+            }
+            
+            if paragraphStyle.hasProperty(where: { $0 is Figcaption }) {
+                ranges.append(enclosingRange)
+            }
+        }
+        
+        return ranges
+    }
 
     private func figureRange(for attachment: NSTextAttachment) -> NSRange? {
         guard let attachmentRange = ranges(forAttachment: attachment).first else {
