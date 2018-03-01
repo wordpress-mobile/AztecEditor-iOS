@@ -96,7 +96,7 @@ extension NSAttributedString
 
     // MARK: - Captions
 
-    public func captionRanges(for attachment: NSTextAttachment) -> NSRange? {
+    public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
         guard let figureRange = self.figureRange(for: attachment) else {
             return nil
         }
