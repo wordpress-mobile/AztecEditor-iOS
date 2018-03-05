@@ -1498,6 +1498,24 @@ open class TextView: UITextView {
         return paragraphRange
     }
     
+    open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
+            return
+        }
+        
+        let existingCaptionRange = captionRange(for: attachment)
+        let replacementRange = existingCaptionRange ?? NSRange(location: attachmentRange.location + attachmentRange.length, length: 0)
+        
+        // TODO: when the caption is not there, we must insert it (and format the attachment as a FIGURE())
+        
+        let finalCaption = NSMutableAttributedString()
+        
+        finalCaption.append(newCaption)
+        finalCaption.append(NSAttributedString(.paragraphSeparator, attributes: [:]))
+        
+        textStorage.replaceCharacters(in: replacementRange, with: finalCaption)
+    }
+ 
     // MARK: - Storage Indexes (WTF?)
 
 
