@@ -409,6 +409,16 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
+        if let urlTypes = UIPasteboardTypeListURL as? [String],
+            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
+            let pastedURL = UIPasteboard.general.url,
+            selectedRange.length > 0 {
+            // If we have some selected text, and a URL is pasted,
+            // create a link with the selected text.
+            setLink(pastedURL, inRange: selectedRange)
+            return
+        }
+
         guard let string = UIPasteboard.general.loadAttributedString() else {
             super.paste(sender)
             return
