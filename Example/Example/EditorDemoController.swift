@@ -1315,8 +1315,8 @@ private extension EditorDemoController
 
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
         
-        let detailsViewController = AttachmentDetailsViewController.controller()
-        detailsViewController.attachment = attachment
+        let caption = richTextView.caption(for: attachment)
+        let detailsViewController = AttachmentDetailsViewController.controller(for: attachment, with: caption)
         
         let linkInfo = richTextView.linkInfo(for: attachment)
         let linkRange = linkInfo?.range

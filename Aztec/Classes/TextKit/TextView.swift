@@ -1492,6 +1492,10 @@ open class TextView: UITextView {
     
     // MARK: - Captions
 
+    open func caption(for attachment: NSTextAttachment) -> NSAttributedString? {
+        return textStorage.caption(for: attachment)
+    }
+    
     open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
         guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
             return
@@ -1499,6 +1503,7 @@ open class TextView: UITextView {
         
         let existingCaptionRange = textStorage.captionRange(for: attachment)
         let replacementRange = existingCaptionRange ?? NSRange(location: attachmentRange.location + attachmentRange.length, length: 0)
+        
         
         // TODO: when the caption is not there, we must insert it (and format the attachment as a FIGURE())
         
@@ -1575,14 +1580,18 @@ open class TextView: UITextView {
             fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
         }
 
-        guard let range = storage.range(for: attachment), let copy = copying.copy() as? T else {
-            return
+        guard let range = storage.range(for: attachment),
+            let copy = copying.copy() as? T else {
+                return
         }
 
         block(copy)
 
         performUndoable(at: range) {
-            storage.setAttributes([.attachment: copy], range: range)
+            var originalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
+            originalAttributes[.attachment] = copy
+            
+            storage.setAttributes(originalAttributes, range: range)
             return range
         }
     }
