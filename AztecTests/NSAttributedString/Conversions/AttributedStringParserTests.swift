@@ -962,7 +962,8 @@ class AttributedStringParserTests: XCTestCase {
         let boldAndItalicAttributes = ItalicFormatter().apply(to: boldAttributes)
 
         let attachment = ImageAttachment(identifier: UUID().uuidString)
-        let caption = NSAttributedString(string: "Bold And Italics", attributes: boldAndItalicAttributes)
+        let captionText = "Bold And Italics"
+        let caption = NSAttributedString(string: captionText, attributes: boldAndItalicAttributes)
         let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
@@ -977,7 +978,7 @@ class AttributedStringParserTests: XCTestCase {
 
         let textNode = italicsNode?.children.first as? TextNode
         XCTAssertNotNil(textNode)
-        XCTAssert(textNode?.text() == caption.string)
+        XCTAssert(textNode?.text() == captionText)
     }
 }
 

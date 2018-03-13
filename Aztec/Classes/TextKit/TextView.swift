@@ -1491,19 +1491,13 @@ open class TextView: UITextView {
     }
     
     // MARK: - Captions
-    
-    open func captionRange(for attachment: NSTextAttachment) -> NSRange? {
-        let paragraphRange = textStorage.paragraphRange(for: attachment)
-        
-        return paragraphRange
-    }
-    
+
     open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
         guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
             return
         }
         
-        let existingCaptionRange = captionRange(for: attachment)
+        let existingCaptionRange = textStorage.captionRange(for: attachment)
         let replacementRange = existingCaptionRange ?? NSRange(location: attachmentRange.location + attachmentRange.length, length: 0)
         
         // TODO: when the caption is not there, we must insert it (and format the attachment as a FIGURE())

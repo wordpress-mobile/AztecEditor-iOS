@@ -95,6 +95,14 @@ extension NSAttributedString
     }
 
     // MARK: - Captions
+    
+    open func caption(for attachment: NSTextAttachment) -> NSAttributedString? {
+        guard let captionRange = self.captionRange(for: attachment) else {
+            return nil
+        }
+        
+        return attributedSubstring(from: captionRange)
+    }
 
     public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
         guard let figureRange = self.figureRange(for: attachment) else {

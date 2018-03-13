@@ -185,11 +185,13 @@ class AttributedStringSerializerTests: XCTestCase {
         // Convert
         let rootNode = RootNode(children: [figureNode])
         let output = attributedString(from: rootNode)
-
-        let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment
-        XCTAssertNotNil(imageAttachment)
-
-        guard let caption = imageAttachment?.caption else {
+        
+        guard let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
+            XCTFail()
+            return
+        }
+    
+        guard let caption = output.caption(for: imageAttachment) else {
             XCTFail()
             return
         }
