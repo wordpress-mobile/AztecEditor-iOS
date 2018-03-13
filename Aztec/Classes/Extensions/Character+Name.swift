@@ -18,6 +18,8 @@ extension Character {
         static let textAttachment = objectReplacement
     }
     
+    static let paragraphBreakingCharacters: [Name] = [.lineFeed, .carriageReturn, .paragraphSeparator]
+    
     init(_ characterName: Name) {
         self.init(unicodeScalarLiteral: characterName.rawValue)
     }

@@ -1501,9 +1501,18 @@ open class TextView: UITextView {
             return
         }
         
-        let existingCaptionRange = textStorage.captionRange(for: attachment)
-        let replacementRange = existingCaptionRange ?? NSRange(location: attachmentRange.location + attachmentRange.length, length: 0)
-        
+        guard let existingCaptionRange = textStorage.captionRange(for: attachment) else {
+            let newAttachmentString = NSAttributedString(attachment: attachment, caption: newCaption, attributes: [:])
+            textStorage.replaceCharacters(in: attachmentRange, with: newAttachmentString)
+            
+            return
+        }
+
+        // We maintain the original paragraph style since this is really not intended to be editable.  It also maintains
+        // the original Figure and Figcaption objects.
+        let originalParagraphStyle = textStorage.attribute(.paragraphStyle, at: existingCaptionRange.location, effectiveRange: nil) as! ParagraphStyle
+        var newAttributes = newCaption.attributes(at: 0, effectiveRange: nil)
+        newAttributes[.paragraphStyle] = originalParagraphStyle
         
         // TODO: when the caption is not there, we must insert it (and format the attachment as a FIGURE())
         
@@ -1511,8 +1520,9 @@ open class TextView: UITextView {
         
         finalCaption.append(newCaption)
         finalCaption.append(NSAttributedString(.paragraphSeparator, attributes: [:]))
+        finalCaption.setAttributes(newAttributes, range: finalCaption.rangeOfEntireString)
         
-        textStorage.replaceCharacters(in: replacementRange, with: finalCaption)
+        textStorage.replaceCharacters(in: existingCaptionRange, with: finalCaption)
     }
  
     // MARK: - Storage Indexes (WTF?)

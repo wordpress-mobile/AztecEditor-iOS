@@ -101,7 +101,13 @@ extension NSAttributedString
             return nil
         }
         
-        return attributedSubstring(from: captionRange)
+        let string = attributedSubstring(from: captionRange).mutableCopy() as! NSMutableAttributedString
+        
+        for character in Character.paragraphBreakingCharacters {
+            string.replaceOcurrences(of: String(character), with: "")
+        }
+        
+        return NSAttributedString(attributedString: string)
     }
 
     public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
