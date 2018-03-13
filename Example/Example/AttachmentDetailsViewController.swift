@@ -24,6 +24,8 @@ class AttachmentDetailsViewController: UITableViewController
             captionTextView.attributedText = caption
         }
         
+        captionTextView.delegate = self
+        
         title = NSLocalizedString("Properties", comment: "Attachment Properties Title")
         edgesForExtendedLayout = UIRectEdge()
 
@@ -94,14 +96,29 @@ class AttachmentDetailsViewController: UITableViewController
         
         return viewController
     }
+}
 
+extension AttachmentDetailsViewController: UITextViewDelegate {
+    
+    /// Delegate override because we don't allow paragraph breaking characters in captions
+    ///
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        let containsBreakingCharacters = text.contains(where: { (character) -> Bool in
+            guard let characterName = Character.Name(rawValue: character) else {
+                return false
+            }
+            
+            return Character.paragraphBreakingCharacters.contains(characterName)
+        })
+        
+        return !containsBreakingCharacters
+    }
 }
 
 
 /// Private Helpers
 ///
-private extension AttachmentDetailsViewController
-{
+private extension AttachmentDetailsViewController {
     /// Aliases
     ///
     typealias AttachmentAlignment = ImageAttachment.Alignment
