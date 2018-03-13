@@ -1496,6 +1496,17 @@ open class TextView: UITextView {
         return textStorage.caption(for: attachment)
     }
     
+    open func removeCaption(for attachment: NSTextAttachment) {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first,
+            let captionRange = textStorage.captionRange(for: attachment) else {
+                return
+        }
+        
+        let finalRange = NSRange(location: attachmentRange.location, length: attachmentRange.length + captionRange.length)
+        
+        textStorage.replaceCharacters(in: finalRange, with: NSAttributedString(attachment: attachment))
+    }
+    
     open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
         guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
             return

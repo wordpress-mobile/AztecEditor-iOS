@@ -1341,9 +1341,11 @@ private extension EditorDemoController
                 updated.alignment = alignment
                 updated.size = size
                 updated.updateURL(url)
-                
-                if let caption = caption {
+
+                if let caption = caption, caption.length > 0 {
                     self.richTextView.replaceCaption(for: attachment, with: caption)
+                } else {
+                    self.richTextView.removeCaption(for: attachment)
                 }
             }
             
