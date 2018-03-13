@@ -409,13 +409,7 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        if let urlTypes = UIPasteboardTypeListURL as? [String],
-            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
-            let pastedURL = UIPasteboard.general.url,
-            selectedRange.length > 0 {
-            // If we have some selected text, and a URL is pasted,
-            // create a link with the selected text.
-            setLink(pastedURL, inRange: selectedRange)
+        if tryPastingURL() {
             return
         }
 
@@ -451,6 +445,24 @@ open class TextView: UITextView {
         storage.replaceCharacters(in: selectedRange, with: string)
         notifyTextViewDidChange()
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+    }
+
+    /// If there is selected text and a URL is available on the pasteboard,
+    /// this method creates a link to the URL using the selected text.
+    /// - returns: True if a link was successfully created
+    ///
+    private func tryPastingURL() -> Bool {
+        guard let urlTypes = UIPasteboardTypeListURL as? [String],
+            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
+            let pastedURL = UIPasteboard.general.url,
+            selectedRange.length > 0 else {
+                return false
+        }
+
+        // If we have some selected text, and a URL is pasted,
+        // create a link with the selected text.
+        setLink(pastedURL, inRange: selectedRange)
+        return true
     }
 
     // MARK: - Intercept Keystrokes
