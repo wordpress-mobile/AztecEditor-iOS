@@ -19,7 +19,7 @@ class FigcaptionElementConverter: ElementConverter {
         return element.isNodeType(.figcaption)
     }
 
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         assert(canConvert(element: element))
         
         let attributes = self.attributes(for: element, inheriting: attributes)
@@ -33,7 +33,7 @@ class FigcaptionElementConverter: ElementConverter {
         return content
     }
     
-    private func attributes(for element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         let paragraphStyle = attributes.paragraphStyle()
         paragraphStyle.appendProperty(Figcaption())
         

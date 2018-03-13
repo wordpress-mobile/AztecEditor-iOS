@@ -15,14 +15,14 @@ extension NSAttributedString
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
-    convenience init(attachment: NSTextAttachment, attributes: [AttributedStringKey: Any]) {
+    convenience init(attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) {
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
         self.init(.textAttachment, attributes: attributesWithAttachment)
     }
     
-    convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [AttributedStringKey: Any]) {
+    convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedStringKey: Any]) {
         let figure = Figure()
         let figcaption = Figcaption()
         

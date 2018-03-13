@@ -55,7 +55,7 @@ class TextViewTests: XCTestCase {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
-        let attributes = [AttributedStringKey.paragraphStyle : NSParagraphStyle()]
+        let attributes = [NSAttributedStringKey.paragraphStyle : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()
@@ -1523,7 +1523,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1550,7 +1550,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1608,7 +1608,7 @@ class TextViewTests: XCTestCase {
     /// This test verifies that img class attributes are not duplicated
     ///
     func testParseImageDoesntDuplicateExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" title=\"Title\" alt=\"Alt\">"
+        let html = "<img src=\"image.jpg\" class=\"alignnone wp-image-test\" title=\"Title\" alt=\"Alt\">"
         let textView = createTextView(withHTML: html)
         let generatedHTML = textView.getHTML()
 
@@ -1798,7 +1798,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.

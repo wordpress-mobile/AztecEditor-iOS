@@ -72,7 +72,7 @@ open class HTMLStorage: NSTextStorage {
         textStoreString.replaceSubrange(startIndex..<endIndex, with: string)
     }
 
-    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [AttributedStringKey : Any] {
+    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedStringKey : Any] {
         guard textStore.length != 0 else {
             return [:]
         }
@@ -80,7 +80,7 @@ open class HTMLStorage: NSTextStorage {
         return textStore.attributes(at: location, effectiveRange: range)
     }
 
-    override open func setAttributes(_ attrs: [AttributedStringKey : Any]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [NSAttributedStringKey : Any]?, range: NSRange) {
         beginEditing()
 
         textStore.setAttributes(attrs, range: range)

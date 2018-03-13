@@ -16,7 +16,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment Alignment
     ///
-    open var alignment: Alignment = .center {
+    open var alignment: Alignment = .none {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
@@ -222,7 +222,7 @@ private extension ImageAttachment {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = alignment.textAlignment()
 
-        let captionAttributes: [AttributedStringKey: Any] = [
+        let captionAttributes: [NSAttributedStringKey: Any] = [
             .foregroundColor: appearance.captionColor,
             .paragraphStyle: paragraphStyle
         ]
