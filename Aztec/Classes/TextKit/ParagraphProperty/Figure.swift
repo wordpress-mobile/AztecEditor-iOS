@@ -14,5 +14,3 @@ class Figure: ParagraphProperty {
         super.init(coder: aDecoder)
     }
 }
-
-

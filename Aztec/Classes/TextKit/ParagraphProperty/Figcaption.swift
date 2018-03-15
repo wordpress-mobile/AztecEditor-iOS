@@ -14,6 +14,3 @@ class Figcaption: ParagraphProperty {
         super.init(coder: aDecoder)
     }
 }
-
-
-
