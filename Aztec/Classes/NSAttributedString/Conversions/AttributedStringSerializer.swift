@@ -63,11 +63,13 @@ class AttributedStringSerializer {
 
         let text = sanitizeText(from: node)
         
-        guard text.count > 0 else {
-            return NSAttributedString()
-        }
+        let string: NSAttributedString
         
-        let string = NSAttributedString(string: text, attributes: attributes)
+        if text.count > 0 {
+            string = NSAttributedString(string: text, attributes: attributes)
+        } else {
+            string = NSAttributedString()
+        }
 
         guard !node.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: string, inheriting: attributes)
@@ -172,14 +174,29 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
+    private(set) lazy var genericElementConverter = GenericElementConverter(childrenSerializer: childrenSerializer)
     
-    lazy var brElementConverter = BRElementConverter()
-    lazy var figcaptionElementConverter = FigcaptionElementConverter(using: self)
-    lazy var figureElementConverter = FigureElementConverter(using: self)
-    lazy var hrElementConverter = HRElementConverter()
-    lazy var imageElementConverter = ImageElementConverter()
-    lazy var videoElementConverter = VideoElementConverter()
+    lazy var childrenSerializer: ElementConverter.ChildrenSerializer = { [weak self] (children, attributes) in
+        let content = NSMutableAttributedString()
+        
+        guard let `self` = self else {
+            return content
+        }
+        
+        for child in children {
+            let nodeString = self.serialize(child, inheriting: attributes)
+            content.append(nodeString)
+        }
+        
+        return content
+    }
+    
+    lazy var brElementConverter = BRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figureElementConverter = FigureElementConverter(childrenSerializer: childrenSerializer)
+    lazy var hrElementConverter = HRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var imageElementConverter = ImageElementConverter(childrenSerializer: childrenSerializer)
+    lazy var videoElementConverter = VideoElementConverter(childrenSerializer: childrenSerializer)
 
     // MARK: - Formatter Maps
 

@@ -4,13 +4,11 @@ import UIKit
 /// Returns a specialised representation for a `<figcaption>` element.
 ///
 class FigcaptionElementConverter: ElementConverter {
-
-    unowned let serializer: AttributedStringSerializer
-
-    // MARK: - Initializer
     
-    init(using serializer: AttributedStringSerializer) {
-        self.serializer = serializer
+    let serializeChildren: ChildrenSerializer
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
     }
 
     // MARK: - ElementConverter
@@ -23,14 +21,8 @@ class FigcaptionElementConverter: ElementConverter {
         assert(canConvert(element: element))
         
         let attributes = self.attributes(for: element, inheriting: attributes)
-        let content = NSMutableAttributedString()
         
-        for child in element.children {
-            let childContent = serializer.serialize(child, inheriting: attributes)
-            content.append(childContent)
-        }
-        
-        return content
+        return serializeChildren(element.children, attributes)
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
