@@ -5,9 +5,18 @@ import UIKit
 ///
 class FigcaptionElementConverter: ElementConverter {
     
+    typealias CaptionStyler = ([NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any]
+    
+    let captionStyler: CaptionStyler
     let serializeChildren: ChildrenSerializer
     
     required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.captionStyler = { $0 }
+        self.serializeChildren = childrenSerializer
+    }
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer, captionStyler: @escaping CaptionStyler) {
+        self.captionStyler = captionStyler
         self.serializeChildren = childrenSerializer
     }
 
@@ -21,8 +30,9 @@ class FigcaptionElementConverter: ElementConverter {
         assert(canConvert(element: element))
         
         let attributes = self.attributes(for: element, inheriting: attributes)
+        let attributesWithCaptionStyle = captionStyler(attributes)
         
-        return serializeChildren(element.children, attributes)
+        return serializeChildren(element.children, attributesWithCaptionStyle)
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {

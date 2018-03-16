@@ -163,6 +163,23 @@ open class TextView: UITextView {
 
         return attributes
     }
+    
+    /// This closure will be executed whenever the `TextView` needs to set the base style for
+    /// a caption.  Override this to customize the caption styling.
+    ///
+    public lazy var captionStyler: ([NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any] = { [weak self] attributes in
+        guard let `self` = self else {
+            return attributes
+        }
+        
+        let font = self.defaultFont.withSize(10)
+        
+        var attributes = attributes
+        attributes[.font] = font
+        attributes[.foregroundColor] = UIColor.darkGray
+        
+        return attributes
+    }
 
 
     // MARK: - Properties: Processors
@@ -663,6 +680,7 @@ open class TextView: UITextView {
         
         storage.setHTML(processedHTML,
                         defaultAttributes: defaultAttributes,
+                        captionStyler: captionStyler,
                         postProcessingHTMLWith: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
