@@ -1705,15 +1705,14 @@ private extension TextView {
         removeSingleLineParagraphAttributes(at: selectedRange)
     }
 
-    /// Analyzes whether paragraph attributes should be removed from the specified
-    /// location, or not, after the selection range is changed.
+    /// Analyzes whether the conditions are met for single-line paragraph attributes to be removed.
     ///
     /// - Parameter input: the text that was just inserted into the TextView.
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     private func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
-        return input.isEndOfLine() && storage.string.isEmptyLine(at: selectedRange.location)
+        return input.isEndOfLine()
     }
 
 
