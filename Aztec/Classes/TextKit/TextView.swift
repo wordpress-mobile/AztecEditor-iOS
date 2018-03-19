@@ -1728,7 +1728,9 @@ private extension TextView {
             HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
             HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
             HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
+            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:]),
+            FigcaptionFormatter(placeholderAttributes: [:]),
+            FigureFormatter(placeholderAttributes: [:])
         ]
 
         var updatedTypingAttributes = typingAttributesSwifted

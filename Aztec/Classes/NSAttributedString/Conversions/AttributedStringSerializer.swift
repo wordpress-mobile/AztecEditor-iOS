@@ -67,13 +67,11 @@ class AttributedStringSerializer {
 
         let text = sanitizeText(from: node)
         
-        let string: NSAttributedString
-        
-        if text.count > 0 {
-            string = NSAttributedString(string: text, attributes: attributes)
-        } else {
-            string = NSAttributedString()
+        guard text.count > 0 else {
+            return NSAttributedString()
         }
+        
+        let string = NSAttributedString(string: text, attributes: attributes)
 
         guard !node.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: string, inheriting: attributes)
@@ -118,6 +116,10 @@ class AttributedStringSerializer {
         let convertedString = converter.convert(element, inheriting: childAttributes)
         
         content.append(convertedString)
+        
+        guard !element.needsClosingParagraphSeparator() else {
+            return appendParagraphSeparator(to: content, inheriting: attributes)
+        }
 
         return content
     }

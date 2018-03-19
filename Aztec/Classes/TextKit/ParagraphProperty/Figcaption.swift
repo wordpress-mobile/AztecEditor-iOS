@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 class Figcaption: ParagraphProperty {
     
@@ -12,5 +13,17 @@ class Figcaption: ParagraphProperty {
     
     required public init?(coder aDecoder: NSCoder){
         super.init(coder: aDecoder)
+    }
+    
+    // MARK: - Dynamic Styling
+
+    override func addDynamicAttributes(to attributes: [NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any] {
+        var finalAttributes = attributes
+        let font = UIFont.systemFont(ofSize: 10)
+        
+        finalAttributes[.font] = font
+        finalAttributes[.foregroundColor] = UIColor.darkGray
+        
+        return finalAttributes
     }
 }

@@ -19,12 +19,6 @@ class GenericElementConverter: ElementConverter {
     
     func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         return serializeChildren(element.children, attributes)
-        /*
-        for child in element.children {
-            let childContent = serializer.serialize(child, inheriting: attributes)
-            content.append(childContent)
-        }
- */
     }
 }
 
