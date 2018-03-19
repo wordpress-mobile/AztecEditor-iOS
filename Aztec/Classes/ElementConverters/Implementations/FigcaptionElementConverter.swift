@@ -4,19 +4,11 @@ import UIKit
 /// Returns a specialised representation for a `<figcaption>` element.
 ///
 class FigcaptionElementConverter: ElementConverter {
-    
-    typealias CaptionStyler = ([NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any]
-    
-    let captionStyler: CaptionStyler
     let serializeChildren: ChildrenSerializer
     
-    required init(childrenSerializer: @escaping ChildrenSerializer) {
-        self.captionStyler = { $0 }
-        self.serializeChildren = childrenSerializer
-    }
+    let figcaptionFormatter = FigcaptionFormatter(placeholderAttributes: nil)
     
-    required init(childrenSerializer: @escaping ChildrenSerializer, captionStyler: @escaping CaptionStyler) {
-        self.captionStyler = captionStyler
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
         self.serializeChildren = childrenSerializer
     }
 
@@ -30,18 +22,15 @@ class FigcaptionElementConverter: ElementConverter {
         assert(canConvert(element: element))
         
         let attributes = self.attributes(for: element, inheriting: attributes)
-        let attributesWithCaptionStyle = captionStyler(attributes)
         
-        return serializeChildren(element.children, attributesWithCaptionStyle)
+        return serializeChildren(element.children, attributes)
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-        let paragraphStyle = attributes.paragraphStyle()
-        paragraphStyle.appendProperty(Figcaption())
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
         
-        var finalAttributes = attributes
-        finalAttributes[.paragraphStyle] = paragraphStyle
-        return finalAttributes
+        return figcaptionFormatter.apply(to: attributes, andStore: representation)
     }
 }
 

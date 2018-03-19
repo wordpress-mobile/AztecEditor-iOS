@@ -680,7 +680,6 @@ open class TextView: UITextView {
         
         storage.setHTML(processedHTML,
                         defaultAttributes: defaultAttributes,
-                        captionStyler: captionStyler,
                         postProcessingHTMLWith: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
@@ -1533,7 +1532,7 @@ open class TextView: UITextView {
         guard let existingCaptionRange = textStorage.captionRange(for: attachment) else {
             let newAttachmentString = NSAttributedString(attachment: attachment, caption: newCaption, attributes: [:])
             textStorage.replaceCharacters(in: attachmentRange, with: newAttachmentString)
-            
+
             return
         }
 

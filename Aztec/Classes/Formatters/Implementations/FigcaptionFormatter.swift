@@ -1,9 +1,10 @@
 import Foundation
 import UIKit
 
-
-// MARK: - Figcaption Formatter
-//
+/// Contains the logic and the style-settings to format a range of text to apply or remove the figcaption style.
+/// This class creates instances of `Figcaption` objects to store information about each particular formatting
+/// instance.
+///
 open class FigcaptionFormatter: ParagraphAttributeFormatter {
     var placeholderAttributes: [NSAttributedStringKey : Any]?
 
@@ -13,20 +14,23 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         self.placeholderAttributes = placeholderAttributes
     }
 
-
     // MARK: - Overwriten Methods
 
     func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
-        let figcaption = Figcaption(with: representation)
-        let paragraphStyle = attributes.paragraphStyle()
         
+        let defaultFont = self.defaultFont(from: attributes)
+        
+        let figcaption = Figcaption(defaultFont: defaultFont,
+                                    storing: representation)
+        
+        let paragraphStyle = attributes.paragraphStyle()
         paragraphStyle.appendProperty(figcaption)
         
         var finalAttributes = attributes
         
+        finalAttributes[.font] = defaultFont.withSize(defaultFont.pointSize - 2)
+        finalAttributes[.foregroundColor] = UIColor.red
         finalAttributes[.paragraphStyle] = paragraphStyle
-        finalAttributes[.font] = UIFont.systemFont(ofSize: 10)
-        finalAttributes[.foregroundColor] = UIColor.gray
         
         return finalAttributes
     }
@@ -35,7 +39,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         
         let paragraphStyle = attributes.paragraphStyle()
         
-        guard paragraphStyle.hasProperty(where: { $0 is Figcaption }) else {
+        guard let figcaption = paragraphStyle.property(where: { $0 is Figcaption }) as? Figcaption else {
             return attributes
         }
         
@@ -43,8 +47,9 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         
         var finalAttributes = attributes
         
+        finalAttributes[.font] = figcaption.defaultFont
+        finalAttributes.removeValue(forKey: .foregroundColor)
         finalAttributes[.paragraphStyle] = paragraphStyle
-        finalAttributes[.font] = UIFont.systemFont(ofSize: 16)
 
         return finalAttributes
     }
@@ -55,5 +60,15 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         }
 
         return paragraphStyle.hasProperty(where: { $0 is Figcaption })
+    }
+    
+    // MARK: - Default Font
+    
+    private func defaultFont(from attributes: [NSAttributedStringKey:Any]) -> UIFont {
+        guard let font = attributes[.font] as? UIFont else {
+            return UIFont.systemFont(ofSize: 14)
+        }
+        
+        return font
     }
 }

@@ -117,11 +117,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         blockquoteParagraphSpacing = paragraphStyle.blockquoteParagraphSpacing
         blockquoteParagraphSpacingBefore = paragraphStyle.blockquoteParagraphSpacingBefore
         
+        regularLineSpacing = paragraphStyle.regularLineSpacing
         regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
         regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
         
         textListParagraphSpacing = paragraphStyle.textListParagraphSpacing
         textListParagraphSpacingBefore = paragraphStyle.textListParagraphSpacingBefore
+        
+        figureLineSpacing = paragraphStyle.figureLineSpacing
+        figcaptionParagraphSpacingBefore = paragraphStyle.figcaptionParagraphSpacingBefore
     }
 
     open override var headIndent: CGFloat {
@@ -199,6 +203,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     open var baseFirstLineHeadIndent: CGFloat = 0
     open var baseTailIndent: CGFloat = 0
     
+    open var regularLineSpacing = CGFloat(8)
     open var regularParagraphSpacing = CGFloat(0)
     open var regularParagraphSpacingBefore = CGFloat(0)
     
@@ -207,6 +212,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     open var blockquoteParagraphSpacing = CGFloat(0)
     open var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
+    open var figureLineSpacing = CGFloat(0)
+    open var figcaptionParagraphSpacingBefore = CGFloat(0)
     
     open override var paragraphSpacing: CGFloat {
         get {
@@ -223,10 +231,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             super.paragraphSpacing = newValue
         }
     }
-    
+
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            if blockquotes.count > 0 {
+            if hasProperty(where: { $0 is Figcaption }) {
+                return figcaptionParagraphSpacingBefore
+            } else if blockquotes.count > 0 {
                 return blockquoteParagraphSpacingBefore
             } else if lists.count > 0 {
                 return textListParagraphSpacingBefore
@@ -237,6 +247,20 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         set {
             super.paragraphSpacingBefore = newValue
+        }
+    }
+    
+    open override var lineSpacing: CGFloat {
+        get {
+            if hasProperty(where: { $0 is Figure }) {
+                return figureLineSpacing
+            } else {
+                return regularLineSpacing
+            }
+        }
+        
+        set {
+            super.lineSpacing = newValue
         }
     }
     

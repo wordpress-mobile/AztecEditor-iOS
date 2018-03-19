@@ -24,7 +24,7 @@ extension NSAttributedString
     
     convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedStringKey: Any]) {
         let figure = Figure()
-        let figcaption = Figcaption()
+        let figcaption = Figcaption(defaultFont: UIFont.systemFont(ofSize: 14), storing: nil)
         
         let figureAttributes = attributes.appending(figure)
         let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)

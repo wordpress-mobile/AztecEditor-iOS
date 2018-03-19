@@ -4,23 +4,14 @@ import UIKit
 /// Composes an attributed string from an HTML tree.
 ///
 class AttributedStringSerializer {
-    
-    typealias CaptionStyler = FigcaptionElementConverter.CaptionStyler
-    
-    private let captionStyler: CaptionStyler
     private let defaultAttributes: [NSAttributedStringKey:Any]
 
     // MARK: - Initializers
 
-    required init(defaultAttributes: [NSAttributedStringKey: Any], captionStyler: @escaping CaptionStyler) {
-        self.captionStyler = captionStyler
+    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
     }
-/*
-    convenience init() {
-        self.init(defaultAttributes: [:])
-    }
-*/
+
     // MARK: - Conversion
 
     /// Serializes an attributed string with the specified node hierarchy.
@@ -194,7 +185,7 @@ class AttributedStringSerializer {
     }
     
     lazy var brElementConverter = BRElementConverter(childrenSerializer: childrenSerializer)
-    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer, captionStyler: captionStyler)
+    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer)
     lazy var figureElementConverter = FigureElementConverter(childrenSerializer: childrenSerializer)
     lazy var hrElementConverter = HRElementConverter(childrenSerializer: childrenSerializer)
     lazy var imageElementConverter = ImageElementConverter(childrenSerializer: childrenSerializer)
