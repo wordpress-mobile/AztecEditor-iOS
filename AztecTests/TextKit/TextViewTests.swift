@@ -736,7 +736,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
     }
 
-    /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
+    /// Tests that Newline Characters inserted at the middle of a H1 String will cause the newline to loose the style.
     ///
     /// Input:
     ///     - "Header Header"
@@ -755,7 +755,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><h1> Header</h1>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p> Header</p>")
     }
 
 
