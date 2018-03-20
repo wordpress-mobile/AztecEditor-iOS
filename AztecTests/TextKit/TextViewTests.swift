@@ -673,6 +673,44 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
     }
 
+    /// Tests that inserting a link on the same place twice works properly
+    ///
+    func testSetLinkTwiceInSameRangeWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
+
+        let textView = createTextView(withHTML: linkTitle)
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+        textView.setLink(url, inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+    }
+
+    /// Tests that removing a link on the same place twice works properly
+    ///
+    func testRemoveLinkTwiceInSameRangeWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
+
+        let textView = createTextView(withHTML: linkTitle)
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+        textView.removeLink(inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p>\(linkTitle)</p>")
+        textView.removeLink(inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<p>\(linkTitle)</p>")
+    }
+
     func testParsingOfInvalidLink() {
         let html = "<p><a href=\"\\http:\\badlink&?\">link</a></p>"
         let textView = createTextView(withHTML: html)
