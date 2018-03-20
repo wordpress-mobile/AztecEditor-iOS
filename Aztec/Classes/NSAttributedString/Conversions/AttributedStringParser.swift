@@ -312,8 +312,6 @@ private extension AttributedStringParser {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
-    /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
-    ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
         guard let mergeableCandidates = findMergeableNodes(left: left, right: right) else {
             return false
@@ -335,16 +333,23 @@ private extension AttributedStringParser {
     /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
     ///
     private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
-
+        assert(mergeableNodes.count > 0)
+        
         // Business logic: The last mergeable node is never merged, so we need more than 1 node to continue.
         //
-        guard mergeableNodes.count > 1,
-            let lastNodeName = mergeableNodes.last?.left.name
-        else {
+        guard let lastNodeName = mergeableNodes.last?.left.name else {
             return nil
         }
 
-        var mergeCandidates = mergeableNodes.dropLast()
+        var mergeCandidates: ArraySlice<MergeablePair>
+        
+        // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
+        // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
+        if mergeableNodes.last?.left.standardName == .figure {
+            mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
+        } else {
+            mergeCandidates = mergeableNodes.dropLast()
+        }
 
         if lastNodeName != StandardElementType.li.rawValue {
             mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
@@ -479,7 +484,15 @@ private extension AttributedStringParser {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
                 paragraphNodes.append(element)
+                
+            case let figcaption as Figcaption:
+                let element = processFigcaptionStyle(figcaption: figcaption)
+                paragraphNodes.append(element)
 
+            case let figure as Figure:
+                let element = processFigureStyle(figure: figure)
+                paragraphNodes.append(element)
+                
             case let header as Header:
                 guard let element = processHeaderStyle(header: header) else {
                     continue
@@ -561,6 +574,38 @@ private extension AttributedStringParser {
         }
 
         return representationElement.toElementNode()
+    }
+    
+    
+    private func processFigcaptionStyle(figcaption: Figcaption) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figcaption.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figcaption)
+        }
+        
+        return element
+    }
+    
+    
+    private func processFigureStyle(figure: Figure) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figure.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figure)
+        }
+        
+        return element
     }
 
 
@@ -923,17 +968,6 @@ private extension AttributedStringParser {
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
             imageElement.updateAttribute(named: key, value: .string(finalValue))
-        }        
-
-        /// Special Case:
-        /// - Extract the ImageAttachment's caption field
-        /// - Create the Caption Element
-        /// - Wrap everything within a Figure tag!
-        ///
-        /// Note that the Figure element is handled by the HTMLFigureFormatter.
-        ///
-        if let figcaptionElement = figcaptionElement(from: attachment) {
-            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
         }
 
         return imageElement
@@ -1060,18 +1094,5 @@ private extension AttributedStringParser {
             Attribute(name: "width", value: .string(widthValue)),
             Attribute(name: "height", value: .string(heightValue))
         ]
-    }
-
-
-    /// Extracts the Figcaption Element from an ImageAttachment Instance.
-    ///
-    private func figcaptionElement(from attachment: ImageAttachment) -> ElementNode? {
-        guard let caption = attachment.caption,
-            let paragraph = AttributedStringParser().parse(caption).firstChild(ofType: .p)
-            else {
-                return nil
-        }
-
-        return ElementNode(type: .figcaption, attributes: [], children: paragraph.children)
     }
 }

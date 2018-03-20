@@ -1315,20 +1315,20 @@ private extension EditorDemoController
     }
 
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
-        guard let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first else {
-            return
-        }
-        let detailsViewController = AttachmentDetailsViewController.controller()
-        detailsViewController.attachment = attachment
-        var oldURL: URL?
-        if let linkRange = richTextView.linkFullRange(forRange: attachmentRange),
-           let url = richTextView.linkURL(forRange: attachmentRange),
-           attachmentRange == linkRange {
-           oldURL = url
-           detailsViewController.linkURL = url
+        
+        let caption = richTextView.caption(for: attachment)
+        let detailsViewController = AttachmentDetailsViewController.controller(for: attachment, with: caption)
+        
+        let linkInfo = richTextView.linkInfo(for: attachment)
+        let linkRange = linkInfo?.range
+        let linkURL = linkInfo?.url
+        let linkUpdateRange = linkRange ?? richTextView.textStorage.ranges(forAttachment: attachment).first!
+        
+        if let linkURL = linkInfo?.url {
+            detailsViewController.linkURL = linkURL
         }
 
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, url, updatedURL, alt, caption) in
             guard let `self` = self else {
                 return
             }
@@ -1340,15 +1340,19 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.caption = caption
-
                 updated.updateURL(url)
+
+                if let caption = caption, caption.length > 0 {
+                    self.richTextView.replaceCaption(for: attachment, with: caption)
+                } else {
+                    self.richTextView.removeCaption(for: attachment)
+                }
             }
-            // Update associated link
-            if let updatedURL = linkURL {
-                self.richTextView.setLink(updatedURL, inRange: attachmentRange)
-            } else if oldURL != nil && linkURL == nil {
-                self.richTextView.removeLink(inRange: attachmentRange)
+            
+            if let updatedURL = updatedURL {
+                self.richTextView.setLink(updatedURL, inRange: linkUpdateRange)
+            } else if linkURL != nil {
+                self.richTextView.removeLink(inRange: linkUpdateRange)
             }
         }
 

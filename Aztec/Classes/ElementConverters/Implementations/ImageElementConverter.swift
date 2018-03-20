@@ -5,6 +5,12 @@ import UIKit
 ///
 class ImageElementConverter: AttachmentElementConverter {
     
+    let serializeChildren: ChildrenSerializer
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
+    }
+    
     // MARK: - ElementConverter
     
     func canConvert(element: ElementNode) -> Bool {

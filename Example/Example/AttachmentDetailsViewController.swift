@@ -12,12 +12,20 @@ class AttachmentDetailsViewController: UITableViewController
     @IBOutlet var altTextField: UITextField!
 
     var attachment: ImageAttachment?
+    var caption: NSAttributedString?
     var linkURL: URL?
     var onUpdate: ((_ alignment: ImageAttachment.Alignment, _ size: ImageAttachment.Size, _ imageURL: URL, _ linkURL: URL?, _ altText: String?, _ captionText: NSAttributedString?) -> Void)?
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let caption = caption {
+            captionTextView.attributedText = caption
+        }
+        
+        captionTextView.delegate = self
+        
         title = NSLocalizedString("Properties", comment: "Attachment Properties Title")
         edgesForExtendedLayout = UIRectEdge()
 
@@ -49,7 +57,7 @@ class AttachmentDetailsViewController: UITableViewController
 
         linkURLTextField.text = linkURL?.absoluteString
 
-        captionTextView.attributedText = attachment.caption
+        captionTextView.attributedText = caption
         altTextField.text = attachment.extraAttributes["alt"]
     }
 
@@ -79,18 +87,38 @@ class AttachmentDetailsViewController: UITableViewController
         dismiss(animated: true, completion: nil)
     }
 
-    class func controller() -> AttachmentDetailsViewController {
+    class func controller(for attachment: ImageAttachment, with caption: NSAttributedString?) -> AttachmentDetailsViewController {
         let storyboard = UIStoryboard(name: "AttachmentDetailsViewController", bundle: nil)
-        return storyboard.instantiateViewController(withIdentifier: "AttachmentDetailsViewController") as! AttachmentDetailsViewController
+        let viewController = storyboard.instantiateViewController(withIdentifier: "AttachmentDetailsViewController") as! AttachmentDetailsViewController
+        
+        viewController.attachment = attachment
+        viewController.caption = caption
+        
+        return viewController
     }
+}
 
+extension AttachmentDetailsViewController: UITextViewDelegate {
+    
+    /// Delegate override because we don't allow paragraph breaking characters in captions
+    ///
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        let containsBreakingCharacters = text.contains(where: { (character) -> Bool in
+            guard let characterName = Character.Name(rawValue: character) else {
+                return false
+            }
+            
+            return Character.paragraphBreakingCharacters.contains(characterName)
+        })
+        
+        return !containsBreakingCharacters
+    }
 }
 
 
 /// Private Helpers
 ///
-private extension AttachmentDetailsViewController
-{
+private extension AttachmentDetailsViewController {
     /// Aliases
     ///
     typealias AttachmentAlignment = ImageAttachment.Alignment

@@ -5,10 +5,10 @@ import UIKit
 ///
 class GenericElementConverter: ElementConverter {
     
-    unowned let serializer: AttributedStringSerializer
+    let serializeChildren: ChildrenSerializer
     
-    init(using serializer: AttributedStringSerializer) {
-        self.serializer = serializer
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
     }
     
     // MARK: - ElementConverter
@@ -18,14 +18,7 @@ class GenericElementConverter: ElementConverter {
     }
     
     func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
-        let content = NSMutableAttributedString()
-        
-        for child in element.children {
-            let childContent = serializer.serialize(child, inheriting: attributes)
-            content.append(childContent)
-        }
-        
-        return content
+        return serializeChildren(element.children, attributes)
     }
 }
 
