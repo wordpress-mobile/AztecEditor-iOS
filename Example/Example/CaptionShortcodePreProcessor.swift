@@ -17,7 +17,7 @@ class CaptionShortcodePreProcessor: ShortcodeProcessor {
             }
 
             let payloadNode = HTMLParser().parse(payloadText)
-            guard let imageContainerNode = payloadNode.firstChild(ofType: .img) ?? payloadNode.firstChild(ofType: .img), payloadNode.children.count >= 2 else {
+            guard let imageContainerNode = payloadNode.firstChild(ofType: .img) ?? payloadNode.firstChild(ofType: .a), payloadNode.children.count >= 2 else {
                 return nil
             }
 
