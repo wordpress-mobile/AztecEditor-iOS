@@ -4,17 +4,12 @@ import UIKit
 /// Composes an attributed string from an HTML tree.
 ///
 class AttributedStringSerializer {
-
-    private let defaultAttributes: [NSAttributedStringKey: Any]
+    private let defaultAttributes: [NSAttributedStringKey:Any]
 
     // MARK: - Initializers
 
     required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
-    }
-
-    convenience init() {
-        self.init(defaultAttributes: [:])
     }
 
     // MARK: - Conversion
@@ -112,9 +107,9 @@ class AttributedStringSerializer {
         let convertedString = converter.convert(element, inheriting: childAttributes)
         
         content.append(convertedString)
-
+        
         guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: childAttributes)
+            return appendParagraphSeparator(to: content, inheriting: attributes)
         }
 
         return content
@@ -173,13 +168,29 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
+    private(set) lazy var genericElementConverter = GenericElementConverter(childrenSerializer: childrenSerializer)
     
-    lazy var brElementConverter = BRElementConverter()
-    lazy var figureElementConverter = FigureElementConverter()
-    lazy var hrElementConverter = HRElementConverter()
-    lazy var imageElementConverter = ImageElementConverter()
-    lazy var videoElementConverter = VideoElementConverter()
+    lazy var childrenSerializer: ElementConverter.ChildrenSerializer = { [weak self] (children, attributes) in
+        let content = NSMutableAttributedString()
+        
+        guard let `self` = self else {
+            return content
+        }
+        
+        for child in children {
+            let nodeString = self.serialize(child, inheriting: attributes)
+            content.append(nodeString)
+        }
+        
+        return content
+    }
+    
+    lazy var brElementConverter = BRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figureElementConverter = FigureElementConverter(childrenSerializer: childrenSerializer)
+    lazy var hrElementConverter = HRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var imageElementConverter = ImageElementConverter(childrenSerializer: childrenSerializer)
+    lazy var videoElementConverter = VideoElementConverter(childrenSerializer: childrenSerializer)
 
     // MARK: - Formatter Maps
 
@@ -222,10 +233,11 @@ class AttributedStringSerializer {
     public lazy var elementConverters: [ElementConverter] = {
         return [
             self.brElementConverter,
+            self.figcaptionElementConverter,
             self.figureElementConverter,
+            self.hrElementConverter,
             self.imageElementConverter,
             self.videoElementConverter,
-            self.hrElementConverter,
         ]
     }()
 
@@ -387,7 +399,7 @@ private extension AttributedStringSerializer {
     ///
     func converter(for element: ElementNode) -> ElementConverter {
         let converter = elementConverters.first { converter in
-            converter.canConvert(element: element)
+            return converter.canConvert(element: element)
         }
 
         return converter ?? genericElementConverter

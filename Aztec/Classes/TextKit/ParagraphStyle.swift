@@ -5,16 +5,19 @@ import UIKit
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
+    // MARK: - Initializers
+    
+    init(with paragraphStyle: NSParagraphStyle) {
+        super.init()
+        
+        setParagraphStyle(paragraphStyle)
+    }
+    
     // MARK: - CustomReflectable
     
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes,
-                                           "headerLevel": headerLevel,
-                                           "htmlDiv": htmlDiv,
-                                           "htmlParagraph": htmlParagraph,
-                                           "textList": lists,
-                                           "properties": properties])
+            return Mirror(self, children: ["properties": properties])
         }
     }
 
@@ -114,11 +117,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         blockquoteParagraphSpacing = paragraphStyle.blockquoteParagraphSpacing
         blockquoteParagraphSpacingBefore = paragraphStyle.blockquoteParagraphSpacingBefore
         
+        regularLineSpacing = paragraphStyle.regularLineSpacing
         regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
         regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
         
         textListParagraphSpacing = paragraphStyle.textListParagraphSpacing
         textListParagraphSpacingBefore = paragraphStyle.textListParagraphSpacingBefore
+        
+        figureLineSpacing = paragraphStyle.figureLineSpacing
+        figcaptionParagraphSpacingBefore = paragraphStyle.figcaptionParagraphSpacingBefore
     }
 
     open override var headIndent: CGFloat {
@@ -196,6 +203,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     open var baseFirstLineHeadIndent: CGFloat = 0
     open var baseTailIndent: CGFloat = 0
     
+    open var regularLineSpacing = CGFloat(8)
     open var regularParagraphSpacing = CGFloat(0)
     open var regularParagraphSpacingBefore = CGFloat(0)
     
@@ -204,6 +212,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     open var blockquoteParagraphSpacing = CGFloat(0)
     open var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
+    open var figureLineSpacing = CGFloat(0)
+    open var figcaptionParagraphSpacingBefore = CGFloat(0)
     
     open override var paragraphSpacing: CGFloat {
         get {
@@ -220,10 +231,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             super.paragraphSpacing = newValue
         }
     }
-    
+
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            if blockquotes.count > 0 {
+            if hasProperty(where: { $0 is Figcaption }) {
+                return figcaptionParagraphSpacingBefore
+            } else if blockquotes.count > 0 {
                 return blockquoteParagraphSpacingBefore
             } else if lists.count > 0 {
                 return textListParagraphSpacingBefore
@@ -234,6 +247,20 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         set {
             super.paragraphSpacingBefore = newValue
+        }
+    }
+    
+    open override var lineSpacing: CGFloat {
+        get {
+            if hasProperty(where: { $0 is Figure }) {
+                return figureLineSpacing
+            } else {
+                return regularLineSpacing
+            }
+        }
+        
+        set {
+            super.lineSpacing = newValue
         }
     }
     
@@ -314,17 +341,25 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description +
-            " Blockquotes: \(String(describing:blockquotes)),\n" +
-            " HeaderLevel: \(headerLevel),\n" +
-            " HTMLDiv: \(String(describing: htmlDiv)),\n" +
-            " HTMLParagraph: \(String(describing: htmlParagraph)),\n" +
-            " TextLists: \(lists)"
+        
+        var description = super.description + ", paragraphProperties: ["
+        
+        for (index, property) in properties.enumerated() {
+            description.append(property.debugDescription)
+            
+            if index < properties.count - 1 {
+                description.append(", ")
+            }
+        }
+        
+        description.append("]")
+        
+        return description
     }
 }
 
 
-// MARK: - Add method to manipulate properties array
+// MARK: - Properties
 //
 extension ParagraphStyle {
 
@@ -353,6 +388,14 @@ extension ParagraphStyle {
         }
 
         properties.insert(property, at: targetIndex + 1)
+    }
+    
+    func hasProperty(where match: (ParagraphProperty) -> Bool) -> Bool {
+        return property { match($0) } != nil
+    }
+    
+    func property(where match: (ParagraphProperty) -> Bool) -> ParagraphProperty? {
+        return properties.first { match($0) }
     }
 
     /// Removes the first ParagraphProperty present in the Properties collection that matches the specified kind.

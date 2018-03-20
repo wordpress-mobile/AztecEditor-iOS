@@ -163,6 +163,23 @@ open class TextView: UITextView {
 
         return attributes
     }
+    
+    /// This closure will be executed whenever the `TextView` needs to set the base style for
+    /// a caption.  Override this to customize the caption styling.
+    ///
+    public lazy var captionStyler: ([NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any] = { [weak self] attributes in
+        guard let `self` = self else {
+            return attributes
+        }
+        
+        let font = self.defaultFont.withSize(10)
+        
+        var attributes = attributes
+        attributes[.font] = font
+        attributes[.foregroundColor] = UIColor.darkGray
+        
+        return attributes
+    }
 
 
     // MARK: - Properties: Processors
@@ -409,6 +426,10 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
+        if tryPastingURL() {
+            return
+        }
+
         guard let string = UIPasteboard.general.loadAttributedString() else {
             super.paste(sender)
             return
@@ -441,6 +462,24 @@ open class TextView: UITextView {
         storage.replaceCharacters(in: selectedRange, with: string)
         notifyTextViewDidChange()
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+    }
+
+    /// If there is selected text and a URL is available on the pasteboard,
+    /// this method creates a link to the URL using the selected text.
+    /// - returns: True if a link was successfully created
+    ///
+    private func tryPastingURL() -> Bool {
+        guard let urlTypes = UIPasteboardTypeListURL as? [String],
+            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
+            let pastedURL = UIPasteboard.general.url,
+            selectedRange.length > 0 else {
+                return false
+        }
+
+        // If we have some selected text, and a URL is pasted,
+        // create a link with the selected text.
+        setLink(pastedURL, inRange: selectedRange)
+        return true
     }
 
     // MARK: - Intercept Keystrokes
@@ -1450,6 +1489,24 @@ open class TextView: UITextView {
 
     // MARK: - Links
 
+    open func linkInfo(for attachment: NSTextAttachment) -> (range: NSRange, url: URL)? {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first,
+            let linkFullRange = self.linkFullRange(forRange: attachmentRange),
+            let linkURL = self.linkURL(for: attachment)  else {
+                return nil
+        }
+
+        return (linkFullRange, linkURL)
+    }
+    
+    open func linkURL(for attachment: NSTextAttachment) -> URL? {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
+            return nil
+        }
+        
+        return linkURL(forRange: attachmentRange)
+    }
+    
     /// Returns an NSURL if the specified range as attached a link attribute
     ///
     /// - Parameter range: The NSRange to inspect
@@ -1494,6 +1551,54 @@ open class TextView: UITextView {
 
         return effectiveRange
     }
+    
+    // MARK: - Captions
+
+    open func caption(for attachment: NSTextAttachment) -> NSAttributedString? {
+        return textStorage.caption(for: attachment)
+    }
+    
+    open func removeCaption(for attachment: NSTextAttachment) {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first,
+            let captionRange = textStorage.captionRange(for: attachment) else {
+                return
+        }
+        
+        let finalRange = NSRange(location: attachmentRange.location, length: attachmentRange.length + captionRange.length)
+        
+        textStorage.replaceCharacters(in: finalRange, with: NSAttributedString(attachment: attachment))
+    }
+    
+    open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
+        guard let attachmentRange = textStorage.ranges(forAttachment: attachment).first else {
+            return
+        }
+        
+        guard let existingCaptionRange = textStorage.captionRange(for: attachment) else {
+            let newAttachmentString = NSAttributedString(attachment: attachment, caption: newCaption, attributes: [:])
+            textStorage.replaceCharacters(in: attachmentRange, with: newAttachmentString)
+
+            return
+        }
+
+        // We maintain the original paragraph style since this is really not intended to be editable.  It also maintains
+        // the original Figure and Figcaption objects.
+        let originalParagraphStyle = textStorage.attribute(.paragraphStyle, at: existingCaptionRange.location, effectiveRange: nil) as! ParagraphStyle
+        var newAttributes = newCaption.attributes(at: 0, effectiveRange: nil)
+        newAttributes[.paragraphStyle] = originalParagraphStyle
+        
+        // TODO: when the caption is not there, we must insert it (and format the attachment as a FIGURE())
+        
+        let finalCaption = NSMutableAttributedString()
+        
+        finalCaption.append(newCaption)
+        finalCaption.append(NSAttributedString(.paragraphSeparator, attributes: [:]))
+        finalCaption.setAttributes(newAttributes, range: finalCaption.rangeOfEntireString)
+        
+        textStorage.replaceCharacters(in: existingCaptionRange, with: finalCaption)
+    }
+ 
+    // MARK: - Storage Indexes (WTF?)
 
 
     /// The maximum index should never exceed the length of the text storage minus one,
@@ -1562,14 +1667,18 @@ open class TextView: UITextView {
             fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
         }
 
-        guard let range = storage.range(for: attachment), let copy = copying.copy() as? T else {
-            return
+        guard let range = storage.range(for: attachment),
+            let copy = copying.copy() as? T else {
+                return
         }
 
         block(copy)
 
         performUndoable(at: range) {
-            storage.setAttributes([.attachment: copy], range: range)
+            var originalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
+            originalAttributes[.attachment] = copy
+            
+            storage.setAttributes(originalAttributes, range: range)
             return range
         }
     }
@@ -1640,15 +1749,14 @@ private extension TextView {
         removeSingleLineParagraphAttributes(at: selectedRange)
     }
 
-    /// Analyzes whether paragraph attributes should be removed from the specified
-    /// location, or not, after the selection range is changed.
+    /// Analyzes whether the conditions are met for single-line paragraph attributes to be removed.
     ///
     /// - Parameter input: the text that was just inserted into the TextView.
     ///
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     private func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
-        return input.isEndOfLine() && storage.string.isEmptyLine(at: selectedRange.location)
+        return input.isEndOfLine()
     }
 
 
@@ -1663,7 +1771,9 @@ private extension TextView {
             HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
             HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
             HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:])
+            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:]),
+            FigcaptionFormatter(placeholderAttributes: [:]),
+            FigureFormatter(placeholderAttributes: [:])
         ]
 
         var updatedTypingAttributes = typingAttributesSwifted

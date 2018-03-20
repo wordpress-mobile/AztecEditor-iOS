@@ -10,6 +10,8 @@ extension NSAttributedString
     ///
     static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
 
+    // MARK: - Initializers
+    
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
@@ -18,6 +20,26 @@ extension NSAttributedString
         attributesWithAttachment[.attachment] = attachment
 
         self.init(.textAttachment, attributes: attributesWithAttachment)
+    }
+    
+    convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedStringKey: Any]) {
+        let figure = Figure()
+        let figcaption = Figcaption(defaultFont: UIFont.systemFont(ofSize: 14), storing: nil)
+        
+        let figureAttributes = attributes.appending(figure)
+        let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)
+        
+        let mutableCaption = NSMutableAttributedString(attributedString: caption)
+        mutableCaption.append(figure)
+        mutableCaption.append(figcaption)
+        
+        let paragraphSeparator = NSAttributedString(.paragraphSeparator, attributes: [:])
+        
+        finalString.append(paragraphSeparator)
+        finalString.append(mutableCaption)
+        finalString.append(paragraphSeparator)
+        
+        self.init(attributedString: finalString)
     }
 
     /// Loads any NSTextAttachment's lazy file reference, into a UIImage instance, in memory.
@@ -68,7 +90,66 @@ extension NSAttributedString
             }
             attachmentRanges.append(effectiveRange)
         }
-        
+
         return attachmentRanges
+    }
+
+    // MARK: - Captions
+    
+    open func caption(for attachment: NSTextAttachment) -> NSAttributedString? {
+        guard let captionRange = self.captionRange(for: attachment) else {
+            return nil
+        }
+        
+        let string = attributedSubstring(from: captionRange).mutableCopy() as! NSMutableAttributedString
+        
+        for character in Character.paragraphBreakingCharacters {
+            string.replaceOcurrences(of: String(character), with: "")
+        }
+        
+        return NSAttributedString(attributedString: string)
+    }
+
+    public func captionRange(for attachment: NSTextAttachment) -> NSRange? {
+        guard let figureRange = self.figureRange(for: attachment) else {
+            return nil
+        }
+        
+        return figcaptionRanges(within: figureRange).first
+    }
+
+    // MARK: - Captions: Figure and Figcaption property ranges
+
+    private func figcaptionRanges(within range: NSRange) -> [NSRange] {
+        var ranges = [NSRange]()
+        
+        enumerateParagraphRanges(spanning: range) { (_, enclosingRange) in
+            guard let paragraphStyle = attribute(.paragraphStyle, at: enclosingRange.lowerBound, effectiveRange: nil) as? ParagraphStyle else {
+                return
+            }
+            
+            if paragraphStyle.hasProperty(where: { $0 is Figcaption }) {
+                ranges.append(enclosingRange)
+            }
+        }
+        
+        return ranges
+    }
+
+    private func figureRange(for attachment: NSTextAttachment) -> NSRange? {
+        guard let attachmentRange = ranges(forAttachment: attachment).first else {
+            return nil
+        }
+        
+        let paragraphRange = self.paragraphRange(for: attachmentRange)
+
+        guard let paragraphStyle = self.attribute(.paragraphStyle, at: paragraphRange.lowerBound, effectiveRange: nil) as? ParagraphStyle,
+            let figure = paragraphStyle.property(where: { $0 is Figure }) as? Figure else {
+                return nil
+        }
+
+        return self.paragraphRange(around: attachmentRange) { (properties) -> Bool in
+            return properties.contains { $0 === figure }
+        }
     }
 }

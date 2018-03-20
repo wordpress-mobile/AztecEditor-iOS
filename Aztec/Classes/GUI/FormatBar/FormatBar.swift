@@ -281,9 +281,19 @@ open class FormatBar: UIView {
         }
     }
 
+    /// The user interface direction for the FormatBar semantic content attribute.
+    ///
+    private var layoutDirection: UIUserInterfaceLayoutDirection {
+        return UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute)
+    }
+
     /// System-applied height constraint, used to resize the format bar as necessary.
     ///
     fileprivate var heightConstraint: NSLayoutConstraint? = nil
+
+    /// Overflow toggle item leading constraint when using RTL layout or nil for LTR layout
+    ///
+    var overflowToggleItemRTLLeadingConstraint: NSLayoutConstraint?
 
     // MARK: - Initializers
 
@@ -321,6 +331,10 @@ open class FormatBar: UIView {
         }
     }
 
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        updateOverflowToggleItemRTLConstraints()
+    }
 
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -417,7 +431,7 @@ open class FormatBar: UIView {
             self.updateOverflowItemVisibility()
         }
     }
-    
+
     fileprivate func updateOverflowItemVisibility() {
         updateVisibleItemsForCurrentBounds()
 
@@ -434,6 +448,12 @@ open class FormatBar: UIView {
     fileprivate func updateOverflowToggleItemVisibility() {
         let hasOverflowItems = !overflowItems.isEmpty
         overflowToggleItem.isHidden = !hasOverflowItems || trailingItem != nil
+    }
+
+    /// Updates the overflowToggleItemRTLLeadingConstraint with the correct value. On LTR layout this function does nothing.
+    ///
+    private func updateOverflowToggleItemRTLConstraints() {
+        overflowToggleItemRTLLeadingConstraint?.constant = scrollableStackView.frame.width - frame.width
     }
 
     @available(iOS 11.0, *)
@@ -473,7 +493,7 @@ open class FormatBar: UIView {
             }
         })
     }
-    
+
     @IBAction func handleButtonTouch(_ sender: FormatBarItem) {
         formatter?.formatBarTouchesBegan(self)
     }
@@ -507,6 +527,8 @@ open class FormatBar: UIView {
         UserDefaults.standard.set(shouldExpand, forKey: Constants.overflowExpandedUserDefaultsKey)
 
         formatter?.formatBar(self, didChangeOverflowState: (shouldExpand) ? .visible : .hidden)
+
+        updateOverflowToggleItemRTLLayout(expand: shouldExpand, animated: true)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -516,6 +538,20 @@ open class FormatBar: UIView {
         let items = visible ? hiddenItems : (overflowedDefaultItems + overflowItems).reversed()
 
         popItems(items, visible: visible, animated: animated)
+    }
+
+    /// Updates the position of the overflow toggle item. This is necesary only for Right-to-Left layouts due to the special leading constraint.
+    ///
+    private func updateOverflowToggleItemRTLLayout(expand shouldExpand: Bool, animated: Bool) {
+        guard layoutDirection == .rightToLeft else { return }
+
+        overflowToggleItemRTLLeadingConstraint?.isActive = shouldExpand
+        updateOverflowToggleItemRTLConstraints()
+        if animated {
+            UIView.animate(withDuration: Animations.durationShort) {
+                self.layoutIfNeeded()
+            }
+        }
     }
 
     private func popItems(_ items: [FormatBarItem], visible: Bool, animated: Bool = true) {
@@ -623,6 +659,7 @@ private extension FormatBar {
         scrollableStackView.alignment = .center
         scrollableStackView.distribution = .equalSpacing
         scrollableStackView.translatesAutoresizingMaskIntoConstraints = false
+        scrollableStackView.flipIfNeeded(for: layoutDirection)
     }
 
 
@@ -634,21 +671,14 @@ private extension FormatBar {
         scrollView.alwaysBounceHorizontal = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
-
+        scrollView.flipIfNeeded(for: layoutDirection)
         updateScrollViewInsets()
     }
 
     func updateScrollViewInsets() {
         // Add padding at the end to account for overflow button
-        let layoutDirection = UIView.userInterfaceLayoutDirection(for: semanticContentAttribute)
-        switch layoutDirection {
-        case .leftToRight:
-            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: trailingInset)
-        case .rightToLeft:
-            scrollView.contentInset = UIEdgeInsets(top: 0, left: trailingInset, bottom: 0, right: 0)
-        }
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: trailingInset)
     }
-
 
     /// Sets up the Constraints
     ///
@@ -661,23 +691,54 @@ private extension FormatBar {
             trailingAnchor = safeAreaLayoutGuide.trailingAnchor
         }
 
+        ///Overflow toggle item
+
         let overflowTrailingConstraint = overflowToggleItem.trailingAnchor.constraint(equalTo: trailingAnchor)
         overflowTrailingConstraint.priority = .defaultLow
+
+        //Create the correct `overflowLeadingConstraint` for the current layout direction.
+        let overflowLeadingConstraint: NSLayoutConstraint
+        switch layoutDirection {
+        case .leftToRight:
+            overflowLeadingConstraint = overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor)
+        case .rightToLeft:
+            overflowLeadingConstraint = NSLayoutConstraint(
+                item: overflowToggleItem,
+                attribute: .leading,
+                relatedBy: .greaterThanOrEqual,
+                toItem: scrollableStackView,
+                attribute: .trailing,
+                multiplier: -1,
+                constant: 0
+            )
+            self.overflowToggleItemRTLLeadingConstraint = overflowLeadingConstraint
+        }
+
+        ///Trailing item
 
         let trailingItemTrailingConstraint = trailingItemContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.trailingButtonMargin)
         trailingItemTrailingConstraint.priority = .defaultLow
 
+        //Create the correct `trailingItemLeadingConstraint` for the current layout direction.
+        let trailingItemLeadingConstraint: NSLayoutConstraint
+        switch layoutDirection {
+        case .leftToRight:
+            trailingItemLeadingConstraint = trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor)
+        case .rightToLeft:
+            trailingItemLeadingConstraint = trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.leadingAnchor)
+        }
+
         NSLayoutConstraint.activate([
             overflowToggleItem.topAnchor.constraint(equalTo: topAnchor),
             overflowToggleItem.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
+            overflowLeadingConstraint,
             overflowTrailingConstraint
         ])
 
         NSLayoutConstraint.activate([
             trailingItemContainer.topAnchor.constraint(equalTo: topAnchor),
             trailingItemContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor),
+            trailingItemLeadingConstraint,
             trailingItemTrailingConstraint
         ])
 
@@ -860,6 +921,16 @@ private extension UIView {
 
         get {
             return isHidden
+        }
+    }
+
+    /// Flips the receiver horizontally if the given layout direction is .rightToLeft
+    /// It is necesary for ScrollViews and its content to have a right-to-left scroll behavior
+    ///
+    /// - Parameter layoutDirection: The current user interface layout direction
+    func flipIfNeeded(for layoutDirection: UIUserInterfaceLayoutDirection) {
+        if layoutDirection == .rightToLeft {
+            transform = CGAffineTransform(scaleX: -1, y: 1)
         }
     }
 }

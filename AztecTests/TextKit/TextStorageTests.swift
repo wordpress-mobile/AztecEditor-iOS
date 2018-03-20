@@ -134,7 +134,7 @@ class TextStorageTests: XCTestCase {
         let html = storage.getHTML(serializer: serializer)
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
     }
 
     /// Verifies that any edition performed on ImageAttachment attributes is properly serialized back during
@@ -321,7 +321,7 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.org\" class=\"alignnone\"></p>")
     }
 
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
@@ -336,7 +336,7 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
     }
 
     /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
