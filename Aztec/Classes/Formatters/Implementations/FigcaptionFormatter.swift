@@ -29,7 +29,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         var finalAttributes = attributes
         
         finalAttributes[.font] = defaultFont.withSize(defaultFont.pointSize - 2)
-        finalAttributes[.foregroundColor] = UIColor.red
+        finalAttributes[.foregroundColor] = UIColor.gray
         finalAttributes[.paragraphStyle] = paragraphStyle
         
         return finalAttributes
