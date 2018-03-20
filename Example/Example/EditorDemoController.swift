@@ -1321,14 +1321,13 @@ private extension EditorDemoController
         
         let linkInfo = richTextView.linkInfo(for: attachment)
         let linkRange = linkInfo?.range
-        let linkURL = linkInfo?.url
         let linkUpdateRange = linkRange ?? richTextView.textStorage.ranges(forAttachment: attachment).first!
         
         if let linkURL = linkInfo?.url {
             detailsViewController.linkURL = linkURL
         }
 
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, updatedURL, alt, caption) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, srcURL, linkURL, alt, caption) in
             guard let `self` = self else {
                 return
             }
@@ -1340,7 +1339,7 @@ private extension EditorDemoController
 
                 updated.alignment = alignment
                 updated.size = size
-                updated.updateURL(url)
+                updated.updateURL(srcURL)
 
                 if let caption = caption, caption.length > 0 {
                     self.richTextView.replaceCaption(for: attachment, with: caption)
@@ -1349,8 +1348,8 @@ private extension EditorDemoController
                 }
             }
             
-            if let updatedURL = updatedURL {
-                self.richTextView.setLink(updatedURL, inRange: linkUpdateRange)
+            if let newLinkURL = linkURL {
+                self.richTextView.setLink(newLinkURL, inRange: linkUpdateRange)
             } else if linkURL != nil {
                 self.richTextView.removeLink(inRange: linkUpdateRange)
             }

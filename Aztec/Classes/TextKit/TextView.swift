@@ -859,6 +859,33 @@ open class TextView: UITextView {
         notifyTextViewDidChange()
     }
 
+    func apply(formatter: AttributeFormatter, atRange range: NSRange, remove: Bool) {
+
+        let applicationRange = formatter.applicationRange(for: range, in: textStorage)
+        let originalString = storage.attributedSubstring(from: applicationRange)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+        })
+
+        if remove {
+            formatter.removeAttributes(from: storage, at: applicationRange)
+        } else {
+            formatter.applyAttributes(to: storage, at: applicationRange)
+        }        
+
+        if applicationRange.length == 0 {
+            typingAttributesSwifted = formatter.toggle(in: typingAttributesSwifted)
+        } else {
+            // NOTE: We are making sure that the selectedRange location is inside the string
+            // The selected range can be out of the string when you are adding content to the end of the string.
+            // In those cases we check the atributes of the previous caracter
+            let location = max(0,min(selectedRange.location, textStorage.length-1))
+            typingAttributesSwifted = textStorage.attributes(at: location, effectiveRange: nil)
+        }
+        notifyTextViewDidChange()
+    }
+
     /// Adds or removes a bold style from the specified range.
     ///
     /// - Parameter range: The NSRange to edit.
@@ -1280,7 +1307,7 @@ open class TextView: UITextView {
     open func setLink(_ url: URL, inRange range: NSRange) {
         let formatter = LinkFormatter()
         formatter.attributeValue = url
-        toggle(formatter: formatter, atRange: range)
+        apply(formatter: formatter, atRange: range, remove: false)
     }
 
     /// Removes the link, if any, at the specified range
@@ -1289,8 +1316,7 @@ open class TextView: UITextView {
     ///
     open func removeLink(inRange range: NSRange) {
         let formatter = LinkFormatter()
-        formatter.toggle(in: storage, at: range)
-        notifyTextViewDidChange()
+        apply(formatter: formatter, atRange: range, remove: true)
     }
 
 
