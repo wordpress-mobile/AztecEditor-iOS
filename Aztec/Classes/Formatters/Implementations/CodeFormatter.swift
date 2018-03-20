@@ -59,11 +59,7 @@ class CodeFormatter: AttributeFormatter {
     }
 
     func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
-        if let font = attributes[NSAttributedStringKey.font] as? UIFont {
-            return font == monospaceFont
-        } else {
-            return false
-        }
+        return attributes[NSAttributedStringKey.codeHtmlRepresentation] != nil            
     }
 }
 
