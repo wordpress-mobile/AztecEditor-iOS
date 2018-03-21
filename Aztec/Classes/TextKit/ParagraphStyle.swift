@@ -15,10 +15,14 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     // MARK: - Initializers
     
-    init(with paragraphStyle: NSParagraphStyle) {
+    override init() {
         ParagraphStyle.initializeClass
         
         super.init()
+    }
+    
+    convenience init(with paragraphStyle: NSParagraphStyle) {
+        self.init()
         
         setParagraphStyle(paragraphStyle)
     }
@@ -81,10 +85,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             return property as? HTMLPre
         }
         return htmlPres.first
-    }
-
-    override init() {
-        super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
@@ -213,7 +213,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     open var baseFirstLineHeadIndent: CGFloat = 0
     open var baseTailIndent: CGFloat = 0
     
-    open var regularLineSpacing = CGFloat(8)
+    open var regularLineSpacing = CGFloat(0)
     open var regularParagraphSpacing = CGFloat(0)
     open var regularParagraphSpacingBefore = CGFloat(0)
     
