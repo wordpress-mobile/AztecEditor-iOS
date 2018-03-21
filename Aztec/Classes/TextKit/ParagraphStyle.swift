@@ -5,16 +5,22 @@ import UIKit
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
+    // MARK: - Class Initializer
+    
+    /// This is sort of a nasty hack to be able to initialize the class at runtime
+    ///
+    private static let initializeClass: () = {
+        swizzleSuperclass()
+    }()
+    
     // MARK: - Initializers
     
     init(with paragraphStyle: NSParagraphStyle) {
+        ParagraphStyle.initializeClass
+        
         super.init()
         
         setParagraphStyle(paragraphStyle)
-    }
-    
-    deinit {
-        print("gone")
     }
     
     // MARK: - CustomReflectable
@@ -422,5 +428,30 @@ extension ParagraphStyle {
                 return
             }
         }
+    }
+    
+    // MARK: - Swizzling NSparagraphStyle
+    
+    /// We need to Swizzle NSParagraphStyle's `isEqual` because it does not consider the class for the comparison.
+    /// This is probably because `NSParagraphStyle` was never intended for subclassing, but since we subclassed it
+    /// we need it to recognize the difference.
+    ///
+    private static func swizzleSuperclass() {
+        guard let originalMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(isEqual(_:))),
+            let swizzledMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(swizzledIsEqual(_:))) else {
+                return
+        }
+        
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+}
+
+extension NSParagraphStyle {
+    @objc func swizzledIsEqual(_ object: Any?) -> Bool {
+        guard object_getClass(self) == object_getClass(object) else {
+            return false
+        }
+        
+        return self.swizzledIsEqual(object)
     }
 }

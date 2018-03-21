@@ -1013,12 +1013,9 @@ class AttributedStringParserTests: XCTestCase {
             return
         }
         
-        print("Is equal \(paragraphStyle.isEqual(NSParagraphStyle()))")
-        
         XCTAssert(paragraphStyle.hasProperty(where: { $0 is Figure }))
     }
 }
-
 
 // MARK: - Helpers
 //
