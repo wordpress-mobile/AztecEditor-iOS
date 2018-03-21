@@ -13,6 +13,10 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         setParagraphStyle(paragraphStyle)
     }
     
+    deinit {
+        print("gone")
+    }
+    
     // MARK: - CustomReflectable
     
     public var customMirror: Mirror {
@@ -292,7 +296,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - Equatable
     
-    open override func isEqual(_ object: Any?) -> Bool {
+    @objc open override func isEqual(_ object: Any?) -> Bool {
         guard let otherParagraph = object as? ParagraphStyle else {
             return false
         }

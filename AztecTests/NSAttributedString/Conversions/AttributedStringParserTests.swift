@@ -967,18 +967,55 @@ class AttributedStringParserTests: XCTestCase {
         let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
-        let figcaptionNode = node.firstChild(ofType: .figure)?.firstChild(ofType: .figcaption)
-        XCTAssertNotNil(figcaptionNode)
+        print(node)
+        
+        guard let figureNode = node.firstChild(ofType: .figure) else {
+            XCTFail()
+            return
+        }
+        
+        guard let figcaptionNode = figureNode.firstChild(ofType: .figcaption) else {
+            XCTFail()
+            return
+        }
 
-        let strongNode = figcaptionNode?.firstChild(ofType: .strong)
-        XCTAssertNotNil(strongNode)
+        guard let strongNode = figcaptionNode.firstChild(ofType: .strong) else {
+            XCTFail()
+            return
+        }
 
-        let italicsNode = strongNode?.firstChild(ofType: .em)
-        XCTAssertNotNil(italicsNode)
+        guard let italicsNode = strongNode.firstChild(ofType: .em) else {
+            XCTFail()
+            return
+        }
 
-        let textNode = italicsNode?.children.first as? TextNode
-        XCTAssertNotNil(textNode)
-        XCTAssert(textNode?.text() == captionText)
+        guard let textNode = italicsNode.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(textNode.text(), captionText)
+    }
+    
+    /// Verifies that Images with *Styled* caption fields get properly converted into their corresponding HTML
+    ///
+    /// - Input: Image Attachment, with a caption in Bold + Italics.
+    ///
+    /// - Output: <figure><img src="."><figcaption><strong><em>Bold and Italics</em></strong></figcaption></figure>
+    ///
+    func testAppendProperty() {
+        let string = NSMutableAttributedString(string: "Hello world!", attributes: Constants.sampleAttributes)
+        
+        string.append(paragraphProperty: Figure())
+        
+        guard let paragraphStyle = string.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle else {
+            XCTFail() // Expected a ParagraphStyle object.
+            return
+        }
+        
+        print("Is equal \(paragraphStyle.isEqual(NSParagraphStyle()))")
+        
+        XCTAssert(paragraphStyle.hasProperty(where: { $0 is Figure }))
     }
 }
 

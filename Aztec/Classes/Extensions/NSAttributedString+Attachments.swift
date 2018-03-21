@@ -30,8 +30,11 @@ extension NSAttributedString
         let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)
         
         let mutableCaption = NSMutableAttributedString(attributedString: caption)
-        mutableCaption.append(figure)
-        mutableCaption.append(figcaption)
+        print("Self: \(ObjectIdentifier(mutableCaption))")
+        mutableCaption.append(paragraphProperty: figure)
+        print("Self: \(ObjectIdentifier(mutableCaption))")
+        mutableCaption.append(paragraphProperty: figcaption)
+        print("Self: \(ObjectIdentifier(mutableCaption))")
         
         let paragraphSeparator = NSAttributedString(.paragraphSeparator, attributes: [:])
         
