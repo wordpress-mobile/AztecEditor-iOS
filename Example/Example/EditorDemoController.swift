@@ -528,6 +528,8 @@ extension EditorDemoController {
             insertMoreAttachment()
         case .horizontalruler:
             insertHorizontalRuler()
+        case .code:
+            toggleCode()
         }
 
         updateFormatBar()
@@ -554,6 +556,10 @@ extension EditorDemoController {
 
     @objc func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    @objc func toggleCode() {
+        richTextView.toggleCode(range: richTextView.selectedRange)
     }
 
     func insertHorizontalRuler() {
@@ -967,6 +973,7 @@ extension EditorDemoController {
         return [
             makeToolbarButton(identifier: .underline),
             makeToolbarButton(identifier: .strikethrough),
+            makeToolbarButton(identifier: .code),
             makeToolbarButton(identifier: .horizontalruler),
             makeToolbarButton(identifier: .more),
             makeToolbarButton(identifier: .sourcecode)
@@ -1424,6 +1431,8 @@ extension FormattingIdentifier {
             return gridicon(.headingH5)
         case .header6:
             return gridicon(.headingH6)
+        case .code:
+            return gridicon(.posts)
         }
     }
 
@@ -1472,6 +1481,8 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH5"
         case .header6:
             return "formatToolbarToggleH6"
+        case .code:
+            return "formatToolbarCode"
         }
     }
 
@@ -1515,7 +1526,10 @@ extension FormattingIdentifier {
             return NSLocalizedString("Heading 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
             return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
+        case .code:
+            return NSLocalizedString("Code", comment: "Accessibility label for selecting code style button on the formatting toolbar.")
         }
+
     }
 }
 

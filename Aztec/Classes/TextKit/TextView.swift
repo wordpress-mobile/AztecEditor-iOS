@@ -738,7 +738,8 @@ open class TextView: UITextView {
         .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
         .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
         .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
-        .p: HTMLParagraphFormatter()
+        .p: HTMLParagraphFormatter(),
+        .code: CodeFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -915,6 +916,12 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
 
         forceRedrawCursorAfterDelay()
+    }
+
+    open func toggleCode(range: NSRange) {
+        let formatter = CodeFormatter()
+        formatter.placeholderAttributes = self.defaultAttributes
+        toggle(formatter: formatter, atRange: range)
     }
 
     /// Adds or removes a blockquote style from the specified range.

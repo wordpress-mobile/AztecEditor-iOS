@@ -4,7 +4,7 @@ import UIKit
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string.
 class CodeFormatter: AttributeFormatter {
 
-    var placeholderAttributes: [NSAttributedStringKey: Any]? { return nil }
+    var placeholderAttributes: [NSAttributedStringKey: Any]?
 
     let monospaceFont: UIFont
     let backgroundColor: UIColor
@@ -38,7 +38,11 @@ class CodeFormatter: AttributeFormatter {
 
         resultingAttributes[.font] = monospaceFont
         resultingAttributes[.backgroundColor] = self.backgroundColor
-        resultingAttributes[htmlRepresentationKey] = representation
+        var representationToUse = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
+        if let requestedRepresentation = representation {
+            representationToUse = requestedRepresentation
+        }
+        resultingAttributes[htmlRepresentationKey] = representationToUse
 
         return resultingAttributes
     }
