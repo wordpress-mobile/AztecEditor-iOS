@@ -16,12 +16,7 @@ extension NSMutableAttributedString {
             let paragraphStyle = attributes.paragraphStyle()
             
             paragraphStyle.appendProperty(property)
-            
-            // IMPORTANT: since we are using a custom subclass of NSParagraphStyle for our convenience, it's important
-            // to remove `.paragraphStyle` before trying to add it back, as it seems `addAttribute` compares the attribute
-            // and fails to notice a difference otherwise.
-            //
-            //self.removeAttribute(.paragraphStyle, range: range)
+
             self.addAttribute(.paragraphStyle, value: paragraphStyle, range: range)
         }
     }

@@ -452,6 +452,6 @@ extension NSParagraphStyle {
             return false
         }
         
-        return self.swizzledIsEqual(object)
+        return swizzledIsEqual(object)
     }
 }
