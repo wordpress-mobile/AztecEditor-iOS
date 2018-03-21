@@ -826,7 +826,7 @@ private extension AttributedStringParser {
         return ElementNode(type: .u)
     }
 
-    /// Extracts all of the Underline Elements contained within a collection of Attributes.
+    /// Extracts all of the Code Elements contained within a collection of Attributes.
     ///
     private func processCodeStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         guard attributes[.codeHtmlRepresentation] is HTMLRepresentation else {
