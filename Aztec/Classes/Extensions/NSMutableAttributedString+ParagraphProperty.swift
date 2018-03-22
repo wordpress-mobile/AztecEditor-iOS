@@ -10,12 +10,14 @@ extension NSMutableAttributedString {
     ///
     /// - Returns: the final string attributes.
     ///
-    func append(_ property: ParagraphProperty) {
-        self.enumerateParagraphRanges(spanning: self.rangeOfEntireString) { (_, range) in
+    func append(paragraphProperty property: ParagraphProperty) {
+        enumerateParagraphRanges(spanning: self.rangeOfEntireString) { (_, range) in
             let attributes = self.attributes(at: range.lowerBound, effectiveRange: nil)
-            let newAttributes = attributes.appending(property)
+            let paragraphStyle = attributes.paragraphStyle()
             
-            self.setAttributes(newAttributes, range: range)
+            paragraphStyle.appendProperty(property)
+
+            self.addAttribute(.paragraphStyle, value: paragraphStyle, range: range)
         }
     }
 }

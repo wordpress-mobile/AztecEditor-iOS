@@ -967,21 +967,36 @@ class AttributedStringParserTests: XCTestCase {
         let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
-        let figcaptionNode = node.firstChild(ofType: .figure)?.firstChild(ofType: .figcaption)
-        XCTAssertNotNil(figcaptionNode)
+        print(node)
+        
+        guard let figureNode = node.firstChild(ofType: .figure) else {
+            XCTFail()
+            return
+        }
+        
+        guard let figcaptionNode = figureNode.firstChild(ofType: .figcaption) else {
+            XCTFail()
+            return
+        }
 
-        let strongNode = figcaptionNode?.firstChild(ofType: .strong)
-        XCTAssertNotNil(strongNode)
+        guard let strongNode = figcaptionNode.firstChild(ofType: .strong) else {
+            XCTFail()
+            return
+        }
 
-        let italicsNode = strongNode?.firstChild(ofType: .em)
-        XCTAssertNotNil(italicsNode)
+        guard let italicsNode = strongNode.firstChild(ofType: .em) else {
+            XCTFail()
+            return
+        }
 
-        let textNode = italicsNode?.children.first as? TextNode
-        XCTAssertNotNil(textNode)
-        XCTAssert(textNode?.text() == captionText)
+        guard let textNode = italicsNode.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(textNode.text(), captionText)
     }
 }
-
 
 // MARK: - Helpers
 //

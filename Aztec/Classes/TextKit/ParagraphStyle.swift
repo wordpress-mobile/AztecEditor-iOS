@@ -5,10 +5,24 @@ import UIKit
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
+    // MARK: - Class Initializer
+    
+    /// This is sort of a nasty hack to be able to initialize the class at runtime
+    ///
+    static let initializeClass: () = {
+        swizzleSuperclass()
+    }()
+    
     // MARK: - Initializers
     
-    init(with paragraphStyle: NSParagraphStyle) {
+    override init() {
+        ParagraphStyle.initializeClass
+        
         super.init()
+    }
+    
+    convenience init(with paragraphStyle: NSParagraphStyle) {
+        self.init()
         
         setParagraphStyle(paragraphStyle)
     }
@@ -71,10 +85,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             return property as? HTMLPre
         }
         return htmlPres.first
-    }
-
-    override init() {
-        super.init()
     }
 
     public required init?(coder aDecoder: NSCoder) {
@@ -203,7 +213,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     open var baseFirstLineHeadIndent: CGFloat = 0
     open var baseTailIndent: CGFloat = 0
     
-    open var regularLineSpacing = CGFloat(8)
+    open var regularLineSpacing = CGFloat(0)
     open var regularParagraphSpacing = CGFloat(0)
     open var regularParagraphSpacingBefore = CGFloat(0)
     
@@ -292,7 +302,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - Equatable
     
-    open override func isEqual(_ object: Any?) -> Bool {
+    @objc open override func isEqual(_ object: Any?) -> Bool {
         guard let otherParagraph = object as? ParagraphStyle else {
             return false
         }
@@ -418,5 +428,31 @@ extension ParagraphStyle {
                 return
             }
         }
+    }
+    
+    // MARK: - Swizzling NSparagraphStyle
+    
+    /// We need to Swizzle NSParagraphStyle's `isEqual` because it does not consider the class for the comparison.
+    /// This is probably because `NSParagraphStyle` was never intended for subclassing, but since we subclassed it
+    /// we need it to recognize the difference.
+    ///
+    private static func swizzleSuperclass() {
+        guard let originalMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(isEqual(_:))),
+            let swizzledMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(swizzledIsEqual(_:))) else {
+                return
+        }
+        
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+}
+
+extension NSParagraphStyle {
+    @objc func swizzledIsEqual(_ object: Any?) -> Bool {
+        guard object_getClass(object) == NSParagraphStyle.self
+            || object_getClass(object) == NSMutableParagraphStyle.self else {
+                return false
+        }
+        
+        return swizzledIsEqual(object)
     }
 }
