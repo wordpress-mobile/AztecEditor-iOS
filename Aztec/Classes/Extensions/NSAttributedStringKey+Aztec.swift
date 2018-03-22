@@ -41,4 +41,8 @@ public extension NSAttributedStringKey {
     /// Key used to store VideoHTMLRepresentations, by our VideoFormatter.
     ///
     public static let videoHtmlRepresentation = NSAttributedStringKey("Video.htmlRepresentation")
+
+    /// Key used to store codeHTMLRepresentations, by our CodeFormatter.
+    ///
+    public static let codeHtmlRepresentation = NSAttributedStringKey("Code.htmlRepresentation")
 }

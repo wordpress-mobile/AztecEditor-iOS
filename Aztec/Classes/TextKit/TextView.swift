@@ -583,6 +583,8 @@ open class TextView: UITextView {
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
+        ensureCopyOfCodeCustomTypingAttributes(at: selectedRange)
+
         // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
         // attributes under certain circumstances.  The attributes are lost exactly after the call
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
@@ -736,7 +738,8 @@ open class TextView: UITextView {
         .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
         .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
         .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
-        .p: HTMLParagraphFormatter()
+        .p: HTMLParagraphFormatter(),
+        .code: CodeFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -942,6 +945,12 @@ open class TextView: UITextView {
         forceRedrawCursorAfterDelay()
     }
 
+    open func toggleCode(range: NSRange) {
+        let formatter = CodeFormatter()
+        formatter.placeholderAttributes = self.defaultAttributes
+        toggle(formatter: formatter, atRange: range)
+    }
+
     /// Adds or removes a blockquote style from the specified range.
     /// Blockquotes are applied to an entire paragrah regardless of the range.
     /// If the range spans multiple paragraphs, the style is applied to all
@@ -1124,6 +1133,19 @@ open class TextView: UITextView {
         typingAttributesSwifted.removeValue(forKey: .link)
     }
 
+    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
+    ///
+    /// - Parameter range: the range where the new text will be inserted
+    ///
+    private func ensureCopyOfCodeCustomTypingAttributes(at range: NSRange) {
+        guard typingAttributesSwifted[.codeHtmlRepresentation] == nil,
+            storage.isLocation(range.location, preceededBy: .codeHtmlRepresentation) else {
+            return
+        }
+
+        typingAttributesSwifted[.codeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
+    }
+
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
@@ -1193,17 +1215,25 @@ open class TextView: UITextView {
             guard let `self` = self else {
                 return
             }
-            
+
             // From here on, it's just calling the same method in `super`.
             //
             let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
             let imp = class_getMethodImplementation(TextView.superclass(), selector)
-            
+
             typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
             let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            
+            let currentAttributes = self.typingAttributesSwifted
             superMethod(self, selector, range, replacementText)
+            // apply all attributes that where set before the call to the new text
+            self.textStorage.setAttributes(currentAttributes, range: rangeFrom(uiTextRange: range))
         }
+    }
+
+    func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
+        let location = offset(from: beginningOfDocument, to: range.start)
+        let length = offset(from: range.start, to: range.end)
+        return NSRange(location: location, length: length)
     }
 
     /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign

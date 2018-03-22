@@ -163,6 +163,7 @@
 		FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */; };
 		FF24AC991F0146AF003CA91D /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF24AC981F0146AF003CA91D /* Assets.swift */; };
 		FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */; };
+		FF61909E202481F4004BCD0A /* CodeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF61909D202481F4004BCD0A /* CodeFormatter.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
 		FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */; };
@@ -366,6 +367,7 @@
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		FF61909D202481F4004BCD0A /* CodeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeFormatter.swift; sourceTree = "<group>"; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
 		FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
 		FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineAttachment.swift; sourceTree = "<group>"; };
@@ -773,6 +775,7 @@
 				F12F585F1EF20394008AE298 /* StrikethroughFormatter.swift */,
 				F12F58601EF20394008AE298 /* TextListFormatter.swift */,
 				F12F58611EF20394008AE298 /* UnderlineFormatter.swift */,
+				FF61909D202481F4004BCD0A /* CodeFormatter.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -1132,6 +1135,7 @@
 				F1BDDDE520603C18000714E1 /* FigcaptionFormatter.swift in Sources */,
 				B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */,
 				599F254A1D8BC9A1002871D6 /* NSAttributedString+Attachments.swift in Sources */,
+				FF61909E202481F4004BCD0A /* CodeFormatter.swift in Sources */,
 				F1DE83D51EF20493009269E6 /* UIColor+Parsers.swift in Sources */,
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
 				F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */,

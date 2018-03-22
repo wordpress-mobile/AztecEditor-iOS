@@ -50,6 +50,7 @@ public enum StandardElementType: String {
     case u = "u"
     case ul = "ul"
     case video = "video"
+    case code = "code"
 
     /// Returns an array with all block-level elements.
     ///
