@@ -17,7 +17,7 @@ class ParagraphStyleTests: XCTestCase {
         let nsParagraphStyle = NSParagraphStyle()
         let ourParagraphStyle = ParagraphStyle()
         
-        // First we make sure we haven't affected the base implementation
+        // First we make sure the swizzling is loaded.
         XCTAssert(nsParagraphStyle.swizzledIsEqual(ourParagraphStyle))
         
         XCTAssertEqual(nsParagraphStyle.isEqual(ourParagraphStyle), false)
@@ -28,7 +28,7 @@ class ParagraphStyleTests: XCTestCase {
         let nsParagraphStyle = NSParagraphStyle()
         let mutableNSParagraphStyle = NSMutableParagraphStyle()
         
-        // First we make sure we haven't affected the base implementation
+        // First we make sure the swizzling is loaded.
         XCTAssert(nsParagraphStyle.swizzledIsEqual(mutableNSParagraphStyle))
         
         XCTAssertEqual(nsParagraphStyle.isEqual(mutableNSParagraphStyle), true)
