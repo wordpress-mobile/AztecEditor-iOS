@@ -748,7 +748,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> [FormattingIdentifier] {
+    open func formatIdentifiersSpanningRange(_ range: NSRange) -> Set<FormattingIdentifier> {
         guard storage.length != 0 else {
             return formatIdentifiersForTypingAttributes()
         }
@@ -757,11 +757,11 @@ open class TextView: UITextView {
             return formatIdentifiersAtIndex(range.location)
         }
 
-        var identifiers = [FormattingIdentifier]()
+        var identifiers = Set<FormattingIdentifier>()
 
         for (key, formatter) in formatterIdentifiersMap {
             if formatter.present(in: storage, at: range) {
-                identifiers.append(key)
+                identifiers.insert(key)
             }
         }
 
@@ -775,17 +775,17 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersAtIndex(_ index: Int) -> [FormattingIdentifier] {
+    open func formatIdentifiersAtIndex(_ index: Int) -> Set<FormattingIdentifier> {
         guard storage.length != 0 else {
             return []
         }
 
         let index = adjustedIndex(index)
-        var identifiers = [FormattingIdentifier]()
+        var identifiers = Set<FormattingIdentifier>()
 
         for (key, formatter) in formatterIdentifiersMap {
             if formatter.present(in: storage, at: index) {
-                identifiers.append(key)
+                identifiers.insert(key)
             }
         }
 
@@ -797,12 +797,12 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of Formatting Identifiers.
     ///
-    open func formatIdentifiersForTypingAttributes() -> [FormattingIdentifier] {
+    open func formatIdentifiersForTypingAttributes() -> Set<FormattingIdentifier> {
         let activeAttributes = typingAttributesSwifted
-        var identifiers = [FormattingIdentifier]()
+        var identifiers = Set<FormattingIdentifier>()
 
         for (key, formatter) in formatterIdentifiersMap where formatter.present(in: activeAttributes) {
-            identifiers.append(key)
+            identifiers.insert(key)
         }
 
         return identifiers
