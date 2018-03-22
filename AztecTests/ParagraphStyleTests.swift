@@ -4,7 +4,16 @@ import XCTest
 
 class ParagraphStyleTests: XCTestCase {
     
-    func testThatIsEqualSwizzlingWorked() {
+    override func setUp() {
+        super.setUp()
+        
+        // Unfortunately, the swizzling can only be activated by initializing ParagraphStyle.
+        // In normal usage circumstances of Aztec this should not be a problem because Aztec would take care,
+        // but in these tests we want to make sure the swizzling is activated.
+        ParagraphStyle.initializeClass
+    }
+    
+    func testThatIsEqualSwizzlingWorks() {
         let nsParagraphStyle = NSParagraphStyle()
         let ourParagraphStyle = ParagraphStyle()
         
@@ -13,5 +22,16 @@ class ParagraphStyleTests: XCTestCase {
         
         XCTAssertEqual(nsParagraphStyle.isEqual(ourParagraphStyle), false)
         XCTAssertEqual(ourParagraphStyle.isEqual(nsParagraphStyle), false)
+    }
+    
+    func testThatIsEqualSwizzlingWithNSMutableParagraphStyleAndNSParagraphStyleWorks() {
+        let nsParagraphStyle = NSParagraphStyle()
+        let mutableNSParagraphStyle = NSMutableParagraphStyle()
+        
+        // First we make sure we haven't affected the base implementation
+        XCTAssert(nsParagraphStyle.swizzledIsEqual(mutableNSParagraphStyle))
+        
+        XCTAssertEqual(nsParagraphStyle.isEqual(mutableNSParagraphStyle), true)
+        XCTAssertEqual(mutableNSParagraphStyle.isEqual(nsParagraphStyle), true)
     }
 }

@@ -9,7 +9,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     /// This is sort of a nasty hack to be able to initialize the class at runtime
     ///
-    private static let initializeClass: () = {
+    static let initializeClass: () = {
         swizzleSuperclass()
     }()
     
@@ -448,8 +448,9 @@ extension ParagraphStyle {
 
 extension NSParagraphStyle {
     @objc func swizzledIsEqual(_ object: Any?) -> Bool {
-        guard object_getClass(self) == object_getClass(object) else {
-            return false
+        guard object_getClass(object) == NSParagraphStyle.self
+            || object_getClass(object) == NSMutableParagraphStyle.self else {
+                return false
         }
         
         return swizzledIsEqual(object)
