@@ -1693,17 +1693,18 @@ open class TextView: UITextView {
     ///     - attachment: Instance to be edited
     ///     - block: Edition closure to be executed
     ///
-    /// *Note:* Your NSTextAttachment MUST implement NSCopying protocol. This is a requirement!
+    /// - Returns: a copy of the original attachment for undoing purposes.
     ///
-    open func edit<T>(_ attachment: T, block: (T) -> ()) where T:NSTextAttachment {
-        guard let copying = attachment as? NSCopying else {
-            fatalError("Attachments must implement NSCopying in order to quality for Undo Support")
-        }
-
-        guard let range = storage.range(for: attachment),
-            let copy = copying.copy() as? T else {
-                return
-        }
+    @discardableResult
+    open func edit<T>(_ attachment: T, block: (T) -> ()) -> T where T:NSTextAttachment {
+        
+        precondition(storage.range(for: attachment) != nil)
+        
+        // Don't call this method if the attachment is not in the text view.
+        let range = storage.range(for: attachment)!
+        
+        // This should NEVER fail because the copy should not change type.
+        let copy = attachment.copy() as! T
 
         block(copy)
 
@@ -1714,6 +1715,8 @@ open class TextView: UITextView {
             storage.setAttributes(originalAttributes, range: range)
             return range
         }
+    
+        return copy
     }
 
 
