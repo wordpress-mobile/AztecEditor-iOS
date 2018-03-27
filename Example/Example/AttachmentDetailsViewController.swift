@@ -15,6 +15,7 @@ class AttachmentDetailsViewController: UITableViewController
     var caption: NSAttributedString?
     var linkURL: URL?
     var onUpdate: ((_ alignment: ImageAttachment.Alignment, _ size: ImageAttachment.Size, _ imageURL: URL, _ linkURL: URL?, _ altText: String?, _ captionText: NSAttributedString?) -> Void)?
+    var onDismiss: (() -> ())?
 
 
     override func viewDidLoad() {
@@ -84,7 +85,7 @@ class AttachmentDetailsViewController: UITableViewController
         let caption = captionTextView.attributedText
         let linkURL = URL(string: linkURLTextField.text ?? "")
         onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url, linkURL, alt, caption)
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: onDismiss)
     }
 
     class func controller(for attachment: ImageAttachment, with caption: NSAttributedString?) -> AttachmentDetailsViewController {
