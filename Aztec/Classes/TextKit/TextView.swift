@@ -1708,7 +1708,7 @@ open class TextView: UITextView {
 
         block(copy)
 
-        performUndoable(at: range) {            
+        performUndoable(at: range) {
             var originalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
             originalAttributes[.attachment] = copy
             
