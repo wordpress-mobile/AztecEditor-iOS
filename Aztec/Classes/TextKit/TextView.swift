@@ -1600,6 +1600,8 @@ open class TextView: UITextView {
         let finalRange = NSRange(location: attachmentRange.location, length: attachmentRange.length + captionRange.length)
         
         textStorage.replaceCharacters(in: finalRange, with: NSAttributedString(attachment: attachment))
+        
+        notifyTextViewDidChange()
     }
     
     open func replaceCaption(for attachment: NSTextAttachment, with newCaption: NSAttributedString) {
@@ -1629,6 +1631,8 @@ open class TextView: UITextView {
         finalCaption.setAttributes(newAttributes, range: finalCaption.rangeOfEntireString)
         
         textStorage.replaceCharacters(in: existingCaptionRange, with: finalCaption)
+        
+        notifyTextViewDidChange()
     }
  
     // MARK: - Storage Indexes (WTF?)
