@@ -1697,12 +1697,12 @@ open class TextView: UITextView {
     ///
     @discardableResult
     open func edit<T>(_ attachment: T, block: (T) -> ()) -> T where T:NSTextAttachment {
-        
+
         precondition(storage.range(for: attachment) != nil)
-        
+
         // Don't call this method if the attachment is not in the text view.
         let range = storage.range(for: attachment)!
-        
+
         // This should NEVER fail because the copy should not change type.
         let copy = attachment.copy() as! T
 
@@ -1715,6 +1715,8 @@ open class TextView: UITextView {
             storage.setAttributes(originalAttributes, range: range)
             return range
         }
+        
+        notifyTextViewDidChange()
     
         return copy
     }
