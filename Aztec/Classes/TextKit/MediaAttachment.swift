@@ -163,6 +163,12 @@ open class MediaAttachment: NSTextAttachment {
         needsNewAsset = refreshAsset
     }
 
+    /// Refresh attachment identifier
+    ///
+    /// - Parameter identifier: new identifier
+    open func refreshIdentifier(_ identifier: String = UUID().uuidString) {
+        self.identifier = identifier
+    }
 
     // MARK: - NSCoder
 
