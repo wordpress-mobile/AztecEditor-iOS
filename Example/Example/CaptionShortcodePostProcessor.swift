@@ -25,10 +25,50 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
-            let attributes = shortcode.attributes.toString()
-            let padding = attributes.isEmpty ? "" : " "
+            var attributes = shortcode.attributes.named
+            var imgId = ""
+            var imgNode: ElementNode?
 
-            var html = "[caption" + padding + attributes + "]"
+            // Find img child node of caption
+            if coreNode.isNodeType(.img) {
+                imgNode = coreNode
+            } else {
+                imgNode = coreNode.firstChild(ofType: .img)
+            }
+
+            if let imgNode = imgNode {
+                let imgAttributes = imgNode.attributes
+                for attribute in imgAttributes {
+                    guard attribute.name != "src",
+                        var attributeValue = attribute.value.toString() else {
+                        continue
+                    }
+
+                    if attribute.name == "class" {
+                        let classAttributes = attributeValue.components(separatedBy: " ")
+                        var newClassAttributes = [String]()
+                        for classAttribute in classAttributes {
+                            if classAttribute.hasPrefix("wp_image_") {
+                                imgId = classAttribute.replacingOccurrences(of: "wp_image_", with: "attachment_")
+                            } else {
+                                newClassAttributes.append(classAttribute)
+                            }
+                        }
+                        attributeValue = newClassAttributes.joined(separator: " ")
+                    }
+                    attributes[attribute.name] = attributeValue
+                }
+            }
+
+            var attributesHTMLRepresentation: String = ""
+
+            for (key, value) in attributes {
+                attributesHTMLRepresentation += " \(key)=\"\(value)\""
+            }
+
+            let padding = attributesHTMLRepresentation.isEmpty ? "" : " "
+
+            var html = "[caption id=\"\(imgId)\"" + padding + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 
