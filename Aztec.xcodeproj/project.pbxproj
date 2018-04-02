@@ -88,8 +88,6 @@
 		F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AC1EF1AA91007FEE9A /* HTMLPre.swift */; };
 		F11326B31EF1AA91007FEE9A /* ParagraphProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */; };
 		F11326B41EF1AA91007FEE9A /* TextList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11326AE1EF1AA91007FEE9A /* TextList.swift */; };
-		F122C24E2072AD080018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C24D2072AD080018ED06 /* libxml2.tbd */; };
-		F122C2562072AFD10018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C24D2072AD080018ED06 /* libxml2.tbd */; };
 		F12328771FB638C6001E35EF /* AttributedStringKey+Aztec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328761FB638C6001E35EF /* AttributedStringKey+Aztec.swift */; };
 		F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */; };
 		F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */; };
@@ -367,7 +365,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F122C24E2072AD080018ED06 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,7 +372,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F122C2562072AFD10018ED06 /* libxml2.tbd in Frameworks */,
 				5951CB981D8BC93600E1866F /* Aztec.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1257,6 +1253,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lxml2";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1312,6 +1309,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-lxml2";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1511,6 +1509,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lxml2";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1619,6 +1618,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lxml2";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
