@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
   s.resources = 'Aztec/Assets/**/*'
 
   s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
-  				'HEADER_SEARCH_PATHS' -> '/usr/include/libxml2'}
+  				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
 
 end
