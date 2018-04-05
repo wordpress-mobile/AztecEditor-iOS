@@ -2,10 +2,10 @@ import Foundation
 import UIKit
 
 extension NSAttributedString {
-
+    
     convenience init(
         withHTML html: String,
-        defaultAttributes: [AttributedStringKey: Any],
+        defaultAttributes: [NSAttributedStringKey: Any],
         postProcessingHTMLWith htmlTreeProcessor: HTMLTreeProcessor? = nil) {
         
         let htmlParser = HTMLParser()

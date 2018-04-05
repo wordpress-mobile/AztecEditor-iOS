@@ -5,16 +5,33 @@ import UIKit
 //
 open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
+    // MARK: - Class Initializer
+    
+    /// This is sort of a nasty hack to be able to initialize the class at runtime
+    ///
+    static let initializeClass: () = {
+        swizzleSuperclass()
+    }()
+    
+    // MARK: - Initializers
+    
+    override init() {
+        ParagraphStyle.initializeClass
+        
+        super.init()
+    }
+    
+    convenience init(with paragraphStyle: NSParagraphStyle) {
+        self.init()
+        
+        setParagraphStyle(paragraphStyle)
+    }
+    
     // MARK: - CustomReflectable
     
     public var customMirror: Mirror {
         get {
-            return Mirror(self, children: ["blockquotes": blockquotes,
-                                           "headerLevel": headerLevel,
-                                           "htmlDiv": htmlDiv,
-                                           "htmlParagraph": htmlParagraph,
-                                           "textList": lists,
-                                           "properties": properties])
+            return Mirror(self, children: ["properties": properties])
         }
     }
 
@@ -70,10 +87,6 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         return htmlPres.first
     }
 
-    override init() {
-        super.init()
-    }
-
     public required init?(coder aDecoder: NSCoder) {
 
         if let encodedProperties = aDecoder.decodeObject(forKey:String(describing: ParagraphProperty.self)) as? [ParagraphProperty] {
@@ -114,11 +127,15 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         blockquoteParagraphSpacing = paragraphStyle.blockquoteParagraphSpacing
         blockquoteParagraphSpacingBefore = paragraphStyle.blockquoteParagraphSpacingBefore
         
+        regularLineSpacing = paragraphStyle.regularLineSpacing
         regularParagraphSpacing = paragraphStyle.regularParagraphSpacing
         regularParagraphSpacingBefore = paragraphStyle.regularParagraphSpacingBefore
         
         textListParagraphSpacing = paragraphStyle.textListParagraphSpacing
         textListParagraphSpacingBefore = paragraphStyle.textListParagraphSpacingBefore
+        
+        figureLineSpacing = paragraphStyle.figureLineSpacing
+        figcaptionParagraphSpacingBefore = paragraphStyle.figcaptionParagraphSpacingBefore
     }
 
     open override var headIndent: CGFloat {
@@ -196,6 +213,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     open var baseFirstLineHeadIndent: CGFloat = 0
     open var baseTailIndent: CGFloat = 0
     
+    open var regularLineSpacing = CGFloat(0)
     open var regularParagraphSpacing = CGFloat(0)
     open var regularParagraphSpacingBefore = CGFloat(0)
     
@@ -204,6 +222,9 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     open var blockquoteParagraphSpacing = CGFloat(0)
     open var blockquoteParagraphSpacingBefore = CGFloat(0)
+    
+    open var figureLineSpacing = CGFloat(0)
+    open var figcaptionParagraphSpacingBefore = CGFloat(0)
     
     open override var paragraphSpacing: CGFloat {
         get {
@@ -220,10 +241,12 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             super.paragraphSpacing = newValue
         }
     }
-    
+
     open override var paragraphSpacingBefore: CGFloat {
         get {
-            if blockquotes.count > 0 {
+            if hasProperty(where: { $0 is Figcaption }) {
+                return figcaptionParagraphSpacingBefore
+            } else if blockquotes.count > 0 {
                 return blockquoteParagraphSpacingBefore
             } else if lists.count > 0 {
                 return textListParagraphSpacingBefore
@@ -234,6 +257,20 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         
         set {
             super.paragraphSpacingBefore = newValue
+        }
+    }
+    
+    open override var lineSpacing: CGFloat {
+        get {
+            if hasProperty(where: { $0 is Figure }) {
+                return figureLineSpacing
+            } else {
+                return regularLineSpacing
+            }
+        }
+        
+        set {
+            super.lineSpacing = newValue
         }
     }
     
@@ -265,7 +302,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     // MARK: - Equatable
     
-    open override func isEqual(_ object: Any?) -> Bool {
+    @objc open override func isEqual(_ object: Any?) -> Bool {
         guard let otherParagraph = object as? ParagraphStyle else {
             return false
         }
@@ -314,17 +351,25 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     open override var description: String {
-        return super.description +
-            " Blockquotes: \(String(describing:blockquotes)),\n" +
-            " HeaderLevel: \(headerLevel),\n" +
-            " HTMLDiv: \(String(describing: htmlDiv)),\n" +
-            " HTMLParagraph: \(String(describing: htmlParagraph)),\n" +
-            " TextLists: \(lists)"
+        
+        var description = super.description + ", paragraphProperties: ["
+        
+        for (index, property) in properties.enumerated() {
+            description.append(property.debugDescription)
+            
+            if index < properties.count - 1 {
+                description.append(", ")
+            }
+        }
+        
+        description.append("]")
+        
+        return description
     }
 }
 
 
-// MARK: - Add method to manipulate properties array
+// MARK: - Properties
 //
 extension ParagraphStyle {
 
@@ -354,6 +399,14 @@ extension ParagraphStyle {
 
         properties.insert(property, at: targetIndex + 1)
     }
+    
+    func hasProperty(where match: (ParagraphProperty) -> Bool) -> Bool {
+        return property { match($0) } != nil
+    }
+    
+    func property(where match: (ParagraphProperty) -> Bool) -> ParagraphProperty? {
+        return properties.first { match($0) }
+    }
 
     /// Removes the first ParagraphProperty present in the Properties collection that matches the specified kind.
     ///
@@ -374,6 +427,40 @@ extension ParagraphStyle {
                 properties[index] = newProperty
                 return
             }
+        }
+    }
+    
+    // MARK: - Swizzling NSparagraphStyle
+    
+    /// We need to Swizzle NSParagraphStyle's `isEqual` because it does not consider the class for the comparison.
+    /// This is probably because `NSParagraphStyle` was never intended for subclassing, but since we subclassed it
+    /// we need it to recognize the difference.
+    ///
+    private static func swizzleSuperclass() {
+        guard let originalMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(isEqual(_:))),
+            let swizzledMethod = class_getInstanceMethod(NSParagraphStyle.self, #selector(swizzledIsEqual(_:))) else {
+                return
+        }
+        
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+}
+
+extension NSParagraphStyle {
+    @objc func swizzledIsEqual(_ object: Any?) -> Bool {
+        let selfIsStandardParagraphStyle = object_getClass(self) == NSParagraphStyle.self || object_getClass(self) == NSMutableParagraphStyle.self
+        let objectIsStandardParagraphStyle = object_getClass(object) == NSParagraphStyle.self || object_getClass(object) == NSMutableParagraphStyle.self
+        
+        // We only override the default `isEqual` implementation if the receiver is either NSParagraphStyle or NSMutableParagraphStyle
+        // and the object parameter is not.
+        if selfIsStandardParagraphStyle && !objectIsStandardParagraphStyle {
+            if let nsObject = object as? NSObject {
+                return nsObject.isEqual(self)
+            } else {
+                return false
+            }
+        } else {
+            return swizzledIsEqual(object)
         }
     }
 }

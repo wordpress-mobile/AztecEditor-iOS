@@ -528,6 +528,8 @@ extension EditorDemoController {
             insertMoreAttachment()
         case .horizontalruler:
             insertHorizontalRuler()
+        case .code:
+            toggleCode()
         }
 
         updateFormatBar()
@@ -554,6 +556,10 @@ extension EditorDemoController {
 
     @objc func toggleBlockquote() {
         richTextView.toggleBlockquote(range: richTextView.selectedRange)
+    }
+
+    @objc func toggleCode() {
+        richTextView.toggleCode(range: richTextView.selectedRange)
     }
 
     func insertHorizontalRuler() {
@@ -967,6 +973,7 @@ extension EditorDemoController {
         return [
             makeToolbarButton(identifier: .underline),
             makeToolbarButton(identifier: .strikethrough),
+            makeToolbarButton(identifier: .code),
             makeToolbarButton(identifier: .horizontalruler),
             makeToolbarButton(identifier: .more),
             makeToolbarButton(identifier: .sourcecode)
@@ -1204,6 +1211,7 @@ private extension EditorDemoController
         
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         attachment.size = .full
+        attachment.alignment = .none
         if let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first {
             richTextView.setLink(fileURL, inRange: attachmentRange)
         }
@@ -1314,41 +1322,51 @@ private extension EditorDemoController
     }
 
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
-        guard let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first else {
-            return
-        }
-        let detailsViewController = AttachmentDetailsViewController.controller()
-        detailsViewController.attachment = attachment
-        var oldURL: URL?
-        if let linkRange = richTextView.linkFullRange(forRange: attachmentRange),
-           let url = richTextView.linkURL(forRange: attachmentRange),
-           attachmentRange == linkRange {
-           oldURL = url
-           detailsViewController.linkURL = url
+        
+        let caption = richTextView.caption(for: attachment)
+        let detailsViewController = AttachmentDetailsViewController.controller(for: attachment, with: caption)
+        
+        let linkInfo = richTextView.linkInfo(for: attachment)
+        let linkRange = linkInfo?.range
+        let linkUpdateRange = linkRange ?? richTextView.textStorage.ranges(forAttachment: attachment).first!
+        
+        if let linkURL = linkInfo?.url {
+            detailsViewController.linkURL = linkURL
         }
 
-        detailsViewController.onUpdate = { [weak self] (alignment, size, url, linkURL, alt, caption) in
+        detailsViewController.onUpdate = { [weak self] (alignment, size, srcURL, linkURL, alt, caption) in
             guard let `self` = self else {
                 return
             }
 
-            self.richTextView.edit(attachment) { updated in
+            let attachment = self.richTextView.edit(attachment) { attachment in
                 if let alt = alt {
-                    updated.extraAttributes["alt"] = alt
+                    attachment.extraAttributes["alt"] = alt
                 }
 
-                updated.alignment = alignment
-                updated.size = size
-                updated.caption = caption
-
-                updated.updateURL(url)
+                attachment.alignment = alignment
+                attachment.size = size
+                attachment.updateURL(srcURL)
             }
-            // Update associated link
-            if let updatedURL = linkURL {
-                self.richTextView.setLink(updatedURL, inRange: attachmentRange)
-            } else if oldURL != nil && linkURL == nil {
-                self.richTextView.removeLink(inRange: attachmentRange)
+            
+            if let caption = caption, caption.length > 0 {
+                self.richTextView.replaceCaption(for: attachment, with: caption)
+            } else {
+                self.richTextView.removeCaption(for: attachment)
             }
+            
+            if let newLinkURL = linkURL {
+                self.richTextView.setLink(newLinkURL, inRange: linkUpdateRange)
+            } else if linkURL != nil {
+                self.richTextView.removeLink(inRange: linkUpdateRange)
+            }
+        }
+        
+        let selectedRange = richTextView.selectedRange
+        
+        detailsViewController.onDismiss = { [unowned self] in            
+            self.richTextView.becomeFirstResponder()
+            self.richTextView.selectedRange = selectedRange
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        
@@ -1419,6 +1437,8 @@ extension FormattingIdentifier {
             return gridicon(.headingH5)
         case .header6:
             return gridicon(.headingH6)
+        case .code:
+            return gridicon(.posts)
         }
     }
 
@@ -1467,6 +1487,8 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH5"
         case .header6:
             return "formatToolbarToggleH6"
+        case .code:
+            return "formatToolbarCode"
         }
     }
 
@@ -1510,7 +1532,10 @@ extension FormattingIdentifier {
             return NSLocalizedString("Heading 5", comment: "Accessibility label for selecting h5 paragraph style button on the formatting toolbar.")
         case .header6:
             return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
+        case .code:
+            return NSLocalizedString("Code", comment: "Accessibility label for selecting code style button on the formatting toolbar.")
         }
+
     }
 }
 

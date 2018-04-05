@@ -154,7 +154,7 @@ class AttributedStringSerializerTests: XCTestCase {
     /// Verifies that a linked image is properly converted from HTML to attributed string and back to HTML.
     ///
     func testLinkedImageGetsProperlyEncodedAndDecoded() {
-        let inHtml = "<p><a href=\"https://wordpress.com\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\"></a></p>"
+        let inHtml = "<p><a href=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\" class=\"alignnone\"></a></p>"
         
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
@@ -185,11 +185,13 @@ class AttributedStringSerializerTests: XCTestCase {
         // Convert
         let rootNode = RootNode(children: [figureNode])
         let output = attributedString(from: rootNode)
-
-        let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment
-        XCTAssertNotNil(imageAttachment)
-
-        guard let caption = imageAttachment?.caption else {
+        
+        guard let imageAttachment = output.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
+            XCTFail()
+            return
+        }
+    
+        guard let caption = output.caption(for: imageAttachment) else {
             XCTFail()
             return
         }

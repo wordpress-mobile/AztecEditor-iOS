@@ -4,17 +4,12 @@ import UIKit
 /// Composes an attributed string from an HTML tree.
 ///
 class AttributedStringSerializer {
-
-    private let defaultAttributes: [AttributedStringKey: Any]
+    private let defaultAttributes: [NSAttributedStringKey:Any]
 
     // MARK: - Initializers
 
-    required init(defaultAttributes: [AttributedStringKey: Any]) {
+    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
         self.defaultAttributes = defaultAttributes
-    }
-
-    convenience init() {
-        self.init(defaultAttributes: [:])
     }
 
     // MARK: - Conversion
@@ -38,7 +33,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    func serialize(_ node: Node, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    func serialize(_ node: Node, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         switch node {
         case let textNode as TextNode:
             return serialize(textNode, inheriting: attributes)
@@ -59,7 +54,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: TextNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: TextNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let text = sanitizeText(from: node)
         
@@ -84,7 +79,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ node: CommentNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
@@ -99,7 +94,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         guard element.isSupportedByEditor() else {
             return serialize(unsupported: element, inheriting: attributes)
@@ -112,9 +107,9 @@ class AttributedStringSerializer {
         let convertedString = converter.convert(element, inheriting: childAttributes)
         
         content.append(convertedString)
-
+        
         guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: childAttributes)
+            return appendParagraphSeparator(to: content, inheriting: attributes)
         }
 
         return content
@@ -126,7 +121,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         let serializer = DefaultHTMLSerializer()
         let attachment = HTMLAttachment()
 
@@ -138,7 +133,7 @@ class AttributedStringSerializer {
 
     // MARK: - Paragraph Separator
 
-    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> NSAttributedString {
+    private func appendParagraphSeparator(to string: NSAttributedString, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let stringWithSeparator = NSMutableAttributedString(attributedString: string)
 
@@ -166,19 +161,36 @@ class AttributedStringSerializer {
     lazy var strikethroughFormatter = StrikethroughFormatter()
     lazy var underlineFormatter = UnderlineFormatter()
     lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
+    lazy var codeFormatter = CodeFormatter()
 
     // MARK: - Built-in element converter instances
 
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter(using: self)
+    private(set) lazy var genericElementConverter = GenericElementConverter(childrenSerializer: childrenSerializer)
     
-    lazy var brElementConverter = BRElementConverter()
-    lazy var figureElementConverter = FigureElementConverter()
-    lazy var hrElementConverter = HRElementConverter()
-    lazy var imageElementConverter = ImageElementConverter()
-    lazy var videoElementConverter = VideoElementConverter()
+    lazy var childrenSerializer: ElementConverter.ChildrenSerializer = { [weak self] (children, attributes) in
+        let content = NSMutableAttributedString()
+        
+        guard let `self` = self else {
+            return content
+        }
+        
+        for child in children {
+            let nodeString = self.serialize(child, inheriting: attributes)
+            content.append(nodeString)
+        }
+        
+        return content
+    }
+    
+    lazy var brElementConverter = BRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer)
+    lazy var figureElementConverter = FigureElementConverter(childrenSerializer: childrenSerializer)
+    lazy var hrElementConverter = HRElementConverter(childrenSerializer: childrenSerializer)
+    lazy var imageElementConverter = ImageElementConverter(childrenSerializer: childrenSerializer)
+    lazy var videoElementConverter = VideoElementConverter(childrenSerializer: childrenSerializer)
 
     // MARK: - Formatter Maps
 
@@ -205,6 +217,7 @@ class AttributedStringSerializer {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
+            .code: self.codeFormatter
         ]
     }()
 
@@ -220,10 +233,11 @@ class AttributedStringSerializer {
     public lazy var elementConverters: [ElementConverter] = {
         return [
             self.brElementConverter,
+            self.figcaptionElementConverter,
             self.figureElementConverter,
+            self.hrElementConverter,
             self.imageElementConverter,
             self.videoElementConverter,
-            self.hrElementConverter,
         ]
     }()
 
@@ -256,7 +270,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
         guard !(element is RootNode) else {
             return inheritedAttributes
@@ -288,9 +302,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [AttributedStringKey: Any] in
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedStringKey: Any] in
             return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
 
@@ -307,9 +321,9 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
 
-        let attributes: [AttributedStringKey: Any]
+        let attributes: [NSAttributedStringKey: Any]
 
         if let attributeFormatter = formatter(for: attribute) {
             let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
@@ -331,7 +345,7 @@ private extension AttributedStringSerializer {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [AttributedStringKey: Any]) -> [AttributedStringKey: Any] {
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)
@@ -385,7 +399,7 @@ private extension AttributedStringSerializer {
     ///
     func converter(for element: ElementNode) -> ElementConverter {
         let converter = elementConverters.first { converter in
-            converter.canConvert(element: element)
+            return converter.canConvert(element: element)
         }
 
         return converter ?? genericElementConverter

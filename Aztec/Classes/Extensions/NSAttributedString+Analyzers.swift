@@ -6,13 +6,29 @@ import UIKit
 //
 extension NSAttributedString {
 
+    /// Returns true if the text preceding a given location contains the specified attribute key.
+    ///
+    /// - Parameters:
+    ///   - location: location to check
+    ///   - key: the attributed to check
+    /// - Returns: True if the attribute is there
+    ///
+    func isLocation(_ location: Int, preceededBy key: NSAttributedStringKey) -> Bool {
+        guard location != 0 else {
+            return false
+        }
+        let beforeRange = NSRange(location: location - 1, length: 1)
+
+        return attribute(key, at: beforeRange.location, effectiveRange: nil) != nil
+    }
+
     /// Returns true if the text preceding a given location contains the NSLinkAttribute.
     ///
     func isLocationPreceededByLink(_ location: Int) -> Bool {
-        let beforeRange = NSRange(location: location - 1, length: 1)
-        guard beforeRange.location >= 0 else {
+        guard location != 0 else {
             return false
         }
+        let beforeRange = NSRange(location: location - 1, length: 1)
 
         return attribute(.link, at: beforeRange.location, effectiveRange: nil) != nil
     }

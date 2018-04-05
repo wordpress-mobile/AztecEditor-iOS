@@ -98,7 +98,7 @@ class AttributedStringParser {
     ///
     /// - Returns: Array of Node instances.
     ///
-    private func createNodes(from attributes: [AttributedStringKey: Any]) -> [Node] {
+    private func createNodes(from attributes: [NSAttributedStringKey: Any]) -> [Node] {
         let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
 
         return nodes.reversed().reduce([]) { (result, node) in
@@ -312,8 +312,6 @@ private extension AttributedStringParser {
 
     /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
     ///
-    /// - We expect two collections of Mergeable Elements: Paragraph Level, with matching Names + Attributes
-    ///
     func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
         guard let mergeableCandidates = findMergeableNodes(left: left, right: right) else {
             return false
@@ -335,16 +333,23 @@ private extension AttributedStringParser {
     /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
     ///
     private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
-
+        assert(mergeableNodes.count > 0)
+        
         // Business logic: The last mergeable node is never merged, so we need more than 1 node to continue.
         //
-        guard mergeableNodes.count > 1,
-            let lastNodeName = mergeableNodes.last?.left.name
-        else {
+        guard let lastNodeName = mergeableNodes.last?.left.name else {
             return nil
         }
 
-        var mergeCandidates = mergeableNodes.dropLast()
+        var mergeCandidates: ArraySlice<MergeablePair>
+        
+        // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
+        // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
+        if mergeableNodes.last?.left.standardName == .figure {
+            mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
+        } else {
+            mergeCandidates = mergeableNodes.dropLast()
+        }
 
         if lastNodeName != StandardElementType.li.rawValue {
             mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
@@ -444,7 +449,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
+    func createParagraphNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         let paragraphStyle = (attributes[.paragraphStyle] as? ParagraphStyle) ?? ParagraphStyle()
 
         return createParagraphNodes(from: paragraphStyle)
@@ -479,7 +484,15 @@ private extension AttributedStringParser {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
                 paragraphNodes.append(element)
+                
+            case let figcaption as Figcaption:
+                let element = processFigcaptionStyle(figcaption: figcaption)
+                paragraphNodes.append(element)
 
+            case let figure as Figure:
+                let element = processFigureStyle(figure: figure)
+                paragraphNodes.append(element)
+                
             case let header as Header:
                 guard let element = processHeaderStyle(header: header) else {
                     continue
@@ -561,6 +574,38 @@ private extension AttributedStringParser {
         }
 
         return representationElement.toElementNode()
+    }
+    
+    
+    private func processFigcaptionStyle(figcaption: Figcaption) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figcaption.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figcaption)
+        }
+        
+        return element
+    }
+    
+    
+    private func processFigureStyle(figure: Figure) -> ElementNode {
+        
+        let element: ElementNode
+        
+        if let representation = figure.representation,
+            case let .element(representationElement) = representation.kind {
+            
+            element = representationElement.toElementNode()
+        } else {
+            element = ElementNode(type: .figure)
+        }
+        
+        return element
     }
 
 
@@ -649,7 +694,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: Style Nodes contained within the specified collection of attributes
     ///
-    func createStyleNodes(from attributes: [AttributedStringKey: Any]) -> [ElementNode] {
+    func createStyleNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
         if let element = processBold(in: attributes) {
@@ -672,12 +717,16 @@ private extension AttributedStringParser {
             nodes.append(element)
         }
 
+        if let element = processCodeStyle(in: attributes) {
+            nodes.append(element)
+        }
+
         nodes += processUnsupportedHTML(in: attributes)
 
         return nodes
     }
 
-    private func processBold(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+    private func processBold(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitBold) else {
                 return nil
@@ -685,7 +734,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[AttributedStringKey.boldHtmlRepresentation] as? HTMLRepresentation,
+        if let representation = attributes[NSAttributedStringKey.boldHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -697,7 +746,7 @@ private extension AttributedStringParser {
     }
 
 
-    private func processItalic(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+    private func processItalic(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         guard let font = attributes[.font] as? UIFont,
             font.containsTraits(.traitItalic) else {
                 return nil
@@ -705,7 +754,7 @@ private extension AttributedStringParser {
 
         let element: ElementNode
 
-        if let representation = attributes[AttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
+        if let representation = attributes[NSAttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -718,11 +767,11 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
     ///
-    private func processLinkStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+    private func processLinkStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         var urlString = ""
-        if let url = attributes[AttributedStringKey.link] as? URL {
+        if let url = attributes[NSAttributedStringKey.link] as? URL {
             urlString = url.absoluteString
-        } else if let link = attributes[AttributedStringKey.link] as? String {
+        } else if let link = attributes[NSAttributedStringKey.link] as? String {
             urlString = link
         } else {
             return nil
@@ -746,12 +795,12 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Strike Elements contained within a collection of Attributes.
     ///
-    private func processStrikethruStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
-        guard attributes[AttributedStringKey.strikethroughStyle] != nil else {
+    private func processStrikethruStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[NSAttributedStringKey.strikethroughStyle] != nil else {
             return nil
         }
 
-        if let representation = attributes[AttributedStringKey.strikethroughHtmlRepresentation] as? HTMLRepresentation,
+        if let representation = attributes[NSAttributedStringKey.strikethroughHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             return representationElement.toElementNode()
@@ -763,7 +812,7 @@ private extension AttributedStringParser {
 
     /// Extracts all of the Underline Elements contained within a collection of Attributes.
     ///
-    private func processUnderlineStyle(in attributes: [AttributedStringKey: Any]) -> ElementNode? {
+    private func processUnderlineStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
         guard attributes[.underlineStyle] != nil else {
             return nil
         }
@@ -777,10 +826,20 @@ private extension AttributedStringParser {
         return ElementNode(type: .u)
     }
 
+    /// Extracts all of the Code Elements contained within a collection of Attributes.
+    ///
+    private func processCodeStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
+        guard attributes[.codeHtmlRepresentation] is HTMLRepresentation else {
+            return nil
+        }
+
+        return ElementNode(type: .code)
+    }
+
 
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
-    private func processUnsupportedHTML(in attributes: [AttributedStringKey: Any]) -> [ElementNode] {
+    private func processUnsupportedHTML(in attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         guard let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML else {
             return []
         }
@@ -837,7 +896,7 @@ private extension AttributedStringParser {
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(AttributedStringKey.hrHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(NSAttributedStringKey.hrHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -923,17 +982,6 @@ private extension AttributedStringParser {
                 finalValue = baseComponents.union(extraComponents).joined(separator: " ")
             }
             imageElement.updateAttribute(named: key, value: .string(finalValue))
-        }        
-
-        /// Special Case:
-        /// - Extract the ImageAttachment's caption field
-        /// - Create the Caption Element
-        /// - Wrap everything within a Figure tag!
-        ///
-        /// Note that the Figure element is handled by the HTMLFigureFormatter.
-        ///
-        if let figcaptionElement = figcaptionElement(from: attachment) {
-            return ElementNode(type: .figure, attributes: [], children: [imageElement, figcaptionElement])
         }
 
         return imageElement
@@ -950,7 +998,7 @@ private extension AttributedStringParser {
         let element: ElementNode
         let range = attrString.rangeOfEntireString
 
-        if let representation = attrString.attribute(AttributedStringKey.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
+        if let representation = attrString.attribute(.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -1030,9 +1078,7 @@ private extension AttributedStringParser {
     ///
     private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
         var style = String()
-        if attachment.alignment != .center {
-            style += attachment.alignment.htmlString()
-        }
+        style += attachment.alignment.htmlString()        
         
         if attachment.size != .none {
             style += style.isEmpty ? String() : String(.space)
@@ -1062,18 +1108,5 @@ private extension AttributedStringParser {
             Attribute(name: "width", value: .string(widthValue)),
             Attribute(name: "height", value: .string(heightValue))
         ]
-    }
-
-
-    /// Extracts the Figcaption Element from an ImageAttachment Instance.
-    ///
-    private func figcaptionElement(from attachment: ImageAttachment) -> ElementNode? {
-        guard let caption = attachment.caption,
-            let paragraph = AttributedStringParser().parse(caption).firstChild(ofType: .p)
-            else {
-                return nil
-        }
-
-        return ElementNode(type: .figcaption, attributes: [], children: paragraph.children)
     }
 }

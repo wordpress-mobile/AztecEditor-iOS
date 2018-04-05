@@ -5,6 +5,12 @@ import UIKit
 ///
 class VideoElementConverter: AttachmentElementConverter {
     
+    let serializeChildren: ChildrenSerializer
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
+    }
+    
     // MARK: - ElementConverter
     
     func canConvert(element: ElementNode) -> Bool {
@@ -15,7 +21,7 @@ class VideoElementConverter: AttachmentElementConverter {
     
     typealias AttachmentType = VideoAttachment
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: VideoAttachment, string: NSAttributedString) {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> (attachment: VideoAttachment, string: NSAttributedString) {
         let attachment = self.attachment(for: element)
         
         return (attachment, NSAttributedString(attachment: attachment, attributes: attributes))
