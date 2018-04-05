@@ -33,10 +33,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Aztec/Classes/**/*'
   s.resources = 'Aztec/Assets/**/*'
 
-  # For more info about these, see: https://medium.com/swift-and-ios-writing/using-a-c-library-inside-a-swift-framework-d041d7b701d9#.wohyiwj5e
-  # For this to work on local/development pods and outside projects we added two paths one for each scenario. See here: https://github.com/CocoaPods/CocoaPods/issues/5375
-  s.pod_target_xcconfig = {'SWIFT_INCLUDE_PATHS' => '$(SRCROOT)/../../Aztec/Modulemaps/libxml2/** $(PODS_ROOT)/WordPress-Aztec-iOS/Aztec/Modulemaps/libxml2/**'}
-  s.xcconfig = {'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
-  s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
+  s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
+  				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
 
 end
