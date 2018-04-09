@@ -37,6 +37,8 @@
 		CC400F1A1E9EC04200859AB4 /* AztecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F191E9EC04200859AB4 /* AztecUITests.swift */; };
 		CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
+		F122C2572072B07E0018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C2502072AE190018ED06 /* libxml2.tbd */; };
+		F122C2582072B0D60018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C2502072AE190018ED06 /* libxml2.tbd */; };
 		F13CE5421F4DD2520043368D /* CaptionShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */; };
 		F13CE5461F4DD8930043368D /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */; };
 		F13CE5481F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */; };
@@ -146,6 +148,7 @@
 		CC400F1B1E9EC04200859AB4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
 		E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorDemoController.swift; sourceTree = "<group>"; };
+		F122C2502072AE190018ED06 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		F13CE5411F4DD2520043368D /* CaptionShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F13CE5451F4DD8930043368D /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
 		F13CE5471F4DD99D0043368D /* WPVideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WPVideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
@@ -170,6 +173,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F122C2582072B0D60018ED06 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,6 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F122C2572072B07E0018ED06 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +191,7 @@
 		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F122C2502072AE190018ED06 /* libxml2.tbd */,
 				5967193D1D8BC60D00F18F7F /* Gridicons.framework */,
 			);
 			name = Frameworks;
@@ -637,7 +643,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -686,7 +691,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
@@ -887,7 +891,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -983,7 +986,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
