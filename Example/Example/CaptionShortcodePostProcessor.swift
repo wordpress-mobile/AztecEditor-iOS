@@ -25,10 +25,30 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
-            let attributes = shortcode.attributes.toString()
-            let padding = attributes.isEmpty ? "" : " "
+            var attributes = shortcode.attributes.named
+            var imgNode: ElementNode?
 
-            var html = "[caption" + padding + attributes + "]"
+            // Find img child node of caption
+            if coreNode.isNodeType(.img) {
+                imgNode = coreNode
+            } else {
+                imgNode = coreNode.firstChild(ofType: .img)
+            }
+
+            if let imgNode = imgNode {
+                attributes = CaptionShortcodePostProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
+            }
+
+            var attributesHTMLRepresentation: String = " id=\"\""
+            if let idValue = attributes["id"] {
+                attributesHTMLRepresentation = " id=\"\(idValue)\""
+                attributes.removeValue(forKey: "id")
+            }
+            for (key, value) in attributes {
+                attributesHTMLRepresentation += " \(key)=\"\(value)\""
+            }
+
+            var html = "[caption" + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 
@@ -40,5 +60,30 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             
             return html
         }
+    }
+
+    static func captionAttributesFrom(imgNode: ElementNode, basedOn baseAttributes: [String: String]) -> [String: String] {
+        var captionAttributes = baseAttributes
+        let imgAttributes = imgNode.attributes
+        for attribute in imgAttributes {
+            guard attribute.name != "src",
+                let attributeValue = attribute.value.toString() else {
+                    continue
+            }
+
+            if attribute.name == "class" {
+                let classAttributes = attributeValue.components(separatedBy: " ")
+                for classAttribute in classAttributes {
+                    if classAttribute.hasPrefix("wp-image-") {
+                        captionAttributes["id"] = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                    } else if classAttribute.hasPrefix("align"){
+                        captionAttributes["align"] = classAttribute
+                    }
+                }
+            } else {
+                captionAttributes[attribute.name] = attributeValue
+            }
+        }
+        return captionAttributes
     }
 }
