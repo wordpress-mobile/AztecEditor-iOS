@@ -13,7 +13,7 @@ class CaptionShortcodePostProcessorTests: XCTestCase {
     ///
     func testFigureAndFigcaptionAreProperlyConvertedIntoCaptionShortcode() {
         let input = "<figure><img src=\".\"><figcaption>Text</figcaption></figure>"
-        let expected = "[caption]<img src=\".\">Text[/caption]"
+        let expected = "[caption id=\"\"]<img src=\".\">Text[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -23,7 +23,7 @@ class CaptionShortcodePostProcessorTests: XCTestCase {
     ///
     func testFigureTagWithNestedFigcaptionEntitiesIsProperlyConvertedBackIntoCaptionShortcode() {
         let input = "<figure><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
-        let expected = "[caption]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
+        let expected = "[caption id=\"\"]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -36,13 +36,26 @@ class CaptionShortcodePostProcessorTests: XCTestCase {
                         "<img src=\".\"><figcaption>Text</figcaption>" +
                     "</figure>"
 
-        let expected = "[caption align=\"alignleft\" class=\"span data-mce-type=\" id=\"attachment_6\" width=\"300\"]" +
+        let expected = "[caption id=\"attachment_6\" align=\"alignleft\" class=\"span data-mce-type=\" width=\"300\"]" +
                             "<img src=\".\">Text" +
                         "[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
     }
 
+    /// Verifies that a Img Tag (with parameters) gets properly converted into a Caption Shortcode.
+    ///
+    func testImgTagAttributesAreProperlyPassedOntoTheCaptionShortcode() {
+        let input = "<figure>" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\"><figcaption>Text</figcaption>" +
+        "</figure>"
+
+        let expected = "[caption id=\"attachment_6\" align=\"alignleft\" width=\"300\"]" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\">Text" +
+        "[/caption]"
+
+        XCTAssertEqual(processor.process(input), expected)
+    }
 
     /// Verifies that a figure with no figcaption tag does not get converted into a Caption Shortcode.
     ///
