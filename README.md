@@ -9,6 +9,10 @@
 [![License](https://img.shields.io/cocoapods/l/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![Platform](https://img.shields.io/cocoapods/p/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 
+## About Aztec
+
+Aztec is a Swift library that provides a `UITextView` subclass with HTML visual-editing capabilities.
+
 ## Requirements
 
 - iOS 9 and above
