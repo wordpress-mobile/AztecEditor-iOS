@@ -4,15 +4,19 @@
 <img width=200px height=200px src="RepoAssets/aztec.png" alt="Aztec's Logo'"/>
 </p>
 
-[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=57ee5274e349f601000457c7&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/57ee5274e349f601000457c7/build/latest)
+[![Travis](https://travis-ci.org/wordpress-mobile/AztecEditor-iOS.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/AztecEditor-iOS)
 [![Version](https://img.shields.io/cocoapods/v/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![License](https://img.shields.io/cocoapods/l/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![Platform](https://img.shields.io/cocoapods/p/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 
+## About Aztec
+
+Aztec is a Swift library that provides a `UITextView` subclass with HTML visual-editing capabilities.
+
 ## Requirements
 
 - iOS 9 and above
-- Xcode 8
+- Xcode 9.3 and above
 
 ## Running the Example App
 
@@ -65,10 +69,11 @@ import Aztec
 
 // ...
 
-let textView = Aztec.TextView(defaultFont: Constants.defaultContentFont, defaultMissingImage: Constants.defaultMissingImage)
+let textView = Aztec.TextView(
+    defaultFont: UIFont,
+    defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
+    defaultMissingImage: UIImage) {
 ```
-
-Note: Obj-C is not officially supported.
 
 ## License
 
