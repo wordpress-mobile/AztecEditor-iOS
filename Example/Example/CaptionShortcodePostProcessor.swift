@@ -40,23 +40,22 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
                 let imgAttributes = imgNode.attributes
                 for attribute in imgAttributes {
                     guard attribute.name != "src",
-                        var attributeValue = attribute.value.toString() else {
+                        let attributeValue = attribute.value.toString() else {
                         continue
                     }
 
                     if attribute.name == "class" {
                         let classAttributes = attributeValue.components(separatedBy: " ")
-                        var newClassAttributes = [String]()
                         for classAttribute in classAttributes {
-                            if classAttribute.hasPrefix("wp_image_") {
-                                imgId = classAttribute.replacingOccurrences(of: "wp_image_", with: "attachment_")
-                            } else {
-                                newClassAttributes.append(classAttribute)
+                            if classAttribute.hasPrefix("wp-image-") {
+                                imgId = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                            } else if classAttribute.hasPrefix("align"){
+                                attributes["align"] = classAttribute
                             }
                         }
-                        attributeValue = newClassAttributes.joined(separator: " ")
+                    } else {
+                        attributes[attribute.name] = attributeValue
                     }
-                    attributes[attribute.name] = attributeValue
                 }
             }
 
