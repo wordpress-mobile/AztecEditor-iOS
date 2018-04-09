@@ -36,7 +36,7 @@ class CaptionShortcodePostProcessorTests: XCTestCase {
                         "<img src=\".\"><figcaption>Text</figcaption>" +
                     "</figure>"
 
-        let expected = "[caption id=\"\" align=\"alignleft\" class=\"span data-mce-type=\" id=\"attachment_6\" width=\"300\"]" +
+        let expected = "[caption id=\"attachment_6\" align=\"alignleft\" class=\"span data-mce-type=\" width=\"300\"]" +
                             "<img src=\".\">Text" +
                         "[/caption]"
 

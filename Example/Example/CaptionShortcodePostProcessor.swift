@@ -26,7 +26,6 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             ///
             let serializer = DefaultHTMLSerializer()
             var attributes = shortcode.attributes.named
-            var imgId = ""
             var imgNode: ElementNode?
 
             // Find img child node of caption
@@ -37,35 +36,19 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             }
 
             if let imgNode = imgNode {
-                let imgAttributes = imgNode.attributes
-                for attribute in imgAttributes {
-                    guard attribute.name != "src",
-                        let attributeValue = attribute.value.toString() else {
-                        continue
-                    }
-
-                    if attribute.name == "class" {
-                        let classAttributes = attributeValue.components(separatedBy: " ")
-                        for classAttribute in classAttributes {
-                            if classAttribute.hasPrefix("wp-image-") {
-                                imgId = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
-                            } else if classAttribute.hasPrefix("align"){
-                                attributes["align"] = classAttribute
-                            }
-                        }
-                    } else {
-                        attributes[attribute.name] = attributeValue
-                    }
-                }
+                attributes = CaptionShortcodePostProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
             }
 
-            var attributesHTMLRepresentation: String = ""
-
+            var attributesHTMLRepresentation: String = " id=\"\""
+            if let idValue = attributes["id"] {
+                attributesHTMLRepresentation = " id=\"\(idValue)\""
+                attributes.removeValue(forKey: "id")
+            }
             for (key, value) in attributes {
                 attributesHTMLRepresentation += " \(key)=\"\(value)\""
             }
 
-            var html = "[caption id=\"\(imgId)\"" + attributesHTMLRepresentation + "]"
+            var html = "[caption" + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 
@@ -77,5 +60,30 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
             
             return html
         }
+    }
+
+    static func captionAttributesFrom(imgNode: ElementNode, basedOn baseAttributes: [String: String]) -> [String: String] {
+        var captionAttributes = baseAttributes
+        let imgAttributes = imgNode.attributes
+        for attribute in imgAttributes {
+            guard attribute.name != "src",
+                let attributeValue = attribute.value.toString() else {
+                    continue
+            }
+
+            if attribute.name == "class" {
+                let classAttributes = attributeValue.components(separatedBy: " ")
+                for classAttribute in classAttributes {
+                    if classAttribute.hasPrefix("wp-image-") {
+                        captionAttributes["id"] = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                    } else if classAttribute.hasPrefix("align"){
+                        captionAttributes["align"] = classAttribute
+                    }
+                }
+            } else {
+                captionAttributes[attribute.name] = attributeValue
+            }
+        }
+        return captionAttributes
     }
 }
