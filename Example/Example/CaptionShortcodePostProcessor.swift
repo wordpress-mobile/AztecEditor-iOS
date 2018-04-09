@@ -66,9 +66,7 @@ class CaptionShortcodePostProcessor: HTMLProcessor {
                 attributesHTMLRepresentation += " \(key)=\"\(value)\""
             }
 
-            let padding = attributesHTMLRepresentation.isEmpty ? "" : " "
-
-            var html = "[caption id=\"\(imgId)\"" + padding + attributesHTMLRepresentation + "]"
+            var html = "[caption id=\"\(imgId)\"" + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 

@@ -39,7 +39,7 @@ class CaptionShortcodePostProcessorTests: XCTestCase {
         let expected = "[caption id=\"\" align=\"alignleft\" class=\"span data-mce-type=\" id=\"attachment_6\" width=\"300\"]" +
                             "<img src=\".\">Text" +
                         "[/caption]"
-
+        
         XCTAssertEqual(processor.process(input), expected)
     }
 
