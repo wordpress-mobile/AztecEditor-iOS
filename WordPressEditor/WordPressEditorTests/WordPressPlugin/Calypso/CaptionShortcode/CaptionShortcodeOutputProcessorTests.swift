@@ -54,6 +54,26 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
         XCTAssertEqual(processor.process(input), expected)
     }
 
+    /// Verifies that a Img Tag (with parameters) gets properly converted into a Caption Shortcode.
+    ///
+    func testMultipleImgsTagAttributesAreProperlyPassedOntoTheCaptionShortcode() {
+        let input = "<figure>" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\"><figcaption>Text</figcaption>" +
+            "</figure>" +
+            "<figure>" +
+            "<img src=\".\" class=\"alignleft wp-image-7\" width=\"300\"><figcaption>Text 2</figcaption>" +
+            "</figure>"
+
+        let expected = "[caption align=\"alignleft\" id=\"attachment_6\" width=\"300\"]" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\">Text" +
+            "[/caption]" +
+            "[caption align=\"alignleft\" id=\"attachment_7\" width=\"300\"]" +
+            "<img src=\".\" class=\"alignleft wp-image-7\" width=\"300\">Text 2" +
+            "[/caption]"
+
+        XCTAssertEqual(processor.process(input), expected)
+    }
+
     /// Verifies that a figure with no figcaption tag does not get converted into a Caption Shortcode.
     ///
     func testFigureTagIsNotConvertedIntoCaptionShortcodeWheneverThereIsNoTextContent() {
