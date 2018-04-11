@@ -32,9 +32,8 @@ Pod::Spec.new do |s|
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
   s.resources = 'Aztec/Assets/**/*'
-  s.dependency = ‘libxml2’
 
 # s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
-#  				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
+#  				'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
 
 end
