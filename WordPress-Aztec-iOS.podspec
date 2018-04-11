@@ -35,5 +35,6 @@ Pod::Spec.new do |s|
 
 # s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
 #  				'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2'}
+s.preserve_paths = 'Aztec/Modulemaps/libxml2/*'
 
 end
