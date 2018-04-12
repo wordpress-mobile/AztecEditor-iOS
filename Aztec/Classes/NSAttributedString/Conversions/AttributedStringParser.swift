@@ -479,45 +479,7 @@ private extension AttributedStringParser {
         var paragraphNodes = [ElementNode]()
         
         for property in paragraphStyle.properties.reversed() {
-            switch property {
-            case let blockquote as Blockquote:
-                let element = processBlockquoteStyle(blockquote: blockquote)
-                paragraphNodes.append(element)
-                
-            case let figcaption as Figcaption:
-                let element = processFigcaptionStyle(figcaption: figcaption)
-                paragraphNodes.append(element)
-
-            case let figure as Figure:
-                let element = processFigureStyle(figure: figure)
-                paragraphNodes.append(element)
-                
-            case let header as Header:
-                guard let element = processHeaderStyle(header: header) else {
-                    continue
-                }
-
-                paragraphNodes.append(element)
-
-            case let list as TextList:
-                let elements = processListStyle(list: list)
-                paragraphNodes += elements
-
-            case let div as HTMLDiv:
-                let element = processDivStyle(div: div)
-                paragraphNodes.append(element)
-
-            case let paragraph as HTMLParagraph:
-                let element = processParagraphStyle(paragraph: paragraph)
-                paragraphNodes.append(element)
-
-            case let pre as HTMLPre:
-                let element = processPreStyle(pre: pre)
-                paragraphNodes.append(element)
-
-            default:
-                continue
-            }
+            paragraphNodes += createElement(for: property)
         }
         
         if let lastElement = paragraphNodes.last {
@@ -525,6 +487,55 @@ private extension AttributedStringParser {
         }
         
         return paragraphNodes
+    }
+    
+    /// Creates element nodes for the specified paragraph property.
+    ///
+    /// - Parameters:
+    ///     - paragraphProperty: `ParagraphProperty` for which we intend to generate the `ElementNode` objects.
+    ///
+    /// - Returns: `ElementNode` objects representing the specified `ParagraphProperty`.
+    ///
+    private func createElement(for paragraphProperty: ParagraphProperty) -> [ElementNode] {
+        switch paragraphProperty {
+        case let blockquote as Blockquote:
+            let element = processBlockquoteStyle(blockquote: blockquote)
+            return [element]
+            
+        case let figcaption as Figcaption:
+            let element = processFigcaptionStyle(figcaption: figcaption)
+            return [element]
+            
+        case let figure as Figure:
+            let element = processFigureStyle(figure: figure)
+            return [element]
+
+        case let header as Header:
+            guard let element = processHeaderStyle(header: header) else {
+                return []
+            }
+            
+            return [element]
+            
+        case let list as TextList:
+            let elements = processListStyle(list: list)
+            return elements
+            
+        case let div as HTMLDiv:
+            let element = processDivStyle(div: div)
+            return [element]
+            
+        case let paragraph as HTMLParagraph:
+            let element = processParagraphStyle(paragraph: paragraph)
+            return [element]
+            
+        case let pre as HTMLPre:
+            let element = processPreStyle(pre: pre)
+            return [element]
+            
+        default:
+            return []
+        }
     }
     
     /// Processes the paragraph style to figure out the attributes that will be applied to the outermost Element
