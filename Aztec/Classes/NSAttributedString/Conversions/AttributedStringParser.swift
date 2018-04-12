@@ -85,10 +85,9 @@ class AttributedStringParser {
             branches.append(branch)
         }
 
-        let paragraphNodes = createParagraphNodes(from: paragraph)
         let processedBranches = process(branches: branches)
 
-        return reduce(nodes: paragraphNodes, leaves: processedBranches)
+        return processedBranches
     }
 
 
@@ -99,7 +98,7 @@ class AttributedStringParser {
     /// - Returns: Array of Node instances.
     ///
     private func createNodes(from attributes: [NSAttributedStringKey: Any]) -> [Node] {
-        let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
+        let nodes = createStyleNodes(from: attributes)
 
         return nodes.reversed().reduce([]) { (result, node) in
             node.children = result
