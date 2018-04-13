@@ -32,7 +32,7 @@ class CSSParser {
     ///
     private func parse(_ cssAttributes: [String]) -> [CSSAttribute] {
 
-        let attributes = cssAttributes.flatMap { (cssAttribute) -> CSSAttribute? in
+        let attributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
 
             let trimmedAttribute = cssAttribute.trimmingCharacters(in: .whitespacesAndNewlines)
 

@@ -181,7 +181,7 @@ public extension String {
         return utf16.distance(from: utf16.startIndex, to: before16)
     }
 
-    func range(_ range: Range<String.Index>, offsetBy offset: String.IndexDistance) -> Range<String.Index> {
+    func range(_ range: Range<String.Index>, offsetBy offset: Int) -> Range<String.Index> {
 
         let startIndex = index(range.lowerBound, offsetBy: offset)
         let endIndex = index(range.upperBound, offsetBy: offset)
