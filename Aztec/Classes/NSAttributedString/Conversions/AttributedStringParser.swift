@@ -426,6 +426,8 @@ extension AttributedStringParser {
 // MARK: - Paragraph Nodes: Allocation
 //
 private extension AttributedStringParser {
+    
+    typealias ParagraphPropertyConversion = (property: ParagraphProperty, elements: [ElementNode])
 
     /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
     ///
@@ -434,26 +436,14 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
+    func createElements(
+        for paragraph: NSAttributedString,
+        previousParagraphConversions: [ParagraphPropertyConversion]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
+        
         let paragraphStyle = (paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle) ?? ParagraphStyle()
 
-        return createParagraphNodes(from: paragraphStyle)
+        return createElements(for: paragraphStyle, previousParagraphConversions: previousParagraphConversions)
     }
-
-
-    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
-    ///
-    /// - Parameters:
-    ///     - attributes: Paragraph's Attributes from which we intend to extract the ElementNode
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    func createParagraphNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
-        let paragraphStyle = (attributes[.paragraphStyle] as? ParagraphStyle) ?? ParagraphStyle()
-
-        return createParagraphNodes(from: paragraphStyle)
-    }
-
 
     /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
     ///
@@ -462,8 +452,29 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    private func createParagraphNodes(from paragraphStyle: ParagraphStyle) -> [ElementNode] {
+    private func createElements(
+        for paragraphStyle: ParagraphStyle,
+        previousParagraphConversions: [ParagraphPropertyConversion]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
+        
         let extraAttributes = attributes(for: paragraphStyle)
+        
+        return createElements(
+            for: paragraphStyle.properties,
+            previousParagraphConversions: previousParagraphConversions,
+            with: extraAttributes)
+    }
+    
+    /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
+    ///
+    /// - Parameters:
+    ///     - paragraphStyle: ParagraphStyle from which we intend to extract the ElementNode
+    ///
+    /// - Returns: ElementNode representing the specified Paragraph.
+    ///
+    private func createElements(
+        for paragraphProperties: [ParagraphProperty],
+        previousParagraphConversions: [ParagraphPropertyConversion],
+        with extraAttributes: [Attribute]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
         
         // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
         // default.  The reason behind this decision is that no text can exist outside block-level
@@ -472,21 +483,65 @@ private extension AttributedStringParser {
         // See here for more info:
         // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
         //
-        guard paragraphStyle.properties.count > 0 else {
-            return [ElementNode(type: .p, attributes: extraAttributes)]
+        guard paragraphProperties.count > 0 else {
+            let paragraph = [ElementNode(type: .p, attributes: extraAttributes)]
+            let conversions: [ParagraphPropertyConversion] = [(HTMLParagraph(), paragraph)]
+            
+            return (false, conversions)
         }
         
-        var paragraphNodes = [ElementNode]()
+        var mergedWithPreviousParagraph = false
+        var canTryToUseElementFromPreviousParagraph = true
+        var conversions = [ParagraphPropertyConversion]()
         
-        for property in paragraphStyle.properties.reversed() {
-            paragraphNodes += createElement(for: property)
+        for (index, property) in paragraphProperties.reversed().enumerated() {
+            if canTryToUseElementFromPreviousParagraph,
+                previousParagraphConversions.count > index {
+                
+                let previousParagraphConversion = previousParagraphConversions[index]
+                let (merged, newConversion) = createElements(for: property, previousParagraphConversion: previousParagraphConversion)
+                
+                if merged {
+                    mergedWithPreviousParagraph = true
+                } else {
+                    canTryToUseElementFromPreviousParagraph = false
+                }
+                
+                conversions.append(newConversion)
+            } else {
+                canTryToUseElementFromPreviousParagraph = false
+                
+                let elements = createElements(for: property)
+                
+                if index == paragraphProperties.count - 1,
+                    let lastElement = elements.last {
+                    lastElement.attributes.append(contentsOf: extraAttributes)
+                }
+                
+                conversions.append((property, elements))
+            }
         }
         
-        if let lastElement = paragraphNodes.last {
-            lastElement.attributes.append(contentsOf: extraAttributes)
-        }
+        return (mergedWithPreviousParagraph, conversions)
+    }
+    
+    private func createElements(
+        for paragraphProperty: ParagraphProperty,
+        previousParagraphConversion: ParagraphPropertyConversion) -> (merged: Bool, conversion: ParagraphPropertyConversion) {
         
-        return paragraphNodes
+        let previousProperty = previousParagraphConversion.property
+        
+        if paragraphProperty === previousProperty {
+            let previousElements = previousParagraphConversion.elements
+            let newConversion = (paragraphProperty, previousElements)
+            
+            return (true, newConversion)
+        } else {
+            let elements = createElements(for: paragraphProperty)
+            let newConversion = (paragraphProperty, elements)
+            
+            return (false, newConversion)
+        }
     }
     
     /// Creates element nodes for the specified paragraph property.
@@ -496,7 +551,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: `ElementNode` objects representing the specified `ParagraphProperty`.
     ///
-    private func createElement(for paragraphProperty: ParagraphProperty) -> [ElementNode] {
+    private func createElements(for paragraphProperty: ParagraphProperty) -> [ElementNode] {
         switch paragraphProperty {
         case let blockquote as Blockquote:
             let element = processBlockquoteStyle(blockquote: blockquote)
@@ -509,7 +564,7 @@ private extension AttributedStringParser {
         case let figure as Figure:
             let element = processFigureStyle(figure: figure)
             return [element]
-
+            
         case let header as Header:
             guard let element = processHeaderStyle(header: header) else {
                 return []
@@ -518,8 +573,7 @@ private extension AttributedStringParser {
             return [element]
             
         case let list as TextList:
-            let elements = processListStyle(list: list)
-            return elements
+            return processListStyle(list: list)
             
         case let div as HTMLDiv:
             let element = processDivStyle(div: div)
