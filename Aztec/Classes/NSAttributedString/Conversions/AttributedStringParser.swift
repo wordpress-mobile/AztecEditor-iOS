@@ -5,7 +5,9 @@ import libxml2
 /// Parses an attributed string into an HTML tree.
 ///
 class AttributedStringParser {
-
+    
+    typealias ParagraphPropertyConversion = (property: ParagraphProperty, elements: [ElementNode])
+    
     /// Parses an attributed string and returns the corresponding HTML tree.
     ///
     /// - Parameters:
@@ -14,10 +16,27 @@ class AttributedStringParser {
     /// - Returns: the HTML tree.
     ///
     func parse(_ attrString: NSAttributedString) -> RootNode {
-        var nodes = [Node]()
-        var previous: [Node]?
-
+        let rootNode = RootNode()
+        var previousParagraphConversions: [ParagraphPropertyConversion]? = nil
+        
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
+            let conversions = convertParagraphStyleIntoElements(
+                from: attrString,
+                at: paragraphRange.location,
+                previousParagraphConversions: previousParagraphConversions)
+            
+            /// The conversion can return a top element from the previous conversion (when paragraph-level elements merge).
+            /// In that case, we won't add the top element to our root node cos it's already in it.
+            ///
+            if let firstElement = self.firstElement(from: conversions),
+                self.firstElement(from: previousParagraphConversions) !== firstElement {
+                
+                rootNode.children.append(firstElement)
+            }
+            
+            previousParagraphConversions = conversions
+            
+            /*
             let children = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
 
             if let previous = previous {
@@ -31,9 +50,14 @@ class AttributedStringParser {
 
             nodes += children
             previous = children
+ */
         }
 
-        return RootNode(children: nodes)
+        return rootNode
+    }
+    
+    private func firstElement(from conversions: [ParagraphPropertyConversion]?) -> ElementNode? {
+        return conversions?.first?.elements.first
     }
 
 
@@ -427,22 +451,13 @@ extension AttributedStringParser {
 //
 private extension AttributedStringParser {
     
-    typealias ParagraphPropertyConversion = (property: ParagraphProperty, elements: [ElementNode])
+    func convertParagraphStyleIntoElements(
+        from attrString: NSAttributedString,
+        at paragraphStartLocation: Int,
+        previousParagraphConversions: [ParagraphPropertyConversion]?) -> [ParagraphPropertyConversion] {
 
-    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
-    ///
-    /// - Parameters:
-    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    func createElements(
-        for paragraph: NSAttributedString,
-        previousParagraphConversions: [ParagraphPropertyConversion]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
-        
-        let paragraphStyle = (paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle) ?? ParagraphStyle()
-
-        return createElements(for: paragraphStyle, previousParagraphConversions: previousParagraphConversions)
+        let paragraphStyle = attrString.attribute(.paragraphStyle, at: paragraphStartLocation, effectiveRange: nil) as? ParagraphStyle ?? ParagraphStyle()
+        return convertIntoElements(paragraphStyle, previousParagraphConversions: previousParagraphConversions)
     }
 
     /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
@@ -452,14 +467,14 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    private func createElements(
-        for paragraphStyle: ParagraphStyle,
-        previousParagraphConversions: [ParagraphPropertyConversion]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
+    private func convertIntoElements(
+        _ paragraphStyle: ParagraphStyle,
+        previousParagraphConversions: [ParagraphPropertyConversion]?) -> [ParagraphPropertyConversion] {
         
         let extraAttributes = attributes(for: paragraphStyle)
         
-        return createElements(
-            for: paragraphStyle.properties,
+        return convertIntoElements(
+            paragraphStyle.properties,
             previousParagraphConversions: previousParagraphConversions,
             with: extraAttributes)
     }
@@ -471,10 +486,10 @@ private extension AttributedStringParser {
     ///
     /// - Returns: ElementNode representing the specified Paragraph.
     ///
-    private func createElements(
-        for paragraphProperties: [ParagraphProperty],
-        previousParagraphConversions: [ParagraphPropertyConversion],
-        with extraAttributes: [Attribute]) -> (merged: Bool, conversions: [ParagraphPropertyConversion]) {
+    private func convertIntoElements(
+        _ paragraphProperties: [ParagraphProperty],
+        previousParagraphConversions: [ParagraphPropertyConversion]?,
+        with extraAttributes: [Attribute]) -> [ParagraphPropertyConversion] {
         
         // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
         // default.  The reason behind this decision is that no text can exist outside block-level
@@ -485,33 +500,31 @@ private extension AttributedStringParser {
         //
         guard paragraphProperties.count > 0 else {
             let paragraph = [ElementNode(type: .p, attributes: extraAttributes)]
-            let conversions: [ParagraphPropertyConversion] = [(HTMLParagraph(), paragraph)]
+            let conversion: ParagraphPropertyConversion = (HTMLParagraph(), paragraph)
             
-            return (false, conversions)
+            return [conversion]
         }
         
-        var mergedWithPreviousParagraph = false
-        var canTryToUseElementFromPreviousParagraph = true
+        var canTryToUseElementFromPreviousParagraphConversions = true
         var conversions = [ParagraphPropertyConversion]()
         
         for (index, property) in paragraphProperties.reversed().enumerated() {
-            if canTryToUseElementFromPreviousParagraph,
-                previousParagraphConversions.count > index {
+            if let previousParagraphConversions = previousParagraphConversions,
+                previousParagraphConversions.count > index,
+                canTryToUseElementFromPreviousParagraphConversions {
                 
                 let previousParagraphConversion = previousParagraphConversions[index]
-                let (merged, newConversion) = createElements(for: property, previousParagraphConversion: previousParagraphConversion)
+                let (merged, newConversion) = convertIntoElements(property, previousParagraphConversion: previousParagraphConversion)
                 
-                if merged {
-                    mergedWithPreviousParagraph = true
-                } else {
-                    canTryToUseElementFromPreviousParagraph = false
+                if !merged {
+                    canTryToUseElementFromPreviousParagraphConversions = false
                 }
                 
                 conversions.append(newConversion)
             } else {
-                canTryToUseElementFromPreviousParagraph = false
+                canTryToUseElementFromPreviousParagraphConversions = false
                 
-                let elements = createElements(for: property)
+                let elements = convertIntoElements(property)
                 
                 if index == paragraphProperties.count - 1,
                     let lastElement = elements.last {
@@ -522,12 +535,12 @@ private extension AttributedStringParser {
             }
         }
         
-        return (mergedWithPreviousParagraph, conversions)
+        return conversions
     }
     
-    private func createElements(
-        for paragraphProperty: ParagraphProperty,
-        previousParagraphConversion: ParagraphPropertyConversion) -> (merged: Bool, conversion: ParagraphPropertyConversion) {
+    private func convertIntoElements(
+        _ paragraphProperty: ParagraphProperty,
+        previousParagraphConversion: ParagraphPropertyConversion) -> (merged: Bool, conversions: ParagraphPropertyConversion) {
         
         let previousProperty = previousParagraphConversion.property
         
@@ -537,7 +550,7 @@ private extension AttributedStringParser {
             
             return (true, newConversion)
         } else {
-            let elements = createElements(for: paragraphProperty)
+            let elements = convertIntoElements(paragraphProperty)
             let newConversion = (paragraphProperty, elements)
             
             return (false, newConversion)
@@ -551,7 +564,7 @@ private extension AttributedStringParser {
     ///
     /// - Returns: `ElementNode` objects representing the specified `ParagraphProperty`.
     ///
-    private func createElements(for paragraphProperty: ParagraphProperty) -> [ElementNode] {
+    private func convertIntoElements(_ paragraphProperty: ParagraphProperty) -> [ElementNode] {
         switch paragraphProperty {
         case let blockquote as Blockquote:
             let element = processBlockquoteStyle(blockquote: blockquote)
@@ -706,7 +719,7 @@ private extension AttributedStringParser {
             listElement = ElementNode(type: listType)
         }
 
-        return [lineElement, listElement]
+        return [listElement, lineElement]
     }
 
 

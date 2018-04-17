@@ -3,6 +3,22 @@ import XCTest
 
 class AttributedStringParserTests: XCTestCase {
 
+    func testSimpleListStyle() {
+        let attributes = TextListFormatter(style: .ordered).apply(to: [:])
+        let string = NSAttributedString(string: "First element\nSecond Element", attributes: attributes)
+        let rootNode = AttributedStringParser().parse(string)
+        
+        XCTAssertEqual(rootNode.children.count, 1)
+        
+        guard let orderedListElement = rootNode.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(orderedListElement.standardName, .ol)
+        XCTAssertEqual(orderedListElement.children.count, 2)
+    }
+    
+    
     /// Verifies that Bold Style gets effectively mapped.
     ///
     /// - Input: [Bold Style]Bold?[/Bold Style]

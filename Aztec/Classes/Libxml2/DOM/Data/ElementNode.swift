@@ -391,8 +391,8 @@ public class RootNode: ElementNode {
     
     // MARK: - Initializers
 
-    public init(children: [Node]) {
-        super.init(name: type(of: self).name, attributes: [], children: children)
+    public init(children: [Node]? = nil) {
+        super.init(name: type(of: self).name, attributes: [], children: children ?? [])
     }
 
     // MARK: - Overriden Methods
