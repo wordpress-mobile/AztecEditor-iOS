@@ -14,81 +14,83 @@ class EditorDemoController: UIViewController {
     fileprivate(set) lazy var formatBar: Aztec.FormatBar = {
         return self.createToolbar()
     }()
-
-    fileprivate(set) lazy var richTextView: Aztec.TextView = {
-
-        let paragraphStyle = Aztec.ParagraphStyle.default
+    
+    private var richTextView: TextView {
+        get {
+            return editorView.richTextView
+        }
+    }
+    
+    private var htmlTextView: UITextView {
+        get {
+            return editorView.htmlTextView
+        }
+    }
+    
+    fileprivate(set) lazy var editorView: Aztec.EditorView = {
+        let defaultHTMLFont: UIFont
         
-        // This is where you'd normally customize paragraphStyle's values.
+        if #available(iOS 11, *) {
+            defaultHTMLFont = UIFontMetrics.default.scaledFont(for: Constants.defaultContentFont)
+        } else {
+            defaultHTMLFont = Constants.defaultContentFont
+        }
         
-        let textView = Aztec.TextView(
+        let editorView = Aztec.EditorView(
             defaultFont: Constants.defaultContentFont,
-            defaultParagraphStyle: paragraphStyle,
+            defaultHTMLFont: defaultHTMLFont,
+            defaultParagraphStyle: .default,
             defaultMissingImage: Constants.defaultMissingImage)
-
+        
+        setupHTMLTextView(editorView.htmlTextView)
+        setupRichTextView(editorView.richTextView)
+        
+        return editorView
+    }()
+    
+    private func setupRichTextView(_ textView: TextView) {
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
-
+        
         textView.inputProcessor = PipelineProcessor([CaptionShortcodePreProcessor(),
                                                      VideoShortcodePreProcessor(),
                                                      WPVideoShortcodePreProcessor()])
-
+        
         textView.outputProcessor = PipelineProcessor([CaptionShortcodePostProcessor(),
                                                       VideoShortcodePostProcessor()])
-
+        
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
-
+        
         textView.delegate = self
         textView.formattingDelegate = self
         textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
-
+        
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
             textView.smartQuotesType = .no
         }
-
-        return textView
-    }()
-
-    fileprivate(set) lazy var htmlTextView: UITextView = {
-        let defaultFont: UIFont
-
-        if #available(iOS 11, *) {
-            defaultFont = UIFontMetrics.default.scaledFont(for: Constants.defaultContentFont)
-        } else {
-            defaultFont = Constants.defaultContentFont
-        }
-
-        let storage = HTMLStorage(defaultFont: defaultFont)
-        let layoutManager = NSLayoutManager()
-        let container = NSTextContainer()
-
-        storage.addLayoutManager(layoutManager)
-        layoutManager.addTextContainer(container)
-
-        let textView = UITextView(frame: .zero, textContainer: container)
-
+    }
+    
+    private func setupHTMLTextView(_ textView: UITextView) {
         let accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
-
+        
         textView.isHidden = true
         textView.delegate = self
         textView.accessibilityIdentifier = "HTMLContentView"
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
-
+        
         if #available(iOS 10, *) {
             textView.adjustsFontForContentSizeCategory = true
         }
-
+        
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
             textView.smartQuotesType = .no
         }
-
-        return textView
-    }()
+    }
 
     fileprivate(set) lazy var titleTextField: UITextField = {
         let textField = UITextField()
@@ -117,35 +119,9 @@ class EditorDemoController: UIViewController {
         return separatorView
     }()
 
-    fileprivate(set) var editingMode: EditMode = .richText {
-        didSet {
-            view.endEditing(true)
-
-            switch editingMode {
-            case .html:
-                htmlTextView.text = getHTML()
-                htmlTextView.becomeFirstResponder()
-            case .richText:
-                setHTML(htmlTextView.text)
-                richTextView.becomeFirstResponder()
-            }
-
-            richTextView.isHidden = editingMode == .html
-            htmlTextView.isHidden = editingMode == .richText
-        }
-    }
-
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
     let sampleHTML: String?
-
-    func setHTML(_ html: String) {
-        richTextView.setHTML(html)
-    }
-
-    func getHTML() -> String {
-        return richTextView.getHTML()
-    }
 
     fileprivate var optionsViewController: OptionsTableViewController!
 
@@ -184,8 +160,7 @@ class EditorDemoController: UIViewController {
         navigationController?.navigationBar.isTranslucent = false
 
         view.backgroundColor = .white
-        view.addSubview(richTextView)
-        view.addSubview(htmlTextView)
+        view.addSubview(editorView)
         view.addSubview(titleTextField)
         view.addSubview(separatorView)
         configureConstraints()
@@ -199,7 +174,7 @@ class EditorDemoController: UIViewController {
             html = ""
         }
 
-        setHTML(html)
+        editorView.setHTML(html)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -227,7 +202,7 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Title and Title placeholder position methods
     func updateTitlePosition() {
-        let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UIScrollView = editorView.editingMode == .richText ? richTextView : htmlTextView
         titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top) + Constants.titleInsets.top
 
         var contentInset = referenceView.contentInset
@@ -262,22 +237,15 @@ class EditorDemoController: UIViewController {
         NSLayoutConstraint.activate([
             separatorView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 0),
             separatorView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
-            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
+            //separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
         NSLayoutConstraint.activate([
-            richTextView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            richTextView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            richTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 0),
-            richTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0)
-            ])
-
-        NSLayoutConstraint.activate([
-            htmlTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            htmlTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            htmlTextView.topAnchor.constraint(equalTo: richTextView.topAnchor),
-            htmlTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            editorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            editorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            editorView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 0),
+            editorView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
             ])
     }
 
@@ -287,7 +255,6 @@ class EditorDemoController: UIViewController {
         textView.font = Constants.defaultContentFont
         textView.keyboardDismissMode = .interactive
         textView.textColor = UIColor.darkText
-        textView.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private func registerAttachmentImageProviders() {
@@ -306,7 +273,7 @@ class EditorDemoController: UIViewController {
 
     @IBAction func toggleEditingMode() {
         formatBar.overflowToolbar(expand: true)
-        editingMode.toggle()
+        editorView.toggleEditingMode()
     }
 
     fileprivate func dismissOptionsViewControllerIfNecessary() {
@@ -344,7 +311,7 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let referenceView: UIScrollView = editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UIScrollView = editorView.editingMode == .richText ? richTextView : htmlTextView
 
         let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom), right: 0)
         let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom), right: 0)
