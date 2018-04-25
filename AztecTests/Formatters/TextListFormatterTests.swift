@@ -272,7 +272,7 @@ class TextListFormatterTests: XCTestCase {
 
         // Verify we got a single big orderedList
         let ranges = paragraphRanges(inString: list)
-        let lists = ranges.flatMap { list.textListAttribute(spanning: $0) }
+        let lists = ranges.compactMap { list.textListAttribute(spanning: $0) }
 
         XCTAssert(lists[0].style == .ordered)
         XCTAssert(lists[1].style == .ordered)
@@ -503,7 +503,7 @@ private extension TextListFormatterTests
     }
 
     func textListAttributes(inString string: NSAttributedString, atRanges ranges: [NSRange]) -> [TextList] {
-        return ranges.flatMap {
+        return ranges.compactMap {
             string.textListAttribute(spanning: $0)
         }
     }

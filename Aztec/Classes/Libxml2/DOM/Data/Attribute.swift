@@ -115,7 +115,7 @@ extension Attribute {
                 return
             }
 
-            let properties = components.flatMap { CSSAttribute(for: $0) }
+            let properties = components.compactMap { CSSAttribute(for: $0) }
 
             guard !properties.isEmpty else {
                 self = .string(cssString)
