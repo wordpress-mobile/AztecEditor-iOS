@@ -1339,20 +1339,20 @@ private extension EditorDemoController
                 return
             }
 
-            self.richTextView.edit(attachment) { updated in
+            let attachment = self.richTextView.edit(attachment) { attachment in
                 if let alt = alt {
-                    updated.extraAttributes["alt"] = alt
+                    attachment.extraAttributes["alt"] = alt
                 }
 
-                updated.alignment = alignment
-                updated.size = size
-                updated.updateURL(srcURL)
-
-                if let caption = caption, caption.length > 0 {
-                    self.richTextView.replaceCaption(for: attachment, with: caption)
-                } else {
-                    self.richTextView.removeCaption(for: attachment)
-                }
+                attachment.alignment = alignment
+                attachment.size = size
+                attachment.updateURL(srcURL)
+            }
+            
+            if let caption = caption, caption.length > 0 {
+                self.richTextView.replaceCaption(for: attachment, with: caption)
+            } else {
+                self.richTextView.removeCaption(for: attachment)
             }
             
             if let newLinkURL = linkURL {
@@ -1360,6 +1360,13 @@ private extension EditorDemoController
             } else if linkURL != nil {
                 self.richTextView.removeLink(inRange: linkUpdateRange)
             }
+        }
+        
+        let selectedRange = richTextView.selectedRange
+        
+        detailsViewController.onDismiss = { [unowned self] in            
+            self.richTextView.becomeFirstResponder()
+            self.richTextView.selectedRange = selectedRange
         }
 
         let navigationController = UINavigationController(rootViewController: detailsViewController)        

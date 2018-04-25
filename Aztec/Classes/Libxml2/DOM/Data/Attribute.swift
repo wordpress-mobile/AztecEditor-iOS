@@ -7,8 +7,8 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - Attribute Definition Properties
 
-    let name: String
-    var value: Value
+    public let name: String
+    public var value: Value
 
     // MARK: - CSS Support
 
@@ -184,7 +184,7 @@ extension Attribute {
 
         // MARK: - String Representation
 
-        func toString() -> String? {
+        public func toString() -> String? {
             switch(self) {
             case .none:
                 return nil
