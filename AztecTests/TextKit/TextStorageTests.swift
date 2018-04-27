@@ -389,4 +389,37 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(String(), resultHTML)
     }
+
+    func testHRAttributesArePreserved() {
+        let html = "<!-- wp:separator --><hr class=\"custom_hr\"><!-- /wp:separator -->"
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+
+        let resultHTML = storage.getHTML(serializer: serializer)
+
+        XCTAssertEqual(html, resultHTML)
+    }
+
+    func testBlockquoteAttributesArePreserved() {
+        let html = "<blockquote class=\"wp-block-quote\">This is an amazing editor</blockquote>"
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+
+        let resultHTML = storage.getHTML(serializer: serializer)
+
+        XCTAssertEqual(html, resultHTML)
+    }
+
+    func testH2AttributesArePreserved() {
+        let html = "<!-- wp:quote --><h2>This is an amazing editor</h2><!-- /wp:quote -->"
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+
+        let resultHTML = storage.getHTML(serializer: serializer)
+
+        XCTAssertEqual(html, resultHTML)
+    }
 }
