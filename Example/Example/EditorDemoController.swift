@@ -329,7 +329,7 @@ class EditorDemoController: UIViewController {
             return
         }
 
-        let identifiers: [FormattingIdentifier]
+        let identifiers: Set<FormattingIdentifier>
         if richTextView.selectedRange.length > 0 {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
@@ -673,7 +673,7 @@ extension EditorDemoController {
     }
 
     func headerLevelForSelectedText() -> Header.HeaderType {
-        var identifiers = [FormattingIdentifier]()
+        var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
@@ -696,7 +696,7 @@ extension EditorDemoController {
     }
 
     func listTypeForSelectedText() -> TextList.Style? {
-        var identifiers = [FormattingIdentifier]()
+        var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
             identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
