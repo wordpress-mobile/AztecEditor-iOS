@@ -1,5 +1,6 @@
 import Aztec
 import Foundation
+import WordPressEditor
 
 class VideoShortcodePreProcessor: ShortcodeProcessor {
 

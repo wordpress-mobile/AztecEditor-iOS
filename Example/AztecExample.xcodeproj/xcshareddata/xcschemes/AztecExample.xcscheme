@@ -46,6 +46,26 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "607FACE41AFB9204008FA782"
+               BuildableName = "AztecExample-Tests.xctest"
+               BlueprintName = "AztecExample-Tests"
+               ReferencedContainer = "container:AztecExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CC400F161E9EC04200859AB4"
+               BuildableName = "AztecUITests.xctest"
+               BlueprintName = "AztecUITests"
+               ReferencedContainer = "container:AztecExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "5951CB961D8BC93600E1866F"
                BuildableName = "AztecTests.xctest"
                BlueprintName = "AztecTests"
@@ -56,20 +76,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "AztecExample-Tests.xctest"
-               BlueprintName = "AztecExample-Tests"
-               ReferencedContainer = "container:AztecExample.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CC400F161E9EC04200859AB4"
-               BuildableName = "AztecUITests.xctest"
-               BlueprintName = "AztecUITests"
-               ReferencedContainer = "container:AztecExample.xcodeproj">
+               BlueprintIdentifier = "F1D360B52092947500B4E7A5"
+               BuildableName = "WordPressEditorTests.xctest"
+               BlueprintName = "WordPressEditorTests"
+               ReferencedContainer = "container:../WordPressEditor/WordPressEditor.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>

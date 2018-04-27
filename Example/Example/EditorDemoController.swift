@@ -1,11 +1,12 @@
-import Foundation
-import Aztec
-import Gridicons
-import Photos
-import UIKit
-import MobileCoreServices
 import AVFoundation
 import AVKit
+import Aztec
+import Foundation
+import Gridicons
+import MobileCoreServices
+import Photos
+import UIKit
+import WordPressEditor
 
 class EditorDemoController: UIViewController {
 
