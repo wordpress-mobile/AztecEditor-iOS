@@ -41,7 +41,8 @@ class EditorDemoController: UIViewController {
             defaultHTMLFont: defaultHTMLFont,
             defaultParagraphStyle: .default,
             defaultMissingImage: Constants.defaultMissingImage)
-        
+
+        editorView.clipsToBounds = false
         setupHTMLTextView(editorView.htmlTextView)
         setupRichTextView(editorView.richTextView)
         
@@ -65,7 +66,7 @@ class EditorDemoController: UIViewController {
         textView.formattingDelegate = self
         textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
-        
+        textView.clipsToBounds = false
         if #available(iOS 11, *) {
             textView.smartDashesType = .no
             textView.smartQuotesType = .no
@@ -81,7 +82,7 @@ class EditorDemoController: UIViewController {
         textView.accessibilityIdentifier = "HTMLContentView"
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
-        
+        textView.clipsToBounds = false
         if #available(iOS 10, *) {
             textView.adjustsFontForContentSizeCategory = true
         }
@@ -234,6 +235,13 @@ class EditorDemoController: UIViewController {
         var contentInset = referenceView.contentInset
         contentInset.top = titleHeightConstraint.constant + separatorView.frame.height
         referenceView.contentInset = contentInset
+        var scrollInsets = contentInset
+        var rightMargin = (view.frame.maxX - editorView.frame.maxX)
+        if #available(iOS 11.0, *) {
+            rightMargin -= view.safeAreaInsets.right
+        }
+        scrollInsets.right = -rightMargin
+        referenceView.scrollIndicatorInsets = scrollInsets
         if (scrollToStart) {
             referenceView.setContentOffset(CGPoint(x: 0, y: -contentInset.top), animated: true)
         }
@@ -373,7 +381,7 @@ class EditorDemoController: UIViewController {
 
         let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
 
-        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom:keyboardHeight , right: 0)
+        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom:keyboardHeight, right: 0)
         let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
 
         htmlTextView.scrollIndicatorInsets = scrollInsets
