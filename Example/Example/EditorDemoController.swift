@@ -212,7 +212,6 @@ class EditorDemoController: UIViewController {
         super.viewDidAppear(animated)
         //Reanable scroll after setup is done
         editorView.isScrollEnabled = true
-        updateTitlePosition(scrollToStart: true)
     }
 
 
@@ -231,7 +230,7 @@ class EditorDemoController: UIViewController {
     }
 
     // MARK: - Title and Title placeholder position methods
-    func updateTitlePosition(scrollToStart: Bool = false) {
+    func updateTitlePosition() {
         let referenceView: UITextView = editorView.activeView
         titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top)
         titlePlaceholderTopConstraint.constant = titleTextView.textContainerInset.top + titleTextView.contentInset.top
@@ -245,10 +244,7 @@ class EditorDemoController: UIViewController {
             rightMargin -= view.safeAreaInsets.right
         }
         scrollInsets.right = -rightMargin
-        referenceView.scrollIndicatorInsets = scrollInsets
-        if (scrollToStart) {
-            referenceView.setContentOffset(CGPoint(x: 0, y: -contentInset.top), animated: true)
-        }
+        referenceView.scrollIndicatorInsets = scrollInsets        
     }
 
     func updateTitleHeight() {
