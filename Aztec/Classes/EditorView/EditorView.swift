@@ -158,3 +158,18 @@ private extension EditorView {
             ])
     }
 }
+
+// MARK: - Helper methods to set values on both views
+
+public extension EditorView {
+
+    var isScrollEnabled: Bool {
+        set {
+            htmlTextView.isScrollEnabled = newValue
+            richTextView.isScrollEnabled = newValue
+        }
+        get {
+            return activeView.isScrollEnabled
+        }
+    }
+}

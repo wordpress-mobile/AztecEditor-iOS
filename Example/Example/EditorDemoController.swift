@@ -184,6 +184,8 @@ class EditorDemoController: UIViewController {
         view.addSubview(titleTextView)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
+        //Don't allow scroll while the constraints are being setup and text set
+        editorView.isScrollEnabled = false
         configureConstraints()
         registerAttachmentImageProviders()
 
@@ -208,6 +210,8 @@ class EditorDemoController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        //Reanable scroll after setup is done
+        editorView.isScrollEnabled = true
         updateTitlePosition(scrollToStart: true)
     }
 
