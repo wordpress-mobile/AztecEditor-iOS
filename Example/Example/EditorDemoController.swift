@@ -238,13 +238,18 @@ class EditorDemoController: UIViewController {
         var contentInset = referenceView.contentInset
         contentInset.top = titleHeightConstraint.constant + separatorView.frame.height
         referenceView.contentInset = contentInset
-        var scrollInsets = contentInset
+        updateScrollInsets()
+    }
+
+    func updateScrollInsets() {
+        let referenceView: UITextView = editorView.activeView
+        var scrollInsets = referenceView.contentInset
         var rightMargin = (view.frame.maxX - editorView.frame.maxX)
         if #available(iOS 11.0, *) {
             rightMargin -= view.safeAreaInsets.right
         }
         scrollInsets.right = -rightMargin
-        referenceView.scrollIndicatorInsets = scrollInsets        
+        referenceView.scrollIndicatorInsets = scrollInsets
     }
 
     func updateTitleHeight() {
@@ -381,14 +386,10 @@ class EditorDemoController: UIViewController {
 
         let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
 
-        let scrollInsets = UIEdgeInsets(top: referenceView.scrollIndicatorInsets.top, left: 0, bottom:keyboardHeight, right: 0)
         let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
 
-        htmlTextView.scrollIndicatorInsets = scrollInsets
-        htmlTextView.contentInset = contentInset
-
-        richTextView.scrollIndicatorInsets = scrollInsets
-        richTextView.contentInset = contentInset
+        editorView.activeView.contentInset = contentInset
+        updateScrollInsets()
     }
 
 
