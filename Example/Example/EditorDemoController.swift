@@ -228,7 +228,7 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Title and Title placeholder position methods
     func updateTitlePosition(scrollToStart: Bool = false) {
-        let referenceView: UITextView = editorView.editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UITextView = editorView.activeView
         titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top)
         titlePlaceholderTopConstraint.constant = titleTextView.textContainerInset.top + titleTextView.contentInset.top
         titlePlaceholderLeadingConstraint.constant = titleTextView.textContainerInset.left + titleTextView.contentInset.left  + titleTextView.textContainer.lineFragmentPadding
@@ -248,7 +248,7 @@ class EditorDemoController: UIViewController {
     }
 
     func updateTitleHeight() {
-        let referenceView: UITextView = editorView.editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UITextView = editorView.activeView
         let layoutMargins = view.layoutMargins
         let insets = titleTextView.textContainerInset
 
@@ -377,7 +377,7 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let referenceView: UIScrollView = editorView.editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UIScrollView = editorView.activeView
 
         let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
 

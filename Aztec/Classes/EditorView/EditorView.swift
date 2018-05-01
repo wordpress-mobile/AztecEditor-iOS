@@ -102,6 +102,15 @@ public class EditorView: UIView {
     public func setHTML(_ html: String) {
         richTextView.setHTML(html)
     }
+
+    public var activeView: UITextView {
+        switch editingMode {
+        case .html:
+            return htmlTextView
+        case .richText:
+            return richTextView
+        }
+    }
 }
 
 // MARK: - Initial Setup
