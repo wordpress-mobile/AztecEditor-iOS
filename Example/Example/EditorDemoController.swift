@@ -173,8 +173,8 @@ class EditorDemoController: UIViewController {
         } else {
             html = ""
         }
-
         editorView.setHTML(html)
+        editorView.becomeFirstResponder()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -183,6 +183,11 @@ class EditorDemoController: UIViewController {
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateTitlePosition(scrollToStart: true)        
     }
 
 
@@ -201,50 +206,50 @@ class EditorDemoController: UIViewController {
     }
 
     // MARK: - Title and Title placeholder position methods
-    func updateTitlePosition() {
+    func updateTitlePosition(scrollToStart: Bool = false) {
         let referenceView: UIScrollView = editorView.editingMode == .richText ? richTextView : htmlTextView
-        titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top) + Constants.titleInsets.top
-
+        titleTopConstraint.constant = Constants.titleInsets.top  - (referenceView.contentOffset.y + referenceView.contentInset.top)
         var contentInset = referenceView.contentInset
-        contentInset.top = titleHeightConstraint.constant - (Constants.titleInsets.top + Constants.titleInsets.bottom)
+        contentInset.top = titleHeightConstraint.constant + (Constants.titleInsets.top + Constants.titleInsets.bottom) + separatorView.frame.height
         referenceView.contentInset = contentInset
+        if (scrollToStart) {
+            referenceView.setContentOffset(CGPoint(x: 0, y: -contentInset.top), animated: true)
+        }
     }
 
     // MARK: - Configuration Methods
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        var safeInsets = view.layoutMargins
-        safeInsets.top = richTextView.textContainerInset.top
-        richTextView.textContainerInset = safeInsets
-        htmlTextView.textContainerInset = safeInsets
+    override func updateViewConstraints() {
+        updateTitlePosition()
+        super.updateViewConstraints()
     }
 
     private func configureConstraints() {
 
-        titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: titleTextField.font!.lineHeight)
+        titleHeightConstraint = titleTextField.heightAnchor.constraint(equalToConstant: ceil(titleTextField.font!.lineHeight))
+        titleHeightConstraint.isActive = true
         titleTopConstraint = titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: Constants.titleInsets.top)
-        let layoutGuide = view.layoutMarginsGuide
+        titleTopConstraint.isActive = true
+        updateTitlePosition()
+
+        let layoutGuide = view.readableContentGuide
 
         NSLayoutConstraint.activate([
             titleTextField.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 0),
             titleTextField.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
-            titleTopConstraint,
-            titleTextField.bottomAnchor.constraint(equalTo: separatorView.topAnchor,
-                                                   constant: -titleTopConstraint.constant)
+            titleTopConstraint
             ])
 
         NSLayoutConstraint.activate([
             separatorView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 0),
             separatorView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
-            //separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 0),
+            separatorView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: Constants.titleInsets.bottom),
             separatorView.heightAnchor.constraint(equalToConstant: separatorView.frame.height)
             ])
 
         NSLayoutConstraint.activate([
-            editorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            editorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            editorView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 0),
+            editorView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor),
+            editorView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
+            editorView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             editorView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
             ])
     }
