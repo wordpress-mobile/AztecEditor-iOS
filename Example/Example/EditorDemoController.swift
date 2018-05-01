@@ -94,7 +94,6 @@ class EditorDemoController: UIViewController {
 
     fileprivate(set) lazy var titleTextView: UITextView = {
         let textView = UITextView()
-        //textField.placeholder = NSLocalizedString("Enter title here", comment: "Label for the title of the post field. Should be the same as WP core.")
         
         textView.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
         textView.delegate = self
@@ -109,8 +108,26 @@ class EditorDemoController: UIViewController {
         return textView
     }()
 
+    /// Placeholder Label
+    ///
+    fileprivate(set) lazy var titlePlaceholderLabel: UILabel = {
+        let placeholderText = NSLocalizedString("Enter title here", comment: "Post title placeholder")
+        let titlePlaceholderLabel = UILabel()
+
+        let attributes: [NSAttributedStringKey: Any] = [.foregroundColor: UIColor.lightGray, .font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)]
+
+        titlePlaceholderLabel.attributedText = NSAttributedString(string: placeholderText, attributes: attributes)
+        titlePlaceholderLabel.sizeToFit()
+        titlePlaceholderLabel.translatesAutoresizingMaskIntoConstraints = false
+        titlePlaceholderLabel.textAlignment = .natural
+
+        return titlePlaceholderLabel
+    }()
+
     fileprivate var titleHeightConstraint: NSLayoutConstraint!
     fileprivate var titleTopConstraint: NSLayoutConstraint!
+    fileprivate var titlePlaceholderTopConstraint: NSLayoutConstraint!
+    fileprivate var titlePlaceholderLeadingConstraint: NSLayoutConstraint!
 
     fileprivate(set) lazy var separatorView: UIView = {
         let separatorView = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 1))
@@ -164,6 +181,7 @@ class EditorDemoController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(editorView)
         view.addSubview(titleTextView)
+        view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
         configureConstraints()
         registerAttachmentImageProviders()
@@ -209,8 +227,10 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Title and Title placeholder position methods
     func updateTitlePosition(scrollToStart: Bool = false) {
-        let referenceView: UIScrollView = editorView.editingMode == .richText ? richTextView : htmlTextView
+        let referenceView: UITextView = editorView.editingMode == .richText ? richTextView : htmlTextView
         titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top)
+        titlePlaceholderTopConstraint.constant = titleTextView.textContainerInset.top + titleTextView.contentInset.top
+        titlePlaceholderLeadingConstraint.constant = titleTextView.textContainerInset.left + titleTextView.contentInset.left  + titleTextView.textContainer.lineFragmentPadding
         var contentInset = referenceView.contentInset
         contentInset.top = titleHeightConstraint.constant + separatorView.frame.height
         referenceView.contentInset = contentInset
@@ -233,7 +253,7 @@ class EditorDemoController: UIViewController {
         let sizeThatShouldFitTheContent = titleTextView.sizeThatFits(CGSize(width: titleWidth, height: CGFloat.greatestFiniteMagnitude))
         titleHeightConstraint.constant = max(sizeThatShouldFitTheContent.height, titleTextView.font!.lineHeight + insets.top + insets.bottom)
 
-        //textPlaceholderTopConstraint.constant = referenceView.textContainerInset.top + referenceView.contentInset.top
+        titlePlaceholderLabel.isHidden = !titleTextView.text.isEmpty
 
         var contentInset = referenceView.contentInset
         contentInset.top = (titleHeightConstraint.constant + separatorView.frame.height)
@@ -252,6 +272,8 @@ class EditorDemoController: UIViewController {
 
         titleHeightConstraint = titleTextView.heightAnchor.constraint(equalToConstant: ceil(titleTextView.font!.lineHeight))
         titleTopConstraint = titleTextView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0)
+        titlePlaceholderTopConstraint = titlePlaceholderLabel.topAnchor.constraint(equalTo: titleTextView.topAnchor, constant:0)
+        titlePlaceholderLeadingConstraint = titlePlaceholderLabel.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor, constant: 0)
         updateTitlePosition()
         updateTitleHeight()
 
@@ -262,6 +284,12 @@ class EditorDemoController: UIViewController {
             titleTextView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
             titleHeightConstraint,
             titleTopConstraint
+            ])
+
+        NSLayoutConstraint.activate([
+            titlePlaceholderLeadingConstraint,
+            titlePlaceholderLabel.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
+            titlePlaceholderTopConstraint
             ])
 
         NSLayoutConstraint.activate([
