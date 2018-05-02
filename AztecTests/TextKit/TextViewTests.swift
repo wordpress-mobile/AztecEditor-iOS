@@ -148,7 +148,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
     }
 
     func testFormatIdentifiersAtIndex() {
@@ -156,15 +156,15 @@ class TextViewTests: XCTestCase {
 
         var identifiers = textView.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
 
         identifiers = textView.formatIdentifiersAtIndex(0)
