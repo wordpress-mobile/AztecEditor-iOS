@@ -391,9 +391,11 @@ class TextStorageTests: XCTestCase {
     }
 
     func testCommentFollowedByBlockLevelElements() {
-        for blockLevelNodeName in StandardElementType.blockLevelNodeNames {
-            let html = "<!-- comment --><\(blockLevelNodeName) class=\"custom_hr\">Some content</\(blockLevelNodeName)>"
-            let expectedHTML = "<p><!-- comment --></p><\(blockLevelNodeName) class=\"custom_hr\">Some content</\(blockLevelNodeName)>"
+        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        
+        for element in elementsToTest {
+            let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)>"
+            let expectedHTML = "<p><!-- comment --></p><\(element) class=\"custom_hr\">Some content</\(element)>"
             let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)

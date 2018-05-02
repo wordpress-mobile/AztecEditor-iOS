@@ -1810,7 +1810,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(expected, textView.getHTML())
     }
 
     /// This test verifies that attributes on media attachment are being removed properly.
