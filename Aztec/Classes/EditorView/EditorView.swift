@@ -102,6 +102,15 @@ public class EditorView: UIView {
     public func setHTML(_ html: String) {
         richTextView.setHTML(html)
     }
+
+    public var activeView: UITextView {
+        switch editingMode {
+        case .html:
+            return htmlTextView
+        case .richText:
+            return richTextView
+        }
+    }
 }
 
 // MARK: - Initial Setup
@@ -147,5 +156,20 @@ private extension EditorView {
             NSLayoutConstraint(item: richTextView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: 0.0),
             NSLayoutConstraint(item: richTextView, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1.0, constant: 0.0)
             ])
+    }
+}
+
+// MARK: - Helper methods to set values on both views
+
+public extension EditorView {
+
+    var isScrollEnabled: Bool {
+        set {
+            htmlTextView.isScrollEnabled = newValue
+            richTextView.isScrollEnabled = newValue
+        }
+        get {
+            return activeView.isScrollEnabled
+        }
     }
 }
