@@ -83,7 +83,13 @@ class AttributedStringSerializer {
         let attachment = CommentAttachment()
         attachment.text = node.comment
 
-        return NSAttributedString(attachment: attachment, attributes: attributes)
+        let content = NSMutableAttributedString(attachment: attachment, attributes: attributes)
+        
+        guard !node.needsClosingParagraphSeparator() else {
+            return appendParagraphSeparator(to: content, inheriting: attributes)
+        }
+        
+        return content
     }
 
     /// Serializes an `ElementNode`.
