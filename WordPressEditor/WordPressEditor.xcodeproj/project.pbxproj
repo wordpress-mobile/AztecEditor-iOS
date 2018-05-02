@@ -8,13 +8,26 @@
 
 /* Begin PBXBuildFile section */
 		F1D360B72092947500B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */; };
-		F1D360BC2092947500B4E7A5 /* WordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360BB2092947500B4E7A5 /* WordPressTests.swift */; };
 		F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */; };
 		F1D360CD2092967E00B4E7A5 /* CalypsoProcessorIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */; };
 		F1D360F7209297C300B4E7A5 /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360F2209297B400B4E7A5 /* Aztec.framework */; };
 		F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */; };
 		F1D3610E20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */; };
 		F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */; };
+		F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */; };
+		F1D361152092A37600B4E7A5 /* CalypsoProcessorInTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */; };
+		F1D361172092A3FF00B4E7A5 /* CalypsoProcessorOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */; };
+		F1D361192092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */; };
+		F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */; };
+		F1D3611E2093524B00B4E7A5 /* VideoUploadProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3611C2093524B00B4E7A5 /* VideoUploadProcessor.swift */; };
+		F1D361202093525300B4E7A5 /* ImgUploadProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3611F2093525300B4E7A5 /* ImgUploadProcessor.swift */; };
+		F1D361222093529900B4E7A5 /* VideoProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */; };
+		F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */; };
+		F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */; };
+		F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */; };
+		F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */; };
+		F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */; };
+		F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,7 +65,6 @@
 		F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WordPressEditor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1D360B12092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1D360B62092947500B4E7A5 /* WordPressEditorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WordPressEditorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F1D360BB2092947500B4E7A5 /* WordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressTests.swift; sourceTree = "<group>"; };
 		F1D360BD2092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessor.swift; sourceTree = "<group>"; };
 		F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorIn.swift; sourceTree = "<group>"; };
@@ -60,6 +72,20 @@
 		F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+RegEx.swift"; sourceTree = "<group>"; };
 		F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
+		F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorOutTests.swift; sourceTree = "<group>"; };
+		F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorInTests.swift; sourceTree = "<group>"; };
+		F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorOut.swift; sourceTree = "<group>"; };
+		F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
+		F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
+		F1D3611C2093524B00B4E7A5 /* VideoUploadProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoUploadProcessor.swift; sourceTree = "<group>"; };
+		F1D3611F2093525300B4E7A5 /* ImgUploadProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImgUploadProcessor.swift; sourceTree = "<group>"; };
+		F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageAttachment+WordPress.swift"; sourceTree = "<group>"; };
+		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
+		F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "VideoAttachment+WordPress.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,7 +140,12 @@
 		F1D360BA2092947500B4E7A5 /* WordPressEditorTests */ = {
 			isa = PBXGroup;
 			children = (
-				F1D360BB2092947500B4E7A5 /* WordPressTests.swift */,
+				F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */,
+				F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */,
+				F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */,
+				F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */,
+				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
+				F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
 			path = WordPressEditorTests;
@@ -157,7 +188,10 @@
 		F1D360F920929E0700B4E7A5 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */,
+				F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */,
 				F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */,
+				F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -167,8 +201,13 @@
 			children = (
 				F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */,
 				F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */,
+				F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */,
+				F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */,
 				F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */,
+				F1D3611F2093525300B4E7A5 /* ImgUploadProcessor.swift */,
 				F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */,
+				F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */,
+				F1D3611C2093524B00B4E7A5 /* VideoUploadProcessor.swift */,
 			);
 			path = Processors;
 			sourceTree = "<group>";
@@ -305,10 +344,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */,
+				F1D3611E2093524B00B4E7A5 /* VideoUploadProcessor.swift in Sources */,
 				F1D3610E20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift in Sources */,
+				F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */,
+				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
+				F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */,
 				F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */,
+				F1D361172092A3FF00B4E7A5 /* CalypsoProcessorOut.swift in Sources */,
 				F1D360CD2092967E00B4E7A5 /* CalypsoProcessorIn.swift in Sources */,
 				F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */,
+				F1D361192092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift in Sources */,
+				F1D361202093525300B4E7A5 /* ImgUploadProcessor.swift in Sources */,
+				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,7 +363,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1D360BC2092947500B4E7A5 /* WordPressTests.swift in Sources */,
+				F1D361152092A37600B4E7A5 /* CalypsoProcessorInTests.swift in Sources */,
+				F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */,
+				F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */,
+				F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */,
+				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,
+				F1D361222093529900B4E7A5 /* VideoProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,7 +566,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
-				INFOPLIST_FILE = WordPressTests/Info.plist;
+				INFOPLIST_FILE = WordPressEditorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -533,7 +585,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
-				INFOPLIST_FILE = WordPressTests/Info.plist;
+				INFOPLIST_FILE = WordPressEditorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
