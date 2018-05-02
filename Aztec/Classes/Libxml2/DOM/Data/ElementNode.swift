@@ -100,17 +100,12 @@ public class ElementNode: Node {
 
     /// Checks if the specified node requires a closing paragraph separator.
     ///
-    func needsClosingParagraphSeparator() -> Bool {
-
+    override func needsClosingParagraphSeparator() -> Bool {
         guard children.count == 0 else {
             return false
         }
 
-        guard !hasRightBlockLevelSibling() else {
-            return true
-        }
-
-        return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
+        return super.needsClosingParagraphSeparator()
     }
 
     // MARK: - Node Queries

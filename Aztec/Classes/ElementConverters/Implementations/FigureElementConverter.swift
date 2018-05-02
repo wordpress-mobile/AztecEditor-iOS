@@ -26,8 +26,11 @@ class FigureElementConverter: ElementConverter {
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
+        
         let paragraphStyle = attributes.paragraphStyle()
-        paragraphStyle.appendProperty(Figure())
+        paragraphStyle.appendProperty(Figure(with: representation))
         
         var finalAttributes = attributes
         finalAttributes[.paragraphStyle] = paragraphStyle
