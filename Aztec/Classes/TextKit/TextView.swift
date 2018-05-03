@@ -283,10 +283,6 @@ open class TextView: UITextView {
             super.typingAttributes = newValue
         }
     }
-    
-    @objc func setTypingAttributes(_ attributes: [String: Any]) {
-        self.typingAttributes = attributes
-    }
 
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
     /// NSAttributedStringKey. Also known as: what you would expect from the SDK.
