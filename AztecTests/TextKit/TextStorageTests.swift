@@ -404,4 +404,32 @@ class TextStorageTests: XCTestCase {
             XCTAssertEqual(expectedHTML, outputHTML)
         }
     }
+
+    func testElementFollowedByComment() {
+        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+
+        for element in elementsToTest {
+            let html = "<\(element) class=\"custom_hr\"><!-- comment -->Some content</\(element)>"
+            let expectedHTML = "<\(element) class=\"custom_hr\"><!-- comment -->Some content</\(element)>"
+            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+            storage.setHTML(html, defaultAttributes: defaultAttributes)
+            let outputHTML = storage.getHTML(serializer: serializer)
+
+            XCTAssertEqual(expectedHTML, outputHTML)
+        }
+    }
+
+    func testMultipleComments() {
+        let html = "<!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3-->"
+        let expectedHTML = "<p><!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3--></p>"
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML(serializer: serializer)
+
+        XCTAssertEqual(expectedHTML, outputHTML)
+    }
+
+
 }
