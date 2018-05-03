@@ -269,22 +269,6 @@ open class TextView: UITextView {
 
 
     // MARK: - Overwritten Properties
-
-    /// Overrides `selectedTextRange` since it's called whenever the user changes the text selection
-    /// through taps or keyboard arrow keys.
-    ///
-    /// - IMPORTANT: keep in mind this is not triggered the selection change is triggered through typing.
-    ///         Tested in iOS 11 on 2018-05-02.
-    ///
-    override open var selectedTextRange: UITextRange? {
-        get {
-            return super.selectedTextRange
-        }
-        
-        set {
-            super.selectedTextRange = newValue
-        }
-    }
     
     /// Overwrites Typing Attributes:
     /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
@@ -298,6 +282,10 @@ open class TextView: UITextView {
         set {
             super.typingAttributes = newValue
         }
+    }
+    
+    @objc func setTypingAttributes(_ attributes: [String: Any]) {
+        self.typingAttributes = attributes
     }
 
     /// Returns the collection of Typing Attributes, with all of the available 'String' keys properly converted into
@@ -627,7 +615,6 @@ open class TextView: UITextView {
             super.insertText(text)
         }
 
-        //evaluateRemovalOfSingleLineParagraphAttributes(forInput: text)
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
 
         restoreDefaultFontIfNeeded()
@@ -1820,7 +1807,9 @@ private extension TextView {
     ///
     private func removeSingleLineParagraphAttributes() {
         for formatter in type(of: self).singleLineParagraphFormatters {
-            removeAttributes(managedBy: formatter, from: selectedRange)
+            let range = formatter.applicationRange(for: selectedRange, in: textStorage)
+            
+            removeAttributes(managedBy: formatter, from: range)
             removeTypingAttributes(managedBy: formatter)
         }
     }
