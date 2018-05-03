@@ -1787,7 +1787,7 @@ private extension TextView {
         guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
             return
         }
-
+        
         removeSingleLineParagraphAttributes(at: selectedRange)
     }
 

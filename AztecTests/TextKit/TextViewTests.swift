@@ -1033,7 +1033,9 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        let expected = Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator)
+        
+        XCTAssertEqual(textView.text, expected)
     }
 
     /// When deleting the newline between lines 1 and 2 in the following example:
