@@ -139,11 +139,22 @@ open class TextView: UITextView {
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
 
+    // MARK: - Behavior configuration
+    
+    private static let singleLineParagraphFormatters: [AttributeFormatter] = [
+        HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:]),
+        FigureFormatter(placeholderAttributes: [:]),
+        FigcaptionFormatter(placeholderAttributes: [:]),
+    ]
 
     // MARK: - Properties: Text Lists
 
     var maximumListIndentationLevels = 7
-
 
     // MARK: - Properties: UI Defaults
 
@@ -259,6 +270,22 @@ open class TextView: UITextView {
 
     // MARK: - Overwritten Properties
 
+    /// Overrides `selectedTextRange` since it's called whenever the user changes the text selection
+    /// through taps or keyboard arrow keys.
+    ///
+    /// - IMPORTANT: keep in mind this is not triggered the selection change is triggered through typing.
+    ///         Tested in iOS 11 on 2018-05-02.
+    ///
+    override open var selectedTextRange: UITextRange? {
+        get {
+            return super.selectedTextRange
+        }
+        
+        set {
+            super.selectedTextRange = newValue
+        }
+    }
+    
     /// Overwrites Typing Attributes:
     /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
     /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
@@ -600,7 +627,8 @@ open class TextView: UITextView {
             super.insertText(text)
         }
 
-        ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: text)
+        //evaluateRemovalOfSingleLineParagraphAttributes(forInput: text)
+        evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
 
         restoreDefaultFontIfNeeded()
 
@@ -624,6 +652,7 @@ open class TextView: UITextView {
             super.deleteBackward()
         }
 
+        evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
 
@@ -723,7 +752,7 @@ open class TextView: UITextView {
 
     // MARK: - Getting format identifiers
 
-    private let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
+    private static let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
         .underline: UnderlineFormatter(),
@@ -759,7 +788,7 @@ open class TextView: UITextView {
 
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in formatterIdentifiersMap {
+        for (key, formatter) in type(of: self).formatterIdentifiersMap {
             if formatter.present(in: storage, at: range) {
                 identifiers.insert(key)
             }
@@ -783,7 +812,7 @@ open class TextView: UITextView {
         let index = adjustedIndex(index)
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in formatterIdentifiersMap {
+        for (key, formatter) in type(of: self).formatterIdentifiersMap {
             if formatter.present(in: storage, at: index) {
                 identifiers.insert(key)
             }
@@ -801,7 +830,7 @@ open class TextView: UITextView {
         let activeAttributes = typingAttributesSwifted
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in formatterIdentifiersMap where formatter.present(in: activeAttributes) {
+        for (key, formatter) in type(of: self).formatterIdentifiersMap where formatter.present(in: activeAttributes) {
             identifiers.insert(key)
         }
 
@@ -1777,61 +1806,34 @@ private extension TextView {
         return storage.string.isEmptyParagraph(at: range.location)
     }
 
-    // MARK: - WORKAROUND: Removing paragraph styles after entering a newline.
-
-    /// Removes paragraph attributes after a newline has been entered, and we're editing the End of File.
-    ///
-    /// - Parameter input: the text that was just inserted into the TextView.
-    ///
-    func ensureRemovalOfSingleLineParagraphAttributesAfterPressingEnter(input: String) {
-        guard mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: input) else {
+    // MARK: - Single-line attributes logic.
+    
+    private func evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange() {
+        guard storage.string.isEmptyParagraph(at: selectedRange.location) else {
             return
         }
         
-        removeSingleLineParagraphAttributes(at: selectedRange)
+        removeSingleLineParagraphAttributes()
     }
 
-    /// Analyzes whether the conditions are met for single-line paragraph attributes to be removed.
+    /// Removes single-line paragraph attributes.
     ///
-    /// - Parameter input: the text that was just inserted into the TextView.
-    ///
-    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
-    ///
-    private func mustRemoveSingleLineParagraphAttributesAfterPressingEnter(input: String) -> Bool {
-        return input.isEndOfLine()
+    private func removeSingleLineParagraphAttributes() {
+        for formatter in type(of: self).singleLineParagraphFormatters {
+            removeAttributes(managedBy: formatter, from: selectedRange)
+            removeTypingAttributes(managedBy: formatter)
+        }
     }
-
-
-    /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
-    /// is beyond the storage's contents, the typingAttributes will be modified
-    ///
-    private func removeSingleLineParagraphAttributes(at range: NSRange) {
-
-        let formatters: [AttributeFormatter] = [
-            HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
-            HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:]),
-            FigcaptionFormatter(placeholderAttributes: [:]),
-            FigureFormatter(placeholderAttributes: [:])
-        ]
-
-        var updatedTypingAttributes = typingAttributesSwifted
-        var needsRefresh = false
-
-        for formatter in formatters where formatter.present(in: updatedTypingAttributes) {
-            updatedTypingAttributes = formatter.remove(from: updatedTypingAttributes)
-            needsRefresh = true
-
-            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
-            formatter.removeAttributes(from: textStorage, at: applicationRange)
-        }
-
-        if needsRefresh {
-            typingAttributesSwifted = updatedTypingAttributes
-        }
+    
+    // MARK: - Attributes
+    
+    private func removeAttributes(managedBy formatter: AttributeFormatter, from range: NSRange) {
+        let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
+        formatter.removeAttributes(from: textStorage, at: applicationRange)
+    }
+    
+    private func removeTypingAttributes(managedBy formatter: AttributeFormatter) {
+        typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
     }
 
     // MARK: - WORKAROUND: Removing paragraph styles when pressing enter in an empty paragraph
