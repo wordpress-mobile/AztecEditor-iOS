@@ -431,5 +431,20 @@ class TextStorageTests: XCTestCase {
         XCTAssertEqual(expectedHTML, outputHTML)
     }
 
+    func testCommentSurroundingBlockLevelElements() {
+        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+
+        for element in elementsToTest {
+            let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)><!-- comment -->"
+            let expectedHTML = "<p><!-- comment --></p><\(element) class=\"custom_hr\">Some content</\(element)><p><!-- comment --></p>"
+            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+            storage.setHTML(html, defaultAttributes: defaultAttributes)
+            let outputHTML = storage.getHTML(serializer: serializer)
+
+            XCTAssertEqual(expectedHTML, outputHTML)
+        }
+    }
+
 
 }
