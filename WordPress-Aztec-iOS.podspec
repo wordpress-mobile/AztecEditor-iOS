@@ -37,6 +37,8 @@ Pod::Spec.new do |s|
   				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
 
   s.subspec 'WordPressEditor' do |wpeditor|
+    s.source_files = 'WordPressEditor/Classes/**/*'
+    s.resources = 'WordPressEditor/Assets/**/*'
   end
 end
 
