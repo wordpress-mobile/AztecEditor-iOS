@@ -16,6 +16,7 @@ class ViewController: UITableViewController
         rows = [
             DemoRow(title: "Editor Demo", action: { self.showEditorDemo(filename: "content") }),
             DemoRow(title: "Captions Demo", action: { self.showEditorDemo(filename: "captions") }),
+            DemoRow(title: "Gutenberg Sample", action: { self.showEditorDemo(filename: "gutenberg") }),
             DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo() }),
         ]
     }
