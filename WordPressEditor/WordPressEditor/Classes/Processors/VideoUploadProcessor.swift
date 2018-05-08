@@ -7,7 +7,7 @@ public class VideoUploadProcessor: Processor {
     let remoteURLString: String
     let videoPressID: String?
 
-    init(mediaUploadID: String, remoteURLString: String, videoPressID: String?) {
+    public init(mediaUploadID: String, remoteURLString: String, videoPressID: String?) {
         self.mediaUploadID = mediaUploadID
         self.remoteURLString = remoteURLString
         self.videoPressID = videoPressID

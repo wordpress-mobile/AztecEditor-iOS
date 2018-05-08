@@ -21,13 +21,13 @@ class DocumentUploadProcessor: Processor {
         return html
     })
 
-    init(mediaUploadID: String, remoteURLString: String, title: String) {
+    public init(mediaUploadID: String, remoteURLString: String, title: String) {
         self.mediaUploadID = mediaUploadID
         self.remoteURLString = remoteURLString
         self.title = title
     }
 
-    func process(_ text: String) -> String {
+    public func process(_ text: String) -> String {
         return processor.process(text)
     }
 }

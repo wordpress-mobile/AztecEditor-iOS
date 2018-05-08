@@ -6,6 +6,8 @@ import Aztec
 //
 public class CalypsoProcessorOut: CalypsoProcessor {
 
+    public init() {}
+    
     /// Converts the standard-HTML output of Aztec into the hybrid-HTML that WordPress uses to store
     /// posts.
     ///

@@ -8,7 +8,7 @@ public class ImgUploadProcessor: Processor {
     let height: Int?
     let remoteURLString: String
 
-    init(mediaUploadID: String, remoteURLString: String, width: Int?, height: Int?) {
+    public init(mediaUploadID: String, remoteURLString: String, width: Int?, height: Int?) {
         self.mediaUploadID = mediaUploadID
         self.remoteURLString = remoteURLString
         self.width = width

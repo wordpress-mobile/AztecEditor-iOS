@@ -6,6 +6,8 @@ import Aztec
 //
 public class CalypsoProcessorIn: CalypsoProcessor {
 
+    public init() {}
+    
     /// Converts a Calypso-Generated string into Valid HTML that can actually be edited by Aztec.
     ///
     /// This method was a direct migration from:
