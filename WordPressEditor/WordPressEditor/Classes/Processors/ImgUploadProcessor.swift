@@ -1,7 +1,7 @@
 import Foundation
 import Aztec
 
-open class ImgUploadProcessor: Processor {
+public class ImgUploadProcessor: Processor {
 
     let mediaUploadID: String
     let width: Int?

@@ -1,8 +1,8 @@
 import Foundation
 
-class WPVideoShortcodePreProcessor: ShortcodeProcessor {
+public class WPVideoShortcodePreProcessor: ShortcodeProcessor {
 
-    init() {
+    public init() {
         super.init(tag: "wpvideo") { (shortcode) in
             var html = "<video "
             if let src = shortcode.attributes.unamed.first {

@@ -1,7 +1,7 @@
 import Foundation
 import Aztec
 
-open class VideoUploadProcessor: Processor {
+public class VideoUploadProcessor: Processor {
 
     let mediaUploadID: String
     let remoteURLString: String

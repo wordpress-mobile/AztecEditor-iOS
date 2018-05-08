@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - CaptionShortcodePostProcessor: Converts <figure><img><figcaption> structures into a [caption] shortcode.
 //
-open class CaptionShortcodePostProcessor: HTMLProcessor {
+public class CaptionShortcodePostProcessor: HTMLProcessor {
 
     public init() {
         super.init(tag: StandardElementType.figure.rawValue) { shortcode in

@@ -4,7 +4,7 @@ import Aztec
 
 // MARK: - CalypsoProcessorIn
 //
-open class CalypsoProcessorIn: CalypsoProcessor {
+public class CalypsoProcessorIn: CalypsoProcessor {
 
     /// Converts a Calypso-Generated string into Valid HTML that can actually be edited by Aztec.
     ///

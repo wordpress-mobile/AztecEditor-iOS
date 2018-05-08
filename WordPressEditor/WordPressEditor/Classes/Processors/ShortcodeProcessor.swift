@@ -18,7 +18,7 @@ public struct Shortcode {
 
 /// A class that processes a string and replace the designated shortcode for the replacement provided strings
 ///
-open class ShortcodeProcessor: RegexProcessor {
+public class ShortcodeProcessor: RegexProcessor {
 
     public typealias ShortcodeReplacer = (Shortcode) -> String?
 

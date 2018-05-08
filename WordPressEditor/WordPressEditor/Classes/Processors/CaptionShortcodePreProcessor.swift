@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - CaptionShortcodePreProcessor: Converts [caption] shortcode into a <figure><img><figcaption> structure.
 //
-open class CaptionShortcodePreProcessor: ShortcodeProcessor {
+public class CaptionShortcodePreProcessor: ShortcodeProcessor {
 
     struct Constants {
         static let captionTag = "caption"

@@ -1,7 +1,7 @@
 import Foundation
 import Aztec
 
-open class VideoShortcodeProcessor {
+public class VideoShortcodeProcessor {
 
     static public var videoPressScheme = "videopress"
     static public var videoPressHTMLAttribute = "data-wpvideopress"
