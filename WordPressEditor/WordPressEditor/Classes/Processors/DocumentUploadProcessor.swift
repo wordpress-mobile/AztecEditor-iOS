@@ -5,7 +5,7 @@ import Aztec
  Manages the completion of a document upload, by replacing a placeholder attachment image with a
  link to the uploaded document.
  */
-class DocumentUploadProcessor: Processor {
+public class DocumentUploadProcessor: Processor {
 
     private let mediaUploadID: String
     private let remoteURLString: String
