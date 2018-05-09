@@ -1,7 +1,7 @@
 import Aztec
 import Foundation
 
-public class VideoShortcodePostProcessor: Aztec.HTMLProcessor {
+public class VideoShortcodePostProcessor: HTMLProcessor {
 
     public init() {
         super.init(tag:"video") { (shortcode) in

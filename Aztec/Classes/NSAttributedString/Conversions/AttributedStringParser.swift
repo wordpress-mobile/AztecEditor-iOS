@@ -351,8 +351,8 @@ private extension AttributedStringParser {
             mergeCandidates = mergeableNodes.dropLast()
         }
 
-        if lastNodeName != StandardElementType.li.rawValue {
-            mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
+        if lastNodeName != Element.li.rawValue {
+            mergeCandidates = prefix(upToLast: Element.li.rawValue, from: mergeCandidates)
         }
         
         return mergeCandidates.last
@@ -629,7 +629,7 @@ private extension AttributedStringParser {
     /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
     private func processListStyle(list: TextList) -> [ElementNode] {
-        let listType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
+        let listType = list.style == .ordered ? Element.ol : Element.ul
 
         let listElement: ElementNode
         let lineElement = ElementNode(type: .li)

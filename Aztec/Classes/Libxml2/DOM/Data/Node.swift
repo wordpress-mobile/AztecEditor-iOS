@@ -40,7 +40,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
 
     // MARK: - DOM Queries
     
-    func hasAncestor(ofType type: StandardElementType) -> Bool {
+    func hasAncestor(ofType type: Element) -> Bool {
         var ancestor: ElementNode? = parent
         
         while let currentAncestor = ancestor {

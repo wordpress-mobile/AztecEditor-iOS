@@ -391,7 +391,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testCommentFollowedByBlockLevelElements() {
-        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
         
         for element in elementsToTest {
             let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)>"
@@ -406,7 +406,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testElementFollowedByComment() {
-        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
 
         for element in elementsToTest {
             let html = "<\(element) class=\"custom_hr\"><!-- comment -->Some content</\(element)>"
@@ -432,7 +432,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testCommentSurroundingBlockLevelElements() {
-        let elementsToTest: [StandardElementType] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
 
         for element in elementsToTest {
             let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)><!-- comment -->"

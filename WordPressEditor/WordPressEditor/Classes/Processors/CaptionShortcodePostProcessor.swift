@@ -6,7 +6,7 @@ import Foundation
 public class CaptionShortcodePostProcessor: HTMLProcessor {
 
     public init() {
-        super.init(tag: StandardElementType.figure.rawValue) { shortcode in
+        super.init(tag: Element.figure.rawValue) { shortcode in
             guard let payload = shortcode.content else {
                 return nil
             }

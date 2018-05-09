@@ -204,7 +204,7 @@ class AttributedStringSerializer {
         return [:]
     }()
 
-    public lazy var elementFormattersMap: [StandardElementType: AttributeFormatter] = {
+    public lazy var elementFormattersMap: [Element: AttributeFormatter] = {
         return [
             .blockquote: self.blockquoteFormatter,
             .div: self.divFormatter,

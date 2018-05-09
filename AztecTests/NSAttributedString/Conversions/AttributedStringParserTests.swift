@@ -88,14 +88,14 @@ class AttributedStringParserTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual(paragraph.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraph.name, Element.p.rawValue)
         XCTAssertEqual(paragraph.children.count, 1)
 
         guard let underlined = paragraph.children.first as? ElementNode else {
             XCTFail()
             return
         }
-        XCTAssertEqual(underlined.name, StandardElementType.u.rawValue)
+        XCTAssertEqual(underlined.name, Element.u.rawValue)
         XCTAssertEqual(underlined.children.count, 1)
 
         guard let text = underlined.children.first as? TextNode else {
@@ -129,7 +129,7 @@ class AttributedStringParserTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual(strike.name, StandardElementType.strike.rawValue)
+        XCTAssertEqual(strike.name, Element.strike.rawValue)
         XCTAssertEqual(strike.children.count, 1)
 
         guard let text = strike.children.first as? TextNode else {
@@ -161,14 +161,14 @@ class AttributedStringParserTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual(paragraph.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraph.name, Element.p.rawValue)
         XCTAssertEqual(paragraph.children.count, 1)
 
         guard let link = paragraph.children.first as? ElementNode else {
             XCTFail()
             return
         }
-        XCTAssertEqual(link.name, StandardElementType.a.rawValue)
+        XCTAssertEqual(link.name, Element.a.rawValue)
         XCTAssertEqual(link.children.count, 1)
 
         guard let text = link.children.first as? TextNode else {
@@ -281,7 +281,7 @@ class AttributedStringParserTests: XCTestCase {
         XCTAssertEqual(node.children.count, 1)
 
         guard let paragraph = node.children.first as? ElementNode,
-            paragraph.name == StandardElementType.p.rawValue else {
+            paragraph.name == Element.p.rawValue else {
                 XCTFail()
                 return
         }
@@ -724,11 +724,11 @@ class AttributedStringParserTests: XCTestCase {
         XCTAssert(node.children.count == 1)
 
         let paragraphElement = node.children.first as? ElementNode
-        XCTAssertEqual(paragraphElement?.name, StandardElementType.p.rawValue)
+        XCTAssertEqual(paragraphElement?.name, Element.p.rawValue)
         XCTAssertEqual(paragraphElement?.children.count, 1)
 
         let restoredSpanNode = paragraphElement?.children.first as? ElementNode
-        XCTAssert(restoredSpanNode?.name == StandardElementType.span.rawValue)
+        XCTAssert(restoredSpanNode?.name == Element.span.rawValue)
         XCTAssert(restoredSpanNode?.children.count == 1)
 
         let restoredTextNode = restoredSpanNode?.children.first as? TextNode
