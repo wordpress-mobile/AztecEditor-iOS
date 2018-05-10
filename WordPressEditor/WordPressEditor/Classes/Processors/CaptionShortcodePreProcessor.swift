@@ -4,13 +4,13 @@ import Foundation
 
 // MARK: - CaptionShortcodePreProcessor: Converts [caption] shortcode into a <figure><img><figcaption> structure.
 //
-class CaptionShortcodePreProcessor: ShortcodeProcessor {
+public class CaptionShortcodePreProcessor: ShortcodeProcessor {
 
     struct Constants {
         static let captionTag = "caption"
     }
 
-    init() {
+    public init() {
         super.init(tag: Constants.captionTag) { shortcode in
             guard let payloadText = shortcode.content else {
                 return nil
