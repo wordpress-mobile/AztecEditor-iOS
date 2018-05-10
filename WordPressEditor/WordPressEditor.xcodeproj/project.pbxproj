@@ -23,7 +23,6 @@
 		F1D361172092A3FF00B4E7A5 /* CalypsoProcessorOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */; };
 		F1D361192092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */; };
 		F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */; };
-		F1D361222093529900B4E7A5 /* VideoProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */; };
 		F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */; };
 		F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */; };
 		F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */; };
@@ -83,7 +82,6 @@
 		F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorOut.swift; sourceTree = "<group>"; };
 		F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
 		F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
-		F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProcessorTests.swift; sourceTree = "<group>"; };
 		F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessorTests.swift; sourceTree = "<group>"; };
 		F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessorTests.swift; sourceTree = "<group>"; };
 		F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessorTests.swift; sourceTree = "<group>"; };
@@ -149,7 +147,6 @@
 				F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */,
 				F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */,
 				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
-				F1D361212093529900B4E7A5 /* VideoProcessorTests.swift */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
 			path = WordPressEditorTests;
@@ -376,7 +373,6 @@
 				F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */,
 				F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */,
 				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,
-				F1D361222093529900B4E7A5 /* VideoProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
