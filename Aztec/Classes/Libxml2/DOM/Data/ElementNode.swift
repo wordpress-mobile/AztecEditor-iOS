@@ -100,17 +100,12 @@ public class ElementNode: Node {
 
     /// Checks if the specified node requires a closing paragraph separator.
     ///
-    func needsClosingParagraphSeparator() -> Bool {
-
+    override func needsClosingParagraphSeparator() -> Bool {
         guard children.count == 0 else {
             return false
         }
 
-        guard !hasRightBlockLevelSibling() else {
-            return true
-        }
-
-        return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
+        return super.needsClosingParagraphSeparator()
     }
 
     // MARK: - Node Queries
@@ -266,7 +261,7 @@ public class ElementNode: Node {
     /// - Returns: the first child in the children collection, that matches the specified type.
     ///
     public func firstChild(ofType type: StandardElementType) -> ElementNode? {
-        let elements = children.flatMap { node in
+        let elements = children.compactMap { node in
             return node as? ElementNode
         }
 

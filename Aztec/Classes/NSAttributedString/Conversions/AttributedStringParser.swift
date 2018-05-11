@@ -198,8 +198,8 @@ private extension AttributedStringParser {
             return nil
         }
 
-        let mergeableLeftNodes = mergeableCandidate.flatMap { $0.left }
-        let mergeableRightNodes = mergeableCandidate.flatMap { $0.right }
+        let mergeableLeftNodes = mergeableCandidate.compactMap { $0.left }
+        let mergeableRightNodes = mergeableCandidate.compactMap { $0.right }
 
         // Reduce: Non Mergeable Right Subtree
         let nonMergeableRightNodesSet = Set(right.nodes).subtracting(mergeableRightNodes)

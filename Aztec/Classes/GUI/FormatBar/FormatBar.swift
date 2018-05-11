@@ -160,7 +160,7 @@ open class FormatBar: UIView {
 
         let allItems = items
         let leadingItemCount = leadingItem != nil ? 1 : 0
-        guard visibleItemCount < (defaultItems.flatMap({ $0 }).count + leadingItemCount) else { return [] }
+        guard visibleItemCount < (defaultItems.compactMap({ $0 }).count + leadingItemCount) else { return [] }
 
         return allItems.suffix(from: visibleItemCount)
     }

@@ -148,7 +148,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
     }
 
     func testFormatIdentifiersAtIndex() {
@@ -156,15 +156,15 @@ class TextViewTests: XCTestCase {
 
         var identifiers = textView.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
 
         identifiers = textView.formatIdentifiersAtIndex(0)
@@ -793,7 +793,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p> Header</p>")
+        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><h1> Header</h1>")
     }
 
 
@@ -996,7 +996,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator) )
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed) )
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -1033,7 +1033,9 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        let expected = Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed)
+        
+        XCTAssertEqual(textView.text, expected)
     }
 
     /// When deleting the newline between lines 1 and 2 in the following example:
@@ -1259,7 +1261,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
 
@@ -1445,7 +1447,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
 
@@ -1789,7 +1791,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("Three")
 
         let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(), expected)
     }
 
     /// This test verifies that H1 Style doesn't turn rogue (Scenario #2), and come back after editing a line
@@ -1810,7 +1812,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(), expected)
     }
 
     /// This test verifies that attributes on media attachment are being removed properly.
