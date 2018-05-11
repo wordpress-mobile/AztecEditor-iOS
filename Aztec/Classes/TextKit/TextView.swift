@@ -199,8 +199,15 @@ open class TextView: UITextView {
     /// before Aztec attempts to parse it.
     ///
     public var inputProcessor: Processor?
+    
+    /// This processor will be executed right before the HTML is converted to `NSAttributedString`.
+    ///
     public var inputTreeProcessor: HTMLTreeProcessor?
 
+    /// This processor will be executed right before the HTML is converted to the output-HTML string.
+    ///
+    public var outputTreeProcessor: HTMLTreeProcessor?
+    
     /// This processor will be executed right before returning the HTML in `getHTML()`.
     ///
     public var outputProcessor: Processor?
@@ -693,7 +700,8 @@ open class TextView: UITextView {
     /// - Returns: The HTML version of the current Attributed String.
     ///
     @objc public func getHTML() -> String {
-        let pristineHTML = storage.getHTML(serializer: outputSerializer)
+        let pristineHTML = storage.getHTML(htmlTreeProcessor: outputTreeProcessor,
+                                           serializer: outputSerializer)
         let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
 
         return processedHTML
@@ -716,7 +724,7 @@ open class TextView: UITextView {
         
         storage.setHTML(processedHTML,
                         defaultAttributes: defaultAttributes,
-                        postProcessingHTMLWith: inputTreeProcessor)
+                        htmlTreeProcessor: inputTreeProcessor)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
