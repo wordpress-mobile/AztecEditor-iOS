@@ -1,32 +1,37 @@
 import Foundation
 import UIKit
 
-
 /// This enum provides a list of HTML5 standard element names.  The reason why this isn't
 /// used as the `name` property of `ElementNode` is that element nodes could theoretically
 /// have non-standard names.
 ///
 public struct Element: RawRepresentable, Hashable {
+    
     public typealias RawValue = String
     
-    /// This is initially empty but will be populated as all elements are initialized.
-    /// This can be used to map a specific raw value to its Element.
-    ///
-    private(set) static var elements: [String: Element] = [:]
-    
-    public let isBlockLevel: Bool
     public let rawValue: String
     
-    public init(_ rawValue: RawValue, isBlockLevel: Bool = false) {
-        self.isBlockLevel = isBlockLevel
-        self.rawValue = rawValue
-        
-        Element.elements[rawValue] = self
-    }
+    /// This can be extended in case new elements need to be defined.
+    ///
+    public static var blockLevelElements: [Element] = [.address, .blockquote, .div, .dl, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
+    
+    // MARK: - Initializers
     
     public init?(rawValue: RawValue) {
-        self.init(rawValue, isBlockLevel: false)
+        self.init(rawValue)
     }
+    
+    public init(_ rawValue: RawValue, isBlockLevel: Bool = false) {
+        self.rawValue = rawValue
+    }
+    
+    public func isBlockLevel() -> Bool {
+        return Element.blockLevelElements.contains(self)
+    }
+}
+
+private extension Element {
+    static let aztecRootNode = Element("aztec.htmltag.rootnode", isBlockLevel: true)
 }
 
 /// Standard HTML 5 elements
@@ -80,11 +85,7 @@ extension Element {
 
 extension Element {
     static func isBlockLevelElement(_ name: String) -> Bool {
-        guard let element = elements[name] else {
-            return false
-        }
-        
-        return element.isBlockLevel
+        return Element(name).isBlockLevel()
     }
 
     var equivalentNames: [String] {

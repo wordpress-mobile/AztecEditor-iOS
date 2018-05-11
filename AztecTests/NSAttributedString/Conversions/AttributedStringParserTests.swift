@@ -2,6 +2,11 @@ import XCTest
 @testable import Aztec
 
 class AttributedStringParserTests: XCTestCase {
+    
+    override func setUp() {
+        // A lot of the tests below should really bail on failure, because otherwise they'll crash.
+        continueAfterFailure = false
+    }
 
     /// Verifies that Bold Style gets effectively mapped.
     ///
@@ -196,27 +201,40 @@ class AttributedStringParserTests: XCTestCase {
 
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let list = node.children.first as? ElementNode
-        XCTAssertEqual(list?.name, "ul")
-        guard list?.children.count == 2 else {
+        guard let list = node.children.first as? ElementNode else {
             XCTFail()
             return
         }
+        XCTAssertEqual(list.name, "ul")
+        XCTAssertEqual(list.children.count, 2)
 
-        let firstListItem = list?.children[0] as? ElementNode
-        let secondListItem = list?.children[1] as? ElementNode
-        XCTAssertEqual(firstListItem?.name, "li")
-        XCTAssertEqual(secondListItem?.name, "li")
-        XCTAssert(firstListItem?.children.count == 1)
-        XCTAssert(secondListItem?.children.count == 1)
+        guard let firstListItem = list.children[0] as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(firstListItem.name, "li")
+        XCTAssertEqual(firstListItem.children.count, 1)
+        
+        guard let secondListItem = list.children[1] as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(secondListItem.name, "li")
+        XCTAssertEqual(secondListItem.children.count, 1)
 
-        let firstTextItem = firstListItem?.children.first as? TextNode
-        let secondTextItem = secondListItem?.children.first as? TextNode
-
-        XCTAssertEqual(firstTextItem?.contents, firstText)
-        XCTAssertEqual(secondTextItem?.contents, secondText)
+        guard let firstTextItem = firstListItem.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(firstTextItem.contents, firstText)
+        
+        guard let secondTextItem = secondListItem.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(secondTextItem.contents, secondText)
     }
 
 
@@ -593,7 +611,7 @@ class AttributedStringParserTests: XCTestCase {
         let firstText = "First Line"
         let secondText = "Second Line"
 
-        let text = firstText + String(.lineFeed) + secondText
+        let text = firstText + String(.paragraphSeparator) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: Constants.sampleAttributes)
         let testingRange = testingString.rangeOfEntireString
 
@@ -602,7 +620,7 @@ class AttributedStringParserTests: XCTestCase {
 
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
         guard let unorderedElementNode = node.children.first as? ElementNode,
             unorderedElementNode.name == "ul",
@@ -925,9 +943,9 @@ class AttributedStringParserTests: XCTestCase {
     }
 
 
-    /// Verifies that Images with it's caption field get properly wrapped within a figure element.
+    /// Verifies that Images with their caption field get properly wrapped within a figure element.
     ///
-    /// - Input: Image Attachment, with it's caption set.
+    /// - Input: Image Attachment and a caption.
     ///
     /// - Output: <figure><img src="."><figcaption>Hello!</figcaption></figure>
     ///
@@ -938,15 +956,18 @@ class AttributedStringParserTests: XCTestCase {
         let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
-        let figureNode = node.firstChild(ofType: .figure)
-        XCTAssertEqual(figureNode?.children.count, 2)
+        guard let figureNode = node.firstChild(ofType: .figure) else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(figureNode.children.count, 2)
 
-        let imageNode = figureNode?.firstChild(ofType: .img)
+        let imageNode = figureNode.firstChild(ofType: .img)
         XCTAssertNotNil(imageNode)
 
-        let figcaptionNode = figureNode?.firstChild(ofType: .figcaption)
+        let figcaptionNode = figureNode.firstChild(ofType: .figcaption)
         XCTAssertNotNil(figcaptionNode)
     }
 

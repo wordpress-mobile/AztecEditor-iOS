@@ -394,8 +394,8 @@ class TextStorageTests: XCTestCase {
         let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
         
         for element in elementsToTest {
-            let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)>"
-            let expectedHTML = "<p><!-- comment --></p><\(element) class=\"custom_hr\">Some content</\(element)>"
+            let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
+            let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
             let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
@@ -409,8 +409,8 @@ class TextStorageTests: XCTestCase {
         let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
 
         for element in elementsToTest {
-            let html = "<\(element) class=\"custom_hr\"><!-- comment -->Some content</\(element)>"
-            let expectedHTML = "<\(element) class=\"custom_hr\"><!-- comment -->Some content</\(element)>"
+            let html = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
+            let expectedHTML = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
             let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
@@ -435,8 +435,8 @@ class TextStorageTests: XCTestCase {
         let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
 
         for element in elementsToTest {
-            let html = "<!-- comment --><\(element) class=\"custom_hr\">Some content</\(element)><!-- comment -->"
-            let expectedHTML = "<p><!-- comment --></p><\(element) class=\"custom_hr\">Some content</\(element)><p><!-- comment --></p>"
+            let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><!-- comment -->"
+            let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><p><!-- comment --></p>"
             let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
