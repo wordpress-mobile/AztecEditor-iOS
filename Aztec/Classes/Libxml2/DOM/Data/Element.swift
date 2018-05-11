@@ -13,7 +13,7 @@ public struct Element: RawRepresentable, Hashable {
     
     /// This can be extended in case new elements need to be defined.
     ///
-    public static var blockLevelElements: [Element] = [.address, .blockquote, .div, .dl, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
+    public static var blockLevelElements: [Element] = [.address, .aztecRootNode, .blockquote, .div, .dl, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
     
     // MARK: - Initializers
     
@@ -21,7 +21,7 @@ public struct Element: RawRepresentable, Hashable {
         self.init(rawValue)
     }
     
-    public init(_ rawValue: RawValue, isBlockLevel: Bool = false) {
+    public init(_ rawValue: RawValue) {
         self.rawValue = rawValue
     }
     
@@ -31,54 +31,54 @@ public struct Element: RawRepresentable, Hashable {
 }
 
 private extension Element {
-    static let aztecRootNode = Element("aztec.htmltag.rootnode", isBlockLevel: true)
+    static let aztecRootNode = Element("aztec.htmltag.rootnode")
 }
 
 /// Standard HTML 5 elements
 ///
 extension Element {
     public static let a = Element("a")
-    public static let address = Element("address", isBlockLevel: true)
+    public static let address = Element("address")
     public static let b = Element("b")
     public static let br = Element("br")
-    public static let blockquote = Element("blockquote", isBlockLevel: true)
+    public static let blockquote = Element("blockquote")
     public static let dd = Element("dd")
     public static let del = Element("del")
-    public static let div = Element("div", isBlockLevel: true)
-    public static let dl = Element("dl", isBlockLevel: true)
+    public static let div = Element("div")
+    public static let dl = Element("dl")
     public static let dt = Element("dt")
     public static let em = Element("em")
-    public static let fieldset = Element("fieldset", isBlockLevel: true)
-    public static let figure = Element("figure", isBlockLevel: true)
-    public static let figcaption = Element("figcaption", isBlockLevel: true)
-    public static let form = Element("form", isBlockLevel: true)
-    public static let h1 = Element("h1", isBlockLevel: true)
-    public static let h2 = Element("h2", isBlockLevel: true)
-    public static let h3 = Element("h3", isBlockLevel: true)
-    public static let h4 = Element("h4", isBlockLevel: true)
-    public static let h5 = Element("h5", isBlockLevel: true)
-    public static let h6 = Element("h6", isBlockLevel: true)
-    public static let hr = Element("hr", isBlockLevel: true)
+    public static let fieldset = Element("fieldset")
+    public static let figure = Element("figure")
+    public static let figcaption = Element("figcaption")
+    public static let form = Element("form")
+    public static let h1 = Element("h1")
+    public static let h2 = Element("h2")
+    public static let h3 = Element("h3")
+    public static let h4 = Element("h4")
+    public static let h5 = Element("h5")
+    public static let h6 = Element("h6")
+    public static let hr = Element("hr")
     public static let i = Element("i")
     public static let img = Element("img")
-    public static let li = Element("li", isBlockLevel: true)
-    public static let noscript = Element("noscript", isBlockLevel: true)
-    public static let ol = Element("ol", isBlockLevel: true)
-    public static let p = Element("p", isBlockLevel: true)
-    public static let pre = Element("pre", isBlockLevel: true)
+    public static let li = Element("li")
+    public static let noscript = Element("noscript")
+    public static let ol = Element("ol")
+    public static let p = Element("p")
+    public static let pre = Element("pre")
     public static let s = Element("s")
     public static let span = Element("span")
     public static let strike = Element("strike")
     public static let strong = Element("strong")
-    public static let table = Element("table", isBlockLevel: true)
+    public static let table = Element("table")
     public static let tbody = Element("tbody")
-    public static let td = Element("td", isBlockLevel: true)
+    public static let td = Element("td")
     public static let tfoot = Element("tfoot")
     public static let th = Element("th")
     public static let thead = Element("thead")
-    public static let tr = Element("tr", isBlockLevel: true)
+    public static let tr = Element("tr")
     public static let u = Element("u")
-    public static let ul = Element("ul", isBlockLevel: true)
+    public static let ul = Element("ul")
     public static let video = Element("video")
     public static let code = Element("code")
 }

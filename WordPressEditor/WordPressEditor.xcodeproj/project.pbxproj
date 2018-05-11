@@ -29,6 +29,7 @@
 		F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */; };
 		F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */; };
 		F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */; };
+		F1D91E2D20A53BB800E0B7F4 /* GutenbergPreProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D91E2C20A53BB800E0B7F4 /* GutenbergPreProcessorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +89,7 @@
 		F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "VideoAttachment+WordPress.swift"; sourceTree = "<group>"; };
+		F1D91E2C20A53BB800E0B7F4 /* GutenbergPreProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergPreProcessorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 				F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */,
 				F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */,
 				F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */,
+				F1D91E2C20A53BB800E0B7F4 /* GutenbergPreProcessorTests.swift */,
 				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
@@ -370,6 +373,7 @@
 			files = (
 				F1D361152092A37600B4E7A5 /* CalypsoProcessorInTests.swift in Sources */,
 				F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */,
+				F1D91E2D20A53BB800E0B7F4 /* GutenbergPreProcessorTests.swift in Sources */,
 				F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */,
 				F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */,
 				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,
