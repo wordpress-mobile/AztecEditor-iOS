@@ -139,6 +139,8 @@ public class Node: Equatable, CustomReflectable, Hashable {
                 return true
             } else if let textNode = node as? TextNode {
                 return textNode.length() > 0
+            } else if node is CommentNode {
+                return true
             }
 
             return false

@@ -346,7 +346,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - HTML Interaction
 
     open func getHTML(
-        htmlTreeProcessor: HTMLTreeProcessor?,
+        htmlTreeProcessor: HTMLTreeProcessor? = nil,
         serializer: HTMLSerializer) -> String {
         
         let parser = AttributedStringParser()
