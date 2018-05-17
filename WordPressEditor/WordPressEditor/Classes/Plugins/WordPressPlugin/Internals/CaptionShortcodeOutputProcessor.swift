@@ -1,11 +1,11 @@
 import Aztec
 import Foundation
 
-// MARK: - CaptionShortcodePostProcessor: Converts <figure><img><figcaption> structures into a [caption] shortcode.
-//
-public class CaptionShortcodePostProcessor: HTMLProcessor {
+/// Converts <figure><img><figcaption> structures into a [caption] shortcode.
+///
+class CaptionShortcodeOutputProcessor: HTMLProcessor {
 
-    public init() {
+    init() {
         super.init(tag: StandardElementType.figure.rawValue) { shortcode in
             guard let payload = shortcode.content else {
                 return nil
@@ -35,7 +35,7 @@ public class CaptionShortcodePostProcessor: HTMLProcessor {
             }
 
             if let imgNode = imgNode {
-                attributes = CaptionShortcodePostProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
+                attributes = CaptionShortcodeOutputProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
             }
 
             var attributesHTMLRepresentation: String = " id=\"\""

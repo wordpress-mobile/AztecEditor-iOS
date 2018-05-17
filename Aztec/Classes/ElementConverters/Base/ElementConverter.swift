@@ -4,7 +4,7 @@ import UIKit
 /// ElementConverters take an HTML Element that don't have a textual representation and return a special value to
 /// represent it (e.g. `<img>` or `<video>`). To apply a style to a piece of text, use `AttributeFormatter`.
 ///
-protocol ElementConverter {
+public protocol ElementConverter {
     
     typealias ChildrenSerializer = (_: [Node], _ inheriting: [NSAttributedStringKey:Any]) -> NSAttributedString
     
