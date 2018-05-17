@@ -1,6 +1,9 @@
 import Foundation
 
 protocol Plugin {
-    func preProcessor() -> Processor?
-    func postProcessor() -> Processor?
+    var inputHTMLProcessor: Processor? { get }
+    var outputHTMLProcessor: Processor? { get }
+    var inputHTMLTreeProcessor: HTMLTreeProcessor? { get }
+    var outputHTMLTreeProcessor: HTMLTreeProcessor? { get }
+    var elementConverter: ElementConverter? { get }
 }

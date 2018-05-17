@@ -6,32 +6,39 @@ class ViewController: UITableViewController
 {
 
     let cellIdentifier = "CellIdentifier"
-    var rows:[DemoRow]!
+    var sections: [DemoSection]!
 
     // MARK: LifeCycle Methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        rows = [
-            DemoRow(title: "Editor Demo", action: { self.showEditorDemo(filename: "content") }),
-            DemoRow(title: "Captions Demo", action: { self.showEditorDemo(filename: "captions") }),
-            DemoRow(title: "Gutenberg Sample", action: { self.showEditorDemo(filename: "gutenberg") }),
-            DemoRow(title: "Empty Editor Demo", action: { self.showEditorDemo() }),
+        sections = [
+            DemoSection(title: "Plain HTML Editor", rows: [
+                DemoRow(title: "Standard Demo", action: { self.showEditorDemo(filename: "content") }),
+                DemoRow(title: "Captions Demo", action: { self.showEditorDemo(filename: "captions") }),
+                DemoRow(title: "Empty Demo", action: { self.showEditorDemo() })
+                ]
+            ),
+            DemoSection(title: "WordPressEditor (Calypso & Gutenberg)", rows: [
+                DemoRow(title: "Standard Demo", action: { self.showEditorDemo(filename: "content", wordPressMode: true) }),
+                DemoRow(title: "Empty Demo", action: { self.showEditorDemo() })
+                ]
+            ),
         ]
     }
 
     // MARK: Actions
 
-    func showEditorDemo(filename: String? = nil) {
+    func showEditorDemo(filename: String? = nil, wordPressMode: Bool = false) {
         let controller: EditorDemoController
             
         if let filename = filename {
             let sampleHTML = getSampleHTML(fromHTMLFileNamed: filename)
 
-            controller = EditorDemoController(withSampleHTML: sampleHTML)
+            controller = EditorDemoController(withSampleHTML: sampleHTML, wordPressMode: wordPressMode)
         } else {
-            controller = EditorDemoController()
+            controller = EditorDemoController(wordPressMode: wordPressMode)
         }
         
         navigationController?.pushViewController(controller, animated: true)
@@ -54,31 +61,46 @@ class ViewController: UITableViewController
     
     // MARK: TableView Methods
 
-
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return sections.count
     }
 
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rows.count
+        return sections[section].rows.count
     }
-
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)!
         cell.accessoryType = .disclosureIndicator
 
-        let row = rows[indexPath.row]
+        let row = sections[indexPath.section].rows[indexPath.row]
         cell.textLabel?.text = row.title
 
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let textView = UITextView()
+        
+        textView.font = UIFont.boldSystemFont(ofSize: 14)
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.text = sections[section].title
+        textView.backgroundColor = UIColor.lightGray
+        
+        return textView
     }
 
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        rows[indexPath.row].action()
+        
+        sections[indexPath.section].rows[indexPath.row].action()
     }
 
 }
@@ -86,6 +108,10 @@ class ViewController: UITableViewController
 
 typealias RowAction = () -> Void
 
+struct DemoSection {
+    var title: String
+    var rows: [DemoRow]
+}
 
 struct DemoRow {
     var title: String

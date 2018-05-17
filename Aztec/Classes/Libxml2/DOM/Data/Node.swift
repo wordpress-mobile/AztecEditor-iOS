@@ -65,7 +65,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
     }
 
     func isLastIn(blockLevelElement element: ElementNode) -> Bool {
-        return element.isBlockLevelElement() && element.children.last === self
+        return element.isBlockLevel() && element.children.last === self
     }
 
     /// Checks if the receiver is the last node in its parent.
@@ -118,11 +118,11 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
 
         return isLastInParent() &&
-            (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
+            (parent.isBlockLevel() || parent.isLastInBlockLevelAncestor())
     }
 
     func hasRightBlockLevelSibling() -> Bool {
-        if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevelElement() {
+        if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevel() {
             return true
         } else {
             return false
@@ -151,7 +151,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
 
         return parent.children[lastChildIndex] === self
-            && (parent.isBlockLevelElement()
+            && (parent.isBlockLevel()
                 || parent.hasRightBlockLevelSibling()
                 || parent.isLastInAncestorEndingInBlockLevelSeparation())
     }

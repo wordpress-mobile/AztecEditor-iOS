@@ -7,6 +7,8 @@ public extension Element {
 
 public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
     
+    public init() {}
+    
     public func process(_ rootNode: RootNode) {
         
         // We're enumerating in reverse, since this loop can replace the current node with

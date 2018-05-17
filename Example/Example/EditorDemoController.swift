@@ -53,6 +53,11 @@ class EditorDemoController: UIViewController {
     private func setupRichTextView(_ textView: TextView) {
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
         
+        if wordPressMode {
+            textView.inputTreeProcessor = GutenbergInputHTMLTreeProcessor()
+            textView.outputTreeProcessor = GutenbergOutputHTMLTreeProcessor()
+        }
+        
         textView.inputProcessor = PipelineProcessor([CaptionShortcodePreProcessor(),
                                                      VideoShortcodePreProcessor(),
                                                      WPVideoShortcodePreProcessor()])
@@ -143,20 +148,24 @@ class EditorDemoController: UIViewController {
     fileprivate var currentSelectedAttachment: MediaAttachment?
 
     let sampleHTML: String?
+    let wordPressMode: Bool
 
     fileprivate var optionsViewController: OptionsTableViewController!
 
 
     // MARK: - Lifecycle Methods
 
-    init(withSampleHTML sampleHTML: String? = nil) {
+    init(withSampleHTML sampleHTML: String? = nil, wordPressMode: Bool) {
+        
         self.sampleHTML = sampleHTML
+        self.wordPressMode = wordPressMode
         
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
         sampleHTML = nil
+        wordPressMode = false
         
         super.init(coder: aDecoder)
     }

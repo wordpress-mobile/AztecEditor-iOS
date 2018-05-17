@@ -1,10 +1,8 @@
-import UIKit
+import Aztec
+import Foundation
 
+class GutenblockConverter: ElementConverter {
 
-/// Converts a generic element to `NSAttributedString`.  Should only be used if a specific converter is not found.
-///
-class GenericElementConverter: ElementConverter {
-    
     let serializeChildren: ChildrenSerializer
     
     required init(childrenSerializer: @escaping ChildrenSerializer) {
@@ -14,7 +12,7 @@ class GenericElementConverter: ElementConverter {
     // MARK: - ElementConverter
     
     func canConvert(element: ElementNode) -> Bool {
-        return true
+        return element.standardName == .gutenblock
     }
     
     func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
@@ -26,4 +24,3 @@ class GenericElementConverter: ElementConverter {
         return serializeChildren(element.children, attributes)
     }
 }
-

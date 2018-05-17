@@ -411,7 +411,7 @@ extension AttributedStringParser {
         var nextElement = childPicker(nodes) as? ElementNode
 
         while let currentElement = nextElement {
-            guard currentElement.isBlockLevelElement() else {
+            guard currentElement.isBlockLevel() else {
                 break
             }
 

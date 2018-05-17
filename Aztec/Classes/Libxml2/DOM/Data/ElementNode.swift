@@ -189,7 +189,7 @@ public class ElementNode: Node {
         }
 
         if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
-           return lastChild.isBlockLevelElement()
+           return lastChild.isBlockLevel()
         }
 
         return false
@@ -199,7 +199,7 @@ public class ElementNode: Node {
     ///
     /// - Returns: `true` if this is a block-level element.  `false` otherwise.
     ///
-    public func isBlockLevelElement() -> Bool {
+    public func isBlockLevel() -> Bool {
         return Element.isBlockLevelElement(name)
     }
 

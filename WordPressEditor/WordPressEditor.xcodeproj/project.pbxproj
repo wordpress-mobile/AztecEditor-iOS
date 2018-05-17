@@ -10,6 +10,7 @@
 		F170D4FB20A0A56E00975077 /* WPVideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4F820A0A56E00975077 /* WPVideoShortcodePreProcessor.swift */; };
 		F170D4FD20A0A57F00975077 /* VideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4FC20A0A57F00975077 /* VideoShortcodePreProcessor.swift */; };
 		F170D4FF20A0A58400975077 /* VideoShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4FE20A0A58400975077 /* VideoShortcodePostProcessor.swift */; };
+		F182574520ADD1C2007FCEAE /* GutenblockConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F182574220ADD1C2007FCEAE /* GutenblockConverter.swift */; };
 		F1D360B72092947500B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */; };
 		F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */; };
 		F1D360CD2092967E00B4E7A5 /* CalypsoProcessorIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */; };
@@ -68,6 +69,7 @@
 		F170D4F820A0A56E00975077 /* WPVideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WPVideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F170D4FC20A0A57F00975077 /* VideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F170D4FE20A0A58400975077 /* VideoShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePostProcessor.swift; sourceTree = "<group>"; };
+		F182574220ADD1C2007FCEAE /* GutenblockConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenblockConverter.swift; sourceTree = "<group>"; };
 		F184163E20A3429E00563CB2 /* GutenbergPreProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergPreProcessor.swift; sourceTree = "<group>"; };
 		F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WordPressEditor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1D360B12092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -216,6 +218,7 @@
 				F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */,
 				F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */,
 				F1D91E3520A5F58900E0B7F4 /* GutenbergOutputHTMLTreeProcessor.swift */,
+				F182574220ADD1C2007FCEAE /* GutenblockConverter.swift */,
 				F184163E20A3429E00563CB2 /* GutenbergPreProcessor.swift */,
 				F1D91E3020A5565400E0B7F4 /* GutenbergPostProcessor.swift */,
 				F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */,
@@ -359,6 +362,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */,
+				F182574520ADD1C2007FCEAE /* GutenblockConverter.swift in Sources */,
 				F1D3610E20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift in Sources */,
 				F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,

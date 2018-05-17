@@ -84,6 +84,9 @@ open class TextStorage: NSTextStorage {
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate var textStoreString = ""
 
+    // MARK: - Conversions
+    
+    let parser = AttributedStringParser()
 
     // MARK: - Delegates
 
@@ -349,8 +352,7 @@ open class TextStorage: NSTextStorage {
         htmlTreeProcessor: HTMLTreeProcessor? = nil,
         serializer: HTMLSerializer) -> String {
         
-        let parser = AttributedStringParser()
-        let rootNode = parser.parse(self)
+        let rootNode = parser.parse(textStore)
         
         if let htmlTreeProcessor = htmlTreeProcessor {
             htmlTreeProcessor.process(rootNode)
