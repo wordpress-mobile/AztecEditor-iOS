@@ -138,7 +138,7 @@ open class TextView: UITextView {
     /// Formatting Delegate: to be used by the Edition's Format Bar.
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
-
+    
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
@@ -191,26 +191,14 @@ open class TextView: UITextView {
         
         return attributes
     }
-
-
-    // MARK: - Properties: Processors
-
-    /// This processor will be executed on any HTML you provide to the method `setHTML()` and
-    /// before Aztec attempts to parse it.
-    ///
-    public var inputProcessor: Processor?
     
-    /// This processor will be executed right before the HTML is converted to `NSAttributedString`.
-    ///
-    public var inputTreeProcessor: HTMLTreeProcessor?
-
-    /// This processor will be executed right before the HTML is converted to the output-HTML string.
-    ///
-    public var outputTreeProcessor: HTMLTreeProcessor?
+    // MARK: - Plugin Loading
     
-    /// This processor will be executed right before returning the HTML in `getHTML()`.
-    ///
-    public var outputProcessor: Processor?
+    public func load(_ plugin: Plugin) {
+        storage.pluginsManager.load(plugin)
+    }
+
+    // MARK: - Output Serialization
 
     /// Serializes the DOM Tree into an HTML String.
     ///
@@ -700,11 +688,7 @@ open class TextView: UITextView {
     /// - Returns: The HTML version of the current Attributed String.
     ///
     @objc public func getHTML() -> String {
-        let pristineHTML = storage.getHTML(htmlTreeProcessor: outputTreeProcessor,
-                                           serializer: outputSerializer)
-        let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
-
-        return processedHTML
+        return storage.getHTML(serializer: outputSerializer)
     }
 
     /// Loads the specified HTML into the editor.
@@ -712,8 +696,6 @@ open class TextView: UITextView {
     /// - Parameter html: The raw HTML we'd be editing.
     ///
     @objc public func setHTML(_ html: String) {
-        let processedHTML = inputProcessor?.process(html) ?? html
-        
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
@@ -722,9 +704,7 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(processedHTML,
-                        defaultAttributes: defaultAttributes,
-                        htmlTreeProcessor: inputTreeProcessor)
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
@@ -1765,7 +1745,6 @@ open class TextView: UITextView {
         return attachment
     }
 }
-
 
 // MARK: - Single line attributes removal
 //

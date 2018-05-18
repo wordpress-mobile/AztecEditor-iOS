@@ -1,16 +1,15 @@
 import Aztec
 import Foundation
 
-
-// MARK: - CaptionShortcodePreProcessor: Converts [caption] shortcode into a <figure><img><figcaption> structure.
-//
-public class CaptionShortcodePreProcessor: ShortcodeProcessor {
+/// Converts [caption] shortcode into a <figure><img><figcaption> structure.
+///
+class CaptionShortcodeInputProcessor: ShortcodeProcessor {
 
     struct Constants {
         static let captionTag = "caption"
     }
 
-    public init() {
+    init() {
         super.init(tag: Constants.captionTag) { shortcode in
             guard let payloadText = shortcode.content else {
                 return nil

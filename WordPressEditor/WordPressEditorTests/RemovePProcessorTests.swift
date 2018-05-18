@@ -1,12 +1,9 @@
 import XCTest
 @testable import WordPressEditor
 
+class RemovePProcessorTests: XCTestCase {
 
-// MARK: - CalypsoProcessorOutTests
-//
-class CalypsoProcessorOutTests: XCTestCase {
-
-    let processor = CalypsoProcessorOut()
+    let processor = RemovePProcessor()
 
     /// Verifies that strings containing emoji characters do not result in data loss.
     ///
@@ -23,14 +20,6 @@ class CalypsoProcessorOutTests: XCTestCase {
         let expected = "Test &amp; Test 😊\nlalalalala"
         let output = processor.process(input)
 
-        XCTAssertEqual(output, expected)
-    }
-
-    func testGutenbergPostDoesNotStripParagraphs() {
-        let input = "<!-- wp:someblock --><p>Hello there</p><!-- /wp:someblock -->"
-        let expected = input
-
-        let output = processor.process(input)
         XCTAssertEqual(output, expected)
     }
 }

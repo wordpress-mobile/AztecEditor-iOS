@@ -53,17 +53,7 @@ class EditorDemoController: UIViewController {
     private func setupRichTextView(_ textView: TextView) {
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
         
-        if wordPressMode {
-            textView.inputTreeProcessor = GutenbergInputHTMLTreeProcessor()
-            textView.outputTreeProcessor = GutenbergOutputHTMLTreeProcessor()
-        }
-        
-        textView.inputProcessor = PipelineProcessor([CaptionShortcodePreProcessor(),
-                                                     VideoShortcodePreProcessor(),
-                                                     WPVideoShortcodePreProcessor()])
-        
-        textView.outputProcessor = PipelineProcessor([CaptionShortcodePostProcessor(),
-                                                      VideoShortcodePostProcessor()])
+        textView.load(WordPressPlugin())
         
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
@@ -419,6 +409,12 @@ class EditorDemoController: UIViewController {
     }
 
     override var keyCommands: [UIKeyCommand] {
+        if titleTextView.isFirstResponder {
+            return [
+                UIKeyCommand(input: "\t", modifierFlags: [], action: #selector(tabOnTitle))
+            ]
+        }
+        
         if richTextView.isFirstResponder {
             return [ UIKeyCommand(input:"B", modifierFlags: .command, action:#selector(toggleBold), discoverabilityTitle:NSLocalizedString("Bold", comment: "Discoverability title for bold formatting keyboard shortcut.")),
                      UIKeyCommand(input:"I", modifierFlags: .command, action:#selector(toggleItalic), discoverabilityTitle:NSLocalizedString("Italic", comment: "Discoverability title for italic formatting keyboard shortcut.")),
@@ -931,7 +927,13 @@ extension EditorDemoController {
 
         insertAction.isEnabled = !urlFieldText.isEmpty
     }
-
+    
+    @objc func tabOnTitle() {
+        let activeTextView = editorView.activeView
+        
+        activeTextView.becomeFirstResponder()
+        activeTextView.selectedTextRange = activeTextView.textRange(from: activeTextView.endOfDocument, to: activeTextView.endOfDocument)
+    }
 
     @objc func showImagePicker() {
         let picker = UIImagePickerController()

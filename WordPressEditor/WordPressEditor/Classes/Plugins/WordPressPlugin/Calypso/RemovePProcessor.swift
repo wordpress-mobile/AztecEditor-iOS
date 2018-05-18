@@ -1,12 +1,9 @@
-import Foundation
 import Aztec
+import Foundation
 
+class RemovePProcessor: Processor {
 
-// MARK: - CalypsoProcessorIn
-//
-public class CalypsoProcessorOut: CalypsoProcessor {
-
-    public init() {}
+    init() {}
     
     /// Converts the standard-HTML output of Aztec into the hybrid-HTML that WordPress uses to store
     /// posts.
@@ -15,12 +12,7 @@ public class CalypsoProcessorOut: CalypsoProcessor {
     /// https://github.com/WordPress/WordPress/blob/4e4df0e/wp-admin/js/editor.js#L172
     /// Current as of 2017/08/08
     ///
-    public func process(_ text: String) -> String {
-
-        guard !wasWrittenWithGutenberg(text) else {
-            return text
-        }
-
+    func process(_ text: String) -> String {
         guard text.count > 0 else {
             return ""
         }
