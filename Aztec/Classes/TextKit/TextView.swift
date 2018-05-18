@@ -138,7 +138,7 @@ open class TextView: UITextView {
     /// Formatting Delegate: to be used by the Edition's Format Bar.
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
-
+    
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
@@ -194,16 +194,8 @@ open class TextView: UITextView {
     
     // MARK: - Plugin Loading
     
-    private(set) var plugins = [Plugin]()
-    
     public func load(_ plugin: Plugin) {
-        guard !plugins.contains(where: { $0 == plugin }) else {
-            assertionFailure()
-            return
-        }
-        
-        plugins.append(plugin)
-        plugin.loaded(into: self)
+        storage.pluginsManager.load(plugin)
     }
 
     // MARK: - Output Serialization
@@ -696,10 +688,7 @@ open class TextView: UITextView {
     /// - Returns: The HTML version of the current Attributed String.
     ///
     @objc public func getHTML() -> String {
-        let pristineHTML = storage.getHTML(serializer: outputSerializer, plugins: plugins)
-        let processedHTML = plugins.process(outputHTML: pristineHTML)
-
-        return processedHTML
+        return storage.getHTML(serializer: outputSerializer)
     }
 
     /// Loads the specified HTML into the editor.
@@ -715,9 +704,7 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(html,
-                        defaultAttributes: defaultAttributes,
-                        plugins: plugins)
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)

@@ -79,11 +79,14 @@ protocol TextStorageAttachmentsDelegate: class {
 ///
 open class TextStorage: NSTextStorage {
 
+    // MARK: - Plugins
+    
+    let pluginsManager = PluginsManager()
+    
     // MARK: - Storage
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate var textStoreString = ""
-
 
     // MARK: - Delegates
 
@@ -345,30 +348,26 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(
-        serializer: HTMLSerializer,
-        plugins: [Plugin] = []) -> String {
+    open func getHTML(serializer: HTMLSerializer) -> String {
         
         let parser = AttributedStringParser()
         let rootNode = parser.parse(self)
         
-        plugins.process(outputHTMLTree: rootNode)
+        pluginsManager.process(outputHTMLTree: rootNode)
         
         let html =  serializer.serialize(rootNode)
         
-        return plugins.process(outputHTML: html)
+        return pluginsManager.process(outputHTML: html)
     }
 
-    func setHTML(_ html: String,
-                 defaultAttributes: [NSAttributedStringKey: Any],
-                 plugins: [Plugin] = []) {
+    func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
 
         let originalLength = textStore.length
-        let processedHTML = plugins.process(inputHTML: html)
+        let processedHTML = pluginsManager.process(inputHTML: html)
         let htmlParser = HTMLParser()
         let rootNode = htmlParser.parse(processedHTML)
         
-        plugins.process(inputHTMLTree: rootNode)
+        pluginsManager.process(inputHTMLTree: rootNode)
         
         let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
         textStore = NSMutableAttributedString(attributedString: serializer.serialize(rootNode))
@@ -494,7 +493,7 @@ extension TextStorage: VideoAttachmentDelegate {
 
 
 // MARK: - TextStorage: RenderableAttachmentDelegate Methods
-//
+
 extension TextStorage: RenderableAttachmentDelegate {
 
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {

@@ -80,6 +80,7 @@
 		F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */; };
 		F1000CE91EAA5C720000B15B /* StringEndOfLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */; };
 		F1065DB620ADD928008C72CC /* Plugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DB520ADD928008C72CC /* Plugin.swift */; };
+		F1065DD520AEFBD2008C72CC /* PluginsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DD420AEFBD2008C72CC /* PluginsManager.swift */; };
 		F1079D67208F80FE009717FA /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1079D66208F80FE009717FA /* EditorView.swift */; };
 		F10BE6181EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */; };
 		F10BE61A1EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */; };
@@ -279,6 +280,7 @@
 		F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+EndOfLine.swift"; sourceTree = "<group>"; };
 		F1000CE81EAA5C720000B15B /* StringEndOfLineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringEndOfLineTests.swift; sourceTree = "<group>"; };
 		F1065DB520ADD928008C72CC /* Plugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plugin.swift; sourceTree = "<group>"; };
+		F1065DD420AEFBD2008C72CC /* PluginsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginsManager.swift; sourceTree = "<group>"; };
 		F1079D66208F80FE009717FA /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
 		F10BE6191EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
@@ -704,6 +706,7 @@
 			isa = PBXGroup;
 			children = (
 				F1065DB520ADD928008C72CC /* Plugin.swift */,
+				F1065DD420AEFBD2008C72CC /* PluginsManager.swift */,
 			);
 			path = Plugin;
 			sourceTree = "<group>";
@@ -1169,6 +1172,7 @@
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F1584796203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift in Sources */,
+				F1065DD520AEFBD2008C72CC /* PluginsManager.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
 				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
 				40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */,
