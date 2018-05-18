@@ -1,12 +1,9 @@
 import Foundation
 import Aztec
 
+class AutoPProcessor: Processor {
 
-// MARK: - CalypsoProcessorIn
-//
-public class CalypsoProcessorIn: CalypsoProcessor {
-
-    public init() {}
+    init() {}
     
     /// Converts a Calypso-Generated string into Valid HTML that can actually be edited by Aztec.
     ///
@@ -14,12 +11,7 @@ public class CalypsoProcessorIn: CalypsoProcessor {
     /// https://github.com/WordPress/WordPress/blob/4e4df0e/wp-admin/js/editor.js#L309
     /// Current as of 2017/08/08
     ///
-    public func process(_ text: String) -> String {
-
-        guard !wasWrittenWithGutenberg(text) else {
-            return text
-        }
-
+    func process(_ text: String) -> String {
         var preserveLinebreaks = false
         var preserveBR = false
         let blocklist = "table|thead|tfoot|caption|col|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre" +

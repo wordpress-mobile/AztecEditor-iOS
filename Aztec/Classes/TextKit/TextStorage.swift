@@ -79,11 +79,14 @@ protocol TextStorageAttachmentsDelegate: class {
 ///
 open class TextStorage: NSTextStorage {
 
+    // MARK: - Plugins
+    
+    let pluginsManager = PluginsManager()
+    
     // MARK: - Storage
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate var textStoreString = ""
-
 
     // MARK: - Delegates
 
@@ -346,23 +349,36 @@ open class TextStorage: NSTextStorage {
     // MARK: - HTML Interaction
 
     open func getHTML(serializer: HTMLSerializer) -> String {
+        
         let parser = AttributedStringParser()
         let rootNode = parser.parse(self)
-
-        return serializer.serialize(rootNode)
-
+        
+        pluginsManager.process(outputHTMLTree: rootNode)
+        
+        let html =  serializer.serialize(rootNode)
+        
+        return pluginsManager.process(outputHTML: html)
     }
 
-    func setHTML(_ html: String,
-                 defaultAttributes: [NSAttributedStringKey: Any],
-                 postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
+    func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
 
         let originalLength = textStore.length
+        let processedHTML = pluginsManager.process(inputHTML: html)
+        let htmlParser = HTMLParser()
+        let rootNode = htmlParser.parse(processedHTML)
+        
+        pluginsManager.process(inputHTMLTree: rootNode)
+        
+        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
+        textStore = NSMutableAttributedString(attributedString: serializer.serialize(rootNode))
+        textStoreString = textStore.string
+        
+        setupAttachmentDelegates()
 
-        textStore = NSMutableAttributedString(withHTML: html,
-                                              defaultAttributes: defaultAttributes,
-                                              postProcessingHTMLWith: postProcessHTML)
-
+        edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+    }
+    
+    private func setupAttachmentDelegates() {
         textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
@@ -375,10 +391,6 @@ open class TextStorage: NSTextStorage {
         textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
-
-        textStoreString = textStore.string
-
-        edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
     }
 }
 
@@ -481,7 +493,7 @@ extension TextStorage: VideoAttachmentDelegate {
 
 
 // MARK: - TextStorage: RenderableAttachmentDelegate Methods
-//
+
 extension TextStorage: RenderableAttachmentDelegate {
 
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {

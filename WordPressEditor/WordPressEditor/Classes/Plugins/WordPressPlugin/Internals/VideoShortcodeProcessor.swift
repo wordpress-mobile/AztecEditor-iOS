@@ -1,5 +1,5 @@
-import Foundation
 import Aztec
+import Foundation
 
 public class VideoShortcodeProcessor {
 
@@ -8,7 +8,7 @@ public class VideoShortcodeProcessor {
     /// Shortcode processor to process videopress shortcodes to html video element
     /// More info here: https://en.support.wordpress.com/videopress/
     ///
-    static public var videoPressPreProcessor: Processor {
+    static var videoPressPreProcessor: Processor {
         let videoPressProcessor = ShortcodeProcessor(tag: "wpvideo", replacer: { (shortcode) in
             var html = "<video "
 
@@ -40,7 +40,7 @@ public class VideoShortcodeProcessor {
     /// Shortcode processor to process html video elements to videopress shortcodes
     /// More info here: https://en.support.wordpress.com/videopress/
     ///
-    static public var videoPressPostProcessor: Processor {
+    static var videoPressPostProcessor: Processor {
         let postWordPressVideoProcessor = HTMLProcessor(tag: "video", replacer: { (shortcode) in
             guard let videoPressID = shortcode.attributes.named[videoPressHTMLAttribute] else {
                 return nil
@@ -64,7 +64,7 @@ public class VideoShortcodeProcessor {
     /// Shortcode processor to process wordpress videos shortcodes to html video element
     /// More info here: https://codex.wordpress.org/Video_Shortcode
     ///
-    static public var wordPressVideoPreProcessor: Processor {
+    static var wordPressVideoPreProcessor: Processor {
         let wordPressVideoProcessor = ShortcodeProcessor(tag: "video", replacer: { (shortcode) in
             var html = "<video "
             if let src = shortcode.attributes.named["src"] {
@@ -85,7 +85,7 @@ public class VideoShortcodeProcessor {
     /// Shortcode processor to process html video elements to wordpress videos shortcodes
     /// More info here: https://codex.wordpress.org/Video_Shortcode
     ///
-    static public var wordPressVideoPostProcessor: Processor {
+    static var wordPressVideoPostProcessor: Processor {
         let postWordPressVideoProcessor = HTMLProcessor(tag: "video", replacer: { (shortcode) in
             var html = "[video "
             if let src = shortcode.attributes.named["src"] {

@@ -7,23 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F170D4FB20A0A56E00975077 /* WPVideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4F820A0A56E00975077 /* WPVideoShortcodePreProcessor.swift */; };
-		F170D4FD20A0A57F00975077 /* VideoShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4FC20A0A57F00975077 /* VideoShortcodePreProcessor.swift */; };
-		F170D4FF20A0A58400975077 /* VideoShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F170D4FE20A0A58400975077 /* VideoShortcodePostProcessor.swift */; };
+		F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */; };
+		F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */; };
+		F1065DC320ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */; };
+		F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */; };
+		F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */; };
+		F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */; };
 		F1D360B72092947500B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */; };
-		F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */; };
-		F1D360CD2092967E00B4E7A5 /* CalypsoProcessorIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */; };
 		F1D360F7209297C300B4E7A5 /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360F2209297B400B4E7A5 /* Aztec.framework */; };
 		F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */; };
-		F1D3610E20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */; };
 		F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */; };
-		F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */; };
-		F1D361152092A37600B4E7A5 /* CalypsoProcessorInTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */; };
-		F1D361172092A3FF00B4E7A5 /* CalypsoProcessorOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */; };
-		F1D361192092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */; };
-		F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */; };
-		F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */; };
-		F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */; };
+		F1D361142092A37600B4E7A5 /* RemovePProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */; };
+		F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */; };
+		F1D36125209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */; };
+		F1D36126209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */; };
 		F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */; };
 		F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */; };
 		F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */; };
@@ -62,26 +59,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F170D4F820A0A56E00975077 /* WPVideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WPVideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
-		F170D4FC20A0A57F00975077 /* VideoShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePreProcessor.swift; sourceTree = "<group>"; };
-		F170D4FE20A0A58400975077 /* VideoShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodePostProcessor.swift; sourceTree = "<group>"; };
+		F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressPlugin.swift; sourceTree = "<group>"; };
+		F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeOutputProcessor.swift; sourceTree = "<group>"; };
+		F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeInputProcessor.swift; sourceTree = "<group>"; };
+		F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoPProcessor.swift; sourceTree = "<group>"; };
+		F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovePProcessor.swift; sourceTree = "<group>"; };
+		F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
 		F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WordPressEditor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1D360B12092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1D360B62092947500B4E7A5 /* WordPressEditorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WordPressEditorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1D360BD2092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessor.swift; sourceTree = "<group>"; };
-		F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorIn.swift; sourceTree = "<group>"; };
 		F1D360CF2092972900B4E7A5 /* Aztec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Aztec.xcodeproj; path = ../../Aztec.xcodeproj; sourceTree = "<group>"; };
 		F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+RegEx.swift"; sourceTree = "<group>"; };
-		F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessor.swift; sourceTree = "<group>"; };
 		F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessor.swift; sourceTree = "<group>"; };
-		F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorOutTests.swift; sourceTree = "<group>"; };
-		F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorInTests.swift; sourceTree = "<group>"; };
-		F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalypsoProcessorOut.swift; sourceTree = "<group>"; };
-		F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessor.swift; sourceTree = "<group>"; };
-		F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
-		F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePostProcessorTests.swift; sourceTree = "<group>"; };
-		F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodePreProcessorTests.swift; sourceTree = "<group>"; };
+		F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovePProcessorTests.swift; sourceTree = "<group>"; };
+		F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoPProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeOutputProcessorTests.swift; sourceTree = "<group>"; };
+		F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeInputProcessorTests.swift; sourceTree = "<group>"; };
 		F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeProcessorTests.swift; sourceTree = "<group>"; };
 		F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
@@ -108,6 +102,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F1065DB720ADEC1D008C72CC /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DBC20ADEECD008C72CC /* WordPressPlugin */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
+		};
+		F1065DBC20ADEECD008C72CC /* WordPressPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */,
+				F1065DBF20ADEEF4008C72CC /* Internals */,
+			);
+			path = WordPressPlugin;
+			sourceTree = "<group>";
+		};
+		F1065DBF20ADEEF4008C72CC /* Internals */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */,
+				F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */,
+				F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */,
+				F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */,
+				F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */,
+			);
+			path = Internals;
+			sourceTree = "<group>";
+		};
 		F1D360A32092947500B4E7A5 = {
 			isa = PBXGroup;
 			children = (
@@ -140,10 +163,10 @@
 		F1D360BA2092947500B4E7A5 /* WordPressEditorTests */ = {
 			isa = PBXGroup;
 			children = (
-				F1D361132092A37600B4E7A5 /* CalypsoProcessorInTests.swift */,
-				F1D361122092A37600B4E7A5 /* CalypsoProcessorOutTests.swift */,
-				F1D36123209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift */,
-				F1D36124209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift */,
+				F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */,
+				F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */,
+				F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */,
+				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
 				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
@@ -153,6 +176,7 @@
 		F1D360C72092967E00B4E7A5 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F1065DB720ADEC1D008C72CC /* Plugins */,
 				F1D3610C20929F3A00B4E7A5 /* Processors */,
 				F1D360F920929E0700B4E7A5 /* Extensions */,
 			);
@@ -198,16 +222,7 @@
 		F1D3610C20929F3A00B4E7A5 /* Processors */ = {
 			isa = PBXGroup;
 			children = (
-				F1D360C92092967E00B4E7A5 /* CalypsoProcessor.swift */,
-				F1D360CA2092967E00B4E7A5 /* CalypsoProcessorIn.swift */,
-				F1D361162092A3FE00B4E7A5 /* CalypsoProcessorOut.swift */,
-				F1D361182092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift */,
-				F1D3610D20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift */,
 				F1D3610F20929F7900B4E7A5 /* ShortcodeProcessor.swift */,
-				F170D4FE20A0A58400975077 /* VideoShortcodePostProcessor.swift */,
-				F170D4FC20A0A57F00975077 /* VideoShortcodePreProcessor.swift */,
-				F1D3611B2093524A00B4E7A5 /* VideoShortcodeProcessor.swift */,
-				F170D4F820A0A56E00975077 /* WPVideoShortcodePreProcessor.swift */,
 			);
 			path = Processors;
 			sourceTree = "<group>";
@@ -343,20 +358,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1D360CC2092967E00B4E7A5 /* CalypsoProcessor.swift in Sources */,
-				F1D3610E20929F5A00B4E7A5 /* CaptionShortcodePreProcessor.swift in Sources */,
-				F1D3611D2093524B00B4E7A5 /* VideoShortcodeProcessor.swift in Sources */,
+				F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */,
+				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
+				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
+				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
+				F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */,
 				F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */,
 				F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */,
-				F1D361172092A3FF00B4E7A5 /* CalypsoProcessorOut.swift in Sources */,
-				F1D360CD2092967E00B4E7A5 /* CalypsoProcessorIn.swift in Sources */,
+				F1065DC320ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift in Sources */,
 				F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */,
-				F1D361192092A46B00B4E7A5 /* CaptionShortcodePostProcessor.swift in Sources */,
-				F170D4FD20A0A57F00975077 /* VideoShortcodePreProcessor.swift in Sources */,
-				F170D4FF20A0A58400975077 /* VideoShortcodePostProcessor.swift in Sources */,
 				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
-				F170D4FB20A0A56E00975077 /* WPVideoShortcodePreProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,10 +376,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1D361152092A37600B4E7A5 /* CalypsoProcessorInTests.swift in Sources */,
-				F1D36125209352A200B4E7A5 /* CaptionShortcodePostProcessorTests.swift in Sources */,
-				F1D36126209352A200B4E7A5 /* CaptionShortcodePreProcessorTests.swift in Sources */,
-				F1D361142092A37600B4E7A5 /* CalypsoProcessorOutTests.swift in Sources */,
+				F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */,
+				F1D36125209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift in Sources */,
+				F1D36126209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift in Sources */,
+				F1D361142092A37600B4E7A5 /* RemovePProcessorTests.swift in Sources */,
 				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

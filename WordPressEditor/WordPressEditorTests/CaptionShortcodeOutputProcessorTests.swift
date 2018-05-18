@@ -1,12 +1,9 @@
 import XCTest
 @testable import WordPressEditor
 
+class CaptionShortcodeOutputProcessorTests: XCTestCase {
 
-// MARK: - CaptionShortcodePreProcessorTests
-//
-class CaptionShortcodePostProcessorTests: XCTestCase {
-
-    let processor = CaptionShortcodePostProcessor()
+    let processor = CaptionShortcodeOutputProcessor()
 
 
     /// Verifies that a [Figure + Image + Figcaption] structure is properly mapped into a Caption Shortcode.

@@ -1,12 +1,9 @@
 import XCTest
 @testable import WordPressEditor
 
+class CaptionShortcodeInputProcessorTests: XCTestCase {
 
-// MARK: - CaptionShortcodePreProcessorTests
-//
-class CaptionShortcodePreProcessorTests: XCTestCase {
-
-    let processor = CaptionShortcodePreProcessor()
+    let processor = CaptionShortcodeInputProcessor()
 
 
     /// Verifies that a Caption Shortcode wrapping an Image + Text is properly processed.
