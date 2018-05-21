@@ -25,10 +25,10 @@ public class ElementNode: Node {
     private static let knownElements: [Element] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
     private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul]
     private static let mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code]
-
-    public var standardName: Element? {
+    
+    public var type: Element {
         get {
-            return Element(rawValue: name)
+            return Element(name)
         }
     }
     
@@ -274,15 +274,11 @@ public class ElementNode: Node {
             return false
         }
 
-        guard let standardName = self.standardName else {
-            return false
-        }
-
         guard blocklevelEnforced else {
-            return ElementNode.mergeableStyleElements.contains(standardName)
+            return ElementNode.mergeableStyleElements.contains(type)
         }
 
-        return ElementNode.mergeableBlocklevelElements.contains(standardName)
+        return ElementNode.mergeableBlocklevelElements.contains(type)
     }
 
 
@@ -342,12 +338,7 @@ public class ElementNode: Node {
     // MARK: - Editing behavior
 
     func isSupportedByEditor() -> Bool {
-
-        guard let standardName = standardName else {
-            return false
-        }
-
-        return ElementNode.knownElements.contains(standardName)
+        return ElementNode.knownElements.contains(type)
     }
 }
 
@@ -378,7 +369,7 @@ public class RootNode: ElementNode {
     // MARK: - Initializers
 
     public init(children: [Node]) {
-        super.init(name: type(of: self).name, attributes: [], children: children)
+        super.init(name: Swift.type(of: self).name, attributes: [], children: children)
     }
 
     // MARK: - Overriden Methods

@@ -22,6 +22,14 @@ open class Plugin {
     ///
     open func process(inputHTMLTree tree: RootNode) { return }
     
+    /// Returns a mapping of Element and their converters.  This will override the default
+    /// mapping, so make sure to know what you're doing.
+    ///
+    /// - Important: when multiple plugins map the same elements, the last plugin to map it will be
+    ///     the prevailing one.
+    ///
+    open func inputElementConverters() -> [Element: ElementConverter] { return [:] }
+    
     // MARK: - Output Processing
     
     /// Processes an HTML string right after converting it from a nodes tree in the output

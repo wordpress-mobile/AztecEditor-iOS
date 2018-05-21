@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F105937220B2FEF1005A836E /* Gutenblock.swift */; };
 		F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */; };
 		F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */; };
 		F1065DC320ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F105937220B2FEF1005A836E /* Gutenblock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gutenblock.swift; sourceTree = "<group>"; };
 		F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressPlugin.swift; sourceTree = "<group>"; };
 		F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeOutputProcessor.swift; sourceTree = "<group>"; };
 		F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionShortcodeInputProcessor.swift; sourceTree = "<group>"; };
@@ -151,8 +153,9 @@
 			isa = PBXGroup;
 			children = (
 				F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */,
-				F1C9F40520AF62E800205227 /* GutenblockConverter.swift */,
 				F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */,
+				F105937220B2FEF1005A836E /* Gutenblock.swift */,
+				F1C9F40520AF62E800205227 /* GutenblockConverter.swift */,
 			);
 			path = Gutenberg;
 			sourceTree = "<group>";
@@ -390,6 +393,7 @@
 				F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */,
 				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
+				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
 				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
 				F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */,

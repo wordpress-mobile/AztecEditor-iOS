@@ -6,20 +6,15 @@ public extension Element {
 }
 
 class GutenblockConverter: ElementConverter {
-
-    let serializeChildren: ChildrenSerializer
-    
-    required init(childrenSerializer: @escaping ChildrenSerializer) {
-        self.serializeChildren = childrenSerializer
-    }
     
     // MARK: - ElementConverter
     
-    func canConvert(element: ElementNode) -> Bool {
-        return element.standardName == .gutenblock
-    }
-    
-    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
+    func convert(
+        _ element: ElementNode,
+        inheriting attributes: [NSAttributedStringKey: Any],
+        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+        
+        precondition(element.type == .gutenblock)
         
         if element.isBlockLevel() {
             

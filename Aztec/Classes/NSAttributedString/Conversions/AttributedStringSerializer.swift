@@ -5,11 +5,28 @@ import UIKit
 ///
 class AttributedStringSerializer {
     private let defaultAttributes: [NSAttributedStringKey:Any]
-
+    
+    // MARK: - Element Converters
+    
+    static let defaultElementConverters: [Element: ElementConverter] = [
+        .br: BRElementConverter(),
+        .figcaption: FigcaptionElementConverter(),
+        .figure: FigureElementConverter(),
+        .hr: HRElementConverter(),
+        .img: ImageElementConverter(),
+        .video: VideoElementConverter()
+    ]
+    
+    let elementConverters: [Element: ElementConverter]
+    
     // MARK: - Initializers
 
-    required init(defaultAttributes: [NSAttributedStringKey: Any]) {
+    required init(
+        defaultAttributes: [NSAttributedStringKey: Any],
+        elementConverters: [Element: ElementConverter] = AttributedStringSerializer.defaultElementConverters) {
+        
         self.defaultAttributes = defaultAttributes
+        self.elementConverters = elementConverters
     }
 
     // MARK: - Conversion
@@ -110,7 +127,7 @@ class AttributedStringSerializer {
         let content = NSMutableAttributedString()
 
         let converter = self.converter(for: element)
-        let convertedString = converter.convert(element, inheriting: childAttributes)
+        let convertedString = converter.convert(element, inheriting: childAttributes, childrenSerializer: childrenSerializer)
         
         content.append(convertedString)
         
@@ -174,7 +191,7 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter(childrenSerializer: childrenSerializer)
+    private(set) lazy var genericElementConverter = GenericElementConverter()
     
     lazy var childrenSerializer: ElementConverter.ChildrenSerializer = { [weak self] (children, attributes) in
         let content = NSMutableAttributedString()
@@ -190,13 +207,6 @@ class AttributedStringSerializer {
         
         return content
     }
-    
-    lazy var brElementConverter = BRElementConverter(childrenSerializer: childrenSerializer)
-    lazy var figcaptionElementConverter = FigcaptionElementConverter(childrenSerializer: childrenSerializer)
-    lazy var figureElementConverter = FigureElementConverter(childrenSerializer: childrenSerializer)
-    lazy var hrElementConverter = HRElementConverter(childrenSerializer: childrenSerializer)
-    lazy var imageElementConverter = ImageElementConverter(childrenSerializer: childrenSerializer)
-    lazy var videoElementConverter = VideoElementConverter(childrenSerializer: childrenSerializer)
 
     // MARK: - Formatter Maps
 
@@ -233,19 +243,6 @@ class AttributedStringSerializer {
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.styleSingle.rawValue : nil})
     ]
-
-    // MARK: - Element Converters
-
-    public lazy var elementConverters: [ElementConverter] = {
-        return [
-            self.brElementConverter,
-            self.figcaptionElementConverter,
-            self.figureElementConverter,
-            self.hrElementConverter,
-            self.imageElementConverter,
-            self.videoElementConverter,
-        ]
-    }()
 
     func parseStyle(style: String) -> [String: String] {
         var stylesDictionary = [String: String]()
@@ -288,7 +285,7 @@ private extension AttributedStringSerializer {
 
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: finalAttributes, andStore: representation)
-        } else if element.standardName == .li || hasSpecializedConverter(for: element) {
+        } else if element.type == .li || hasSpecializedConverter(for: element) {
             finalAttributes = inheritedAttributes
         } else {
             finalAttributes = self.attributes(storing: elementRepresentation, in: finalAttributes)
@@ -378,12 +375,7 @@ extension AttributedStringSerializer {
     }
 
     func formatter(for element: ElementNode) -> AttributeFormatter? {
-
-        guard let standardType = element.standardName else {
-            return nil
-        }
-
-        let equivalentNames = standardType.equivalentNames
+        let equivalentNames = element.type.equivalentNames
 
         for (key, formatter) in elementFormattersMap {
             if equivalentNames.contains(key.rawValue) {
@@ -404,19 +396,13 @@ private extension AttributedStringSerializer {
     /// Element Converters take care of that.
     ///
     func converter(for element: ElementNode) -> ElementConverter {
-        let converter = elementConverters.first { converter in
-            return converter.canConvert(element: element)
-        }
-
-        return converter ?? genericElementConverter
+        return elementConverters[element.type] ?? genericElementConverter
     }
 
     /// Indicates if there's a specialized converter (AKA anything but the default GenericConverter) that can handle a given element.
     ///
     func hasSpecializedConverter(for element: ElementNode) -> Bool {
-        return elementConverters.contains { converter in
-            converter.canConvert(element: element)
-        }
+        return elementConverters.keys.contains(element.type)
     }
 }
 

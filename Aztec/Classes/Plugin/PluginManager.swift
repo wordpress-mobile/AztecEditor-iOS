@@ -2,7 +2,7 @@ import Foundation
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
-class PluginsManager {
+class PluginManager {
     
     // MARK: - Plugin Loading
     
@@ -38,6 +38,21 @@ class PluginsManager {
         for plugin in plugins {
             plugin.process(inputHTMLTree: tree)
         }
+    }
+    
+    /// Creates the element converters map.  Uses a default map as the base, and updates it with
+    /// the custom maps from all loaded plugins.
+    ///
+    /// - Important: when there are multiple mappings, the last plugin to load is the one that prevails.
+    ///
+    func inputElementConverters(with defaultElementConverters: [Element: ElementConverter]) -> [Element: ElementConverter] {
+        var elementConverters = defaultElementConverters
+        
+        for plugin in plugins {
+            elementConverters.merge(plugin.inputElementConverters()) { return $1 }
+        }
+        
+        return elementConverters
     }
     
     // MARK: - Output Processing

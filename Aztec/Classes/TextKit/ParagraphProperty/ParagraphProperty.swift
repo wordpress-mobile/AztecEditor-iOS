@@ -8,7 +8,7 @@ open class ParagraphProperty: NSObject, NSCoding {
         self.representation = nil
     }
 
-    init(with representation: HTMLRepresentation? = nil) {
+    public init(with representation: HTMLRepresentation? = nil) {
         self.representation = representation
     }
 

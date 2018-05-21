@@ -5,23 +5,17 @@ import UIKit
 ///
 class HRElementConverter: AttachmentElementConverter {
     
-    let serializeChildren: ChildrenSerializer
-    
-    required init(childrenSerializer: @escaping ChildrenSerializer) {
-        self.serializeChildren = childrenSerializer
-    }
-    
-    // MARK: - ElementConverter
-    
-    func canConvert(element: ElementNode) -> Bool {
-        return element.standardName == .hr
-    }
-    
     // MARK: - AttachmentElementConverter
     
     typealias T = NSTextAttachment
     
-    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> (attachment: NSTextAttachment, string: NSAttributedString) {
+    func convert(
+        _ element: ElementNode,
+        inheriting attributes: [NSAttributedStringKey: Any],
+        childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: NSTextAttachment, string: NSAttributedString) {
+        
+        precondition(element.type == .hr)
+        
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         

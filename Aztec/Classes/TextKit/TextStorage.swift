@@ -81,7 +81,7 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - Plugins
     
-    let pluginsManager = PluginsManager()
+    let pluginManager = PluginManager()
     
     // MARK: - Storage
 
@@ -353,23 +353,24 @@ open class TextStorage: NSTextStorage {
         let parser = AttributedStringParser()
         let rootNode = parser.parse(self)
         
-        pluginsManager.process(outputHTMLTree: rootNode)
+        pluginManager.process(outputHTMLTree: rootNode)
         
         let html =  serializer.serialize(rootNode)
         
-        return pluginsManager.process(outputHTML: html)
+        return pluginManager.process(outputHTML: html)
     }
 
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
 
         let originalLength = textStore.length
-        let processedHTML = pluginsManager.process(inputHTML: html)
+        let processedHTML = pluginManager.process(inputHTML: html)
         let htmlParser = HTMLParser()
         let rootNode = htmlParser.parse(processedHTML)
         
-        pluginsManager.process(inputHTMLTree: rootNode)
+        pluginManager.process(inputHTMLTree: rootNode)
         
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
+        let elementConverters = pluginManager.inputElementConverters(with: AttributedStringSerializer.defaultElementConverters)
+        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes, elementConverters: elementConverters)
         textStore = NSMutableAttributedString(attributedString: serializer.serialize(rootNode))
         textStoreString = textStore.string
         

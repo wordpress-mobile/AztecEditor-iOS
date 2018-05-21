@@ -345,7 +345,7 @@ private extension AttributedStringParser {
         
         // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
         // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
-        if mergeableNodes.last?.left.standardName == .figure {
+        if mergeableNodes.last?.left.type == .figure {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()

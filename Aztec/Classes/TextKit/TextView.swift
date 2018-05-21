@@ -195,7 +195,7 @@ open class TextView: UITextView {
     // MARK: - Plugin Loading
     
     public func load(_ plugin: Plugin) {
-        storage.pluginsManager.load(plugin)
+        storage.pluginManager.load(plugin)
     }
 
     // MARK: - Output Serialization
