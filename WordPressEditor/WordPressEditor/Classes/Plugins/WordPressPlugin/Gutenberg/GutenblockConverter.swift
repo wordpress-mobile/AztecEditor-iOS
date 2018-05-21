@@ -16,10 +16,24 @@ class GutenblockConverter: ElementConverter {
         
         precondition(element.type == .gutenblock)
         
-        if element.isBlockLevel() {
-            
-        }
+        if element.attributes.contains(where: { $0.name == GutenbergInputHTMLTreeProcessor.selfClosingBlockAttributeName }) {
+            NSAttributedString(attachment: attachment, attributes: attributes)
+        } else {
+            let attributes = self.attributes(for: element, inheriting: attributes)
         
-        return serializeChildren(element.children, attributes)
+            return serializeChildren(element.children, attributes)
+        }
+    }
+    
+    private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
+        
+        let paragraphStyle = attributes.paragraphStyle()
+        paragraphStyle.appendProperty(Gutenblock(storing: representation))
+        
+        var finalAttributes = attributes
+        finalAttributes[.paragraphStyle] = paragraphStyle
+        return finalAttributes
     }
 }

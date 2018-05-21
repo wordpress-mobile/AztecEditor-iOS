@@ -67,7 +67,7 @@ public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
         self.attributes = attributes
     }
 
-    convenience init(_ elementNode: ElementNode) {
+    public convenience init(_ elementNode: ElementNode) {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
     }
 
