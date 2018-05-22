@@ -1,10 +1,11 @@
 import Foundation
 import UIKit
+import Aztec
 
 
 // MARK: - HTMLAttachmentRenderer: Renders Unknown HTML
 //
-final public class HTMLAttachmentRenderer {
+final class HTMLAttachmentRenderer {
 
     /// Comment Attachment Text
     ///
@@ -21,7 +22,7 @@ final public class HTMLAttachmentRenderer {
 
     /// Default Initializer
     ///
-    public init(font: UIFont) {
+    init(font: UIFont) {
         self.textFont = font
     }
 }
@@ -31,11 +32,11 @@ final public class HTMLAttachmentRenderer {
 //
 extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
 
-    public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
         return attachment is HTMLAttachment
     }
 
-    public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let message = messageAttributedString(with: attachment)
@@ -49,7 +50,7 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
         return result
     }
 
-    public func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
         let message = messageAttributedString(with: attachment)
 
         let size = CGSize(width: lineFragment.size.width, height: lineFragment.size.height)
