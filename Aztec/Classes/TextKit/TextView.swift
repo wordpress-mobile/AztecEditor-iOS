@@ -1238,13 +1238,14 @@ open class TextView: UITextView {
             let currentAttributes = self.typingAttributesSwifted
             superMethod(self, selector, range, replacementText)
             // apply all attributes that where set before the call to the new text
-            self.textStorage.setAttributes(currentAttributes, range: rangeFrom(uiTextRange: range))
+            self.textStorage.setAttributes(currentAttributes, range: adjustedRangeFrom(uiTextRange: range, replacedBy: replacementText))
         }
     }
 
-    func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
+    func adjustedRangeFrom(uiTextRange range: UITextRange, replacedBy text: String) -> NSRange {
         let location = offset(from: beginningOfDocument, to: range.start)
-        let length = offset(from: range.start, to: range.end)
+        let length = (text as NSString).length
+
         return NSRange(location: location, length: length)
     }
 
