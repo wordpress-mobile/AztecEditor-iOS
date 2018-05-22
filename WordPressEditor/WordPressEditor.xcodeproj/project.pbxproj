@@ -13,6 +13,7 @@
 		F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */; };
 		F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */; };
 		F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */; };
+		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
 		F1D360B72092947500B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */; };
 		F1D360F7209297C300B4E7A5 /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D360F2209297B400B4E7A5 /* Aztec.framework */; };
 		F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D360FA20929E0700B4E7A5 /* String+RegEx.swift */; };
@@ -65,6 +66,7 @@
 		F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoPProcessor.swift; sourceTree = "<group>"; };
 		F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovePProcessor.swift; sourceTree = "<group>"; };
 		F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
+		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F1D360AD2092947500B4E7A5 /* WordPressEditor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WordPressEditor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1D360B12092947500B4E7A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1D360B62092947500B4E7A5 /* WordPressEditorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WordPressEditorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +133,14 @@
 			path = Internals;
 			sourceTree = "<group>";
 		};
+		F1AFD65020B45DBB00CB0279 /* Renderers */ = {
+			isa = PBXGroup;
+			children = (
+				F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */,
+			);
+			path = Renderers;
+			sourceTree = "<group>";
+		};
 		F1D360A32092947500B4E7A5 = {
 			isa = PBXGroup;
 			children = (
@@ -176,9 +186,10 @@
 		F1D360C72092967E00B4E7A5 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F1D360F920929E0700B4E7A5 /* Extensions */,
 				F1065DB720ADEC1D008C72CC /* Plugins */,
 				F1D3610C20929F3A00B4E7A5 /* Processors */,
-				F1D360F920929E0700B4E7A5 /* Extensions */,
+				F1AFD65020B45DBB00CB0279 /* Renderers */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -368,6 +379,7 @@
 				F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */,
 				F1065DC320ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift in Sources */,
 				F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */,
+				F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */,
 				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

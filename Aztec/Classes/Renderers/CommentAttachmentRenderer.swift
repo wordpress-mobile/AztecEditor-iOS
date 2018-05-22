@@ -1,15 +1,14 @@
 import Foundation
 import UIKit
-import Aztec
 
 
-// MARK: - HTMLAttachmentRenderer: Renders Unknown HTML
+// MARK: - CommentAttachmentRenderer: Renders HTML Comments!
 //
-final class HTMLAttachmentRenderer {
+final public class CommentAttachmentRenderer {
 
     /// Comment Attachment Text
     ///
-    let defaultText = NSLocalizedString("HTML", comment: "HTML Attachment Label")
+    let defaultText = NSLocalizedString("[COMMENT]", comment: "Comment Attachment Label")
 
     /// Text Color
     ///
@@ -22,7 +21,7 @@ final class HTMLAttachmentRenderer {
 
     /// Default Initializer
     ///
-    init(font: UIFont) {
+    public init(font: UIFont) {
         self.textFont = font
     }
 }
@@ -30,16 +29,16 @@ final class HTMLAttachmentRenderer {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
+extension CommentAttachmentRenderer: TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
-        return attachment is HTMLAttachment
+    public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+        return attachment is CommentAttachment
     }
 
-    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+    public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
-        let message = messageAttributedString(with: attachment)
+        let message = messageAttributedString()
         let targetRect = boundingRect(for: message, size: size)
 
         message.draw(in: targetRect)
@@ -50,8 +49,8 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
         return result
     }
 
-    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
-        let message = messageAttributedString(with: attachment)
+    public func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        let message = messageAttributedString()
 
         let size = CGSize(width: lineFragment.size.width, height: lineFragment.size.height)
         var rect = boundingRect(for: message, size: size)
@@ -64,7 +63,7 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
 
 // MARK: - Private Methods
 //
-private extension HTMLAttachmentRenderer {
+private extension CommentAttachmentRenderer {
 
     func boundingRect(for message: NSAttributedString, size: CGSize) -> CGRect {
         let targetBounds = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
@@ -73,15 +72,12 @@ private extension HTMLAttachmentRenderer {
         return CGRect(origin: targetPosition, size: targetBounds.size)
     }
 
-    func messageAttributedString(with attachment: NSTextAttachment) -> NSAttributedString {
+    func messageAttributedString() -> NSAttributedString {
         let attributes: [NSAttributedStringKey: Any] = [
             .foregroundColor: textColor,
             .font: textFont
         ]
 
-        let htmlAttachment = attachment as? HTMLAttachment
-        let displayText = htmlAttachment?.rootTagName.uppercased() ?? defaultText
-
-        return NSAttributedString(string: "[\(displayText)]", attributes: attributes)
+        return NSAttributedString(string: defaultText, attributes: attributes)
     }
 }

@@ -5,11 +5,13 @@ import Aztec
 
 // MARK: - SpecialTagAttachmentRenderer. This render aims rendering WordPress specific tags.
 //
-final class SpecialTagAttachmentRenderer {
+final public class SpecialTagAttachmentRenderer {
 
     /// Text Color
     ///
     var textColor = UIColor.gray
+    
+    public init() {}
 }
 
 
@@ -17,7 +19,7 @@ final class SpecialTagAttachmentRenderer {
 //
 extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+    public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
         guard let commentAttachment = attachment as? CommentAttachment else {
             return false
         }
@@ -25,7 +27,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         return Tags.supported.contains(commentAttachment.text)
     }
 
-    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+    public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         guard let attachment = attachment as? CommentAttachment else {
             return nil
         }
@@ -66,7 +68,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         return result
     }
 
-    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+    public func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
         let padding = textView.textContainer.lineFragmentPadding
         let width = lineFragment.width - padding * 2
 
