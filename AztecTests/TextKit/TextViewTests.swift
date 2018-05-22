@@ -1848,4 +1848,14 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr></p>")
     }
 
+    /// This test makes sure that if an auto replacement is made with an emoji things work correctly
+    func testAutoCompletionReplacementHackWhenUsingEmoji() {
+        let textView = createTextView(withHTML: "Love")
+        let uiTextRange = textView.textRange(from: textView.beginningOfDocument, to: textView.endOfDocument)!
+        textView.replaceRangeWithTextWithoutClosingTyping(uiTextRange, replacementText:"😘")
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<p>😘</p>")
+    }
+
 }
