@@ -1,15 +1,17 @@
+import Aztec
 import Foundation
 import UIKit
-import Aztec
 
 
 // MARK: - SpecialTagAttachmentRenderer. This render aims rendering WordPress specific tags.
 //
-final class SpecialTagAttachmentRenderer {
+final public class SpecialTagAttachmentRenderer {
 
     /// Text Color
     ///
     var textColor = UIColor.gray
+    
+    public init() {}
 }
 
 
@@ -17,7 +19,7 @@ final class SpecialTagAttachmentRenderer {
 //
 extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
 
-    func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
+    public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
         guard let commentAttachment = attachment as? CommentAttachment else {
             return false
         }
@@ -25,7 +27,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         return Tags.supported.contains(commentAttachment.text)
     }
 
-    func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
+    public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         guard let attachment = attachment as? CommentAttachment else {
             return nil
         }
@@ -33,16 +35,11 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let label = attachment.text.uppercased()
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.baseWritingDirection = .leftToRight
-        let attributes: [NSAttributedStringKey: Any] = [.foregroundColor: textColor, .paragraphStyle: paragraphStyle]
-
-        let colorMessage = NSAttributedString(string: label, attributes: attributes)
+        let colorMessage = NSAttributedString(string: label, attributes: [.foregroundColor: textColor])
 
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         let textPosition = CGPoint(x: ((size.width - textRect.width) * 0.5), y: ((size.height - textRect.height) * 0.5))
-        colorMessage.draw(in: CGRect(origin: textPosition , size: CGSize(width: size.width, height: textRect.size.height)))
+        colorMessage.draw(in: CGRect(origin: textPosition, size: CGSize(width: size.width, height: textRect.size.height)))
 
         let path = UIBezierPath()
 
@@ -54,7 +51,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         path.move(to: CGPoint(x: 0, y: centerY))
         path.addLine(to: CGPoint(x: ((size.width - textRect.width) * 0.5) - Constants.defaultDashWidth, y: centerY))
 
-        path.move(to: CGPoint(x:((size.width + textRect.width) * 0.5) + Constants.defaultDashWidth, y: centerY))
+        path.move(to: CGPoint(x: ((size.width + textRect.width) * 0.5) + Constants.defaultDashWidth, y: centerY))
         path.addLine(to: CGPoint(x: size.width, y: centerY))
 
         textColor.setStroke()
@@ -66,7 +63,7 @@ extension SpecialTagAttachmentRenderer: TextViewAttachmentImageProvider {
         return result
     }
 
-    func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+    public func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
         let padding = textView.textContainer.lineFragmentPadding
         let width = lineFragment.width - padding * 2
 
