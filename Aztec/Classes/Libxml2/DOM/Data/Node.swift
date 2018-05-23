@@ -53,6 +53,16 @@ public class Node: Equatable, CustomReflectable, Hashable {
         
         return false
     }
+    
+    /// Checks if the specified node requires a closing paragraph separator.
+    ///
+    func needsClosingParagraphSeparator() -> Bool {
+        guard !hasRightBlockLevelSibling() else {
+            return true
+        }
+        
+        return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
+    }
 
     func isLastIn(blockLevelElement element: ElementNode) -> Bool {
         return element.isBlockLevelElement() && element.children.last === self
@@ -124,7 +134,21 @@ public class Node: Equatable, CustomReflectable, Hashable {
             return false
         }
 
-        return parent.children.last === self
+        let lastIndexResult = parent.children.lastIndex { (node) -> Bool in
+            if node is ElementNode {
+                return true
+            } else if let textNode = node as? TextNode {
+                return textNode.length() > 0
+            }
+
+            return false
+        }
+
+        guard let lastChildIndex = lastIndexResult else {
+            return false
+        }
+
+        return parent.children[lastChildIndex] === self
             && (parent.isBlockLevelElement()
                 || parent.hasRightBlockLevelSibling()
                 || parent.isLastInAncestorEndingInBlockLevelSeparation())

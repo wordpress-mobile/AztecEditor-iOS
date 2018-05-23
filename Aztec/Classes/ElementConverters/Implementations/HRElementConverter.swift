@@ -5,6 +5,12 @@ import UIKit
 ///
 class HRElementConverter: AttachmentElementConverter {
     
+    let serializeChildren: ChildrenSerializer
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
+    }
+    
     // MARK: - ElementConverter
     
     func canConvert(element: ElementNode) -> Bool {
@@ -15,7 +21,7 @@ class HRElementConverter: AttachmentElementConverter {
     
     typealias T = NSTextAttachment
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: NSTextAttachment, string: NSAttributedString) {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> (attachment: NSTextAttachment, string: NSAttributedString) {
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         
@@ -33,7 +39,7 @@ class HRElementConverter: AttachmentElementConverter {
     
     // MARK: - Additional HTMLRepresentation Logic
     
-    private func combine(_ attributes: [AttributedStringKey: Any], with representation: HTMLRepresentation) -> [AttributedStringKey : Any] {
+    private func combine(_ attributes: [NSAttributedStringKey: Any], with representation: HTMLRepresentation) -> [NSAttributedStringKey : Any] {
         var combinedAttributes = attributes
         
         combinedAttributes[.hrHtmlRepresentation] = representation

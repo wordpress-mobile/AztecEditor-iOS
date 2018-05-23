@@ -933,18 +933,15 @@ class AttributedStringParserTests: XCTestCase {
     ///
     func testImagesWithCaptionProduceFigureAndFigcaptionElements() {
         let attachment = ImageAttachment(identifier: UUID().uuidString)
-        attachment.caption = NSAttributedString(string: "Hello!")
-
-        let string = NSAttributedString(attachment: attachment)
+        let caption = NSAttributedString(string: "Hello!")
+        
+        let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
         let node = AttributedStringParser().parse(string)
         XCTAssert(node.children.count == 1)
 
-        let paragraphNode = node.firstChild(ofType: .p)
-        XCTAssert(paragraphNode?.children.count == 1)
-
-        let figureNode = paragraphNode?.firstChild(ofType: .figure)
-        XCTAssert(figureNode?.children.count == 2)
+        let figureNode = node.firstChild(ofType: .figure)
+        XCTAssertEqual(figureNode?.children.count, 2)
 
         let imageNode = figureNode?.firstChild(ofType: .img)
         XCTAssertNotNil(imageNode)
@@ -964,29 +961,42 @@ class AttributedStringParserTests: XCTestCase {
         let boldAttributes = BoldFormatter().apply(to: Constants.sampleAttributes)
         let boldAndItalicAttributes = ItalicFormatter().apply(to: boldAttributes)
 
-        let sampleCaption = NSAttributedString(string: "Bold And Italics", attributes: boldAndItalicAttributes)
+        let attachment = ImageAttachment(identifier: UUID().uuidString)
+        let captionText = "Bold And Italics"
+        let caption = NSAttributedString(string: captionText, attributes: boldAndItalicAttributes)
+        let string = NSAttributedString(attachment: attachment, caption: caption, attributes: [:])
 
-        let sampleAttachment = ImageAttachment(identifier: UUID().uuidString)
-        sampleAttachment.caption = sampleCaption
+        let node = AttributedStringParser().parse(string)
+        print(node)
+        
+        guard let figureNode = node.firstChild(ofType: .figure) else {
+            XCTFail()
+            return
+        }
+        
+        guard let figcaptionNode = figureNode.firstChild(ofType: .figcaption) else {
+            XCTFail()
+            return
+        }
 
-        let sampleDocument = NSAttributedString(attachment: sampleAttachment)
+        guard let strongNode = figcaptionNode.firstChild(ofType: .strong) else {
+            XCTFail()
+            return
+        }
 
-        let node = AttributedStringParser().parse(sampleDocument)
-        let figcaptionNode = node.firstChild(ofType: .p)?.firstChild(ofType: .figure)?.firstChild(ofType: .figcaption)
-        XCTAssertNotNil(figcaptionNode)
+        guard let italicsNode = strongNode.firstChild(ofType: .em) else {
+            XCTFail()
+            return
+        }
 
-        let strongNode = figcaptionNode?.firstChild(ofType: .strong)
-        XCTAssertNotNil(strongNode)
-
-        let italicsNode = strongNode?.firstChild(ofType: .em)
-        XCTAssertNotNil(italicsNode)
-
-        let textNode = italicsNode?.children.first as? TextNode
-        XCTAssertNotNil(textNode)
-        XCTAssert(textNode?.text() == sampleCaption.string)
+        guard let textNode = italicsNode.children.first as? TextNode else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(textNode.text(), captionText)
     }
 }
-
 
 // MARK: - Helpers
 //

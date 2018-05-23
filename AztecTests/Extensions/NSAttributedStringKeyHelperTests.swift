@@ -7,18 +7,18 @@ class NSAttributedStringKeyHelperTests: XCTestCase {
     /// all of the keys into Strings.
     ///
     func testConvertToRawReturnsANewCollectionContainingAllOfTheStringValues() {
-        let customKey = AttributedStringKey(key: "Custom")
+        let customKey = NSAttributedStringKey("Custom")
         
-        let input: [AttributedStringKey: Any] = [
+        let input: [NSAttributedStringKey: Any] = [
             .strikethroughStyle: NSUnderlineStyle.styleSingle,
             .attachment: 222,
             customKey: 111
         ]
 
-        let output = AttributedStringKey.convertToRaw(input)
+        let output = NSAttributedStringKey.convertToRaw(input)
 
-        XCTAssertEqual(output[AttributedStringKey.strikethroughStyle.rawValue] as! NSUnderlineStyle, .styleSingle)
-        XCTAssertEqual(output[AttributedStringKey.attachment.rawValue] as! Int, 222)
+        XCTAssertEqual(output[NSAttributedStringKey.strikethroughStyle.rawValue] as! NSUnderlineStyle, .styleSingle)
+        XCTAssertEqual(output[NSAttributedStringKey.attachment.rawValue] as! Int, 222)
         XCTAssertEqual(output[customKey.rawValue] as! Int, 111)
     }
 
@@ -27,15 +27,15 @@ class NSAttributedStringKeyHelperTests: XCTestCase {
     /// all of the keys into NSAttributedStringKey instances.
     ///
     func testConvertFromRawReturnsANewCollectionContainingAttributedStringKeyInstances() {
-        let customKey = AttributedStringKey(key: "Custom")
+        let customKey = NSAttributedStringKey("Custom")
         
         let input: [String: Any] = [
-            AttributedStringKey.strikethroughStyle.rawValue: NSUnderlineStyle.styleSingle,
-            AttributedStringKey.attachment.rawValue: 222,
+            NSAttributedStringKey.strikethroughStyle.rawValue: NSUnderlineStyle.styleSingle,
+            NSAttributedStringKey.attachment.rawValue: 222,
             customKey.rawValue: 111
         ]
 
-        let output = AttributedStringKey.convertFromRaw(input)
+        let output = NSAttributedStringKey.convertFromRaw(input)
 
         XCTAssertEqual(output[.strikethroughStyle] as! NSUnderlineStyle, NSUnderlineStyle.styleSingle)
         XCTAssertEqual(output[.attachment] as! Int, 222)

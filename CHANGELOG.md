@@ -4,10 +4,19 @@ All notable changes to this project will be documented in this file.
 Aztec adheres to [Semantic Versioning](http://semver.org/).
 
 #### 1.x Releases
+- `1.beta19` Release  - [1.beta19](#1.beta19)
 - `1.beta15` Release  - [1.beta15](#1.beta15)
 - `1.beta9` Release  - [1.beta9](#1.beta9)
 
 ---
+
+## [1.beta19](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/1.beta19)
+Released on 2018-05-23. All issues associated with this milestone can be found using this
+[filter](https://github.com/wordpress-mobile/AztecEditor-iOS/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Version+1.0+Beta+19%22).
+
+### Fixed
+
+- Fix auto completion with emoji crash.
 
 ## [1.beta18.1](https://github.com/wordpress-mobile/MediaPicker-iOS/releases/tag/1.beta18.1)
 Released on 2018-02-01. All issues associated with this milestone can be found using this

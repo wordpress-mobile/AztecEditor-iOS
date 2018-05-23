@@ -3,48 +3,37 @@ import UIKit
 
 /// Returns a specialised representation for a `<figure>` element.
 ///
-class FigureElementConverter: AttachmentElementConverter {
-
-    // MARK: - ElementConverter
+class FigureElementConverter: ElementConverter {
     
-    /// Indicates if the current ElementNode is supported, or not. For now, at least, only the following Figure is supported:
-    ///
-    /// `<figure><img/><figcaption></figcaption></figure>`
-    ///
-    func canConvert(element: ElementNode) -> Bool {
-        return element.isNodeType(.figure) &&
-            element.children.count == 2 &&
-            element.firstChild(ofType: .img) != nil &&
-            element.firstChild(ofType: .figcaption) != nil
+    let serializeChildren: ChildrenSerializer
+    
+    required init(childrenSerializer: @escaping ChildrenSerializer) {
+        self.serializeChildren = childrenSerializer
     }
     
-    // MARK: - AttachmentElementConverter
+    // MARK: - ElementConverter
     
-    typealias AttachmentType = ImageAttachment
+    func canConvert(element: ElementNode) -> Bool {
+        return element.isNodeType(.figure)
+    }
     
-    func convert(_ element: ElementNode, inheriting attributes: [AttributedStringKey: Any]) -> (attachment: ImageAttachment, string: NSAttributedString) {
+    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
         assert(canConvert(element: element))
-
-        // Extract the Image + Figcaption Elements
-        //
-        guard let imgElement = element.firstChild(ofType: .img),
-            let captionElement = element.firstChild(ofType: .figcaption)
-            else {
-                fatalError()
-        }
         
-        // Convert the Image Element
-        //
-        let (imageAttachment, output) = ImageElementConverter().convert(imgElement, inheriting: attributes)
+        let attributes = self.attributes(for: element, inheriting: attributes)
         
-        // Serialize the Figcaption:
-        // We're wrapping the Figcaption's children within a figcaption, so that the `<figcaption>` element itself doesn't get mapped
-        // as UnknownHTML
-        //
-        let serializer = AttributedStringSerializer()
-        let wrappedCaptionChildren = RootNode(children: captionElement.children)
-        imageAttachment.caption = serializer.serialize(wrappedCaptionChildren, inheriting: attributes)
+        return serializeChildren(element.children, attributes)
+    }
+    
+    private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        let elementRepresentation = HTMLElementRepresentation(element)
+        let representation = HTMLRepresentation(for: .element(elementRepresentation))
         
-        return (imageAttachment, output)
-    }    
+        let paragraphStyle = attributes.paragraphStyle()
+        paragraphStyle.appendProperty(Figure(with: representation))
+        
+        var finalAttributes = attributes
+        finalAttributes[.paragraphStyle] = paragraphStyle
+        return finalAttributes
+    }
 }

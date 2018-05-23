@@ -1,9 +1,9 @@
 import Foundation
 import UIKit
 
-extension Character {
+public extension Character {
 
-    enum Name: Character {
+    public enum Name: Character {
         case lineFeed = "\u{000A}"
         case carriageReturn = "\u{000D}"
         case nonBreakingSpace = "\u{00A0}"
@@ -17,6 +17,8 @@ extension Character {
         // Aliases
         static let textAttachment = objectReplacement
     }
+    
+    public static let paragraphBreakingCharacters: [Name] = [.lineFeed, .carriageReturn, .paragraphSeparator]
     
     init(_ characterName: Name) {
         self.init(unicodeScalarLiteral: characterName.rawValue)

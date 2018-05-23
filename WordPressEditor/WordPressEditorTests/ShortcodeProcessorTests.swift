@@ -1,6 +1,5 @@
 import XCTest
-@testable import AztecExample
-
+@testable import WordPressEditor
 
 // MARK: - ShortcodeProcessorTests
 //

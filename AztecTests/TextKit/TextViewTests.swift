@@ -55,7 +55,7 @@ class TextViewTests: XCTestCase {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
-        let attributes = [AttributedStringKey.paragraphStyle : NSParagraphStyle()]
+        let attributes = [NSAttributedStringKey.paragraphStyle : NSParagraphStyle()]
         let templateString = NSMutableAttributedString(string: paragraph, attributes: attributes)
 
         let attrStr = NSMutableAttributedString()
@@ -148,7 +148,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
     }
 
     func testFormatIdentifiersAtIndex() {
@@ -156,15 +156,15 @@ class TextViewTests: XCTestCase {
 
         var identifiers = textView.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
 
         identifiers = textView.formatIdentifiersAtIndex(0)
@@ -673,6 +673,44 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
     }
 
+    /// Tests that inserting a link on the same place twice works properly
+    ///
+    func testSetLinkTwiceInSameRangeWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
+
+        let textView = createTextView(withHTML: linkTitle)
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+        textView.setLink(url, inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+    }
+
+    /// Tests that removing a link on the same place twice works properly
+    ///
+    func testRemoveLinkTwiceInSameRangeWorks() {
+
+        let linkUrl = "www.wordpress.com"
+        let linkTitle = "WordPress.com"
+        let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
+
+        let textView = createTextView(withHTML: linkTitle)
+        let url = URL(string: linkUrl)!
+
+        textView.setLink(url, inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p><a href=\"\(linkUrl)\">\(linkTitle)</a></p>")
+        textView.removeLink(inRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), "<p>\(linkTitle)</p>")
+        textView.removeLink(inRange: insertionRange)
+
+        XCTAssertEqual(textView.getHTML(), "<p>\(linkTitle)</p>")
+    }
+
     func testParsingOfInvalidLink() {
         let html = "<p><a href=\"\\http:\\badlink&?\">link</a></p>"
         let textView = createTextView(withHTML: html)
@@ -736,7 +774,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
     }
 
-    /// Tests that Newline Characters inserted at the middle of a H1 String won't cause the newline to loose the style.
+    /// Tests that Newline Characters inserted at the middle of a H1 String will cause the newline to loose the style.
     ///
     /// Input:
     ///     - "Header Header"
@@ -958,7 +996,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator) )
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed) )
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -995,7 +1033,9 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        let expected = Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed)
+        
+        XCTAssertEqual(textView.text, expected)
     }
 
     /// When deleting the newline between lines 1 and 2 in the following example:
@@ -1221,7 +1261,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
 
@@ -1407,7 +1447,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
 
@@ -1523,7 +1563,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1550,7 +1590,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1608,7 +1648,7 @@ class TextViewTests: XCTestCase {
     /// This test verifies that img class attributes are not duplicated
     ///
     func testParseImageDoesntDuplicateExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"wp-image-test\" title=\"Title\" alt=\"Alt\">"
+        let html = "<img src=\"image.jpg\" class=\"alignnone wp-image-test\" title=\"Title\" alt=\"Alt\">"
         let textView = createTextView(withHTML: html)
         let generatedHTML = textView.getHTML()
 
@@ -1751,7 +1791,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("Three")
 
         let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(), expected)
     }
 
     /// This test verifies that H1 Style doesn't turn rogue (Scenario #2), and come back after editing a line
@@ -1772,7 +1812,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(), expected)
     }
 
     /// This test verifies that attributes on media attachment are being removed properly.
@@ -1798,7 +1838,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.
@@ -1808,6 +1848,16 @@ class TextViewTests: XCTestCase {
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr></p>")
+    }
+
+    /// This test makes sure that if an auto replacement is made with smaller text, for example an emoji, things work correctly
+    func testAutoCompletionReplacementHackWhenUsingEmoji() {
+        let textView = createTextView(withHTML: "Love")
+        let uiTextRange = textView.textRange(from: textView.beginningOfDocument, to: textView.endOfDocument)!
+        textView.replaceRangeWithTextWithoutClosingTyping(uiTextRange, replacementText:"😘")
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<p>😘</p>")
     }
 
 }
