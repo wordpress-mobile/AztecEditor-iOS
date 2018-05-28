@@ -53,7 +53,9 @@ class EditorDemoController: UIViewController {
     private func setupRichTextView(_ textView: TextView) {
         textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
         
-        textView.load(WordPressPlugin())
+        if wordPressMode {
+            textView.load(WordPressPlugin())
+        }
         
         let accessibilityLabel = NSLocalizedString("Rich Content", comment: "Post Rich content")
         self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
