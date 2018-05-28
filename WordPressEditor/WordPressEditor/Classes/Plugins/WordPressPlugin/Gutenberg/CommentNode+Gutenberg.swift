@@ -9,7 +9,7 @@ public extension CommentNode {
     // MARK: - Opener & Closer Identification
     
     func isGutenbergBlockCloser(forOpener opener: CommentNode) -> Bool {
-        return isGutenbergBlockCloser(forOpener: opener) && canAssociate(opener: opener, withCloser: self)
+        return isGutenbergBlockCloser() && canAssociate(opener: opener, withCloser: self)
     }
     
     private func isGutenbergBlockCloser() -> Bool {
