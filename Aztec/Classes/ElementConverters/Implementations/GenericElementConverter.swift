@@ -9,7 +9,7 @@ class GenericElementConverter: ElementConverter {
     /// At some point we should modify how the conversion works, so that any supported element never goes through this
     /// converter at all, and this converter is turned into an `UnsupportedElementConverter()` exclusively.
     ///
-    private static let supportedElements: [Element] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
+    private static let supportedElements: [Element] = [.a, .aztecRootNode, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
     
     // MARK: - ElementConverter
     

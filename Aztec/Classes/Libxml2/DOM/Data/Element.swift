@@ -30,7 +30,7 @@ public struct Element: RawRepresentable, Hashable {
     }
 }
 
-private extension Element {
+extension Element {
     static let aztecRootNode = Element("aztec.htmltag.rootnode")
 }
 
