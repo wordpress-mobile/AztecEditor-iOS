@@ -28,10 +28,6 @@ public struct Element: RawRepresentable, Hashable {
     public func isBlockLevel() -> Bool {
         return Element.blockLevelElements.contains(self)
     }
-    
-    private func isUnsupported() -> Bool {
-        
-    }
 }
 
 private extension Element {

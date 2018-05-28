@@ -22,7 +22,6 @@ public class ElementNode: Node {
         return headerLevels[headerLevel - 1]
     }
 
-    private static let knownElements: [Element] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
     private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul]
     private static let mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code]
     
@@ -334,12 +333,6 @@ public class ElementNode: Node {
 
         return siblingNode as? T
     }
-
-    // MARK: - Editing behavior
-
-    func isSupportedByEditor() -> Bool {
-        return ElementNode.knownElements.contains(type)
-    }
 }
 
 
@@ -370,11 +363,5 @@ public class RootNode: ElementNode {
 
     public init(children: [Node]) {
         super.init(name: Swift.type(of: self).name, attributes: [], children: children)
-    }
-
-    // MARK: - Overriden Methods
-
-    override func isSupportedByEditor() -> Bool {
-        return true
     }
 }

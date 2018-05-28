@@ -119,10 +119,6 @@ class AttributedStringSerializer {
     ///
     fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
-        guard element.isSupportedByEditor() else {
-            return serialize(unsupported: element, inheriting: attributes)
-        }
-
         let childAttributes = self.attributes(for: element, inheriting: attributes)
         let content = NSMutableAttributedString()
 
@@ -136,22 +132,6 @@ class AttributedStringSerializer {
         }
 
         return content
-    }
-
-    /// - Parameters:
-    ///     - element: the node to convert to `NSAttributedString`.
-    ///     - attributes: the inherited attributes from parent nodes.
-    ///
-    /// - Returns: the converted node as an `NSAttributedString`.
-    ///
-    fileprivate func serialize(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
-        let serializer = DefaultHTMLSerializer()
-        let attachment = HTMLAttachment()
-
-        attachment.rootTagName = element.name
-        attachment.rawHTML = serializer.serialize(element)
-
-        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
 
     // MARK: - Paragraph Separator

@@ -15,6 +15,9 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
     private static let classInitializer: () = {
         Element.blockLevelElements.append(.gutenblock)
+        
+        // Self-closing blocks are packed into attachments.
+        Element.blockLevelElements.append(.gutenpack)
     }()
     
     public init() {
@@ -68,7 +71,7 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
                 return (newState, element)
             } else if commentNode.isGutenbergSelfClosingBlock() {
                 let attributes = self.selfClosingAttributes(for: commentNode)
-                let element = ElementNode(type: .gutenblock, attributes: attributes, children: [])
+                let element = ElementNode(type: .gutenpack, attributes: attributes, children: [])
                 
                 return (.noBlock, element)
             }

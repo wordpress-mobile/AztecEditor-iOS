@@ -15,6 +15,7 @@
 		F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */; };
 		F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */; };
 		F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */; };
+		F118745320BC41BF0079C631 /* GutenblockConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F118745220BC41BF0079C631 /* GutenblockConverterTests.swift */; };
 		F13E8ADA20B71DFF007C9F8A /* GutenblockAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8AD920B71DFF007C9F8A /* GutenblockAttachment.swift */; };
 		F13E8ADE20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8ADD20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift */; };
 		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
@@ -75,6 +76,7 @@
 		F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoPProcessor.swift; sourceTree = "<group>"; };
 		F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovePProcessor.swift; sourceTree = "<group>"; };
 		F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoShortcodeProcessor.swift; sourceTree = "<group>"; };
+		F118745220BC41BF0079C631 /* GutenblockConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockConverterTests.swift; sourceTree = "<group>"; };
 		F13E8AD920B71DFF007C9F8A /* GutenblockAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockAttachment.swift; sourceTree = "<group>"; };
 		F13E8ADD20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
 				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
+				F118745220BC41BF0079C631 /* GutenblockConverterTests.swift */,
 			);
 			path = WordPressEditorTests;
 			sourceTree = "<group>";
@@ -434,6 +437,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F118745320BC41BF0079C631 /* GutenblockConverterTests.swift in Sources */,
 				F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */,
 				F1D36125209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift in Sources */,
 				F1D36126209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift in Sources */,
