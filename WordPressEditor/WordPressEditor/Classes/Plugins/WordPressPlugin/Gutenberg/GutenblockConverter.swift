@@ -16,8 +16,17 @@ class GutenblockConverter: ElementConverter {
         
         precondition(element.type == .gutenblock)
         
-        if element.attributes.contains(where: { $0.name == GutenbergInputHTMLTreeProcessor.selfClosingBlockAttributeName }) {
-            NSAttributedString(attachment: attachment, attributes: attributes)
+        if let selfClosingBlockAttribute = element.attributes.first(where: { $0.name == GutenbergInputHTMLTreeProcessor.selfClosingBlockAttributeName }) {
+            guard let selfClosingBlockData = selfClosingBlockAttribute.value.toString() else {
+                // There's no scenario in which this data can be missing, and no way to handle such an
+                // error in the logic.
+                // If this is ever triggered, you should trace back where the block data is being lost.
+                fatalError()
+            }
+            
+            let attachment = GutenblockAttachment(selfClosingBlockData)
+            
+            return NSAttributedString(attachment: attachment, attributes: attributes)
         } else {
             let attributes = self.attributes(for: element, inheriting: attributes)
         

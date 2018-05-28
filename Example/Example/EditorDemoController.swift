@@ -196,6 +196,7 @@ class EditorDemoController: UIViewController {
         } else {
             html = ""
         }
+        
         editorView.setHTML(html)
         editorView.becomeFirstResponder()
     }
@@ -231,29 +232,28 @@ class EditorDemoController: UIViewController {
 
     // MARK: - Title and Title placeholder position methods
     func updateTitlePosition() {
-        let referenceView: UITextView = editorView.activeView
-        titleTopConstraint.constant = -(referenceView.contentOffset.y + referenceView.contentInset.top)
+        titleTopConstraint.constant = -(editorView.contentOffset.y + editorView.contentInset.top)
         titlePlaceholderTopConstraint.constant = titleTextView.textContainerInset.top + titleTextView.contentInset.top
         titlePlaceholderLeadingConstraint.constant = titleTextView.textContainerInset.left + titleTextView.contentInset.left  + titleTextView.textContainer.lineFragmentPadding
-        var contentInset = referenceView.contentInset
+        
+        var contentInset = editorView.contentInset
         contentInset.top = titleHeightConstraint.constant + separatorView.frame.height
-        referenceView.contentInset = contentInset
+        editorView.contentInset = contentInset
+        
         updateScrollInsets()
     }
 
     func updateScrollInsets() {
-        let referenceView: UITextView = editorView.activeView
-        var scrollInsets = referenceView.contentInset
+        var scrollInsets = editorView.contentInset
         var rightMargin = (view.frame.maxX - editorView.frame.maxX)
         if #available(iOS 11.0, *) {
             rightMargin -= view.safeAreaInsets.right
         }
         scrollInsets.right = -rightMargin
-        referenceView.scrollIndicatorInsets = scrollInsets
+        editorView.scrollIndicatorInsets = scrollInsets
     }
 
     func updateTitleHeight() {
-        let referenceView: UITextView = editorView.activeView
         let layoutMargins = view.layoutMargins
         let insets = titleTextView.textContainerInset
 
@@ -268,10 +268,10 @@ class EditorDemoController: UIViewController {
 
         titlePlaceholderLabel.isHidden = !titleTextView.text.isEmpty
 
-        var contentInset = referenceView.contentInset
+        var contentInset = editorView.contentInset
         contentInset.top = (titleHeightConstraint.constant + separatorView.frame.height)
-        referenceView.contentInset = contentInset
-        referenceView.setContentOffset(CGPoint(x: 0, y: -contentInset.top), animated: false)
+        editorView.contentInset = contentInset
+        editorView.contentOffset = CGPoint(x: 0, y: -contentInset.top)
     }
 
     // MARK: - Configuration Methods
@@ -382,13 +382,10 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let referenceView: UIScrollView = editorView.activeView
-
         let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
+        let contentInset = UIEdgeInsets(top: editorView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
 
-        let contentInset = UIEdgeInsets(top: referenceView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
-
-        editorView.activeView.contentInset = contentInset
+        editorView.contentInset = contentInset
         updateScrollInsets()
     }
 
@@ -626,6 +623,7 @@ extension EditorDemoController {
                                                   fromBarItem: item,
                                                   selectedRowIndex: selectedIndex,
                                                   onSelect: { [weak self] selected in
+                                                    
             guard let range = self?.richTextView.selectedRange else {
                 return
             }
@@ -929,10 +927,9 @@ extension EditorDemoController {
     }
     
     @objc func tabOnTitle() {
-        let activeTextView = editorView.activeView
-        
-        activeTextView.becomeFirstResponder()
-        activeTextView.selectedTextRange = activeTextView.textRange(from: activeTextView.endOfDocument, to: activeTextView.endOfDocument)
+        if editorView.becomeFirstResponder() {
+            editorView.selectedTextRange = editorView.htmlTextView.textRange(from: editorView.htmlTextView.endOfDocument, to: editorView.htmlTextView.endOfDocument)
+        }
     }
 
     @objc func showImagePicker() {

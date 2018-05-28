@@ -13,7 +13,7 @@ public struct Element: RawRepresentable, Hashable {
     
     /// This can be extended in case new elements need to be defined.
     ///
-    public static var blockLevelElements: [Element] = [.address, .aztecRootNode, .blockquote, .div, .dl, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
+    public static var blockLevelElements: [Element] = [.address, .aztecRootNode, .blockquote, .div, .dl, .dd, .dt, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
     
     // MARK: - Initializers
     
@@ -27,6 +27,10 @@ public struct Element: RawRepresentable, Hashable {
     
     public func isBlockLevel() -> Bool {
         return Element.blockLevelElements.contains(self)
+    }
+    
+    private func isUnsupported() -> Bool {
+        
     }
 }
 
