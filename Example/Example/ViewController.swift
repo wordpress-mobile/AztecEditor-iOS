@@ -22,7 +22,7 @@ class ViewController: UITableViewController
             ),
             DemoSection(title: "WordPressEditor (Calypso & Gutenberg)", rows: [
                 DemoRow(title: "Gutenberg Demo", action: { self.showEditorDemo(filename: "gutenberg", wordPressMode: true) }),
-                DemoRow(title: "Empty Demo", action: { self.showEditorDemo() })
+                DemoRow(title: "Empty Demo", action: { self.showEditorDemo(wordPressMode: true) })
                 ]
             ),
         ]
