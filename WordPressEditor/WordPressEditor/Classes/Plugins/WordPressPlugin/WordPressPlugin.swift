@@ -28,7 +28,7 @@ open class WordPressPlugin: Plugin {
     // MARK: - Gutenberg processors
     
     private let gutenbergInputHTMLTreeProcessor = GutenbergInputHTMLTreeProcessor()
-    private let gutenbergOutputHTMLTreeProcessor = GutenbergInputHTMLTreeProcessor()
+    private let gutenbergOutputHTMLTreeProcessor = GutenbergOutputHTMLTreeProcessor()
     
     // MARK: - Input Processing
 
