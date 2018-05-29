@@ -30,6 +30,10 @@ open class WordPressPlugin: Plugin {
     private let gutenbergInputHTMLTreeProcessor = GutenbergInputHTMLTreeProcessor()
     private let gutenbergOutputHTMLTreeProcessor = GutenbergOutputHTMLTreeProcessor()
     
+    // MARK: - Gutenberg Converters
+    
+    let gutenergInputConverter = GutenblockConverter()
+    
     // MARK: - Input Processing
 
     override open func process(inputHTML html: String) -> String {
@@ -45,7 +49,7 @@ open class WordPressPlugin: Plugin {
     }
     
     override open func inputElementConverters() -> [Element: ElementConverter] {
-        return [.gutenblock: GutenblockConverter()]
+        return [.gutenblock: gutenergInputConverter]
     }
     
     // MARK: - Output Processing
