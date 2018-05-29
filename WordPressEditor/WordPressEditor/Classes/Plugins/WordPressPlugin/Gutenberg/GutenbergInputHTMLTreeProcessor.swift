@@ -5,12 +5,6 @@ import Foundation
 ///
 public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
-    // MARK: - Attributes
-    
-    public static let selfClosingBlockAttributeName = "selfClosingBlock"
-    public static let blockOpenerAttributeName = "opener"
-    public static let blockCloserAttributeName = "closer"
-    
     // MARK: - Initializers
     
     private static let classInitializer: () = {
@@ -100,21 +94,21 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
 
 private extension GutenbergInputHTMLTreeProcessor {
     func closerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergInputHTMLTreeProcessor.blockCloserAttributeName
+        let attributeName = GutenbergAttributeNames.blockCloser
         let openerBase64String = encode(commentNode)
         
         return [Attribute(name: attributeName, value: .string(openerBase64String))]
     }
     
     func openerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergInputHTMLTreeProcessor.blockOpenerAttributeName
+        let attributeName = GutenbergAttributeNames.blockOpener
         let openerBase64String = encode(commentNode)
         
         return [Attribute(name: attributeName, value: .string(openerBase64String))]
     }
     
     func selfClosingAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergInputHTMLTreeProcessor.selfClosingBlockAttributeName
+        let attributeName = GutenbergAttributeNames.selfCloser
         let openerBase64String = encode(commentNode)
         
         return [Attribute(name: attributeName, value: .string(openerBase64String))]
