@@ -428,7 +428,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testCommentSurroundingBlockLevelElements() {
-        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6, .blockquote]
 
         for element in elementsToTest {
             let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><!-- comment -->"
