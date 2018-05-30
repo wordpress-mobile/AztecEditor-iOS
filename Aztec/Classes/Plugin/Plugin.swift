@@ -30,6 +30,11 @@ open class Plugin {
     ///
     open func inputElementConverters() -> [Element: ElementConverter] { return [:] }
     
+    /// Converts a paragraph property into the ElementNode that represents it.
+    /// When a conversion is not implemented, just return nil.
+    ///
+    open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
+    
     // MARK: - Output Processing
     
     /// Processes an HTML string right after converting it from a nodes tree in the output

@@ -66,6 +66,18 @@ open class WordPressPlugin: Plugin {
         gutenbergOutputHTMLTreeProcessor.process(tree)
     }
     
+    // MARK: - AttributedStringParserCustomizer
+    
+    override open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
+        guard let gutenblockProperty = paragraphProperty as? Gutenblock,
+            let representation = gutenblockProperty.representation,
+            case let .element(gutenblock) = representation.kind else {
+                return nil
+        }
+        
+        return gutenblock.toElementNode()
+    }
+    
     // MARK: - Gutenberg support
     
     /// HACK: not a very good approach, but our APIs don't offer proper versioning info on `post_content`.

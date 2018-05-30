@@ -350,7 +350,7 @@ open class TextStorage: NSTextStorage {
 
     open func getHTML(serializer: HTMLSerializer) -> String {
         
-        let parser = AttributedStringParser()
+        let parser = AttributedStringParser(with: pluginManager)
         let rootNode = parser.parse(self)
         
         pluginManager.process(outputHTMLTree: rootNode)

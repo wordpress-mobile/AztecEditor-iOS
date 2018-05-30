@@ -2,7 +2,7 @@ import Foundation
 
 open class ParagraphProperty: NSObject, NSCoding {
 
-    var representation: HTMLRepresentation?
+    open var representation: HTMLRepresentation?
     
     public override init() {
         self.representation = nil
