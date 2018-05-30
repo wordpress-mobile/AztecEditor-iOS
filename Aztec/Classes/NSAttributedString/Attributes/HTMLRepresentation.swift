@@ -9,7 +9,7 @@ public class HTMLRepresentation: NSObject, NSCoding {
         case inlineCss(CSSAttribute)
     }
 
-    let kind: Kind
+    public let kind: Kind
 
     public init(for kind: Kind) {
         self.kind = kind
@@ -104,7 +104,7 @@ public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
         })
     }
 
-    func toElementNode() -> ElementNode {
+    public func toElementNode() -> ElementNode {
         return ElementNode(name: name, attributes: attributes, children: [])
     }
 

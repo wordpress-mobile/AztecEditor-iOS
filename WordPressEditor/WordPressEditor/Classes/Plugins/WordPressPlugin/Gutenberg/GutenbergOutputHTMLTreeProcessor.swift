@@ -7,27 +7,26 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
     
     public func process(_ rootNode: RootNode) {
         
-        // We're enumerating in reverse, since this loop can replace the current node with
-        // 1..N nodes.
-        for (index, node) in rootNode.children.reversed().enumerated() {
+        rootNode.children = rootNode.children.flatMap({ (node) -> [Node] in
             guard let element = node as? ElementNode else {
-                continue
+                return [node]
             }
             
             if element.type == .gutenblock {
                 let openingComment = gutenbergOpener(for: element)
                 let containedNodes = element.children
                 let closingComment = gutenbergCloser(for: element)
+                let closingNewline = TextNode(text: "\n")
                 
-                let replacementNodes = [openingComment] + containedNodes + [closingComment]
-                
-                rootNode.children.replaceSubrange(index...index, with: replacementNodes)
+                return [openingComment] + containedNodes + [closingComment, closingNewline]
             } else if element.type == .gutenpack {
                 let selfContainedBlockComment = gutenbergSelfCloser(for: element)
                 
-                rootNode.children[index] = selfContainedBlockComment
+                return [selfContainedBlockComment]
+            } else {
+                return [element]
             }
-        }
+        })
     }
 }
 

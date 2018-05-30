@@ -76,3 +76,17 @@ class PluginManager {
     }
 }
 
+// MARK: - AttributedStringParserCustomizer
+
+extension PluginManager: AttributedStringParserCustomizer {
+    func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
+        for plugin in plugins {
+            if let element = plugin.convert(paragraphProperty) {
+                return element
+            }
+        }
+        
+        return nil
+    }
+}
+

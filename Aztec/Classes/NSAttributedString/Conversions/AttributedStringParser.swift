@@ -2,9 +2,26 @@ import Foundation
 import UIKit
 import libxml2
 
+/// This protocol can be implemented by an object that wants to modify the behavior
+/// of the AttributedStringParser.
+///
+protocol AttributedStringParserCustomizer: ParagraphPropertyConverter {}
+
 /// Parses an attributed string into an HTML tree.
 ///
 class AttributedStringParser {
+    
+    // MARK: - Plugin Manager
+    
+    let customizer: AttributedStringParserCustomizer
+    
+    // MARK: - Initializers
+    
+    init(with customizer: AttributedStringParserCustomizer) {
+        self.customizer = customizer
+    }
+    
+    // MARK: - Parsing
 
     /// Parses an attributed string and returns the corresponding HTML tree.
     ///
@@ -480,6 +497,13 @@ private extension AttributedStringParser {
         var paragraphNodes = [ElementNode]()
         
         for property in paragraphStyle.properties.reversed() {
+            
+            // The customizer overrides any default behaviour, which is the reason why it's run first.
+            if let element = customizer.convert(property) {
+                paragraphNodes.append(element)
+                continue
+            }
+            
             switch property {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
