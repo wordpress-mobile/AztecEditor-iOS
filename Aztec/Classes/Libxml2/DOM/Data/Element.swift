@@ -81,6 +81,8 @@ extension Element {
     public static let ul = Element("ul")
     public static let video = Element("video")
     public static let code = Element("code")
+    public static let cite = Element("cite")
+
 }
 
 extension Element {

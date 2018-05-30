@@ -172,6 +172,7 @@
 		FF7DCB4B1E815F9400AB77CB /* UIColorHexParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
+		FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
 		FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD436971E3180A500A0E26F /* FontFormatterTests.swift */; };
 		FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */; };
@@ -380,6 +381,7 @@
 		FF7DCB4A1E815F9400AB77CB /* UIColorHexParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIColorHexParserTests.swift; path = Extensions/UIColorHexParserTests.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
+		FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CiteFormatter.swift; sourceTree = "<group>"; };
 		FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
@@ -783,6 +785,7 @@
 				F12F58601EF20394008AE298 /* TextListFormatter.swift */,
 				F12F58611EF20394008AE298 /* UnderlineFormatter.swift */,
 				FF61909D202481F4004BCD0A /* CodeFormatter.swift */,
+				FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -1189,6 +1192,7 @@
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F1584796203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift in Sources */,
 				F1AFD65820B45E5700CB0279 /* CommentAttachmentRenderer.swift in Sources */,
+				FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
 				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
 				40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */,
