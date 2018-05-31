@@ -161,6 +161,7 @@ open class TextView: UITextView {
     open let defaultFont: UIFont
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
+    private let defaultSerializer = DefaultHTMLSerializer(prettyPrint: true)
     
     fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
         var attributes: [NSAttributedStringKey: Any] = [
@@ -687,8 +688,10 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    public func getHTML(serializer: HTMLSerializer? = DefaultHTMLSerializer(prettyPrint: true)) -> String {
-        return storage.getHTML()
+    public func getHTML(serializer: HTMLSerializer? = nil) -> String {
+        let serializer = serializer ?? defaultSerializer
+        
+        return storage.getHTML(serializer: serializer)
     }
 
     /// Loads the specified HTML into the editor.

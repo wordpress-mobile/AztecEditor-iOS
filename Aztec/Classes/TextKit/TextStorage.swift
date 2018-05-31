@@ -81,6 +81,7 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - HTML Conversion
     
+    private let defaultSerializer = DefaultHTMLSerializer(prettyPrint: false)
     private let htmlConverter = HTMLConverter()
     
     // MARK: - PluginManager
@@ -356,6 +357,8 @@ open class TextStorage: NSTextStorage {
     // MARK: - HTML Interaction
 
     open func getHTML(serializer: HTMLSerializer? = nil) -> String {
+        let serializer = serializer ?? defaultSerializer
+        
         return htmlConverter.html(from: self, serializer: serializer)
     }
 
