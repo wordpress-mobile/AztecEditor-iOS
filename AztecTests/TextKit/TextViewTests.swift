@@ -35,7 +35,6 @@ class TextViewTests: XCTestCase {
     func createTextView(withHTML html: String, prettyPrint: Bool = false) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
         richTextView.textAttachmentDelegate = attachmentDelegate
-        richTextView.outputSerializer = DefaultHTMLSerializer(prettyPrint: false)
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         richTextView.setHTML(html)
 
@@ -566,7 +565,7 @@ class TextViewTests: XCTestCase {
         let range = textView.textRange(from: rangeStart, to: rangeEnd)!
 
         textView.replace(range, withText: "")
-
+        
         XCTAssertEqual(textView.getHTML(), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!

@@ -10,7 +10,7 @@ class PluginManager {
     
     /// Loads a plugins.
     ///
-    public func load(_ plugin: Plugin) {
+    func load(_ plugin: Plugin) {
         guard !plugins.contains(where: { $0 == plugin }) else {
             assertionFailure()
             return
@@ -40,21 +40,6 @@ class PluginManager {
         }
     }
     
-    /// Creates the element converters map.  Uses a default map as the base, and updates it with
-    /// the custom maps from all loaded plugins.
-    ///
-    /// - Important: when there are multiple mappings, the last plugin to load is the one that prevails.
-    ///
-    func inputElementConverters(with defaultElementConverters: [Element: ElementConverter]) -> [Element: ElementConverter] {
-        var elementConverters = defaultElementConverters
-        
-        for plugin in plugins {
-            elementConverters.merge(plugin.inputElementConverters()) { return $1 }
-        }
-        
-        return elementConverters
-    }
-    
     // MARK: - Output Processing
     
     /// Processes an HTML string right after converting it from a nodes tree in the output
@@ -73,6 +58,20 @@ class PluginManager {
         for plugin in plugins {
             plugin.process(outputHTMLTree: tree)
         }
+    }
+}
+
+// MARK: - AttributedStringSerializerCustomizer
+
+extension PluginManager: AttributedStringSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementConverter? {
+        for plugin in plugins {
+            if let converter = plugin.converter(for: element) {
+                return converter
+            }
+        }
+        
+        return nil
     }
 }
 
