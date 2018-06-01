@@ -27,11 +27,14 @@ public extension CommentNode {
     }
     
     func isGutenbergSelfClosingBlock() -> Bool {
-        let prefix = CommentNode.openerPrefix
-        let selfClosingBlockSuffix = CommentNode.selfClosingBlockSuffix
+        return false
         
-        return comment.trimmingCharacters(in: .whitespaces).prefix(prefix.count) == prefix
-            && comment.trimmingCharacters(in: .whitespaces).suffix(selfClosingBlockSuffix.count) == selfClosingBlockSuffix
+        // Temporarily disabled this code until we can get self-closing blocks working correctly.
+//        let prefix = CommentNode.openerPrefix
+//        let selfClosingBlockSuffix = CommentNode.selfClosingBlockSuffix
+//
+//        return comment.trimmingCharacters(in: .whitespaces).prefix(prefix.count) == prefix
+//            && comment.trimmingCharacters(in: .whitespaces).suffix(selfClosingBlockSuffix.count) == selfClosingBlockSuffix
     }
     
     // MARK: - Internal Logic
