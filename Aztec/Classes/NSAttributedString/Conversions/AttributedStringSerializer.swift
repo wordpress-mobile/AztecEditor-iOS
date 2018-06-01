@@ -219,11 +219,11 @@ private extension AttributedStringSerializer {
 private extension AttributedStringSerializer {
     
     func sanitizeText(from textNode: TextNode) -> String {
-        guard shouldSanitizeText(for: textNode) else {
-            return textNode.text()
+        if textNode.hasAncestor(ofType: .pre) {
+            return preSanitize(textNode.text())
+        } else {
+            return sanitize(textNode.text())
         }
-        
-        return sanitize(textNode.text())
     }
     
     /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
@@ -236,7 +236,13 @@ private extension AttributedStringSerializer {
     private func shouldSanitizeText(for textNode: TextNode) -> Bool {
         return !textNode.hasAncestor(ofType: .pre)
     }
-    
+
+    private func preSanitize(_ text:String) -> String {
+        var result =  text.replacingOccurrences(of: String(.paragraphSeparator), with: String(.lineSeparator))
+        result = text.replacingOccurrences(of: "\n", with: String(.lineSeparator))
+        return result
+    }
+
     private func sanitize(_ text: String) -> String {
         let hasAnEndingSpace = text.hasSuffix(String(.space))
         let hasAStartingSpace = text.hasPrefix(String(.space))

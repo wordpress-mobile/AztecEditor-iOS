@@ -603,7 +603,11 @@ open class TextView: UITextView {
         //      Apple (34546954), but this workaround should do until the problem is resolved.
         //
         preserveTypingAttributesForInsertion {
-            super.insertText(text)
+            var textToInsert = text
+            if isInsertingNewLineInsidePre(text: text) {
+                textToInsert = String(.lineSeparator)
+            }
+            super.insertText(textToInsert)
         }
 
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
@@ -1095,6 +1099,28 @@ open class TextView: UITextView {
         }
 
         insertEndOfLineCharacter()
+    }
+
+    private func isInsertingNewLineInsidePre(text: String) -> Bool {
+
+        guard text.isEndOfLine() else {
+            return false
+        }
+
+        let formatters: [AttributeFormatter] = [
+            PreFormatter(placeholderAttributes: self.defaultAttributes),
+        ]
+
+        let activeTypingAttributes = typingAttributesSwifted
+        let found = formatters.first { formatter in
+            return formatter.present(in: activeTypingAttributes)
+        }
+
+        guard found != nil else {
+            return false
+        }
+
+        return true
     }
 
     /// Inserts a end-of-line character at the current position, while retaining the selectedRange
