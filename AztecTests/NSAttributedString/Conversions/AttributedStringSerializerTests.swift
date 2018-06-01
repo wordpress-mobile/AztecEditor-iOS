@@ -210,8 +210,8 @@ extension AttributedStringSerializerTests {
         let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                .paragraphStyle: ParagraphStyle.default]
         
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
+        let serializer = AttributedStringSerializer()
 
-        return serializer.serialize(node)
+        return serializer.serialize(node, defaultAttributes: defaultAttributes)
     }
 }

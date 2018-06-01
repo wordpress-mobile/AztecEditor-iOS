@@ -78,10 +78,19 @@ protocol TextStorageAttachmentsDelegate: class {
 /// Custom NSTextStorage
 ///
 open class TextStorage: NSTextStorage {
-
-    // MARK: - Plugins
     
-    let pluginManager = PluginManager()
+    // MARK: - HTML Conversion
+    
+    private let defaultSerializer = DefaultHTMLSerializer(prettyPrint: false)
+    private let htmlConverter = HTMLConverter()
+    
+    // MARK: - PluginManager
+    
+    var pluginManager: PluginManager {
+        get {
+            return htmlConverter.pluginManager
+        }
+    }
     
     // MARK: - Storage
 
@@ -117,8 +126,7 @@ open class TextStorage: NSTextStorage {
 
         return attachments
     }
-
-
+    
     // MARK: - Range Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
@@ -348,30 +356,17 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(serializer: HTMLSerializer) -> String {
+    open func getHTML(serializer: HTMLSerializer? = nil) -> String {
+        let serializer = serializer ?? defaultSerializer
         
-        let parser = AttributedStringParser(with: pluginManager)
-        let rootNode = parser.parse(self)
-        
-        pluginManager.process(outputHTMLTree: rootNode)
-        
-        let html =  serializer.serialize(rootNode)
-        
-        return pluginManager.process(outputHTML: html)
+        return htmlConverter.html(from: self, serializer: serializer)
     }
 
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
+        let originalLength = length
+        let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
 
-        let originalLength = textStore.length
-        let processedHTML = pluginManager.process(inputHTML: html)
-        let htmlParser = HTMLParser()
-        let rootNode = htmlParser.parse(processedHTML)
-        
-        pluginManager.process(inputHTMLTree: rootNode)
-        
-        let elementConverters = pluginManager.inputElementConverters(with: AttributedStringSerializer.defaultElementConverters)
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes, elementConverters: elementConverters)
-        textStore = NSMutableAttributedString(attributedString: serializer.serialize(rootNode))
+        textStore = NSMutableAttributedString(attributedString: attrString)
         textStoreString = textStore.string
         
         setupAttachmentDelegates()

@@ -13,11 +13,11 @@ class AttributedStringParser {
     
     // MARK: - Plugin Manager
     
-    let customizer: AttributedStringParserCustomizer
+    let customizer: AttributedStringParserCustomizer?
     
     // MARK: - Initializers
     
-    init(with customizer: AttributedStringParserCustomizer) {
+    init(customizer: AttributedStringParserCustomizer? = nil) {
         self.customizer = customizer
     }
     
@@ -499,7 +499,7 @@ private extension AttributedStringParser {
         for property in paragraphStyle.properties.reversed() {
             
             // The customizer overrides any default behaviour, which is the reason why it's run first.
-            if let element = customizer.convert(property) {
+            if let element = customizer?.convert(property) {
                 paragraphNodes.append(element)
                 continue
             }

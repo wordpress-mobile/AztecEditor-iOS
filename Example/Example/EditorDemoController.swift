@@ -51,8 +51,6 @@ class EditorDemoController: UIViewController {
     }()
     
     private func setupRichTextView(_ textView: TextView) {
-        textView.outputSerializer = DefaultHTMLSerializer(prettyPrint: true)
-        
         if wordPressMode {
             textView.load(WordPressPlugin())
         }
