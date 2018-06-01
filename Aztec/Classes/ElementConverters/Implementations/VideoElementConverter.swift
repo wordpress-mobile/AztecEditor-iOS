@@ -49,9 +49,9 @@ class VideoElementConverter: AttachmentElementConverter {
         }
 
         let posterURL: URL?
-        let classAttribute = element.attributes.first(where: { $0.name == "class" })
+        let posterAttribute = element.attributes.first(where: { $0.name == "poster" })
         
-        if let urlString = classAttribute?.value.toString() {
+        if let urlString = posterAttribute?.value.toString() {
             posterURL = URL(string: urlString)
             extraAttributes.removeValue(forKey: "poster")
         } else {
