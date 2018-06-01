@@ -22,7 +22,7 @@ public class ElementNode: Node {
         return headerLevels[headerLevel - 1]
     }
 
-    private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul]
+    private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul, .pre]
     private static let mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code]
     
     public var type: Element {
