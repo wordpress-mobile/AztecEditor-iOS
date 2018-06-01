@@ -1,23 +1,24 @@
-import UIKit
+import Aztec
+import Foundation
 
+public extension Element {
+    static let gutenblock = Element("gutenblock")
+    static let gutenpack = Element("gutenpack")
+}
 
-/// Returns a specialised representation for a `<figcaption>` element.
-///
-class FigcaptionElementConverter: ElementConverter {
+class GutenblockConverter: ElementConverter {
     
-    let figcaptionFormatter = FigcaptionFormatter(placeholderAttributes: nil)
-
     // MARK: - ElementConverter
-
+    
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
         
-        precondition(element.type == .figcaption)
+        precondition(element.type == .gutenblock)
         
         let attributes = self.attributes(for: element, inheriting: attributes)
-        
+    
         return serializeChildren(element.children, attributes)
     }
     
@@ -25,7 +26,11 @@ class FigcaptionElementConverter: ElementConverter {
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         
-        return figcaptionFormatter.apply(to: attributes, andStore: representation)
+        let paragraphStyle = attributes.paragraphStyle()
+        paragraphStyle.appendProperty(Gutenblock(storing: representation))
+        
+        var finalAttributes = attributes
+        finalAttributes[.paragraphStyle] = paragraphStyle
+        return finalAttributes
     }
 }
-

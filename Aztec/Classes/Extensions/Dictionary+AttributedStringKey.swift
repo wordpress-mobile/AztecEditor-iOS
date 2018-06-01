@@ -11,7 +11,7 @@ extension Dictionary where Key == NSAttributedStringKey, Value == Any {
     ///
     /// - Returns: the requested `ParagraphStyle` object.
     ///
-    func paragraphStyle() -> ParagraphStyle {
+    public func paragraphStyle() -> ParagraphStyle {
         guard let existingParagraphStyle = self[.paragraphStyle] as? NSParagraphStyle else {
             return ParagraphStyle()
         }

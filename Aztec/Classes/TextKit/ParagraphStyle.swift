@@ -375,13 +375,13 @@ extension ParagraphStyle {
 
     /// Inserts the specified ParagraphProperty at the very end of the Properties array
     ///
-    func appendProperty(_ property: ParagraphProperty) {
+    public func appendProperty(_ property: ParagraphProperty) {
         properties.append(property)
     }
 
     /// Inserts the specified ParagraphProperty at the specified index
     ///
-    func insertProperty(_ property: ParagraphProperty, at index: Int) {
+    public func insertProperty(_ property: ParagraphProperty, at index: Int) {
         properties.insert(property, at: index)
     }
 

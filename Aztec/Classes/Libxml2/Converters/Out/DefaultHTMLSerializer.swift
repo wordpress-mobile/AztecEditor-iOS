@@ -140,7 +140,7 @@ private extension DefaultHTMLSerializer {
     /// OpeningTag Prefix: Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
-        return node.isBlockLevelElement() && prettyPrint
+        return node.isBlockLevel() && prettyPrint
     }
 
 
@@ -149,7 +149,7 @@ private extension DefaultHTMLSerializer {
     private func requiresClosingTagPrefix(_ node: ElementNode) -> Bool {
         return node.children.contains { child in
             let elementChild = child as? ElementNode
-            return elementChild?.isBlockLevelElement() == true && prettyPrint
+            return elementChild?.isBlockLevel() == true && prettyPrint
         }
     }
 
@@ -162,9 +162,9 @@ private extension DefaultHTMLSerializer {
         }
 
         let rightElementNode = rightSibling as? ElementNode
-        let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevelElement() == false
+        let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevel() == false
 
-        return isRightNodeRegularElement && node.isBlockLevelElement() && prettyPrint
+        return isRightNodeRegularElement && node.isBlockLevel() && prettyPrint
     }
 
 

@@ -9,15 +9,15 @@ class AttributedStringSerializerTests: XCTestCase {
     func testMultipleSpanNodesAreProperlyPreservedWithinUnsupportedHtmlAttribute() {
         let textNode = TextNode(text: "Ehlo World!")
 
-        // <span class="aztec">
+        // <span class="aztec"></span>
         let spanAttribute2 = Attribute(name: "class", value: .string("aztec"))
         let spanNode2 = ElementNode(type: .span, attributes: [spanAttribute2], children: [textNode])
 
-        // <span class="first"><span class="aztec">
+        // <span class="first"><span class="aztec"></span>
         let spanAttribute1 = Attribute(name: "class", value: .string("first"))
         let spanNode1 = ElementNode(type: .span, attributes: [spanAttribute1], children: [spanNode2])
 
-        // <h1><span class="first"><span class="aztec">
+        // <h1><span class="first"><span class="aztec"></span></span></h1>
         let headerNode = ElementNode(type: .h1, attributes: [], children: [spanNode1])
         let rootNode = RootNode(children: [headerNode])
 
@@ -210,8 +210,8 @@ extension AttributedStringSerializerTests {
         let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                .paragraphStyle: ParagraphStyle.default]
         
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
+        let serializer = AttributedStringSerializer()
 
-        return serializer.serialize(node)
+        return serializer.serialize(node, defaultAttributes: defaultAttributes)
     }
 }

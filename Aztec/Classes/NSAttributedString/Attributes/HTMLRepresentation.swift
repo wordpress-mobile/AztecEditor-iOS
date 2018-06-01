@@ -2,16 +2,16 @@ import Foundation
 
 /// This enum specifies the different entities that can represent a style in HTML.
 ///
-class HTMLRepresentation: NSObject, NSCoding {
-    enum Kind {
+public class HTMLRepresentation: NSObject, NSCoding {
+    public enum Kind {
         case attribute(Attribute)
         case element(HTMLElementRepresentation)
         case inlineCss(CSSAttribute)
     }
 
-    let kind: Kind
+    public let kind: Kind
 
-    init(for kind: Kind) {
+    public init(for kind: Kind) {
         self.kind = kind
     }
 
@@ -58,7 +58,7 @@ class HTMLRepresentation: NSObject, NSCoding {
 
 // MARK: - HTMLElementRepresentation
 //
-class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
+public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
     @objc let name: String
     @objc let attributes: [Attribute]
 
@@ -67,7 +67,7 @@ class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
         self.attributes = attributes
     }
 
-    convenience init(_ elementNode: ElementNode) {
+    public convenience init(_ elementNode: ElementNode) {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
     }
 
@@ -104,7 +104,7 @@ class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
         })
     }
 
-    func toElementNode() -> ElementNode {
+    public func toElementNode() -> ElementNode {
         return ElementNode(name: name, attributes: attributes, children: [])
     }
 
