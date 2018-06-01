@@ -42,24 +42,76 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         processor.process(rootNode)
         
         XCTAssertEqual(rootNode.children.count, 1)
-        guard let gutentag = rootNode.children[0] as? ElementNode else {
+        guard let gutenblock = rootNode.children[0] as? ElementNode,
+            gutenblock.type == .gutenblock else {
+                XCTFail()
+                return
+        }
+        
+        XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+            return attribute.name == GutenbergAttributeNames.blockOpener
+                && attribute.value.toString() == encodedOpeningComment
+        }))
+        
+        XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+            return attribute.name == GutenbergAttributeNames.blockCloser
+                && attribute.value.toString() == encodedClosingComment
+        }))
+        
+        XCTAssertEqual(gutenblock.children.count, 2)
+        guard let paragraph = gutenblock.children[0] as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(paragraph.children.count, 1)
+        guard let textNode = paragraph.children[0] as? TextNode else {
             XCTFail()
             return
         }
         
-        XCTAssertEqual(gutentag.children.count, 2)
-        guard let paragraph = gutentag.children[0] as? ElementNode else {
+        XCTAssertEqual(textNode.text(), text)
+    }
+    
+    /// Verifies that a Gutenberg paragraph block with attributes is properly encoded.
+    ///
+    func testParagraphBlockWithAttributes() {
+        let openingCommentText = " wp:paragraph {\"fontColor\": red, \"fontSize\": 12}"
+        let closingCommentText = " /wp:paragraph "
+        let openingGutentag = htmlComment(withContent: openingCommentText)
+        let closingGutentag = htmlComment(withContent: closingCommentText)
+        let text = "Hello there!"
+        
+        let input = "\(openingGutentag)\n<p>\(text)</p>\n\(closingGutentag)"
+        
+        let encodedOpeningComment = encode(blockString: openingCommentText)
+        let encodedClosingComment = encode(blockString: closingCommentText)
+        
+        let rootNode = parser.parse(input)
+        processor.process(rootNode)
+        
+        XCTAssertEqual(rootNode.children.count, 1)
+        guard let gutenblock = rootNode.children[0] as? ElementNode,
+            gutenblock.type == .gutenblock else {
+                XCTFail()
+                return
+        }
+        
+        XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+            return attribute.name == GutenbergAttributeNames.blockOpener
+                && attribute.value.toString() == encodedOpeningComment
+        }))
+        
+        XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+            return attribute.name == GutenbergAttributeNames.blockCloser
+                && attribute.value.toString() == encodedClosingComment
+        }))
+        
+        XCTAssertEqual(gutenblock.children.count, 2)
+        guard let paragraph = gutenblock.children[0] as? ElementNode else {
             XCTFail()
             return
         }
-        
-        XCTAssert(gutentag.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.value.toString() == encodedOpeningComment
-        }))
-        
-        XCTAssert(gutentag.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.value.toString() == encodedClosingComment
-        }))
         
         XCTAssertEqual(paragraph.children.count, 1)
         guard let textNode = paragraph.children[0] as? TextNode else {
@@ -70,36 +122,59 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         XCTAssertEqual(textNode.text(), text)
     }
     /*
-    /// Verifies that a Gutenberg paragraph block with attributes is properly encoded.
-    ///
-    func testParagraphBlockWithAttributes() {
-        let openingGutentag = "<!-- wp:paragraph {\"fontColor\": red, \"fontSize\": 12} -->"
-        let input = "\(openingGutentag)\n<p>Hello there!</p>\n<!-- /wp:paragraph -->"
-        
-        let encodedOpeningComment = encode(blockString: openingGutentag)
-        let expected = "<gutenblock data=\"\(encodedOpeningComment)\">\n<p>Hello there!</p>\n</gutenblock>"
-        
-        let output = processor.process(input)
-        
-        XCTAssertEqual(output, expected)
-    }
-    
     /// Verifies that multiple Gutenberg paragraph blocks with attributes are properly encoded.
     ///
     func testMultipleParagraphBlocksWithAttributes() {
-        let openingGutentag = "<!-- wp:paragraph {\"fontColor\": red, \"fontSize\": 12} -->"
-        let singleInputParagraph = "\(openingGutentag)\n<p>Hello there!</p>\n<!-- /wp:paragraph -->"
+        let openingCommentText = " wp:paragraph {\"fontColor\": red, \"fontSize\": 12}"
+        let closingCommentText = " /wp:paragraph "
+        let openingGutentag = htmlComment(withContent: openingCommentText)
+        let closingGutentag = htmlComment(withContent: closingCommentText)
+        let text = "Hello 🌎!"
+        
+        let singleInputParagraph = "\(openingGutentag)\n<p>\(text)</p>\n\(closingGutentag)"
         let input = String(format: "%@\n%@\n%@", singleInputParagraph, singleInputParagraph, singleInputParagraph)
         
-        let encodedOpeningComment = encode(blockString: openingGutentag)
-        let singleExpectedParagraph = "<gutenblock data=\"\(encodedOpeningComment)\">\n<p>Hello there!</p>\n</gutenblock>"
-        let expected = String(format: "%@\n%@\n%@", singleExpectedParagraph, singleExpectedParagraph, singleExpectedParagraph)
+        let encodedOpeningComment = encode(blockString: openingCommentText)
+        let encodedClosingComment = encode(blockString: closingCommentText)
         
-        let output = processor.process(input)
+        let rootNode = parser.parse(input)
+        processor.process(rootNode)
         
-        XCTAssertEqual(output, expected)
+        XCTAssertEqual(rootNode.children.count, 3)
+        
+        for child in rootNode.children {
+            guard let gutenblock = child as? ElementNode,
+                gutenblock.type == .gutenblock else {
+                    XCTFail()
+                    return
+            }
+            
+            XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+                return attribute.name == GutenbergAttributeNames.blockOpener
+                    && attribute.value.toString() == encodedOpeningComment
+            }))
+            
+            XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
+                return attribute.name == GutenbergAttributeNames.blockCloser
+                    && attribute.value.toString() == encodedClosingComment
+            }))
+            
+            XCTAssertEqual(gutenblock.children.count, 2)
+            guard let paragraph = gutenblock.children[0] as? ElementNode else {
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(paragraph.children.count, 1)
+            guard let textNode = paragraph.children[0] as? TextNode else {
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(textNode.text(), text)
+        }
     }
-    
+
     // MARK: - Self-Closing Gutenberg Tags
     
     /// Verifies that a self closing block is properly processed

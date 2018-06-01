@@ -161,6 +161,7 @@ open class TextView: UITextView {
     open let defaultFont: UIFont
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
+    public var defaultSerializer = DefaultHTMLSerializer(prettyPrint: true)
     
     fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
         var attributes: [NSAttributedStringKey: Any] = [
@@ -194,15 +195,15 @@ open class TextView: UITextView {
     
     // MARK: - Plugin Loading
     
-    public func load(_ plugin: Plugin) {
-        storage.pluginManager.load(plugin)
+    var pluginManager: PluginManager {
+        get {
+            return storage.pluginManager
+        }
     }
-
-    // MARK: - Output Serialization
-
-    /// Serializes the DOM Tree into an HTML String.
-    ///
-    public var outputSerializer: HTMLSerializer = DefaultHTMLSerializer()
+    
+    public func load(_ plugin: Plugin) {
+        pluginManager.load(plugin)
+    }
 
     // MARK: - TextKit Aztec Subclasses
 
@@ -691,15 +692,17 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    @objc public func getHTML() -> String {
-        return storage.getHTML(serializer: outputSerializer)
+    public func getHTML(serializer: HTMLSerializer? = nil) -> String {
+        let serializer = serializer ?? defaultSerializer
+        
+        return storage.getHTML(serializer: serializer)
     }
 
     /// Loads the specified HTML into the editor.
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    @objc public func setHTML(_ html: String) {
+    public func setHTML(_ html: String) {
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //

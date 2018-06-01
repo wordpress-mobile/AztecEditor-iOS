@@ -22,18 +22,7 @@ open class Plugin {
     ///
     open func process(inputHTMLTree tree: RootNode) { return }
     
-    /// Returns a mapping of Element and their converters.  This will override the default
-    /// mapping, so make sure to know what you're doing.
-    ///
-    /// - Important: when multiple plugins map the same elements, the last plugin to map it will be
-    ///     the prevailing one.
-    ///
-    open func inputElementConverters() -> [Element: ElementConverter] { return [:] }
-    
-    /// Converts a paragraph property into the ElementNode that represents it.
-    /// When a conversion is not implemented, just return nil.
-    ///
-    open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
+    open func converter(for element: ElementNode) -> ElementConverter? { return nil }
     
     // MARK: - Output Processing
     
@@ -46,6 +35,11 @@ open class Plugin {
     /// the output conversion process.
     ///
     open func process(outputHTMLTree tree: RootNode) { return }
+    
+    /// Converts a paragraph property into the ElementNode that represents it.
+    /// When a conversion is not implemented, just return nil.
+    ///
+    open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
 
     // MARK: - Equatable
     

@@ -9,7 +9,7 @@ public extension CommentNode {
     // MARK: - Opener & Closer Identification
     
     func isGutenbergBlockCloser(forOpener opener: CommentNode) -> Bool {
-        return isGutenbergBlockCloser() && canAssociate(opener: opener, withCloser: self)
+        return isGutenbergBlockCloser() && opener.canBeClosedBy(self)
     }
     
     private func isGutenbergBlockCloser() -> Bool {
@@ -27,17 +27,20 @@ public extension CommentNode {
     }
     
     func isGutenbergSelfClosingBlock() -> Bool {
-        let prefix = CommentNode.openerPrefix
-        let selfClosingBlockSuffix = CommentNode.selfClosingBlockSuffix
+        return false
         
-        return comment.trimmingCharacters(in: .whitespaces).prefix(prefix.count) == prefix
-            && comment.trimmingCharacters(in: .whitespaces).suffix(selfClosingBlockSuffix.count) == selfClosingBlockSuffix
+        // Temporarily disabled this code until we can get self-closing blocks working correctly.
+//        let prefix = CommentNode.openerPrefix
+//        let selfClosingBlockSuffix = CommentNode.selfClosingBlockSuffix
+//
+//        return comment.trimmingCharacters(in: .whitespaces).prefix(prefix.count) == prefix
+//            && comment.trimmingCharacters(in: .whitespaces).suffix(selfClosingBlockSuffix.count) == selfClosingBlockSuffix
     }
     
     // MARK: - Internal Logic
     
-    private func canAssociate(opener: CommentNode, withCloser closer: CommentNode) -> Bool {
-        return openerName(for: opener) == closerName(for: closer)
+    private func canBeClosedBy(_ closer: CommentNode) -> Bool {
+        return openerName(for: self) == closerName(for: closer)
     }
     
     private func openerName(for commentNode: CommentNode) -> String {

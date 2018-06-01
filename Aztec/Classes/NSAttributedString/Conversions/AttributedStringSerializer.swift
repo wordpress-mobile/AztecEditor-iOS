@@ -1,14 +1,18 @@
 import Foundation
 import UIKit
 
+protocol AttributedStringSerializerCustomizer {
+    func converter(for: ElementNode) -> ElementConverter?
+}
+
 /// Composes an attributed string from an HTML tree.
 ///
 class AttributedStringSerializer {
-    private let defaultAttributes: [NSAttributedStringKey:Any]
+    private let customizer: AttributedStringSerializerCustomizer?
     
     // MARK: - Element Converters
     
-    static let defaultElementConverters: [Element: ElementConverter] = [
+    private static let defaultElementConverters: [Element: ElementConverter] = [
         .br: BRElementConverter(),
         .figcaption: FigcaptionElementConverter(),
         .figure: FigureElementConverter(),
@@ -17,16 +21,12 @@ class AttributedStringSerializer {
         .video: VideoElementConverter()
     ]
     
-    let elementConverters: [Element: ElementConverter]
-    
     // MARK: - Initializers
 
     required init(
-        defaultAttributes: [NSAttributedStringKey: Any],
-        elementConverters: [Element: ElementConverter] = AttributedStringSerializer.defaultElementConverters) {
+        customizer: AttributedStringSerializerCustomizer? = nil) {
         
-        self.defaultAttributes = defaultAttributes
-        self.elementConverters = elementConverters
+        self.customizer = customizer
     }
 
     // MARK: - Conversion
@@ -38,7 +38,7 @@ class AttributedStringSerializer {
     ///
     /// - Returns: the requested attributed string.
     ///
-    func serialize(_ node: Node) -> NSAttributedString {
+    func serialize(_ node: Node, defaultAttributes: [NSAttributedStringKey: Any] = [:]) -> NSAttributedString {
         return serialize(node, inheriting: defaultAttributes)
     }
 
@@ -203,13 +203,11 @@ private extension AttributedStringSerializer {
     /// Element Converters take care of that.
     ///
     func converter(for element: ElementNode) -> ElementConverter {
-        return elementConverters[element.type] ?? genericElementConverter
-    }
-
-    /// Indicates if there's a specialized converter (AKA anything but the default GenericConverter) that can handle a given element.
-    ///
-    func hasSpecializedConverter(for element: ElementNode) -> Bool {
-        return elementConverters.keys.contains(element.type)
+        if let converter = customizer?.converter(for: element) {
+            return converter
+        }
+        
+        return AttributedStringSerializer.defaultElementConverters[element.type] ?? genericElementConverter
     }
 }
 
