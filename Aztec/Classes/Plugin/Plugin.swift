@@ -22,6 +22,8 @@ open class Plugin {
     ///
     open func process(inputHTMLTree tree: RootNode) { return }
     
+    open func converter(for element: ElementNode) -> ElementConverter? { return nil }
+    
     // MARK: - Output Processing
     
     /// Processes an HTML string right after converting it from a nodes tree in the output
@@ -33,6 +35,11 @@ open class Plugin {
     /// the output conversion process.
     ///
     open func process(outputHTMLTree tree: RootNode) { return }
+    
+    /// Converts a paragraph property into the ElementNode that represents it.
+    /// When a conversion is not implemented, just return nil.
+    ///
+    open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
 
     // MARK: - Equatable
     

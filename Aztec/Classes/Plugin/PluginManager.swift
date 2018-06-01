@@ -2,7 +2,7 @@ import Foundation
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
-class PluginsManager {
+class PluginManager {
     
     // MARK: - Plugin Loading
     
@@ -10,7 +10,7 @@ class PluginsManager {
     
     /// Loads a plugins.
     ///
-    public func load(_ plugin: Plugin) {
+    func load(_ plugin: Plugin) {
         guard !plugins.contains(where: { $0 == plugin }) else {
             assertionFailure()
             return
@@ -58,6 +58,34 @@ class PluginsManager {
         for plugin in plugins {
             plugin.process(outputHTMLTree: tree)
         }
+    }
+}
+
+// MARK: - AttributedStringSerializerCustomizer
+
+extension PluginManager: AttributedStringSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementConverter? {
+        for plugin in plugins {
+            if let converter = plugin.converter(for: element) {
+                return converter
+            }
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - AttributedStringParserCustomizer
+
+extension PluginManager: AttributedStringParserCustomizer {
+    func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
+        for plugin in plugins {
+            if let element = plugin.convert(paragraphProperty) {
+                return element
+            }
+        }
+        
+        return nil
     }
 }
 

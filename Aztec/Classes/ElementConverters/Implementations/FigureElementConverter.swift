@@ -5,21 +5,15 @@ import UIKit
 ///
 class FigureElementConverter: ElementConverter {
     
-    let serializeChildren: ChildrenSerializer
-    
-    required init(childrenSerializer: @escaping ChildrenSerializer) {
-        self.serializeChildren = childrenSerializer
-    }
-    
     // MARK: - ElementConverter
     
-    func canConvert(element: ElementNode) -> Bool {
-        return element.isNodeType(.figure)
-    }
-    
-    func convert(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
-        assert(canConvert(element: element))
-        
+    func convert(
+        _ element: ElementNode,
+        inheriting attributes: [NSAttributedStringKey: Any],
+        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+       
+        precondition(element.type == .figure)
+       
         let attributes = self.attributes(for: element, inheriting: attributes)
         
         return serializeChildren(element.children, attributes)

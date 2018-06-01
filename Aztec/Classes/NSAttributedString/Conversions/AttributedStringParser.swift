@@ -2,9 +2,26 @@ import Foundation
 import UIKit
 import libxml2
 
+/// This protocol can be implemented by an object that wants to modify the behavior
+/// of the AttributedStringParser.
+///
+protocol AttributedStringParserCustomizer: ParagraphPropertyConverter {}
+
 /// Parses an attributed string into an HTML tree.
 ///
 class AttributedStringParser {
+    
+    // MARK: - Plugin Manager
+    
+    let customizer: AttributedStringParserCustomizer?
+    
+    // MARK: - Initializers
+    
+    init(customizer: AttributedStringParserCustomizer? = nil) {
+        self.customizer = customizer
+    }
+    
+    // MARK: - Parsing
 
     /// Parses an attributed string and returns the corresponding HTML tree.
     ///
@@ -345,14 +362,14 @@ private extension AttributedStringParser {
         
         // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
         // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
-        if mergeableNodes.last?.left.standardName == .figure {
+        if mergeableNodes.last?.left.type == .figure {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()
         }
 
-        if lastNodeName != StandardElementType.li.rawValue {
-            mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
+        if lastNodeName != Element.li.rawValue {
+            mergeCandidates = prefix(upToLast: Element.li.rawValue, from: mergeCandidates)
         }
         
         return mergeCandidates.last
@@ -411,7 +428,7 @@ extension AttributedStringParser {
         var nextElement = childPicker(nodes) as? ElementNode
 
         while let currentElement = nextElement {
-            guard currentElement.isBlockLevelElement() else {
+            guard currentElement.isBlockLevel() else {
                 break
             }
 
@@ -480,6 +497,13 @@ private extension AttributedStringParser {
         var paragraphNodes = [ElementNode]()
         
         for property in paragraphStyle.properties.reversed() {
+            
+            // The customizer overrides any default behaviour, which is the reason why it's run first.
+            if let element = customizer?.convert(property) {
+                paragraphNodes.append(element)
+                continue
+            }
+            
             switch property {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
@@ -629,7 +653,7 @@ private extension AttributedStringParser {
     /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
     private func processListStyle(list: TextList) -> [ElementNode] {
-        let listType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
+        let listType = list.style == .ordered ? Element.ol : Element.ul
 
         let listElement: ElementNode
         let lineElement = ElementNode(type: .li)
