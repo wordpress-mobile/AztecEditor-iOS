@@ -19,6 +19,6 @@ public protocol ElementConverter {
     ///
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting inheritedAttributes: [NSAttributedStringKey: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString
 }

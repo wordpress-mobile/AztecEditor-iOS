@@ -743,7 +743,7 @@ private extension AttributedStringParser {
 
         if let element = processCodeStyle(in: attributes) {
             nodes.append(element)
-        }
+        }        
 
         nodes += processUnsupportedHTML(in: attributes)
 
@@ -779,6 +779,10 @@ private extension AttributedStringParser {
         let element: ElementNode
 
         if let representation = attributes[NSAttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
+            case let .element(representationElement) = representation.kind {
+
+            element = representationElement.toElementNode()
+        } else if let representation = attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -859,7 +863,6 @@ private extension AttributedStringParser {
 
         return ElementNode(type: .code)
     }
-
 
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
