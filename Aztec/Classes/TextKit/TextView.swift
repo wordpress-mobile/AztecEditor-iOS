@@ -161,7 +161,7 @@ open class TextView: UITextView {
     open let defaultFont: UIFont
     open let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
-    private let defaultSerializer = DefaultHTMLSerializer(prettyPrint: true)
+    public var defaultSerializer = DefaultHTMLSerializer(prettyPrint: true)
     
     fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
         var attributes: [NSAttributedStringKey: Any] = [

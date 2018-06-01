@@ -27,13 +27,18 @@ class TextViewTests: XCTestCase {
         let richTextView = Aztec.TextView(
             defaultFont: UIFont.systemFont(ofSize: 14),
             defaultMissingImage: UIImage())
+        
+        richTextView.defaultSerializer = DefaultHTMLSerializer(prettyPrint: false)
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
+        
         return richTextView
     }
 
     func createTextView(withHTML html: String, prettyPrint: Bool = false) -> TextView {
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
+        
+        richTextView.defaultSerializer = DefaultHTMLSerializer(prettyPrint: false)
         richTextView.textAttachmentDelegate = attachmentDelegate
         richTextView.registerAttachmentImageProvider(attachmentDelegate)
         richTextView.setHTML(html)
