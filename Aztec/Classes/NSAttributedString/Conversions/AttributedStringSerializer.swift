@@ -14,6 +14,7 @@ class AttributedStringSerializer {
     
     private static let defaultElementConverters: [Element: ElementConverter] = [
         .br: BRElementConverter(),
+        .cite: CiteElementConverter(),
         .figcaption: FigcaptionElementConverter(),
         .figure: FigureElementConverter(),
         .hr: HRElementConverter(),
