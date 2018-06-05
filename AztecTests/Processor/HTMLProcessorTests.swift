@@ -12,22 +12,25 @@ class HTMLProcessorTests: XCTestCase {
     }
 
     func testProcessorOfVideoPressCode() {
+        let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
+        
         let processor = HTMLProcessor(tag:"video", replacer:{ (videoElement) in
-            guard let videoPressID = videoElement.attributes.named["data-wpvideopress"] else {
+            guard let videoPressID = videoElement.attributes["data-wpvideopress"] else {
                 return nil
             }
+            
             var html = "[wpvideo \(videoPressID) "
-
-            for attribute in videoElement.attributes.named {
-                if attribute.key == "src" || attribute.key == "data-wpvideopress" {
+            
+            for attribute in videoElement.attributes {
+                guard !["src", "data-wpvideopress"].contains(attribute.key) else {
                     continue
                 }
-                html += "\(attribute.key)=\"\(attribute.value)\" "
+                
+                html += shortcodeAttributeSerializer.serialize(attribute)
             }
-            for attribute in videoElement.attributes.unamed {
-                html += "\(attribute) "
-            }
+            
             html += "/]"
+            
             return html
         })
         let sampleText = "<video src=\"videopress://OcobLTqC\" width=640 height=400 data-wpvideopress=\"OcobLTqC\" />"

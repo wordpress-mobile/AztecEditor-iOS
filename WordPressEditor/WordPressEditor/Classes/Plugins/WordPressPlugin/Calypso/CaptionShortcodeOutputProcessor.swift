@@ -6,8 +6,8 @@ import Foundation
 class CaptionShortcodeOutputProcessor: HTMLProcessor {
 
     init() {
-        super.init(tag: Element.figure.rawValue) { shortcode in
-            guard let payload = shortcode.content else {
+        super.init(tag: Element.figure.rawValue) { element in
+            guard let payload = element.content else {
                 return nil
             }
 
@@ -24,7 +24,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
-            var attributes = shortcode.attributes.named
+            var attributes = element.attributes
             var imgNode: ElementNode?
 
             // Find img child node of caption
@@ -35,16 +35,26 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             }
 
             if let imgNode = imgNode {
-                attributes = CaptionShortcodeOutputProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
+                attributes = CaptionShortcodeOutputProcessor.attributes(from: imgNode, basedOn: attributes)
             }
 
             var attributesHTMLRepresentation: String = " id=\"\""
-            if let idValue = attributes["id"] {
+            
+            if let idValue = element.attributes["id"] {
                 attributesHTMLRepresentation = " id=\"\(idValue)\""
-                attributes.removeValue(forKey: "id")
+                
+                attributes = attributes.filter({ (shortcodeAttribute) -> Bool in
+                    return shortcodeAttribute.key != "id"
+                })
             }
-            for (key, value) in attributes {
-                attributesHTMLRepresentation += " \(key)=\"\(value)\""
+            
+            for attribute in attributes {
+                switch attribute.value {
+                case .nil:
+                    attributesHTMLRepresentation += " \(attribute.key)"
+                case .string(let value):
+                    attributesHTMLRepresentation += " \(attribute.key)=\"\(value)\""
+                }
             }
 
             var html = "[caption" + attributesHTMLRepresentation + "]"
@@ -61,9 +71,10 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
         }
     }
 
-    static func captionAttributesFrom(imgNode: ElementNode, basedOn baseAttributes: [String: String]) -> [String: String] {
+    static func attributes(from imgNode: ElementNode, basedOn baseAttributes: [String: ShortcodeAttributeValue]) -> [String: ShortcodeAttributeValue] {
         var captionAttributes = baseAttributes
         let imgAttributes = imgNode.attributes
+        
         for attribute in imgAttributes {
             guard attribute.name != "src",
                 let attributeValue = attribute.value.toString() else {
@@ -74,15 +85,18 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
                 let classAttributes = attributeValue.components(separatedBy: " ")
                 for classAttribute in classAttributes {
                     if classAttribute.hasPrefix("wp-image-") {
-                        captionAttributes["id"] = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                        let value = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                        
+                        captionAttributes["id"] = .string(value)
                     } else if classAttribute.hasPrefix("align"){
-                        captionAttributes["align"] = classAttribute
+                        captionAttributes["align"] = .string(classAttribute)
                     }
                 }
             } else {
-                captionAttributes[attribute.name] = attributeValue
+                captionAttributes[attribute.name] = .string(attributeValue)
             }
         }
+        
         return captionAttributes
     }
 }

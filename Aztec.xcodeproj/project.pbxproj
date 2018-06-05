@@ -59,7 +59,7 @@
 		B5AF89321E93CFC80051EFDB /* RenderableAttachmentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */; };
 		B5B86D371DA3EC250083DB3F /* NSRange+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */; };
 		B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */; };
-		B5B988D81FF4185400C0280D /* HTMLAttributesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B988D71FF4185400C0280D /* HTMLAttributesTests.swift */; };
+		B5B988D81FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B988D71FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift */; };
 		B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */; };
 		B5BC4FF21DA2D17000614582 /* NSAttributedStringListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */; };
 		B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */; };
@@ -116,6 +116,7 @@
 		F1584794203C94AC00EE05A1 /* Dictionary+AttributedStringKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1584793203C94AC00EE05A1 /* Dictionary+AttributedStringKey.swift */; };
 		F1584796203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1584795203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift */; };
 		F15A8B6520BED08900C57ED2 /* ParagraphPropertyConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15A8B6420BED08900C57ED2 /* ParagraphPropertyConverter.swift */; };
+		F165D92220C6FF9300EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92120C6FF9300EAA6B0 /* ShortcodeAttributeSerializer.swift */; };
 		F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F168DB851F6381A00009BD0E /* CSSParserTests.swift */; };
 		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
@@ -135,6 +136,7 @@
 		F18986E51EF2043E0060EDBA /* ItalicFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */; };
 		F18B81EB1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18B81EA1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift */; };
 		F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */; };
+		F193AD6720C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F193AD6620C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift */; };
 		F1953E251F4E544A00C717C9 /* HTMLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1953E241F4E544A00C717C9 /* HTMLParserTests.swift */; };
 		F19544051F588F1A00671B73 /* CSSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19544041F588F1A00671B73 /* CSSParser.swift */; };
 		F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */; };
@@ -163,7 +165,7 @@
 		F1FF7DA1201A1D3E007B0B32 /* FigcaptionElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */; };
 		FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF0714001EFD78AF00E50713 /* Media.xcassets */; };
 		FF152D8E1E68552A00FF596C /* StringRangeConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */; };
-		FF20D6401EDC389A00294B78 /* HTMLAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */; };
+		FF20D6401EDC389A00294B78 /* ShortcodeAttributeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63D1EDC389A00294B78 /* ShortcodeAttributeValue.swift */; };
 		FF20D6411EDC389A00294B78 /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */; };
 		FF20D6421EDC389A00294B78 /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63F1EDC389A00294B78 /* Processor.swift */; };
 		FF20D6441EDC395E00294B78 /* NSTextingResult+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */; };
@@ -266,7 +268,7 @@
 		B5AB79F91F5F403C00DF26F5 /* StringParagraphTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StringParagraphTests.swift; path = Extensions/StringParagraphTests.swift; sourceTree = "<group>"; };
 		B5AF89311E93CFC80051EFDB /* RenderableAttachmentDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderableAttachmentDelegate.swift; sourceTree = "<group>"; };
 		B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPasteboard+Helpers.swift"; sourceTree = "<group>"; };
-		B5B988D71FF4185400C0280D /* HTMLAttributesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLAttributesTests.swift; sourceTree = "<group>"; };
+		B5B988D71FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializerTests.swift; sourceTree = "<group>"; };
 		B5BC4FED1DA2C17800614582 /* NSAttributedString+Lists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Lists.swift"; sourceTree = "<group>"; };
 		B5BC4FF11DA2D17000614582 /* NSAttributedStringListsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NSAttributedStringListsTests.swift; path = Extensions/NSAttributedStringListsTests.swift; sourceTree = "<group>"; };
 		B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderFormatterTests.swift; sourceTree = "<group>"; };
@@ -324,6 +326,7 @@
 		F1584793203C94AC00EE05A1 /* Dictionary+AttributedStringKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+AttributedStringKey.swift"; sourceTree = "<group>"; };
 		F1584795203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ParagraphProperty.swift"; sourceTree = "<group>"; };
 		F15A8B6420BED08900C57ED2 /* ParagraphPropertyConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphPropertyConverter.swift; sourceTree = "<group>"; };
+		F165D92120C6FF9300EAA6B0 /* ShortcodeAttributeSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializer.swift; sourceTree = "<group>"; };
 		F168DB851F6381A00009BD0E /* CSSParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParserTests.swift; sourceTree = "<group>"; };
 		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
@@ -344,6 +347,7 @@
 		F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItalicFormatter.swift; sourceTree = "<group>"; };
 		F18B81EA1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StringUnicodeScalarView+RangeConversion.swift"; sourceTree = "<group>"; };
 		F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StringUTF16+RangeConversion.swift"; sourceTree = "<group>"; };
+		F193AD6620C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeParser.swift; sourceTree = "<group>"; };
 		F1953E241F4E544A00C717C9 /* HTMLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLParserTests.swift; sourceTree = "<group>"; };
 		F19544041F588F1A00671B73 /* CSSParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParser.swift; sourceTree = "<group>"; };
 		F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLTreeProcessor.swift; sourceTree = "<group>"; };
@@ -372,7 +376,7 @@
 		F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigcaptionElementConverter.swift; sourceTree = "<group>"; };
 		FF0714001EFD78AF00E50713 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		FF152D8D1E68552A00FF596C /* StringRangeConversionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRangeConversionTests.swift; sourceTree = "<group>"; };
-		FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttributes.swift; sourceTree = "<group>"; };
+		FF20D63D1EDC389A00294B78 /* ShortcodeAttributeValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeValue.swift; sourceTree = "<group>"; };
 		FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
 		FF20D63F1EDC389A00294B78 /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
 		FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSTextingResult+Helpers.swift"; sourceTree = "<group>"; };
@@ -955,7 +959,9 @@
 		FF20D63C1EDC389A00294B78 /* Processor */ = {
 			isa = PBXGroup;
 			children = (
-				FF20D63D1EDC389A00294B78 /* HTMLAttributes.swift */,
+				FF20D63D1EDC389A00294B78 /* ShortcodeAttributeValue.swift */,
+				F165D92120C6FF9300EAA6B0 /* ShortcodeAttributeSerializer.swift */,
+				F193AD6620C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift */,
 				FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */,
 				F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */,
 				FF20D63F1EDC389A00294B78 /* Processor.swift */,
@@ -968,7 +974,7 @@
 		FF20D6451EDC3B3900294B78 /* Processor */ = {
 			isa = PBXGroup;
 			children = (
-				B5B988D71FF4185400C0280D /* HTMLAttributesTests.swift */,
+				B5B988D71FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift */,
 				FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */,
 			);
 			path = Processor;
@@ -1122,6 +1128,7 @@
 				B5AB79F81F5F3E0B00DF26F5 /* String+Paragraph.swift in Sources */,
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
 				F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */,
+				F165D92220C6FF9300EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */,
 				F17BC8AA1F4E512800398E2B /* AttributedStringParser.swift in Sources */,
 				40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */,
 				599F25471D8BC9A1002871D6 /* HTMLConstants.swift in Sources */,
@@ -1152,7 +1159,7 @@
 				F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */,
 				F11326B31EF1AA91007FEE9A /* ParagraphProperty.swift in Sources */,
 				F11326B11EF1AA91007FEE9A /* HTMLParagraph.swift in Sources */,
-				FF20D6401EDC389A00294B78 /* HTMLAttributes.swift in Sources */,
+				FF20D6401EDC389A00294B78 /* ShortcodeAttributeValue.swift in Sources */,
 				F12F58701EF20394008AE298 /* StrikethroughFormatter.swift in Sources */,
 				FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */,
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
@@ -1223,6 +1230,7 @@
 				F1AFD65820B45E5700CB0279 /* CommentAttachmentRenderer.swift in Sources */,
 				FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
+				F193AD6720C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift in Sources */,
 				F14C4D2620C076EA007CBC57 /* HTMLConverter.swift in Sources */,
 				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
 				40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */,
@@ -1266,7 +1274,7 @@
 				F18733C81DA09737005AEB80 /* NSRangeComparisonTests.swift in Sources */,
 				B5E607331DA56EC700C8A389 /* TextListFormatterTests.swift in Sources */,
 				FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */,
-				B5B988D81FF4185400C0280D /* HTMLAttributesTests.swift in Sources */,
+				B5B988D81FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
 				B5D575831F22820A003A62F6 /* HTMLRepresentationTests.swift in Sources */,
 				B5D575871F2288E2003A62F6 /* TextStorageTests.swift in Sources */,
