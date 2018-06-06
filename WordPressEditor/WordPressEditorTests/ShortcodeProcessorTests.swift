@@ -12,19 +12,17 @@ class ShortcodeProcessorTests: XCTestCase {
         let shortCodeParser = ShortcodeProcessor(tag:"wpvideo", replacer:{ (shortcode) in
             var html = "<video "
 
-            if let src = shortcode.attributes.first(where: { (key, value) -> Bool in
-                return value == .none
-            }) {
+            if let src = shortcode.attributes.first(where: { $0.value == .nil }) {
                 html += shortcodeAttributeSerializer.serialize(key: "src", value: "videopress://\(src.key)") + " "
                 html += shortcodeAttributeSerializer.serialize(key: "data-wpvideopress", value: src.key) + " "
             }
             
             if let width = shortcode.attributes["w"] {
-                html += shortcodeAttributeSerializer.serialize(key: "width", value: width) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "width", value: width.value) + " "
             }
             
             if let height = shortcode.attributes["h"] {
-                html += shortcodeAttributeSerializer.serialize(key: "height", value: height) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "height", value: height.value) + " "
             }
             
             html += "/>"
@@ -34,7 +32,7 @@ class ShortcodeProcessorTests: XCTestCase {
         
         let sampleText = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true] Some Text"
         let parsedText = shortCodeParser.process(sampleText)
-        let expected = "<video src=\"videopress://OcobLTqC\" data-wpvideopress=\"OcobLTqC\" width=640 height=400 /> Some Text"
+        let expected = "<video src=\"videopress://OcobLTqC\" data-wpvideopress=\"OcobLTqC\" width=\"640\" height=\"400\" /> Some Text"
         
         XCTAssertEqual(parsedText, expected)
     }
@@ -46,7 +44,7 @@ class ShortcodeProcessorTests: XCTestCase {
             var html = "<video "
             
             if let src = shortcode.attributes["src"] {
-                html += shortcodeAttributeSerializer.serialize(key: "src", value: src) + " "
+                html += shortcodeAttributeSerializer.serialize(src) + " "
             }
             
             html += "/>"

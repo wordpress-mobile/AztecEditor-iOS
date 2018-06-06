@@ -6,6 +6,8 @@ import Foundation
 class CaptionShortcodeOutputProcessor: HTMLProcessor {
 
     init() {
+        let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
+        
         super.init(tag: Element.figure.rawValue) { element in
             guard let payload = element.content else {
                 return nil
@@ -37,27 +39,14 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             if let imgNode = imgNode {
                 attributes = CaptionShortcodeOutputProcessor.attributes(from: imgNode, basedOn: attributes)
             }
-
-            var attributesHTMLRepresentation: String = " id=\"\""
             
-            if let idValue = element.attributes["id"] {
-                attributesHTMLRepresentation = " id=\"\(idValue)\""
-                
-                attributes = attributes.filter({ (shortcodeAttribute) -> Bool in
-                    return shortcodeAttribute.key != "id"
-                })
+            if !attributes.contains(where: { $0.key == "id" }) {
+                attributes.insert(ShortcodeAttribute(key: "id", value: ""), at: 0)
             }
             
-            for attribute in attributes {
-                switch attribute.value {
-                case .nil:
-                    attributesHTMLRepresentation += " \(attribute.key)"
-                case .string(let value):
-                    attributesHTMLRepresentation += " \(attribute.key)=\"\(value)\""
-                }
-            }
+            let attributesHTMLRepresentation = shortcodeAttributeSerializer.serialize(attributes)
 
-            var html = "[caption" + attributesHTMLRepresentation + "]"
+            var html = "[caption " + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 
@@ -71,7 +60,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
         }
     }
 
-    static func attributes(from imgNode: ElementNode, basedOn baseAttributes: [String: ShortcodeAttributeValue]) -> [String: ShortcodeAttributeValue] {
+    static func attributes(from imgNode: ElementNode, basedOn baseAttributes: [ShortcodeAttribute]) -> [ShortcodeAttribute] {
         var captionAttributes = baseAttributes
         let imgAttributes = imgNode.attributes
         
@@ -87,13 +76,13 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
                     if classAttribute.hasPrefix("wp-image-") {
                         let value = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
                         
-                        captionAttributes["id"] = .string(value)
+                        captionAttributes.set(value, forKey: "id")
                     } else if classAttribute.hasPrefix("align"){
-                        captionAttributes["align"] = .string(classAttribute)
+                        captionAttributes.set(classAttribute, forKey: "align")
                     }
                 }
             } else {
-                captionAttributes[attribute.name] = .string(attributeValue)
+                captionAttributes.set(attributeValue, forKey: attribute.name)
             }
         }
         

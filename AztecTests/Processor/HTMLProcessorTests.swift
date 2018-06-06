@@ -19,23 +19,20 @@ class HTMLProcessorTests: XCTestCase {
                 return nil
             }
             
-            var html = "[wpvideo \(videoPressID) "
+            let attributes = videoElement.attributes.filter() { !["src", "data-wpvideopress"].contains($0.key) }
             
-            for attribute in videoElement.attributes {
-                guard !["src", "data-wpvideopress"].contains(attribute.key) else {
-                    continue
-                }
-                
-                html += shortcodeAttributeSerializer.serialize(attribute)
-            }
-            
+            var html = "[wpvideo "
+            html += shortcodeAttributeSerializer.serialize(videoPressID.value) + " "
+            html += shortcodeAttributeSerializer.serialize(attributes)
             html += "/]"
             
             return html
         })
+        
         let sampleText = "<video src=\"videopress://OcobLTqC\" width=640 height=400 data-wpvideopress=\"OcobLTqC\" />"
         let parsedText = processor.process(sampleText)
-        XCTAssertEqual(parsedText, "[wpvideo OcobLTqC height=\"400\" width=\"640\" /]")
+        
+        XCTAssertEqual(parsedText, "[wpvideo OcobLTqC width=\"640\" height=\"400\"/]")
     }
     
 }

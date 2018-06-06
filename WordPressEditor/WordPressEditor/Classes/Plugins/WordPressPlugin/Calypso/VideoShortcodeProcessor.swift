@@ -36,15 +36,15 @@ public class VideoShortcodeProcessor {
             html += "poster=\"\(videoPressScheme)://\(src)\" "
 
             if let width = shortcode.attributes["w"] {
-                html += shortcodeAttributeSerializer.serialize(key: "width", value: width) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "width", value: width.value) + " "
             }
 
             if let height = shortcode.attributes["h"] {
-                html += shortcodeAttributeSerializer.serialize(key: "height", value: height) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "height", value: height.value) + " "
             }
 
             if let uploadIDAttribute = shortcode.attributes[MediaAttachment.uploadKey] {
-                html += shortcodeAttributeSerializer.serialize(key: MediaAttachment.uploadKey, value: uploadIDAttribute) + " "
+                html += shortcodeAttributeSerializer.serialize(uploadIDAttribute) + " "
             }
 
             html += "/>"
@@ -69,15 +69,15 @@ public class VideoShortcodeProcessor {
             var html = "[wpvideo \(videoPressID) "
             
             if let width = element.attributes["width"] {
-                html += shortcodeAttributeSerializer.serialize(key: "w", value: width) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "w", value: width.value) + " "
             }
             
             if let height = element.attributes["height"] {
-                html += shortcodeAttributeSerializer.serialize(key: "h", value: height) + " "
+                html += shortcodeAttributeSerializer.serialize(key: "h", value: height.value) + " "
             }
             
             if let uploadID = element.attributes[MediaAttachment.uploadKey] {
-                html += shortcodeAttributeSerializer.serialize(key: MediaAttachment.uploadKey, value: uploadID) + " "
+                html += shortcodeAttributeSerializer.serialize(uploadID) + " "
             }
             
             html += "]"
@@ -97,15 +97,15 @@ public class VideoShortcodeProcessor {
             var html = "<video "
             
             if let src = shortcode.attributes["src"] {
-                html += shortcodeAttributeSerializer.serialize(key: "src", value: src) + " "
+                html += shortcodeAttributeSerializer.serialize(src) + " "
             }
             
             if let poster = shortcode.attributes["poster"] {
-                html += shortcodeAttributeSerializer.serialize(key: "poster", value: poster) + " "
+                html += shortcodeAttributeSerializer.serialize(poster) + " "
             }
             
             if let uploadID = shortcode.attributes[MediaAttachment.uploadKey] {
-                html += shortcodeAttributeSerializer.serialize(key: MediaAttachment.uploadKey, value: uploadID) + " "
+                html += shortcodeAttributeSerializer.serialize(uploadID) + " "
             }
             
             html += "/>"
@@ -125,19 +125,19 @@ public class VideoShortcodeProcessor {
             var html = "[video "
             
             if let src = element.attributes["src"] {
-                html += shortcodeAttributeSerializer.serialize(key: "src", value: src) + " "
+                html += shortcodeAttributeSerializer.serialize(src) + " "
             }
             
             if let posterAttribute = element.attributes["poster"],
-                case let .string(posterValue) = posterAttribute,
+                case let .string(posterValue) = posterAttribute.value,
                 let posterURL = URL(string: posterValue),
                 !posterURL.isFileURL {
                 
-                html += shortcodeAttributeSerializer.serialize(key: "poster", value: posterAttribute) + " "
+                html += shortcodeAttributeSerializer.serialize(posterAttribute) + " "
             }
             
             if let uploadID = element.attributes[MediaAttachment.uploadKey] {
-                html += shortcodeAttributeSerializer.serialize(key: MediaAttachment.uploadKey, value: uploadID) + " "
+                html += shortcodeAttributeSerializer.serialize(uploadID) + " "
             }
             
             html += "]"

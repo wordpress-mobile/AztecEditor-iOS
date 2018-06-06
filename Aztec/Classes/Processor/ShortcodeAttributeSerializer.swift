@@ -6,28 +6,46 @@ public class ShortcodeAttributeSerializer {
     
     public init() {}
    
-    /// Serializes a dictionary of attributes.
+    /// Serializes an array of attributes.
     ///
     /// - Parameters:
-    ///     - attributes: the dictionary of attributes to serialize.
+    ///     - attributes: the array of attributes to serialize.
     ///
     /// - Returns: the `String` representation of the provided attributes.
     ///
-    public func serialize(_ attributes: [String: ShortcodeAttributeValue]) -> String {
+    public func serialize(_ attributes: [ShortcodeAttribute]) -> String {
         return attributes.reduce("", { (previous, attribute) -> String in
-            return previous + " " + serialize(attribute)
+            let previous = previous.count > 0 ? previous + " " : ""
+            
+            return previous + serialize(attribute)
         })
     }
     
-    /// Serializes a (key, value) pair representing an attribute.
+    /// Serializes an attribute.
     ///
     /// - Parameters:
-    ///     - attribute: the (key, value) pair.
+    ///     - attribute: the attribute to serialize.
     ///
     /// - Returns: the `String` representation of the provided attribute.
     ///
-    public func serialize(_ attribute: (key: String, value: ShortcodeAttributeValue)) -> String {
+    public func serialize(_ attribute: ShortcodeAttribute) -> String {
         return serialize(key: attribute.key, value: attribute.value)
+    }
+    
+    /// Serializes a value as a `String`.
+    ///
+    /// - Parameters:
+    ///     - value: the value of the attribute.
+    ///
+    /// - Returns: the `String` representation of the provided key and value.
+    ///
+    public func serialize(_ value: ShortcodeAttribute.Value) -> String {
+        switch value {
+        case .nil:
+            return ""
+        case .string(let value):
+            return value
+        }
     }
     
     /// Serializes a key and a value as a `String`.
@@ -38,7 +56,7 @@ public class ShortcodeAttributeSerializer {
     ///
     /// - Returns: the `String` representation of the provided key and value.
     ///
-    public func serialize(key: String, value: ShortcodeAttributeValue) -> String {
+    public func serialize(key: String, value: ShortcodeAttribute.Value) -> String {
         switch value {
         case .nil:
             return key

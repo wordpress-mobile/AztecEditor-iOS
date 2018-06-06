@@ -28,12 +28,12 @@ class CaptionShortcodeInputProcessor: ShortcodeProcessor {
 
             let figcaptionNode = ElementNode(type: .figcaption, attributes: [], children: captionChildren)
             
-            let figureAttributes = shortcode.attributes.map({ (key, value) -> Attribute in
-                switch value {
+            let figureAttributes = shortcode.attributes.map({ attribute -> Attribute in
+                switch attribute.value {
                 case .nil:
-                    return Attribute(name: key)
+                    return Attribute(name: attribute.key)
                 case .string(let value):
-                    return Attribute(name: key, value: .string(value))
+                    return Attribute(name: attribute.key, value: .string(value))
                 }
             })
 

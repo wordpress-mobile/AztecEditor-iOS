@@ -8,10 +8,10 @@ class ShortcodeAttributeSerializerTests: XCTestCase {
     func testSerialization() {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        let attributes: [String: ShortcodeAttributeValue] = [
-            "yo": .string("semite"),
-            "moo": .nil,
-            "mav": .string("ericks"),
+        let attributes: [ShortcodeAttribute] = [
+            ShortcodeAttribute(key: "yo", value: "semite"),
+            ShortcodeAttribute(key: "moo"),
+            ShortcodeAttribute(key: "mav", value: "ericks"),
         ]
         
         let output = shortcodeAttributeSerializer.serialize(attributes)

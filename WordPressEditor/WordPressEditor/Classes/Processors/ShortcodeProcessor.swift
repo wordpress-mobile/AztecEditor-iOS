@@ -12,7 +12,7 @@ public struct Shortcode {
     }
 
     public let tag: String
-    public let attributes: [String: ShortcodeAttributeValue]
+    public let attributes: [ShortcodeAttribute]
     public let type: TagType
     public let content: String?
 }
@@ -101,9 +101,9 @@ private extension ShortcodeProcessor {
     
     /// Obtains the attributes from an HTML element match.
     ///
-    private func attributes(from match: NSTextCheckingResult, in text: String) -> [String: ShortcodeAttributeValue] {
+    private func attributes(from match: NSTextCheckingResult, in text: String) -> [ShortcodeAttribute] {
         guard let attributesText = match.captureGroup(in: CaptureGroups.arguments.rawValue, text: text) else {
-            return [:]
+            return []
         }
         
         return attributesParser.parse(attributesText)

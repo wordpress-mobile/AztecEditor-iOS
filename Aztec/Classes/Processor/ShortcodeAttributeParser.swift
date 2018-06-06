@@ -46,25 +46,25 @@ public class ShortcodeAttributeParser {
     /// - Parameter text: the text to where to find the attributes
     /// - Returns: the ShortcodeAttributes parsed from the text
     ///
-    public func parse(_ text: String) -> [String:ShortcodeAttributeValue] {
-        var attributes = [String:ShortcodeAttributeValue]()
+    public func parse(_ text: String) -> [ShortcodeAttribute] {
+        var attributes = [ShortcodeAttribute]()
         
         let attributesMatches = ShortcodeAttributeParser.attributesRegex.matches(in: text, options: [], range: text.nsRange(from: text.startIndex..<text.endIndex))
         
         for attributeMatch in attributesMatches {
             if let key = attributeMatch.captureGroup(in: CaptureGroups.nameInDoubleQuotes.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueInDoubleQuotes.rawValue, text: text) {
-                attributes[key] = .string(value)
+                attributes.append(ShortcodeAttribute(key: key, value: value))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.nameInSingleQuotes.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueInSingleQuotes.rawValue, text: text) {
-                attributes[key] = .string(value)
+                attributes.append(ShortcodeAttribute(key: key, value: value))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.nameUnquoted.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueUnquoted.rawValue, text: text) {
-                attributes[key] = .string(value)
+                attributes.append(ShortcodeAttribute(key: key, value: value))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.justValueQuoted.rawValue, text: text) {
-                attributes[key] = .nil
+                attributes.append(ShortcodeAttribute(key: key))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.justValueUnquoted.rawValue, text: text) {
-                attributes[key] = .nil
+                attributes.append(ShortcodeAttribute(key: key))
             }
         }
         
