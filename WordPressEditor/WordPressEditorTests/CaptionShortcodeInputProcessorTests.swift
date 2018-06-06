@@ -33,7 +33,7 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
                         "<img src=\".\">Text" +
                     "[/caption]"
 
-        let expected = "<figure align=\"alignleft\" class=\"span data-mce-type=\" id=\"attachment_6\" width=\"300\">" +
+        let expected = "<figure id=\"attachment_6\" align=\"alignleft\" width=\"300\" class=\"span data-mce-type=\">" +
                             "<img src=\".\"><figcaption>Text</figcaption>" +
                         "</figure>"
 

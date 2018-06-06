@@ -1,44 +1,9 @@
 import Foundation
 
-/// Struct to represent the attributes of a shortcode
-///
-public struct HTMLAttributes {
-
-    /// Attributes that have a form key=value or key="value" or key='value'
-    ///
-    public let named: [String: String]
-
-    /// Attributes that have a form value "value"
-    ///
-    public let unamed: [String]
-
-    public init(named: [String: String], unamed: [String]) {
-        self.named = named
-        self.unamed = unamed
-    }
-
-    /// Serializes the current HTMLAttribute Collection into a plain string
-    ///
-    public func toString() -> String {
-        var html = String()
-        for (key, value) in named {
-            html += html.isEmpty ? String() : String(.space)
-            html += "\(key)=\"\(value)\""
-        }
-
-        for value in unamed {
-            html += html.isEmpty ? String() : String(.space)
-            html += "\(value)"
-        }
-
-        return html
-    }
-}
-
 /// A struct that parses attributes inside a shortcode and return the corresponding attributes object
 ///
-public struct HTMLAttributesParser {
-
+public class ShortcodeAttributeParser {
+    
     enum CaptureGroups: Int {
         case all = 0
         case nameInDoubleQuotes
@@ -50,7 +15,7 @@ public struct HTMLAttributesParser {
         case justValueQuoted
         case justValueUnquoted
     }
-
+    
     /// Regular expression to detect attributes
     /// This regular expression is reused from `shortcode_parse_atts()`
     /// in `wp-includes/shortcodes.php`.
@@ -73,34 +38,38 @@ public struct HTMLAttributesParser {
         let attributesPattern: String = doubleQuotePattern + "|" + singleQuotePattern + "|" + noQuotePattern + "|\"([^\"]*)\"(?:\\s|$)|(\\S+)(?:\\s|$)"
         return try! NSRegularExpression(pattern: attributesPattern, options: .caseInsensitive)
     }()
-
-    /// Parses the attributes from a string to the object
+    
+    public init() {}
+    
+    /// Parses the provided string into attributes
     ///
     /// - Parameter text: the text to where to find the attributes
     /// - Returns: the ShortcodeAttributes parsed from the text
     ///
-    public static func makeAttributes(in text:String) -> HTMLAttributes {
-        var namedAttributes = [String: String]()
-        var unamedAttributes = [String]()
-
-        let attributesMatches = HTMLAttributesParser.attributesRegex.matches(in: text, options: [], range: text.nsRange(from: text.startIndex..<text.endIndex))
+    public func parse(_ text: String) -> [ShortcodeAttribute] {
+        var attributes = [ShortcodeAttribute]()
+        
+        let attributesMatches = ShortcodeAttributeParser.attributesRegex.matches(in: text, options: [], range: text.nsRange(from: text.startIndex..<text.endIndex))
+        
         for attributeMatch in attributesMatches {
             if let key = attributeMatch.captureGroup(in: CaptureGroups.nameInDoubleQuotes.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueInDoubleQuotes.rawValue, text: text) {
-                namedAttributes[key] = value
+                attributes.append(ShortcodeAttribute(key: key, value: value))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.nameInSingleQuotes.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueInSingleQuotes.rawValue, text: text) {
-                namedAttributes[key] = value
+                attributes.append(ShortcodeAttribute(key: key, value: value))
             } else if let key = attributeMatch.captureGroup(in: CaptureGroups.nameUnquoted.rawValue, text: text),
                 let value = attributeMatch.captureGroup(in: CaptureGroups.valueUnquoted.rawValue, text: text) {
-                namedAttributes[key] = value
-            } else if let value = attributeMatch.captureGroup(in: CaptureGroups.justValueQuoted.rawValue, text: text) {
-                unamedAttributes.append(value)
-            } else if let value = attributeMatch.captureGroup(in: CaptureGroups.justValueUnquoted.rawValue, text: text) {
-                unamedAttributes.append(value)
+                attributes.append(ShortcodeAttribute(key: key, value: value))
+            } else if let key = attributeMatch.captureGroup(in: CaptureGroups.justValueQuoted.rawValue, text: text) {
+                attributes.append(ShortcodeAttribute(key: key))
+            } else if let key = attributeMatch.captureGroup(in: CaptureGroups.justValueUnquoted.rawValue, text: text) {
+                attributes.append(ShortcodeAttribute(key: key))
             }
         }
-        return HTMLAttributes(named: namedAttributes, unamed: unamedAttributes)
+        
+        return attributes
     }
     
 }
+

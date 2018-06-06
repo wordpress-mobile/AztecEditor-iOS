@@ -6,8 +6,10 @@ import Foundation
 class CaptionShortcodeOutputProcessor: HTMLProcessor {
 
     init() {
-        super.init(tag: Element.figure.rawValue) { shortcode in
-            guard let payload = shortcode.content else {
+        let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
+        
+        super.init(tag: Element.figure.rawValue) { element in
+            guard let payload = element.content else {
                 return nil
             }
 
@@ -24,7 +26,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
-            var attributes = shortcode.attributes.named
+            var attributes = element.attributes
             var imgNode: ElementNode?
 
             // Find img child node of caption
@@ -35,19 +37,16 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             }
 
             if let imgNode = imgNode {
-                attributes = CaptionShortcodeOutputProcessor.captionAttributesFrom(imgNode: imgNode, basedOn: attributes)
+                attributes = CaptionShortcodeOutputProcessor.attributes(from: imgNode, basedOn: attributes)
             }
+            
+            if !attributes.contains(where: { $0.key == "id" }) {
+                attributes.insert(ShortcodeAttribute(key: "id", value: ""), at: 0)
+            }
+            
+            let attributesHTMLRepresentation = shortcodeAttributeSerializer.serialize(attributes)
 
-            var attributesHTMLRepresentation: String = " id=\"\""
-            if let idValue = attributes["id"] {
-                attributesHTMLRepresentation = " id=\"\(idValue)\""
-                attributes.removeValue(forKey: "id")
-            }
-            for (key, value) in attributes {
-                attributesHTMLRepresentation += " \(key)=\"\(value)\""
-            }
-
-            var html = "[caption" + attributesHTMLRepresentation + "]"
+            var html = "[caption " + attributesHTMLRepresentation + "]"
 
             html += serializer.serialize(coreNode)
 
@@ -61,9 +60,10 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
         }
     }
 
-    static func captionAttributesFrom(imgNode: ElementNode, basedOn baseAttributes: [String: String]) -> [String: String] {
+    static func attributes(from imgNode: ElementNode, basedOn baseAttributes: [ShortcodeAttribute]) -> [ShortcodeAttribute] {
         var captionAttributes = baseAttributes
         let imgAttributes = imgNode.attributes
+        
         for attribute in imgAttributes {
             guard attribute.name != "src",
                 let attributeValue = attribute.value.toString() else {
@@ -74,15 +74,18 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
                 let classAttributes = attributeValue.components(separatedBy: " ")
                 for classAttribute in classAttributes {
                     if classAttribute.hasPrefix("wp-image-") {
-                        captionAttributes["id"] = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                        let value = classAttribute.replacingOccurrences(of: "wp-image-", with: "attachment_")
+                        
+                        captionAttributes.set(value, forKey: "id")
                     } else if classAttribute.hasPrefix("align"){
-                        captionAttributes["align"] = classAttribute
+                        captionAttributes.set(classAttribute, forKey: "align")
                     }
                 }
             } else {
-                captionAttributes[attribute.name] = attributeValue
+                captionAttributes.set(attributeValue, forKey: attribute.name)
             }
         }
+        
         return captionAttributes
     }
 }
