@@ -11,19 +11,36 @@ public struct HTMLElement {
     }
 
     public let tag: String
-    public let attributes: HTMLAttributes
+    public let attributes: [ShortcodeAttribute]
     public let type: TagType
     public let content: String?
 }
 
 /// A class that processes a string and replace the designated shortcode for the replacement provided strings
 ///
-open class HTMLProcessor: RegexProcessor {
+open class HTMLProcessor: Processor {
 
-    public typealias HTMLReplacer = (HTMLElement) -> String?
+    /// Whenever an HTML is found by the processor, this closure will be executed so that elements can be customized.
+    ///
+    public typealias Replacer = (HTMLElement) -> String?
 
+    // MARK: - Basic Info
+    
     let tag: String
-
+    
+    // MARK: - Regex
+    
+    private enum CaptureGroups: Int {
+        case all = 0
+        case name
+        case arguments
+        case selfClosingElement
+        case content
+        case closingTag
+        
+        static let allValues: [CaptureGroups] = [.all, .name, .arguments, .selfClosingElement, .content, .closingTag]
+    }
+    
     /// Regular expression to detect attributes
     /// Capture groups:
     ///
@@ -33,48 +50,75 @@ open class HTMLProcessor: RegexProcessor {
     /// 4. The content of a element when it wraps some content.
     /// 5. The closing tag.
     ///
-    static func makeRegex(tag: String) -> NSRegularExpression {
-        let pattern = "\\<(\(tag))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
+    private lazy var htmlRegexProcessor: RegexProcessor = { [unowned self] in
+        let pattern = "\\<(\(self.tag))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-        return regex
-    }
-
-    enum CaptureGroups: Int {
-        case all = 0
-        case name
-        case arguments
-        case selfClosingElement
-        case content
-        case closingTag
-
-        static let allValues: [CaptureGroups] = [.all, .name, .arguments, .selfClosingElement, .content, .closingTag]
-    }
-
-    public init(tag: String, replacer: @escaping HTMLReplacer) {
+        
+        return RegexProcessor(regex: regex) { (match: NSTextCheckingResult, text: String) -> String? in
+            return self.process(match: match, text: text)
+        }
+    }()
+    
+    // MARK: - Parsing & processing properties
+    
+    private let attributesParser = ShortcodeAttributeParser()
+    private let replacer: Replacer
+    
+    // MARK: - Initializers
+    
+    public init(tag: String, replacer: @escaping Replacer) {
         self.tag = tag
-        let regex = HTMLProcessor.makeRegex(tag: tag)
-        let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
-            guard match.numberOfRanges == CaptureGroups.allValues.count else {
-                return nil
-            }
-            var attributes = HTMLAttributes(named: [:], unamed: [])
-            if let attributesText = match.captureGroup(in: CaptureGroups.arguments.rawValue, text: text) {
-                attributes = HTMLAttributesParser.makeAttributes(in: attributesText)
-            }
+        self.replacer = replacer
+    }
+        
+    // MARK: - Processing
 
-            var type: HTMLElement.TagType = .single
-            if match.captureGroup(in: CaptureGroups.selfClosingElement.rawValue, text: text) != nil {
-                type = .selfClosing
-            } else if match.captureGroup(in: CaptureGroups.closingTag.rawValue, text: text) != nil {
-                type = .closed
-            }
+    public func process(_ text: String) -> String {
+        return htmlRegexProcessor.process(text)
+    }
+}
 
-            let content: String? = match.captureGroup(in: CaptureGroups.content.rawValue, text: text)
+// MARK: - Regex Match Processing Logic
 
-            let htmlElement = HTMLElement(tag: tag, attributes: attributes, type: type, content: content)
-            return replacer(htmlElement)
+private extension HTMLProcessor {
+    /// Processes an HTML Element regex match.
+    ///
+    func process(match: NSTextCheckingResult, text: String) -> String? {
+        
+        guard match.numberOfRanges == CaptureGroups.allValues.count else {
+            return nil
+        }
+        
+        let attributes = self.attributes(from: match, in: text)
+        let elementType = self.elementType(from: match, in: text)
+        let content: String? = match.captureGroup(in: CaptureGroups.content.rawValue, text: text)
+        
+        let htmlElement = HTMLElement(tag: tag, attributes: attributes, type: elementType, content: content)
+        
+        return replacer(htmlElement)
+    }
+    
+    // MARK: - Regex Match Processing Logic
+    
+    /// Obtains the attributes from an HTML element match.
+    ///
+    private func attributes(from match: NSTextCheckingResult, in text: String) -> [ShortcodeAttribute] {
+        guard let attributesText = match.captureGroup(in: CaptureGroups.arguments.rawValue, text: text) else {
+            return []
         }
 
-        super.init(regex: regex, replacer: regexReplacer)
+        return attributesParser.parse(attributesText)
+    }
+    
+    /// Obtains the element type for an HTML element match.
+    ///
+    private func elementType(from match: NSTextCheckingResult, in text: String) -> HTMLElement.TagType {
+        if match.captureGroup(in: CaptureGroups.selfClosingElement.rawValue, text: text) != nil {
+            return .selfClosing
+        } else if match.captureGroup(in: CaptureGroups.closingTag.rawValue, text: text) != nil {
+            return .closed
+        }
+        
+        return .single
     }
 }

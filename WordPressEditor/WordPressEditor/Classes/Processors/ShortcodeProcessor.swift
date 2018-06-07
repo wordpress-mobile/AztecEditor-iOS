@@ -1,5 +1,6 @@
-import Foundation
 import Aztec
+import Foundation
+
 /// Struct to represent a WordPress shortcode
 /// More details here: https://codex.wordpress.org/Shortcode and here: https://en.support.wordpress.com/shortcodes/
 ///
@@ -11,18 +12,35 @@ public struct Shortcode {
     }
 
     public let tag: String
-    public let attributes: HTMLAttributes
+    public let attributes: [ShortcodeAttribute]
     public let type: TagType
     public let content: String?
 }
 
 /// A class that processes a string and replace the designated shortcode for the replacement provided strings
 ///
-public class ShortcodeProcessor: RegexProcessor {
+public class ShortcodeProcessor: Processor {
 
-    public typealias ShortcodeReplacer = (Shortcode) -> String?
+    public typealias Replacer = (Shortcode) -> String?
 
+    // MARK: - Basic Info
+    
     let tag: String
+    
+    // MARK: - Regex
+    
+    private enum CaptureGroups: Int {
+        case all = 0
+        case extraOpen
+        case name
+        case arguments
+        case selfClosingElement
+        case content
+        case closingTag
+        case extraClose
+        
+        static let allValues = [.all, extraOpen, .name, .arguments, .selfClosingElement, .content, .closingTag, .extraClose]
+    }
 
     /// Regular expression to detect attributes
     /// Capture groups:
@@ -35,50 +53,71 @@ public class ShortcodeProcessor: RegexProcessor {
     /// 6. The closing tag.
     /// 7. An extra `]` to allow for escaping shortcodes with double `[[]]`
     ///
-    static func makeShortcodeRegex(tag: String) -> NSRegularExpression {
+    private lazy var shortcodeRegexProcessor: RegexProcessor = { [unowned self] in
         let pattern = "\\[(\\[?)(\(tag))(?![\\w-])([^\\]\\/]*(?:\\/(?!\\])[^\\]\\/]*)*?)(?:(\\/)\\]|\\](?:([^\\[]*(?:\\[(?!\\/\\2\\])[^\\[]*)*)(\\[\\/\\2\\]))?)(\\]?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-        return regex
-    }
-
-    enum CaptureGroups: Int {
-        case all = 0
-        case extraOpen
-        case name
-        case arguments
-        case selfClosingElement
-        case content
-        case closingTag
-        case extraClose
-
-        static let allValues = [.all, extraOpen, .name, .arguments, .selfClosingElement, .content, .closingTag, .extraClose]
-    }
-
-    public init(tag: String, replacer: @escaping ShortcodeReplacer) {
-        self.tag = tag
-        let regex = ShortcodeProcessor.makeShortcodeRegex(tag: tag)
-        let regexReplacer = { (match: NSTextCheckingResult, text: String) -> String? in
-            guard match.numberOfRanges == CaptureGroups.allValues.count else {
-                return nil
-            }
-            var attributes = HTMLAttributes(named: [:], unamed: [])
-            if let attributesText = match.captureGroup(in:CaptureGroups.arguments.rawValue, text: text) {
-                attributes = HTMLAttributesParser.makeAttributes(in: attributesText)
-            }
-
-            var type: Shortcode.TagType = .single
-            if match.captureGroup(in:CaptureGroups.selfClosingElement.rawValue, text: text) != nil {
-                type = .selfClosing
-            } else if match.captureGroup(in:CaptureGroups.closingTag.rawValue, text: text) != nil {
-                type = .closed
-            }
-
-            let content: String? = match.captureGroup(in:CaptureGroups.content.rawValue, text: text)
-
-            let shortcode = Shortcode(tag: tag, attributes: attributes, type: type, content: content)
-            return replacer(shortcode)
+        
+        return RegexProcessor(regex: regex) { (match: NSTextCheckingResult, text: String) -> String? in
+            return self.process(match: match, text: text)
         }
+    }()
+    
+    // MARK: - Parsing & processing properties
+    
+    private let attributesParser = ShortcodeAttributeParser()
+    private let replacer: Replacer
 
-        super.init(regex: regex, replacer: regexReplacer)
+    // MARK: - Initializers
+    
+    public init(tag: String, replacer: @escaping Replacer) {
+        self.tag = tag
+        self.replacer = replacer
+    }
+    
+    // MARK: - Processing
+    
+    public func process(_ text: String) -> String {
+        return shortcodeRegexProcessor.process(text)
+    }
+}
+
+private extension ShortcodeProcessor {
+    
+    func process(match: NSTextCheckingResult, text: String) -> String? {
+        guard match.numberOfRanges == CaptureGroups.allValues.count else {
+            return nil
+        }
+        
+        let attributes = self.attributes(from: match, in: text)
+        let elementType = self.elementType(from: match, in: text)
+        let content: String? = match.captureGroup(in:CaptureGroups.content.rawValue, text: text)
+        
+        let shortcode = Shortcode(tag: tag, attributes: attributes, type: elementType, content: content)
+        
+        return replacer(shortcode)
+    }
+    
+    // MARK: - Regex Match Processing Logic
+    
+    /// Obtains the attributes from an HTML element match.
+    ///
+    private func attributes(from match: NSTextCheckingResult, in text: String) -> [ShortcodeAttribute] {
+        guard let attributesText = match.captureGroup(in: CaptureGroups.arguments.rawValue, text: text) else {
+            return []
+        }
+        
+        return attributesParser.parse(attributesText)
+    }
+    
+    /// Obtains the element type for an HTML element match.
+    ///
+    private func elementType(from match: NSTextCheckingResult, in text: String) -> Shortcode.TagType {
+        if match.captureGroup(in: CaptureGroups.selfClosingElement.rawValue, text: text) != nil {
+            return .selfClosing
+        } else if match.captureGroup(in: CaptureGroups.closingTag.rawValue, text: text) != nil {
+            return .closed
+        }
+        
+        return .single
     }
 }
