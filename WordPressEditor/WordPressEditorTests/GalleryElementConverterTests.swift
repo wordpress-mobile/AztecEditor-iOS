@@ -73,4 +73,34 @@ class GalleryElementConverterTests: XCTestCase {
             XCTAssertEqual(gallery.orderBy, expected)
         }
     }
+    
+    func testGalleryElementConverterWithSeveralValues() {
+        let orderValues = ["asc", "Desc"]
+        let orderByValues = ["menu_order", "title", "post_date", "rand"]
+        
+        for orderValue in orderValues {
+            for orderByValue in orderByValues {
+                let expectedColumns = 150
+                let expectedIDs = [1, 55, 2, 7, 90]
+                let expectedOrder = GalleryAttachment.Order(rawValue: orderValue)
+                let expectedOrderBy = GalleryAttachment.OrderBy(rawValue: orderByValue)
+                
+                let columnsAttribute = Attribute(name: "COLUMNS", value: .string("150"))
+                let idsAttribute = Attribute(name: "ids", value: .string("1, 55,2 ,7, 90"))
+                let orderAttribute = Attribute(name: "ordEr", value: .string(orderValue))
+                let orderByAttribute = Attribute(name: "orderby", value: .string(orderByValue))
+                let attributes = [columnsAttribute, idsAttribute, orderAttribute, orderByAttribute]
+                let element = ElementNode(type: .gallery, attributes: attributes)
+                
+                let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+                    return NSAttributedString()
+                }
+                
+                XCTAssertEqual(gallery.columns, expectedColumns)
+                XCTAssertEqual(gallery.ids, expectedIDs)
+                XCTAssertEqual(gallery.order, expectedOrder)
+                XCTAssertEqual(gallery.orderBy, expectedOrderBy)
+            }
+        }
+    }
 }
