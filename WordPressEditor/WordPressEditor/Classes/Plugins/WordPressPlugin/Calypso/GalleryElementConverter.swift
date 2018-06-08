@@ -121,8 +121,6 @@ private extension GalleryElementConverter {
             return nil
         }
         
-        let split = attributeStringValue.split(separator: ",")
-        
         return attributeStringValue.split(separator: ",").compactMap { substring -> Int? in
             return Int(substring.trimmingCharacters(in: .whitespaces))
         }
