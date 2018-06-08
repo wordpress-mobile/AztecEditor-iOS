@@ -1,6 +1,10 @@
 import Aztec
 import Foundation
 
+public extension Element {
+    static let gallery = Element("gallery")
+}
+
 /// Provides a representation for `<img>` element.
 ///
 class GalleryElementConverter: AttachmentElementConverter {
@@ -22,6 +26,8 @@ class GalleryElementConverter: AttachmentElementConverter {
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: GalleryAttachment, string: NSAttributedString) {
+        
+        precondition(element.type == .gallery)
         
         let attachment = self.attachment(for: element)
         
@@ -115,8 +121,10 @@ private extension GalleryElementConverter {
             return nil
         }
         
+        let split = attributeStringValue.split(separator: ",")
+        
         return attributeStringValue.split(separator: ",").compactMap { substring -> Int? in
-            return Int(substring)
+            return Int(substring.trimmingCharacters(in: .whitespaces))
         }
     }
     
@@ -136,7 +144,7 @@ private extension GalleryElementConverter {
     /// `String` as its `RawType`.
     ///
     private func valueOfAttribute(_ name: SupportedAttributeName, in attributes: [Attribute], withType type: String.Type) -> String? {
-        guard let attribute = attributes.first(where: { $0.name == name.rawValue }),
+        guard let attribute = attributes.first(where: { $0.name.lowercased() == name.rawValue.lowercased() }),
             let attributeValue = attribute.value.toString() else {
                 return nil
         }
