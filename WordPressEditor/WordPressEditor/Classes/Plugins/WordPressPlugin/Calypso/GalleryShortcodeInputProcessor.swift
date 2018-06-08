@@ -5,13 +5,14 @@ import Foundation
 ///
 class GalleryShortcodeInputProcessor: Processor {
     static let tag = "gallery"
-    private static let attributeSeparator = " "
     
     private lazy var galleryShortcodeProcessor: ShortcodeProcessor = {
         return ShortcodeProcessor(tag: GalleryShortcodeInputProcessor.tag) { [unowned self] (shortcode) -> String? in
             return self.process(shortcode)
         }
     }()
+    
+    let serializer = ShortcodeAttributeSerializer()
     
     // MARK: - Processor
     
@@ -22,18 +23,8 @@ class GalleryShortcodeInputProcessor: Processor {
     // MARK: - Gallery Tag Processing Logic
     
     func process(_ shortcode: Shortcode) -> String {
-        let attributes = process(shortcode.attributes)
+        let attributes = serializer.serialize(shortcode.attributes)
         
         return "<gallery \(attributes)>"
-    }
-    
-    func process(_ attributes: HTMLAttributes) -> String {
-        let namedAttributes = attributes.named.map({ (key, value) -> String in
-            return "\(key)=\"\(value)\""
-        })
-        
-        let allAttributes = attributes.unamed + namedAttributes
-        
-        return allAttributes.joined(separator: GalleryShortcodeInputProcessor.attributeSeparator)
     }
 }
