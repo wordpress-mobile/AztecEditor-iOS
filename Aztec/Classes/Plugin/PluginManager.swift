@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
@@ -82,6 +83,16 @@ extension PluginManager: AttributedStringParserCustomizer {
         for plugin in plugins {
             if let element = plugin.convert(paragraphProperty) {
                 return element
+            }
+        }
+        
+        return nil
+    }
+    
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+        for plugin in plugins {
+            if let elements = plugin.convert(attachment, attributes: attributes) {
+                return elements
             }
         }
         

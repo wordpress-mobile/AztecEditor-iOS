@@ -124,6 +124,7 @@
 		F16A2AD720CC472200BF3A0A /* CommentAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD620CC472200BF3A0A /* CommentAttachmentToElementConverter.swift */; };
 		F16A2AD920CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */; };
 		F16A2ADB20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */; };
+		F16A2ADD20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADC20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift */; };
 		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
 		F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */; };
@@ -340,6 +341,7 @@
 		F16A2AD620CC472200BF3A0A /* CommentAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2ADC20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
 		F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLRepresentation.swift; sourceTree = "<group>"; };
@@ -848,6 +850,7 @@
 				F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */,
 				F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */,
 				F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */,
+				F16A2ADC20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift */,
 			);
 			path = AttachmentToElementConverter;
 			sourceTree = "<group>";
@@ -1291,6 +1294,7 @@
 				599F25341D8BC9A1002871D6 /* ArrayConverter.swift in Sources */,
 				F15A8B6520BED08900C57ED2 /* ParagraphPropertyConverter.swift in Sources */,
 				F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */,
+				F16A2ADD20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

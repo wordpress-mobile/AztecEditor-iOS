@@ -5,7 +5,7 @@ import libxml2
 /// This protocol can be implemented by an object that wants to modify the behavior
 /// of the AttributedStringParser.
 ///
-protocol AttributedStringParserCustomizer: ParagraphPropertyConverter {}
+protocol AttributedStringParserCustomizer: ParagraphPropertyConverter, BaseAttachmentToElementConverter {}
 
 /// Parses an attributed string into an HTML tree.
 ///
@@ -23,11 +23,12 @@ class AttributedStringParser {
     
     // MARK: - Attachment Converters
     
-    let attachmentConverters: [BaseAttachmentToElementConverter] = [
+    private let attachmentConverters: [BaseAttachmentToElementConverter] = [
         CommentAttachmentToElementConverter(),
         HTMLAttachmentToElementConverter(),
         ImageAttachmentToElementConverter(),
         LineAttachmentToElementConverter(),
+        VideoAttachmentToElementConverter(),
     ]
     
     // MARK: - Parsing
@@ -905,79 +906,20 @@ private extension AttributedStringParser {
         if let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? NSTextAttachment {
             let attributes = attrString.attributes(at: 0, effectiveRange: nil)
             
-            for converter in attachmentConverters {
-                if let newNodes = converter.convert(attachment, attributes: attributes) {
-                    nodes += newNodes
-                    break
+            if let newNodes = customizer?.convert(attachment, attributes: attributes) {
+                nodes += newNodes
+            } else {
+                for converter in attachmentConverters {
+                    if let newNodes = converter.convert(attachment, attributes: attributes) {
+                        nodes += newNodes
+                        break
+                    }
                 }
             }
         }
 
-        if let attachment = processVideoAttachment(from: attrString) {
-            nodes.append(attachment)
-        }
-
         return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
     }
-
-
-    /// Converts an HTML Attachment into it's representing nodes.
-    ///
-    private func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? HTMLAttachment else {
-            return []
-        }
-
-        let htmlParser = HTMLParser()
-
-        let rootNode = htmlParser.parse(attachment.rawHTML)
-
-        guard let firstChild = rootNode.children.first else {
-            return processTextNodes(from: attachment.rawHTML)
-        }
-
-        guard rootNode.children.count == 1 else {
-            let node = ElementNode(type: .span, attributes: [], children: rootNode.children)
-            return [node]
-        }
-
-        return [firstChild]
-    }
-
-
-    /// Converts an Video Attachment into it's representing nodes.
-    ///
-    private func processVideoAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? VideoAttachment else {
-            return nil
-        }
-
-        let element: ElementNode
-        let range = attrString.rangeOfEntireString
-
-        if let representation = attrString.attribute(.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .video)
-        }
-
-        if let attribute = videoSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        if let attribute = videoPosterAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        for (key,value) in attachment.extraAttributes {
-            element.updateAttribute(named: key, value: .string(value))
-        }
-
-        return element
-    }
-
 
     /// Converts a String into it's representing nodes.
     ///
@@ -995,27 +937,5 @@ private extension AttributedStringParser {
         }
         
         return output
-    }
-
-
-    /// Extracts the Video Source Attribute from a VideoAttachment Instance.
-    ///
-    private func videoSourceAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let source = attachment.srcURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the Video Poster Attribute from a VideoAttachment Instance.
-    ///
-    private func videoPosterAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let poster = attachment.posterURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "poster", value: .string(poster))
     }
 }
