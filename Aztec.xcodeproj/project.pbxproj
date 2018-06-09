@@ -119,6 +119,11 @@
 		F165D92420C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */; };
 		F165D92A20C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */; };
 		F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F168DB851F6381A00009BD0E /* CSSParserTests.swift */; };
+		F16A2AD320CC428B00BF3A0A /* AttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD220CC428B00BF3A0A /* AttachmentToElementConverter.swift */; };
+		F16A2AD520CC437E00BF3A0A /* LineAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */; };
+		F16A2AD720CC472200BF3A0A /* CommentAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD620CC472200BF3A0A /* CommentAttachmentToElementConverter.swift */; };
+		F16A2AD920CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */; };
+		F16A2ADB20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */; };
 		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
 		F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */; };
@@ -330,6 +335,11 @@
 		F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializer.swift; sourceTree = "<group>"; };
 		F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ShortcodeAttribute.swift"; sourceTree = "<group>"; };
 		F168DB851F6381A00009BD0E /* CSSParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParserTests.swift; sourceTree = "<group>"; };
+		F16A2AD220CC428B00BF3A0A /* AttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AD620CC472200BF3A0A /* CommentAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
 		F17BC8901F4E4BA500398E2B /* HTMLRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLRepresentation.swift; sourceTree = "<group>"; };
@@ -830,6 +840,26 @@
 			name = Descriptors;
 			sourceTree = "<group>";
 		};
+		F16A2AD020CC426400BF3A0A /* AttachmentToElementConverter */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AD120CC427A00BF3A0A /* Base */,
+				F16A2AD620CC472200BF3A0A /* CommentAttachmentToElementConverter.swift */,
+				F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */,
+				F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */,
+				F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */,
+			);
+			path = AttachmentToElementConverter;
+			sourceTree = "<group>";
+		};
+		F16A2AD120CC427A00BF3A0A /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AD220CC428B00BF3A0A /* AttachmentToElementConverter.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
 		F16DD2C51EE998280083A098 /* NSAttributedString */ = {
 			isa = PBXGroup;
 			children = (
@@ -884,6 +914,7 @@
 				F14C4D2520C076EA007CBC57 /* HTMLConverter.swift */,
 				F17BC8A81F4E512800398E2B /* AttributedStringParser.swift */,
 				F17BC8A91F4E512800398E2B /* AttributedStringSerializer.swift */,
+				F16A2AD020CC426400BF3A0A /* AttachmentToElementConverter */,
 				F15A8B6220BED08900C57ED2 /* ParagraphPropertyConverters */,
 			);
 			path = Conversions;
@@ -1124,10 +1155,12 @@
 			files = (
 				FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */,
 				FF20D6441EDC395E00294B78 /* NSTextingResult+Helpers.swift in Sources */,
+				F16A2AD320CC428B00BF3A0A /* AttachmentToElementConverter.swift in Sources */,
 				F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */,
 				F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */,
 				40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */,
 				F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */,
+				F16A2AD920CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift in Sources */,
 				B5AB79F81F5F3E0B00DF26F5 /* String+Paragraph.swift in Sources */,
 				B5A99D841EBA073D00DED081 /* HTMLStorage.swift in Sources */,
 				F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */,
@@ -1167,6 +1200,7 @@
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */,
 				F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */,
+				F16A2AD520CC437E00BF3A0A /* LineAttachmentToElementConverter.swift in Sources */,
 				B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */,
 				F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */,
 				F19544051F588F1A00671B73 /* CSSParser.swift in Sources */,
@@ -1197,6 +1231,7 @@
 				B5B96DAB1E01B2F300791315 /* UIPasteboard+Helpers.swift in Sources */,
 				F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */,
 				F12F58721EF20394008AE298 /* UnderlineFormatter.swift in Sources */,
+				F16A2AD720CC472200BF3A0A /* CommentAttachmentToElementConverter.swift in Sources */,
 				F12F58711EF20394008AE298 /* TextListFormatter.swift in Sources */,
 				F11326B21EF1AA91007FEE9A /* HTMLPre.swift in Sources */,
 				F17BC8AB1F4E512800398E2B /* AttributedStringSerializer.swift in Sources */,
@@ -1243,6 +1278,7 @@
 				F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */,
 				599F253A1D8BC9A1002871D6 /* InNodeConverter.swift in Sources */,
 				74EEC71B1FAB6EC900B989E3 /* UIImage+Resize.swift in Sources */,
+				F16A2ADB20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift in Sources */,
 				F17BC8941F4E4BA500398E2B /* UnsupportedHTML.swift in Sources */,
 				F12F586F1EF20394008AE298 /* PreFormatter.swift in Sources */,
 				B50CE7321F1FA6260018CAA1 /* NSAttributedString+Strip.swift in Sources */,
