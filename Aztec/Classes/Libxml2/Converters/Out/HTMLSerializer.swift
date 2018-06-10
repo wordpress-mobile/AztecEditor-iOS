@@ -1,6 +1,9 @@
 import Foundation
 import libxml2
 
+protocol HTMLSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementToTagConverter?
+}
 
 /// Composes the provided nodes into its HTML representation.
 ///
@@ -13,6 +16,8 @@ public class HTMLSerializer {
     /// Converters
     private let genericElementConverter = GenericElementToTagConverter()
     
+    private let customizer: HTMLSerializerCustomizer?
+    
     /// Default Initializer
     ///
     /// - Parameters:
@@ -20,6 +25,12 @@ public class HTMLSerializer {
     ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
     ///
     public init(indentationSpaces: Int = 2) {
+        self.customizer = nil
+        self.indentationSpaces = indentationSpaces
+    }
+    
+    init(indentationSpaces: Int = 2, customizer: HTMLSerializerCustomizer? = nil) {
+        self.customizer = customizer
         self.indentationSpaces = indentationSpaces
     }
     
@@ -30,7 +41,7 @@ public class HTMLSerializer {
         return serialize(node: node, prettify: prettify).trimmingCharacters(in: CharacterSet.newlines)
     }
     
-    public func serialize(_ nodes: [Node], prettify: Bool, level: Int = 0) -> String {
+    func serialize(_ nodes: [Node], prettify: Bool, level: Int = 0) -> String {
         return nodes.reduce("") { (previous, child) in
             return previous + serialize(node: child, prettify: prettify, level: level)
         }
@@ -77,7 +88,7 @@ private extension HTMLSerializer {
     /// Serializes an `ElementNode` into its HTML representation
     ///
     private func serialize(_ elementNode: ElementNode, prettify: Bool, level: Int) -> String {
-        let tag = genericElementConverter.convert(elementNode)
+        let tag = converter(for: elementNode).convert(elementNode)
         
         let openingTagPrefix = self.openingTagPrefix(for: elementNode, prettify: prettify, level: level)
         let opening = openingTagPrefix + tag.opening
@@ -183,5 +194,13 @@ private extension HTMLSerializer {
         let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevel() == false
         
         return isRightNodeRegularElement && node.isBlockLevel()
+    }
+}
+
+// MARK: - Element Conversion Logic
+
+extension HTMLSerializer {
+    private func converter(for elementNode: ElementNode) -> ElementToTagConverter {
+        return customizer?.converter(for: elementNode) ?? genericElementConverter
     }
 }

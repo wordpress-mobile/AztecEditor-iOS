@@ -67,7 +67,7 @@ class PluginManager {
 extension PluginManager: AttributedStringSerializerCustomizer {
     func converter(for element: ElementNode) -> ElementConverter? {
         for plugin in plugins {
-            if let converter = plugin.converter(for: element) {
+            if let converter = plugin.converter(for: element) as ElementConverter? {
                 return converter
             }
         }
@@ -93,6 +93,20 @@ extension PluginManager: AttributedStringParserCustomizer {
         for plugin in plugins {
             if let elements = plugin.convert(attachment, attributes: attributes) {
                 return elements
+            }
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - HTMLSerializerCustomizer
+
+extension PluginManager: HTMLSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementToTagConverter? {
+        for plugin in plugins {
+            if let converter = plugin.converter(for: element) as ElementToTagConverter? {
+                return converter
             }
         }
         

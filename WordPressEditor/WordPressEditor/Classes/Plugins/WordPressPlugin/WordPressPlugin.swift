@@ -13,6 +13,7 @@ open class WordPressPlugin: Plugin {
     
     private let calypsoinputHTMLProcessor = PipelineProcessor([
         CaptionShortcodeInputProcessor(),
+        GalleryShortcodeInputProcessor(),
         VideoShortcodeProcessor.videoPressPreProcessor,
         VideoShortcodeProcessor.wordPressVideoPreProcessor,
         AutoPProcessor()
@@ -33,6 +34,7 @@ open class WordPressPlugin: Plugin {
     // MARK: - Gutenberg Converters
     
     let inputElementConverters: [Element: ElementConverter] = [.gutenblock: GutenblockConverter()]
+    let elementToTagConverters: [Element: ElementToTagConverter] = [.gallery: GalleryElementToTagConverter()]
     
     // MARK: - Input Processing
 
@@ -48,10 +50,12 @@ open class WordPressPlugin: Plugin {
         gutenbergInputHTMLTreeProcessor.process(tree)
     }
     
-    override open func converter(for element: ElementNode) -> ElementConverter? {
-        return inputElementConverters.first(where: { (elementType, converter) -> Bool in
-            elementType == element.type
-        })?.value
+    override open func converter(for elementNode: ElementNode) -> ElementConverter? {
+        guard let converter = inputElementConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
     
     // MARK: - Output Processing
@@ -66,6 +70,14 @@ open class WordPressPlugin: Plugin {
     
     override open func process(outputHTMLTree tree: RootNode) {
         gutenbergOutputHTMLTreeProcessor.process(tree)
+    }
+    
+    override open func converter(for elementNode: ElementNode) -> ElementToTagConverter? {
+        guard let converter = elementToTagConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
     
     // MARK: - AttributedStringParserCustomizer

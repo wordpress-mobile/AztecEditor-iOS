@@ -33,9 +33,11 @@ public class HTMLConverter {
         return AttributedStringParser(customizer: pluginManager)
     }()
     
-    let treeToHTML = HTMLSerializer()
+    private(set) lazy var treeToHTML: HTMLSerializer = {
+        return HTMLSerializer(customizer: pluginManager)
+    }()
     
-    // MARK: - HTML to NSAttributedString
+    // MARK: - Conversion Logic
     
     func attributedString(from html: String, defaultAttributes: [NSAttributedStringKey: Any]? = [:]) -> NSAttributedString {
         let processedHTML = pluginManager.process(inputHTML: html)

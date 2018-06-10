@@ -25,10 +25,10 @@
 		F16A2ACC20CB115900BF3A0A /* GalleryElementConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */; };
 		F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */; };
 		F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */; };
-		F16A2AF620CDB33A00BF3A0A /* GalleryShortcodeOutputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AF520CDB33A00BF3A0A /* GalleryShortcodeOutputProcessor.swift */; };
 		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
 		F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */; };
 		F1B0012D20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */; };
+		F1C14C4B20CDE653002A4083 /* GalleryElementToTagConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */; };
 		F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */; };
 		F1C9F40A20AF62E900205227 /* GutenblockConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40520AF62E800205227 /* GutenblockConverter.swift */; };
 		F1C9F40D20AF62E900205227 /* GutenbergInputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */; };
@@ -96,10 +96,10 @@
 		F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementConverterTests.swift; sourceTree = "<group>"; };
 		F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GallerySupportedAttribute.swift; sourceTree = "<group>"; };
-		F16A2AF520CDB33A00BF3A0A /* GalleryShortcodeOutputProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeOutputProcessor.swift; sourceTree = "<group>"; };
 		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessor.swift; sourceTree = "<group>"; };
 		F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessorTests.swift; sourceTree = "<group>"; };
+		F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementToTagConverter.swift; sourceTree = "<group>"; };
 		F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergOutputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1C9F40520AF62E800205227 /* GutenblockConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenblockConverter.swift; sourceTree = "<group>"; };
 		F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
@@ -176,8 +176,8 @@
 				F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */,
 				F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */,
 				F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */,
+				F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */,
 				F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */,
-				F16A2AF520CDB33A00BF3A0A /* GalleryShortcodeOutputProcessor.swift */,
 				F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */,
 			);
 			path = GalleryShortcode;
@@ -534,10 +534,10 @@
 				F15A8B5F20BDB9E800C57ED2 /* GutenbergAttributeNames.swift in Sources */,
 				F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */,
 				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
+				F1C14C4B20CDE653002A4083 /* GalleryElementToTagConverter.swift in Sources */,
 				F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
-				F16A2AF620CDB33A00BF3A0A /* GalleryShortcodeOutputProcessor.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
 				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
 				F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */,
