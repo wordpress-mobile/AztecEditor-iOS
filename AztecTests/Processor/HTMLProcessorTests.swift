@@ -14,7 +14,7 @@ class HTMLProcessorTests: XCTestCase {
     func testProcessorOfVideoPressCode() {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        let processor = HTMLProcessor(tag:"video", replacer:{ (videoElement) in
+        let processor = HTMLProcessor(for: .video, replacer:{ (videoElement) in
             guard let videoPressID = videoElement.attributes["data-wpvideopress"] else {
                 return nil
             }

@@ -1,41 +1,41 @@
 import Aztec
 import Foundation
 
-/// Converts <figure><img><figcaption> structures into a [caption] shortcode.
+/// Converts a <gallery> structure into its [gallery] shortcode representation.
 ///
-class CaptionShortcodeOutputProcessor: HTMLProcessor {
-
+class GalleryShortcodeOutputProcessor: HTMLProcessor {
+    
     init() {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        super.init(for: .figure) { element in
+        super.init(for: .gallery) { element in
             guard let payload = element.content else {
                 return nil
             }
-
+            
             /// Parse the Shortcode's Payload: We expect an [IMG, Figcaption]
             ///
             let rootNode = HTMLParser().parse(payload)
             
             guard let coreNode = rootNode.firstChild(ofType: .img) ?? rootNode.firstChild(ofType: .a),
                 let figcaption = rootNode.firstChild(ofType: .figcaption)
-            else {
-                return nil
+                else {
+                    return nil
             }
-
+            
             /// Serialize the Caption's Shortcode!
             ///
             let serializer = DefaultHTMLSerializer()
             var attributes = element.attributes
             var imgNode: ElementNode?
-
+            
             // Find img child node of caption
             if coreNode.isNodeType(.img) {
                 imgNode = coreNode
             } else {
                 imgNode = coreNode.firstChild(ofType: .img)
             }
-
+            
             if let imgNode = imgNode {
                 attributes = CaptionShortcodeOutputProcessor.attributes(from: imgNode, basedOn: attributes)
             }
@@ -45,21 +45,21 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
             }
             
             let attributesHTMLRepresentation = shortcodeAttributeSerializer.serialize(attributes)
-
+            
             var html = "[caption " + attributesHTMLRepresentation + "]"
-
+            
             html += serializer.serialize(coreNode)
-
+            
             for child in figcaption.children {
                 html += serializer.serialize(child)
             }
-
+            
             html += "[/caption]"
             
             return html
         }
     }
-
+    
     static func attributes(from imgNode: ElementNode, basedOn baseAttributes: [ShortcodeAttribute]) -> [ShortcodeAttribute] {
         var captionAttributes = baseAttributes
         let imgAttributes = imgNode.attributes
@@ -69,7 +69,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
                 let attributeValue = attribute.value.toString() else {
                     continue
             }
-
+            
             if attribute.name == "class" {
                 let classAttributes = attributeValue.components(separatedBy: " ")
                 for classAttribute in classAttributes {

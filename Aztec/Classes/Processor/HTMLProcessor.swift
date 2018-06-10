@@ -26,7 +26,7 @@ open class HTMLProcessor: Processor {
 
     // MARK: - Basic Info
     
-    let tag: String
+    let element: Element
     
     // MARK: - Regex
     
@@ -51,7 +51,7 @@ open class HTMLProcessor: Processor {
     /// 5. The closing tag.
     ///
     private lazy var htmlRegexProcessor: RegexProcessor = { [unowned self] in
-        let pattern = "\\<(\(self.tag))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
+        let pattern = "\\<(\(element.rawValue))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         
         return RegexProcessor(regex: regex) { (match: NSTextCheckingResult, text: String) -> String? in
@@ -66,8 +66,8 @@ open class HTMLProcessor: Processor {
     
     // MARK: - Initializers
     
-    public init(tag: String, replacer: @escaping Replacer) {
-        self.tag = tag
+    public init(for element: Element, replacer: @escaping Replacer) {
+        self.element = element
         self.replacer = replacer
     }
         
@@ -93,7 +93,7 @@ private extension HTMLProcessor {
         let elementType = self.elementType(from: match, in: text)
         let content: String? = match.captureGroup(in: CaptureGroups.content.rawValue, text: text)
         
-        let htmlElement = HTMLElement(tag: tag, attributes: attributes, type: elementType, content: content)
+        let htmlElement = HTMLElement(tag: element.rawValue, attributes: attributes, type: elementType, content: content)
         
         return replacer(htmlElement)
     }
