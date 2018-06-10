@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-protocol BaseAttachmentToElementConverter {
+public protocol BaseAttachmentToElementConverter {
     func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]?
 }
 
@@ -11,19 +11,19 @@ protocol BaseAttachmentToElementConverter {
 /// This protocol is separated to avoid type restrictions when adding the converter to
 /// a collection.
 ///
-protocol AttachmentToElementConverter: BaseAttachmentToElementConverter {
+public protocol AttachmentToElementConverter: BaseAttachmentToElementConverter {
     associatedtype Attachment: NSTextAttachment
     
     func cast(attachment: NSTextAttachment) -> Attachment?
     func convert(_ attachment: Attachment, attributes: [NSAttributedStringKey: Any]) -> [Node]
 }
 
-extension AttachmentToElementConverter {
-    func cast(attachment: NSTextAttachment) -> Attachment? {
+public extension AttachmentToElementConverter {
+    public func cast(attachment: NSTextAttachment) -> Attachment? {
         return attachment as? Attachment
     }
     
-    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? {
+    public func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? {
         guard let castedAttachment = cast(attachment: attachment) else {
             return nil
         }

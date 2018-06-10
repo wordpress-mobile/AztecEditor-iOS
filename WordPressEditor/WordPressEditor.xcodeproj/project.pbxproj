@@ -23,6 +23,8 @@
 		F16A2AC420CAD66700BF3A0A /* GalleryElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */; };
 		F16A2AC820CAF62F00BF3A0A /* GalleryAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */; };
 		F16A2ACC20CB115900BF3A0A /* GalleryElementConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */; };
+		F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */; };
+		F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */; };
 		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
 		F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */; };
 		F1B0012D20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */; };
@@ -91,6 +93,8 @@
 		F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementConverter.swift; sourceTree = "<group>"; };
 		F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachment.swift; sourceTree = "<group>"; };
 		F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementConverterTests.swift; sourceTree = "<group>"; };
+		F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GallerySupportedAttribute.swift; sourceTree = "<group>"; };
 		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessor.swift; sourceTree = "<group>"; };
 		F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessorTests.swift; sourceTree = "<group>"; };
@@ -156,16 +160,50 @@
 		F1065DBF20ADEEF4008C72CC /* Calypso */ = {
 			isa = PBXGroup;
 			children = (
-				F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */,
-				F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */,
-				F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */,
-				F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */,
-				F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */,
-				F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */,
-				F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */,
-				F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */,
+				F16A2AEA20CDA19500BF3A0A /* AutopRemovep */,
+				F16A2AE820CDA16D00BF3A0A /* CaptionShortcode */,
+				F16A2AE720CDA15700BF3A0A /* GalleryShortcode */,
+				F16A2AE920CDA18100BF3A0A /* VideoShortcode */,
 			);
 			path = Calypso;
+			sourceTree = "<group>";
+		};
+		F16A2AE720CDA15700BF3A0A /* GalleryShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */,
+				F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */,
+				F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */,
+				F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */,
+				F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */,
+			);
+			path = GalleryShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AE820CDA16D00BF3A0A /* CaptionShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */,
+				F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */,
+			);
+			path = CaptionShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AE920CDA18100BF3A0A /* VideoShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */,
+			);
+			path = VideoShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AEA20CDA19500BF3A0A /* AutopRemovep */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */,
+				F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */,
+			);
+			path = AutopRemovep;
 			sourceTree = "<group>";
 		};
 		F1AFD65020B45DBB00CB0279 /* Renderers */ = {
@@ -442,6 +480,7 @@
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
 				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
+				F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */,
 				F13E8ADA20B71DFF007C9F8A /* GutenblockAttachment.swift in Sources */,
 				F16A2AC820CAF62F00BF3A0A /* GalleryAttachment.swift in Sources */,
 				F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */,
@@ -453,6 +492,7 @@
 				F105937720B317D7005A836E /* CommentNode+Gutenberg.swift in Sources */,
 				F13E8ADE20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift in Sources */,
 				F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */,
+				F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */,
 				F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */,
 				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
 			);

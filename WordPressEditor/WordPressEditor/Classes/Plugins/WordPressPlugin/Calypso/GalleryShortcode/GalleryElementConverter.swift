@@ -9,15 +9,6 @@ public extension Element {
 ///
 class GalleryElementConverter: AttachmentElementConverter {
     
-    // MARK: - Supported Attributes
-    
-    private enum SupportedAttributeName: String {
-        case columns = "columns"
-        case ids = "ids"
-        case order = "order"
-        case orderBy = "orderBy"
-    }
-    
     // MARK: - AttachmentElementConverter
     
     typealias AttachmentType = GalleryAttachment
@@ -51,11 +42,15 @@ class GalleryElementConverter: AttachmentElementConverter {
 private extension GalleryElementConverter {
     
     private func loadAttributes(_ attributes: [Attribute], into gallery: GalleryAttachment) {
+        loadSupportedAttributes(attributes, into: gallery)
+        gallery.extraAttributes = getUnsupportedAttributes(attributes)
+    }
+    
+    private func loadSupportedAttributes(_ attributes: [Attribute], into gallery: GalleryAttachment) {
         gallery.columns = getColumns(from: attributes)
         gallery.ids = getIDs(from: attributes)
         gallery.order = getOrder(from: attributes)
         gallery.orderBy = getOrderBy(from: attributes)
-        gallery.extraAttributes = getUnsupportedAttribute(attributes)
     }
     
     private func getColumns(from attributes: [Attribute]) -> Int? {
@@ -74,12 +69,16 @@ private extension GalleryElementConverter {
         return attribute(.orderBy, in: attributes, withType: GalleryAttachment.OrderBy.self)
     }
     
-    private func getUnsupportedAttribute(_ attributes: [Attribute]) -> [String: String] {
+    private func getUnsupportedAttributes(_ attributes: [Attribute]) -> [String: String] {
         
         var output = [String: String]()
         
         for attribute in attributes {
-            guard !["columns", "ids", "order", "orderby"].contains(attribute.name),
+            guard !GallerySupportedAttribute.isSupported(attribute.name),
+                // The following condition is only necessary because we're storing attributes as [String: String]
+                // which was a poor decision since it can't represent attributes without values.  To remove this
+                // condition we need to pick a more appropriate type to represent attributes in attachments,
+                // which is outside of the scope of my current modification.
                 let value = attribute.value.toString() else {
                     continue
             }
@@ -98,7 +97,7 @@ private extension GalleryElementConverter {
     /// Returns an attribute after mapping its value into a `RawRepresentable` type that has
     /// `String` as its `RawType`.
     ///
-    private func attribute<T: RawRepresentable>(_ name: SupportedAttributeName, in attributes: [Attribute], withType type: T.Type) -> T? where T.RawValue == String {
+    private func attribute<T: RawRepresentable>(_ name: GallerySupportedAttribute, in attributes: [Attribute], withType type: T.Type) -> T? where T.RawValue == String {
         guard let attributeStringValue = valueOfAttribute(name, in: attributes, withType: String.self),
             let result = T.init(rawValue: attributeStringValue) else {
                 return nil
@@ -116,7 +115,7 @@ private extension GalleryElementConverter {
     ///
     /// - Returns: the mapped attribute, or `nil` if not found.
     ///
-    private func valueOfAttribute(_ name: SupportedAttributeName, in attributes: [Attribute], withType type: [Int].Type) -> [Int]? {
+    private func valueOfAttribute(_ name: GallerySupportedAttribute, in attributes: [Attribute], withType type: [Int].Type) -> [Int]? {
         guard let attributeStringValue = valueOfAttribute(name, in: attributes, withType: String.self) else {
             return nil
         }
@@ -129,7 +128,7 @@ private extension GalleryElementConverter {
     /// Returns an attribute after mapping its value into a `RawRepresentable` type that has
     /// `String` as its `RawType`.
     ///
-    private func valueOfAttribute(_ name: SupportedAttributeName, in attributes: [Attribute], withType type: Int.Type) -> Int? {
+    private func valueOfAttribute(_ name: GallerySupportedAttribute, in attributes: [Attribute], withType type: Int.Type) -> Int? {
         guard let attributeStringValue = valueOfAttribute(name, in: attributes, withType: String.self),
             let attributeIntValue = Int(attributeStringValue) else {
                 return nil
@@ -141,7 +140,7 @@ private extension GalleryElementConverter {
     /// Returns an attribute after mapping its value into a `RawRepresentable` type that has
     /// `String` as its `RawType`.
     ///
-    private func valueOfAttribute(_ name: SupportedAttributeName, in attributes: [Attribute], withType type: String.Type) -> String? {
+    private func valueOfAttribute(_ name: GallerySupportedAttribute, in attributes: [Attribute], withType type: String.Type) -> String? {
         guard let attribute = attributes.first(where: { $0.name.lowercased() == name.rawValue.lowercased() }),
             let attributeValue = attribute.value.toString() else {
                 return nil

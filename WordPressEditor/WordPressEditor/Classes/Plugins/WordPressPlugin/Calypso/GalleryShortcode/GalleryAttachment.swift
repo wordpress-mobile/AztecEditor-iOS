@@ -1,6 +1,6 @@
 import Aztec
 
-class GalleryAttachment: MediaAttachment {
+class GalleryAttachment: MediaAttachment {    
     enum Order: String {
         case asc = "ASC"
         case desc = "DESC"
