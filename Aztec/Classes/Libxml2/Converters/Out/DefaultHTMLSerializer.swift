@@ -12,6 +12,9 @@ public class DefaultHTMLSerializer: HTMLSerializer {
     /// Indicates whether we want Pretty Print or not
     ///
     let prettyPrint: Bool
+    
+    /// Converters
+    private let genericElementConverter = GenericElementToTagConverter()
 
     /// Default Initializer
     ///
@@ -48,11 +51,11 @@ private extension DefaultHTMLSerializer {
     func serialize(node: Node, level: Int = 0) -> String {
         switch node {
         case let node as RootNode:
-            return serialize(root: node)
+            return serialize(node)
         case let node as CommentNode:
-            return serialize(comment: node)
+            return serialize(node)
         case let node as ElementNode:
-            return serialize(element: node, level: level)
+            return serialize(node, level: level)
         case let node as TextNode:
             return serialize(text: node)
         default:
@@ -63,28 +66,38 @@ private extension DefaultHTMLSerializer {
 
     /// Serializes a `RootNode` into its HTML representation
     ///
-    private func serialize(root node: RootNode) -> String {
-        return node.children.reduce("") { (result, node) in
+    private func serialize(_ rootNode: RootNode) -> String {
+        return rootNode.children.reduce("") { (result, node) in
             return result + serialize(node: node)
         }
     }
 
     /// Serializes a `CommentNode` into its HTML representation
     ///
-    private func serialize(comment node: CommentNode) -> String {
-        return "<!--" + node.comment + "-->"
+    private func serialize(_ commentNode: CommentNode) -> String {
+        return "<!--" + commentNode.comment + "-->"
     }
 
     /// Serializes an `ElementNode` into its HTML representation
     ///
-    private func serialize(element node: ElementNode, level: Int) -> String {
-        let opening = openingTag(for: node, at: level)
-
-        guard let closing = closingTag(for: node, at: level) else {
-            return opening
-        }
+    private func serialize(_ elementNode: ElementNode, level: Int) -> String {
+        let tag = genericElementConverter.convert(elementNode)
         
-        let children = serialize(node.children, level: level + 1)
+        let openingTagPrefix = self.openingTagPrefix(for: elementNode, withSpacesForIndentationLevel: level)
+        let opening = openingTagPrefix + tag.opening
+        
+        let children = serialize(elementNode.children, level: level + 1)
+        
+        let closing: String
+        
+        if let closingTag = tag.closing {
+            let prefix = self.closingTagPrefix(for: elementNode, withSpacesForIndentationLevel: level)
+            let suffix = self.closingTagSuffix(for: elementNode)
+            
+            closing = prefix + closingTag + suffix
+        } else {
+            closing = ""
+        }
 
         return opening + children + closing
     }
@@ -96,55 +109,54 @@ private extension DefaultHTMLSerializer {
     }
 }
 
+// MARK: - Indentation & newlines
 
-
-// MARK: - ElementNode: Helpers
-//
 private extension DefaultHTMLSerializer {
-
-    /// Returns the Opening Tag for a given Element Node
-    ///
-    func openingTag(for node: ElementNode, at level: Int) -> String {
-        let prefix = requiresOpeningTagPrefix(node) ? prefixForTag(at: level) : ""
-        let attributes = serialize(attributes: node.attributes)
-
-        return prefix + "<" + node.name + attributes + ">"
-    }
-
-
-    /// Returns the Closing Tag for a given Element Node, if its even required
-    ///
-    func closingTag(for node: ElementNode, at level: Int) -> String? {
-        guard requiresClosingTag(node) else {
-            return nil
-        }
-
-        let prefix = requiresClosingTagPrefix(node) ? prefixForTag(at: level) : ""
-        let posfix = requiresClosingTagPosfix(node) ? posfixForTag() : ""
-
-        return prefix + "</" + node.name + ">" + posfix
-    }
-
-
     /// Returns the Tag Prefix String at the specified level
     ///
-    private func prefixForTag(at level: Int) -> String {
+    private func prefix(for level: Int) -> String {
         let indentation = level > 0 ? String(repeating: String(.space), count: level * indentationSpaces) : ""
         return String(.lineFeed) + indentation
     }
+}
 
+// MARK: - Opening Tag Affixes
 
-    /// Returns the Tag Posfix String
-    ///
-    private func posfixForTag() -> String {
-        return String(.lineFeed)
+private extension DefaultHTMLSerializer {
+
+    private func openingTagPrefix(for elementNode: ElementNode, withSpacesForIndentationLevel level: Int) -> String {
+        guard requiresOpeningTagPrefix(elementNode) else {
+            return ""
+        }
+        
+        return prefix(for: level)
     }
 
-
-    /// OpeningTag Prefix: Required whenever the node is a blocklevel element
+    /// Required whenever the node is a blocklevel element
     ///
     private func requiresOpeningTagPrefix(_ node: ElementNode) -> Bool {
         return node.isBlockLevel() && prettyPrint
+    }
+}
+
+// MARK: - Closing Tag Affixes
+
+private extension DefaultHTMLSerializer {
+    
+    private func closingTagPrefix(for elementNode: ElementNode,  withSpacesForIndentationLevel level: Int) -> String {
+        guard requiresClosingTagPrefix(elementNode) else {
+            return ""
+        }
+        
+        return prefix(for: level)
+    }
+    
+    private func closingTagSuffix(for elementNode: ElementNode) -> String {
+        guard requiresClosingTagSuffix(elementNode) else {
+            return ""
+        }
+        
+        return String(.lineFeed)
     }
 
 
@@ -158,9 +170,9 @@ private extension DefaultHTMLSerializer {
     }
 
 
-    /// ClosingTag Posfix: Required whenever the node is blocklevel, and the right sibling is not
+    /// ClosingTag Suffix: Required whenever the node is blocklevel, and the right sibling is not
     ///
-    private func requiresClosingTagPosfix(_ node: ElementNode) -> Bool {
+    private func requiresClosingTagSuffix(_ node: ElementNode) -> Bool {
         guard let rightSibling = node.rightSibling() else {
             return false
         }
@@ -169,44 +181,5 @@ private extension DefaultHTMLSerializer {
         let isRightNodeRegularElement = rightElementNode == nil || rightElementNode?.isBlockLevel() == false
 
         return isRightNodeRegularElement && node.isBlockLevel() && prettyPrint
-    }
-
-
-    /// Indicates if an ElementNode is a Void Element (expected not to have a closing tag), or not.
-    ///
-    private func requiresClosingTag(_ node: ElementNode) -> Bool {
-        return Constants.voidElements.contains(node.name) == false
-    }
-}
-
-
-
-// MARK: - Attributes: Serialization
-//
-private extension DefaultHTMLSerializer {
-
-    /// Serializes an array of attributes into their HTML representation
-    ///
-    func serialize(attributes: [Attribute]) -> String {
-        return attributes.reduce("") { (html, attribute) in
-            return html + String(.space) + attribute.toString()
-        }
-    }
-}
-
-
-
-// MARK: - Private Constants
-//
-private extension DefaultHTMLSerializer {
-
-    struct Constants {
-
-        /// List of 'Void Elements', that are expected *not* to have a closing tag.
-        ///
-        /// Ref. http://w3c.github.io/html/syntax.html#void-elements
-        ///
-        static let voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link",
-                                   "meta", "param", "source", "track", "wbr"]
     }
 }

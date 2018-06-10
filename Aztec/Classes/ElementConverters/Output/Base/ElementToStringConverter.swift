@@ -2,19 +2,20 @@ import Foundation
 
 /// Converts an `ElementNode` into its `String` representation.
 ///
-public protocol ElementToStringConverter {
+public protocol ElementToTagConverter {
     
-    typealias ChildrenSerializer = (_: [Node]) -> String
+    /// Pair containing a mandatory opening tag, and an optional closing
+    /// one.
+    ///
+    typealias Tag = (opening: String, closing: String?)
     
-    /// Converts an instance of `ElementNode` into its `String` representation.
+    /// Converts an instance of `ElementNode` into its `Tag` representation.
     ///
     /// - Parameters:
-    ///     - element: ElementNode that's about to be converted.
+    ///     - elementNode: ElementNode that's about to be converted.
     ///     - childrenSerializer: Callback to serialize child elements.
     ///
-    /// - Returns: `String` instance, representing the received element.
+    /// - Returns: the tag that represents this element.
     ///
-    func convert(
-        _ element: ElementNode,
-        childrenSerializer serializeChildren: ChildrenSerializer) -> String
+    func convert(_ elementNode: ElementNode) -> Tag
 }
