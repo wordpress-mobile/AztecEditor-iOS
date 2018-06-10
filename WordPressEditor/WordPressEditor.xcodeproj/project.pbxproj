@@ -206,6 +206,69 @@
 			path = AutopRemovep;
 			sourceTree = "<group>";
 		};
+		F16A2AED20CDAB7600BF3A0A /* GalleryShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */,
+				F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */,
+			);
+			path = GalleryShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AEE20CDAB8900BF3A0A /* AutopRemovep */ = {
+			isa = PBXGroup;
+			children = (
+				F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */,
+				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
+			);
+			path = AutopRemovep;
+			sourceTree = "<group>";
+		};
+		F16A2AEF20CDAB9A00BF3A0A /* CaptionShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */,
+				F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */,
+			);
+			path = CaptionShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AF020CDABB200BF3A0A /* Gutenberg */ = {
+			isa = PBXGroup;
+			children = (
+				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
+			);
+			path = Gutenberg;
+			sourceTree = "<group>";
+		};
+		F16A2AF120CDABBC00BF3A0A /* Calypso */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AEE20CDAB8900BF3A0A /* AutopRemovep */,
+				F16A2AEF20CDAB9A00BF3A0A /* CaptionShortcode */,
+				F16A2AED20CDAB7600BF3A0A /* GalleryShortcode */,
+			);
+			path = Calypso;
+			sourceTree = "<group>";
+		};
+		F16A2AF320CDABE200BF3A0A /* Processors */ = {
+			isa = PBXGroup;
+			children = (
+				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
+			);
+			path = Processors;
+			sourceTree = "<group>";
+		};
+		F16A2AF420CDABF800BF3A0A /* WordPressPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				F118745220BC41BF0079C631 /* WordPressPluginTests.swift */,
+				F16A2AF120CDABBC00BF3A0A /* Calypso */,
+				F16A2AF020CDABB200BF3A0A /* Gutenberg */,
+			);
+			path = WordPressPlugin;
+			sourceTree = "<group>";
+		};
 		F1AFD65020B45DBB00CB0279 /* Renderers */ = {
 			isa = PBXGroup;
 			children = (
@@ -270,15 +333,8 @@
 		F1D360BA2092947500B4E7A5 /* WordPressEditorTests */ = {
 			isa = PBXGroup;
 			children = (
-				F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */,
-				F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */,
-				F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */,
-				F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */,
-				F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */,
-				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
-				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
-				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
-				F118745220BC41BF0079C631 /* WordPressPluginTests.swift */,
+				F16A2AF420CDABF800BF3A0A /* WordPressPlugin */,
+				F16A2AF320CDABE200BF3A0A /* Processors */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
 			path = WordPressEditorTests;
