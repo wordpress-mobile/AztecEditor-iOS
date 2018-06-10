@@ -25,7 +25,7 @@ class GalleryShortcodeOutputProcessor: HTMLProcessor {
             
             /// Serialize the Caption's Shortcode!
             ///
-            let serializer = DefaultHTMLSerializer()
+            let serializer = HTMLSerializer()
             var attributes = element.attributes
             var imgNode: ElementNode?
             

@@ -39,13 +39,11 @@ class WordpressPluginTests: XCTestCase {
 
     // MARK: - Full Conversion, beautified
     
-    func testFullConversionOfParagraphBlockBeautified() {
-        let serializer = DefaultHTMLSerializer(prettyPrint: true)
-        
+    func testFullConversionOfParagraphBlockBeautified() {        
         let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
         let expectedHTML = "<!-- wp:paragraph -->\n<p>Hello 🌍!</p>\n<!-- /wp:paragraph -->"
         let attrString = htmlConverter.attributedString(from: initialHTML)
-        let finalHTML = htmlConverter.html(from: attrString, serializer: serializer)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
         
         XCTAssertEqual(finalHTML, expectedHTML)
     }

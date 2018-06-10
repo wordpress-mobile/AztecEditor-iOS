@@ -33,7 +33,7 @@ public class HTMLConverter {
         return AttributedStringParser(customizer: pluginManager)
     }()
     
-    let treeToHTML = DefaultHTMLSerializer(prettyPrint: false)
+    let treeToHTML = HTMLSerializer()
     
     // MARK: - HTML to NSAttributedString
     
@@ -49,13 +49,12 @@ public class HTMLConverter {
         return attributedString
     }
     
-    func html(from attributedString: NSAttributedString, serializer treeToHTML: HTMLSerializer? = nil) -> String {
+    func html(from attributedString: NSAttributedString, prettify: Bool = false) -> String {
         let rootNode = attributedStringToTree.parse(attributedString)
         
         pluginManager.process(outputHTMLTree: rootNode)
         
-        let treeToHTML = treeToHTML ?? self.treeToHTML
-        let html = treeToHTML.serialize(rootNode)
+        let html = treeToHTML.serialize(rootNode, prettify: prettify)
         
         return pluginManager.process(outputHTML: html)
     }
