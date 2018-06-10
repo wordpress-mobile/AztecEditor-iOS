@@ -30,6 +30,12 @@ public class DefaultHTMLSerializer: HTMLSerializer {
     public func serialize(_ node: Node) -> String {
         return serialize(node: node).trimmingCharacters(in: CharacterSet.newlines)
     }
+    
+    public func serialize(_ nodes: [Node], level: Int = 0) -> String {
+        return nodes.reduce("") { (previous, child) in
+            return previous + serialize(node: child, level: level)
+        }
+    }
 }
 
 
@@ -77,10 +83,8 @@ private extension DefaultHTMLSerializer {
         guard let closing = closingTag(for: node, at: level) else {
             return opening
         }
-
-        let children = node.children.reduce("") { (html, child)in
-            return html + serialize(node: child, level: level + 1)
-        }
+        
+        let children = serialize(node.children, level: level + 1)
 
         return opening + children + closing
     }
