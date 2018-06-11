@@ -268,7 +268,7 @@ open class MediaAttachment: NSTextAttachment {
         ensureImageIsUpToDate(in: textContainer)
 
         if image == nil {
-            return .zero
+            return CGRect(x: 0, y: 0, width: 20, height: 20)
         }
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
