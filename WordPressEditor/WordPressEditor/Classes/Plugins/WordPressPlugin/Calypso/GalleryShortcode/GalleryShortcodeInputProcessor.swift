@@ -25,6 +25,6 @@ class GalleryShortcodeInputProcessor: Processor {
     func process(_ shortcode: Shortcode) -> String {
         let attributes = serializer.serialize(shortcode.attributes)
         
-        return "<gallery \(attributes)>"
+        return "<gallery \(attributes) />"
     }
 }
