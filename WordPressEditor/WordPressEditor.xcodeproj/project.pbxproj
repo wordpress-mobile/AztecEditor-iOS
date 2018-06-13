@@ -21,6 +21,8 @@
 		F14C4D2820C0E9AB007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */; };
 		F15A8B5F20BDB9E800C57ED2 /* GutenbergAttributeNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15A8B5E20BDB9E800C57ED2 /* GutenbergAttributeNames.swift */; };
 		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
+		F1B1FDCE20D14ACB0090A0A5 /* WordPressInputCustomizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */; };
+		F1B1FDD220D14B6D0090A0A5 /* WordPressOutputCustomizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */; };
 		F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */; };
 		F1C9F40A20AF62E900205227 /* GutenblockConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40520AF62E800205227 /* GutenblockConverter.swift */; };
 		F1C9F40D20AF62E900205227 /* GutenbergInputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */; };
@@ -84,6 +86,8 @@
 		F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessorTests.swift; sourceTree = "<group>"; };
 		F15A8B5E20BDB9E800C57ED2 /* GutenbergAttributeNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeNames.swift; sourceTree = "<group>"; };
 		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
+		F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressInputCustomizer.swift; sourceTree = "<group>"; };
+		F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressOutputCustomizer.swift; sourceTree = "<group>"; };
 		F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergOutputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1C9F40520AF62E800205227 /* GutenblockConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenblockConverter.swift; sourceTree = "<group>"; };
 		F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
@@ -137,6 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */,
+				F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */,
+				F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */,
 				F1065DBF20ADEEF4008C72CC /* Calypso */,
 				F1C9F40320AF62E800205227 /* Gutenberg */,
 			);
@@ -417,11 +423,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1B1FDCE20D14ACB0090A0A5 /* WordPressInputCustomizer.swift in Sources */,
 				F1C9F40A20AF62E900205227 /* GutenblockConverter.swift in Sources */,
 				F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */,
 				F15A8B5F20BDB9E800C57ED2 /* GutenbergAttributeNames.swift in Sources */,
 				F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */,
 				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
+				F1B1FDD220D14B6D0090A0A5 /* WordPressOutputCustomizer.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,

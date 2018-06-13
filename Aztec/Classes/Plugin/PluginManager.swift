@@ -27,7 +27,11 @@ class PluginManager {
     ///
     func process(inputHTML html: String) -> String {
         return plugins.reduce(html) { (html, plugin) -> String in
-            plugin.process(inputHTML: html)
+            guard let customizer = plugin.inputCustomizer else {
+                return html
+            }
+            
+            return customizer.process(inputHTML: html)
         }
     }
     
@@ -36,7 +40,9 @@ class PluginManager {
     ///
     func process(inputHTMLTree tree: RootNode) {
         for plugin in plugins {
-            plugin.process(inputHTMLTree: tree)
+            if let customizer = plugin.inputCustomizer {
+                customizer.process(inputHTMLTree: tree)
+            }
         }
     }
     
@@ -47,7 +53,11 @@ class PluginManager {
     ///
     func process(outputHTML html: String) -> String {
         return plugins.reduce(html) { (html, plugin) -> String in
-            plugin.process(outputHTML: html)
+            guard let customizer = plugin.outputCustomizer else {
+                return html
+            }
+            
+            return customizer.process(outputHTML: html)
         }
     }
     
@@ -56,7 +66,9 @@ class PluginManager {
     ///
     func process(outputHTMLTree tree: RootNode) {
         for plugin in plugins {
-            plugin.process(outputHTMLTree: tree)
+            if let customizer = plugin.outputCustomizer {
+                customizer.process(outputHTMLTree: tree)
+            }
         }
     }
 }
@@ -66,7 +78,9 @@ class PluginManager {
 extension PluginManager: AttributedStringSerializerCustomizer {
     func converter(for element: ElementNode) -> ElementConverter? {
         for plugin in plugins {
-            if let converter = plugin.converter(for: element) {
+            if let customizer = plugin.inputCustomizer,
+                let converter = customizer.converter(for: element) {
+                
                 return converter
             }
         }
@@ -80,7 +94,9 @@ extension PluginManager: AttributedStringSerializerCustomizer {
 extension PluginManager: AttributedStringParserCustomizer {
     func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
         for plugin in plugins {
-            if let element = plugin.convert(paragraphProperty) {
+            if let customizer = plugin.outputCustomizer,
+                let element = customizer.convert(paragraphProperty) {
+                
                 return element
             }
         }
