@@ -37,7 +37,7 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
     
     // MARK: - Input Processing
     
-    override open func process(inputHTML html: String) -> String {
+    override open func process(html: String) -> String {
         guard !isGutenbergContent(html) else {
             return html
         }
@@ -45,8 +45,8 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
         return calypsoinputHTMLProcessor.process(html)
     }
     
-    override open func process(inputHTMLTree tree: RootNode) {
-        gutenbergInputHTMLTreeProcessor.process(tree)
+    override open func process(htmlTree: RootNode) {
+        gutenbergInputHTMLTreeProcessor.process(htmlTree)
     }
     
     override open func converter(for elementNode: ElementNode) -> ElementConverter? {

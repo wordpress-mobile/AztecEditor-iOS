@@ -12,12 +12,12 @@ open class Plugin {
         /// Processes an HTML string right before parsing it to convert it into a nodes tree in
         /// the input conversion process.
         ///
-        open func process(inputHTML html: String) -> String { return html }
+        open func process(html: String) -> String { return html }
         
         /// Processes a nodes tree right after it's been parsed from a string, and before finalizing
         /// the input conversion process.
         ///
-        open func process(inputHTMLTree tree: RootNode) { return }
+        open func process(htmlTree: RootNode) { return }
         
         open func converter(for elementNode: ElementNode) -> ElementConverter? { return nil }
     }
@@ -29,12 +29,12 @@ open class Plugin {
         /// Processes an HTML string right after converting it from a nodes tree in the output
         /// conversion process.
         ///
-        open func process(outputHTML html: String) -> String { return html }
+        open func process(html: String) -> String { return html }
         
         /// Processes a nodes tree right before it'll bee converted to a string, and before finalizing
         /// the output conversion process.
         ///
-        open func process(outputHTMLTree tree: RootNode) { return }
+        open func process(htmlTree: RootNode) { return }
         
         /// Converts a paragraph property into the ElementNode that represents it.
         /// When a conversion is not implemented, just return nil.

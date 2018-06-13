@@ -26,23 +26,23 @@ class PluginManager {
     /// Processes an HTML string right before parsing it to convert it into a nodes tree in
     /// the input conversion process.
     ///
-    func process(inputHTML html: String) -> String {
+    func process(html: String) -> String {
         return plugins.reduce(html) { (html, plugin) -> String in
             guard let customizer = plugin.inputCustomizer else {
                 return html
             }
             
-            return customizer.process(inputHTML: html)
+            return customizer.process(html: html)
         }
     }
     
     /// Processes a nodes tree right after it's been parsed from a string, and before finalizing
     /// the input conversion process.
     ///
-    func process(inputHTMLTree tree: RootNode) {
+    func process(htmlTree: RootNode) {
         for plugin in plugins {
             if let customizer = plugin.inputCustomizer {
-                customizer.process(inputHTMLTree: tree)
+                customizer.process(htmlTree: htmlTree)
             }
         }
     }
@@ -58,7 +58,7 @@ class PluginManager {
                 return html
             }
             
-            return customizer.process(outputHTML: html)
+            return customizer.process(html: html)
         }
     }
     
@@ -68,7 +68,7 @@ class PluginManager {
     func process(outputHTMLTree tree: RootNode) {
         for plugin in plugins {
             if let customizer = plugin.outputCustomizer {
-                customizer.process(outputHTMLTree: tree)
+                customizer.process(htmlTree: tree)
             }
         }
     }

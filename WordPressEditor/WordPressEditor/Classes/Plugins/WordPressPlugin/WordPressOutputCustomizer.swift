@@ -37,7 +37,7 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
     
     // MARK: - Output Processing
     
-    override open func process(outputHTML html: String) -> String {
+    override open func process(html: String) -> String {
         guard !isGutenbergContent(html) else {
             return html
         }
@@ -45,8 +45,8 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
         return calypsoOutputHTMLProcessor.process(html)
     }
     
-    override open func process(outputHTMLTree tree: RootNode) {
-        gutenbergOutputHTMLTreeProcessor.process(tree)
+    override open func process(htmlTree: RootNode) {
+        gutenbergOutputHTMLTreeProcessor.process(htmlTree)
     }
     
     override open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
