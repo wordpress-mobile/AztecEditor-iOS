@@ -5,7 +5,7 @@ public extension Element {
     static let gallery = Element("gallery")
 }
 
-/// Provides a representation for `<img>` element.
+/// Provides a representation for Gallery (shortcode) elements.
 ///
 class GalleryElementConverter: AttachmentElementConverter {
     
