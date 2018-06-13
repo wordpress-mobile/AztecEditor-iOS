@@ -199,7 +199,15 @@ public class ElementNode: Node {
     /// - Returns: `true` if this is a block-level element.  `false` otherwise.
     ///
     public func isBlockLevel() -> Bool {
-        return Element.isBlockLevelElement(name)
+        return type.isBlockLevel()
+    }
+    
+    public func isVoid() -> Bool {
+        return type.isVoid()
+    }
+    
+    public func requiresClosingTag() -> Bool {
+        return !isVoid()
     }
 
     public func isNodeType(_ type: Element) -> Bool {

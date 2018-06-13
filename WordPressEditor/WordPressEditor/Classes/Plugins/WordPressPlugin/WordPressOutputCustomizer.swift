@@ -1,4 +1,5 @@
 import Aztec
+import UIKit
 
 /// Plugins that implements all of the WordPress specific HTML customizations.
 ///
@@ -23,6 +24,8 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
     private let isGutenbergContent: (String) -> Bool
     
     private let gutenbergOutputHTMLTreeProcessor = GutenbergOutputHTMLTreeProcessor()
+    let attachmentToElementConverters: [BaseAttachmentToElementConverter] = [GalleryAttachmentToElementConverter()]
+    let elementToTagConverters: [Element: ElementToTagConverter] = [.gallery: GalleryElementToTagConverter()]
     
     // MARK: - Initializers
     
@@ -44,6 +47,24 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
     
     override open func process(outputHTMLTree tree: RootNode) {
         gutenbergOutputHTMLTreeProcessor.process(tree)
+    }
+    
+    override open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+        for converter in attachmentToElementConverters {
+            if let element = converter.convert(attachment, attributes: attributes) {
+                return element
+            }
+        }
+        
+        return nil
+    }
+    
+    override open func converter(for elementNode: ElementNode) -> ElementToTagConverter? {
+        guard let converter = elementToTagConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
     
     // MARK: - AttributedStringParserCustomizer

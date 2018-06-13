@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
@@ -79,8 +80,7 @@ extension PluginManager: AttributedStringSerializerCustomizer {
     func converter(for element: ElementNode) -> ElementConverter? {
         for plugin in plugins {
             if let customizer = plugin.inputCustomizer,
-                let converter = customizer.converter(for: element) {
-                
+                let converter = customizer.converter(for: element) as ElementConverter? {
                 return converter
             }
         }
@@ -98,6 +98,34 @@ extension PluginManager: AttributedStringParserCustomizer {
                 let element = customizer.convert(paragraphProperty) {
                 
                 return element
+            }
+        }
+        
+        return nil
+    }
+    
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+        for plugin in plugins {
+            if let customizer = plugin.outputCustomizer,
+                let elements = customizer.convert(attachment, attributes: attributes) {
+                
+                return elements
+            }
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - HTMLSerializerCustomizer
+
+extension PluginManager: HTMLSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementToTagConverter? {
+        for plugin in plugins {
+            if let customizer = plugin.outputCustomizer,
+                let converter = customizer.converter(for: element) as ElementToTagConverter? {
+                
+                return converter
             }
         }
         

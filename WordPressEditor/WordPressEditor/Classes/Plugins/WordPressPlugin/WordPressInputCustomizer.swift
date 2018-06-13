@@ -13,6 +13,7 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
     
     private let calypsoinputHTMLProcessor = PipelineProcessor([
         CaptionShortcodeInputProcessor(),
+        GalleryShortcodeInputProcessor(),
         VideoShortcodeProcessor.videoPressPreProcessor,
         VideoShortcodeProcessor.wordPressVideoPreProcessor,
         AutoPProcessor()
@@ -23,7 +24,8 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
     private let isGutenbergContent: (String) -> Bool
     
     private let gutenbergInputHTMLTreeProcessor = GutenbergInputHTMLTreeProcessor()
-    let inputElementConverters: [Element: ElementConverter] = [.gutenblock: GutenblockConverter()]
+    let inputElementConverters: [Element: ElementConverter] = [.gallery: GalleryElementConverter(),
+                                                               .gutenblock: GutenblockConverter()]
     
     // MARK: - Initializers
     
@@ -47,9 +49,11 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
         gutenbergInputHTMLTreeProcessor.process(tree)
     }
     
-    override open func converter(for element: ElementNode) -> ElementConverter? {
-        return inputElementConverters.first(where: { (elementType, converter) -> Bool in
-            elementType == element.type
-        })?.value
+    override open func converter(for elementNode: ElementNode) -> ElementConverter? {
+        guard let converter = inputElementConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
 }

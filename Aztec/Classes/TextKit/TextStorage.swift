@@ -81,7 +81,6 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - HTML Conversion
     
-    private let defaultSerializer = DefaultHTMLSerializer(prettyPrint: false)
     private let htmlConverter = HTMLConverter()
     
     // MARK: - PluginManager
@@ -188,14 +187,12 @@ open class TextStorage: NSTextStorage {
                 attachment.delegate = self
             case let attachment as HTMLAttachment:
                 attachment.delegate = self
-            case let attachment as ImageAttachment:
-                attachment.delegate = self
-            case let attachment as VideoAttachment:
+            case let attachment as MediaAttachment:
                 attachment.delegate = self
             default:
                 guard let image = textAttachment.image else {
                     // We only suppot image attachments for now. All other attachment types are
-                    /// stripped for safety.
+                    // stripped for safety.
                     //
                     finalString.removeAttribute(.attachment, range: range)
                     return
@@ -356,10 +353,8 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(serializer: HTMLSerializer? = nil) -> String {
-        let serializer = serializer ?? defaultSerializer
-        
-        return htmlConverter.html(from: self, serializer: serializer)
+    open func getHTML(prettify: Bool = false) -> String {
+        return htmlConverter.html(from: self, prettify: prettify)
     }
 
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
@@ -375,15 +370,14 @@ open class TextStorage: NSTextStorage {
     }
     
     private func setupAttachmentDelegates() {
-        textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
+        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
-        textStore.enumerateAttachmentsOfType(VideoAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
+        
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+        
         textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }

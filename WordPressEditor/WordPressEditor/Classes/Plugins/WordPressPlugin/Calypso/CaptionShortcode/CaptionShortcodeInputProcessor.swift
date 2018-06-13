@@ -27,18 +27,15 @@ class CaptionShortcodeInputProcessor: ShortcodeProcessor {
             }
 
             let figcaptionNode = ElementNode(type: .figcaption, attributes: [], children: captionChildren)
-
-            /// Map Shortcode Attributes into ElementNode Attributes
-            ///
-            let unnamed = shortcode.attributes.unamed.map { attribute in
-                return Attribute(name: attribute)
-            }
-
-            let named = shortcode.attributes.named.map { attribute in
-                return Attribute(name: attribute.key, value: .string(attribute.value))
-            }
-
-            let figureAttributes = named + unnamed
+            
+            let figureAttributes = shortcode.attributes.map({ attribute -> Attribute in
+                switch attribute.value {
+                case .nil:
+                    return Attribute(name: attribute.key)
+                case .string(let value):
+                    return Attribute(name: attribute.key, value: .string(value))
+                }
+            })
 
             /// Figure: Image + Figcaption! Woo!
             ///
@@ -47,7 +44,7 @@ class CaptionShortcodeInputProcessor: ShortcodeProcessor {
             /// Final Step: Serialize back to string.
             /// This is expected to produce a `<figure><img<figcaption/></figure>` snippet.
             ///
-            let serializer = DefaultHTMLSerializer()
+            let serializer = HTMLSerializer()
             return serializer.serialize(figure)
         }
     }
