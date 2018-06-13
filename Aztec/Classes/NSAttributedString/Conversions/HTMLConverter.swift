@@ -48,10 +48,10 @@ public class HTMLConverter {
     /// - Returns: the attributed string that represents the provided HTML.
     ///
     func attributedString(from html: String, defaultAttributes: [NSAttributedStringKey: Any]? = [:]) -> NSAttributedString {
-        let processedHTML = pluginManager.process(inputHTML: html)
+        let processedHTML = pluginManager.process(html: html)
         let rootNode = htmlToTree.parse(processedHTML)
         
-        pluginManager.process(inputHTMLTree: rootNode)
+        pluginManager.process(htmlTree: rootNode)
         
         let defaultAttributes = defaultAttributes ?? [:]
         let attributedString = treeToAttributedString.serialize(rootNode, defaultAttributes: defaultAttributes)
