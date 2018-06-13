@@ -268,7 +268,7 @@ open class MediaAttachment: NSTextAttachment {
         ensureImageIsUpToDate(in: textContainer)
 
         if image == nil {
-            return CGRect(x: 0, y: 0, width: 20, height: 20)
+            return Appearance.minimumAttachmentRect
         }
 
         var padding = (textContainer?.lineFragmentPadding ?? 0) * 2
@@ -535,6 +535,10 @@ private extension MediaAttachment {
 extension MediaAttachment {
 
     public struct Appearance {
+        
+        /// The minimum rect for any media attachment.
+        ///
+        static let minimumAttachmentRect = CGRect(x: 0, y: 0, width: 20, height: 20)
 
         /// The color to use when drawing the background overlay for messages, icons, and progress
         ///
