@@ -107,7 +107,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = DefaultHTMLSerializer().serialize(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
     }
@@ -124,7 +124,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = DefaultHTMLSerializer().serialize(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, expectedHtml)
     }
@@ -146,7 +146,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
 
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = DefaultHTMLSerializer().serialize(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
 
         XCTAssertEqual(outHtml, inHtml)
     }
@@ -160,7 +160,7 @@ class AttributedStringSerializerTests: XCTestCase {
         let attrString = attributedString(from: inNode)
         
         let outNode = AttributedStringParser().parse(attrString)
-        let outHtml = DefaultHTMLSerializer().serialize(outNode)
+        let outHtml = HTMLSerializer().serialize(outNode)
         
         XCTAssertEqual(outHtml, inHtml)
     }

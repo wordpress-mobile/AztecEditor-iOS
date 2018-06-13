@@ -3,7 +3,7 @@ import UIKit
 
 /// For any object that converts an element into an attachment.
 ///
-protocol AttachmentElementConverter: ElementConverter {
+public protocol AttachmentElementConverter: ElementConverter {
     associatedtype AttachmentType: NSTextAttachment
     
     func convert(
@@ -12,7 +12,7 @@ protocol AttachmentElementConverter: ElementConverter {
         childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: AttachmentType, string: NSAttributedString)
 }
 
-extension AttachmentElementConverter {
+public extension AttachmentElementConverter {
     
     /// For most classes implementing this protocol, this is the default `convert` implementation from `ElementConverter`.
     ///

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// Plugin base class.  You can implement a subclass to customize some of the behavior in Aztec.
 ///
@@ -22,7 +23,7 @@ open class Plugin {
     ///
     open func process(inputHTMLTree tree: RootNode) { return }
     
-    open func converter(for element: ElementNode) -> ElementConverter? { return nil }
+    open func converter(for elementNode: ElementNode) -> ElementConverter? { return nil }
     
     // MARK: - Output Processing
     
@@ -40,6 +41,13 @@ open class Plugin {
     /// When a conversion is not implemented, just return nil.
     ///
     open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
+    
+    /// Converts an attachment into the `[Node]`s that represent it.
+    /// When a conversion is not implemented, just return nil.
+    ///
+    open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? { return nil }
+    
+    open func converter(for elementNode: ElementNode) -> ElementToTagConverter? { return nil }
 
     // MARK: - Equatable
     

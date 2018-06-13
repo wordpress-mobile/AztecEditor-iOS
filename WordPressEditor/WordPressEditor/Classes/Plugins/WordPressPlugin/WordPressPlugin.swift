@@ -1,4 +1,5 @@
 import Aztec
+import UIKit
 
 /// Plugins that implements all of the WordPress specific HTML customizations.
 ///
@@ -13,6 +14,7 @@ open class WordPressPlugin: Plugin {
     
     private let calypsoinputHTMLProcessor = PipelineProcessor([
         CaptionShortcodeInputProcessor(),
+        GalleryShortcodeInputProcessor(),
         VideoShortcodeProcessor.videoPressPreProcessor,
         VideoShortcodeProcessor.wordPressVideoPreProcessor,
         AutoPProcessor()
@@ -32,7 +34,10 @@ open class WordPressPlugin: Plugin {
     
     // MARK: - Gutenberg Converters
     
-    let inputElementConverters: [Element: ElementConverter] = [.gutenblock: GutenblockConverter()]
+    let inputElementConverters: [Element: ElementConverter] = [.gallery: GalleryElementConverter(),
+                                                               .gutenblock: GutenblockConverter()]
+    let attachmentToElementConverters: [BaseAttachmentToElementConverter] = [GalleryAttachmentToElementConverter()]
+    let elementToTagConverters: [Element: ElementToTagConverter] = [.gallery: GalleryElementToTagConverter()]
     
     // MARK: - Input Processing
 
@@ -48,10 +53,12 @@ open class WordPressPlugin: Plugin {
         gutenbergInputHTMLTreeProcessor.process(tree)
     }
     
-    override open func converter(for element: ElementNode) -> ElementConverter? {
-        return inputElementConverters.first(where: { (elementType, converter) -> Bool in
-            elementType == element.type
-        })?.value
+    override open func converter(for elementNode: ElementNode) -> ElementConverter? {
+        guard let converter = inputElementConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
     
     // MARK: - Output Processing
@@ -66,6 +73,24 @@ open class WordPressPlugin: Plugin {
     
     override open func process(outputHTMLTree tree: RootNode) {
         gutenbergOutputHTMLTreeProcessor.process(tree)
+    }
+    
+    override open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+        for converter in attachmentToElementConverters {
+            if let element = converter.convert(attachment, attributes: attributes) {
+                return element
+            }
+        }
+        
+        return nil
+    }
+
+    override open func converter(for elementNode: ElementNode) -> ElementToTagConverter? {
+        guard let converter = elementToTagConverters[elementNode.type] else {
+            return nil
+        }
+        
+        return converter
     }
     
     // MARK: - AttributedStringParserCustomizer

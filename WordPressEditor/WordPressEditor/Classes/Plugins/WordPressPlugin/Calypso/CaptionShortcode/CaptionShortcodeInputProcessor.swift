@@ -44,7 +44,7 @@ class CaptionShortcodeInputProcessor: ShortcodeProcessor {
             /// Final Step: Serialize back to string.
             /// This is expected to produce a `<figure><img<figcaption/></figure>` snippet.
             ///
-            let serializer = DefaultHTMLSerializer()
+            let serializer = HTMLSerializer()
             return serializer.serialize(figure)
         }
     }

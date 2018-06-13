@@ -8,7 +8,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
     init() {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        super.init(tag: Element.figure.rawValue) { element in
+        super.init(for: "figure") { element in
             guard let payload = element.content else {
                 return nil
             }
@@ -25,7 +25,7 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
 
             /// Serialize the Caption's Shortcode!
             ///
-            let serializer = DefaultHTMLSerializer()
+            let serializer = HTMLSerializer()
             var attributes = element.attributes
             var imgNode: ElementNode?
 
