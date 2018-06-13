@@ -21,7 +21,6 @@ public class HTMLSerializer {
     /// Default Initializer
     ///
     /// - Parameters:
-    ///     - prettyPrint: Indicates whether if the output should be pretty-formatted, or not.
     ///     - indentationSpaces: Indicates the number of indentation spaces to be applied, per level.
     ///
     public init(indentationSpaces: Int = 2) {
