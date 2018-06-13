@@ -453,7 +453,6 @@
 			isa = PBXGroup;
 			children = (
 				F16A2AF820CDB4EF00BF3A0A /* Input */,
-				F16A2AFA20CDB50F00BF3A0A /* Output */,
 			);
 			name = ElementConverters;
 			path = Aztec/Classes/ElementConverters;
@@ -870,13 +869,6 @@
 				40A2986F1FD61B1C00AEDF3B /* Implementations */,
 			);
 			path = Input;
-			sourceTree = "<group>";
-		};
-		F16A2AFA20CDB50F00BF3A0A /* Output */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Output;
 			sourceTree = "<group>";
 		};
 		F16DD2C51EE998280083A098 /* NSAttributedString */ = {
