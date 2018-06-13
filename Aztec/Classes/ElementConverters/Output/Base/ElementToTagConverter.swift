@@ -2,7 +2,7 @@ import Foundation
 
 /// Converts an `ElementNode` into its `String` representation.
 ///
-public protocol ElementToTagConverter {
+protocol ElementToTagConverter {
     
     /// Pair containing a mandatory opening tag, and an optional closing
     /// one.

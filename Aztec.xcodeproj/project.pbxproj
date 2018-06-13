@@ -124,7 +124,7 @@
 		F16A2AD920CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */; };
 		F16A2ADB20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */; };
 		F16A2ADD20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADC20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift */; };
-		F16A2AFD20CDB54000BF3A0A /* ElementToStringConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AFC20CDB54000BF3A0A /* ElementToStringConverter.swift */; };
+		F16A2AFD20CDB54000BF3A0A /* ElementToTagConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AFC20CDB54000BF3A0A /* ElementToTagConverter.swift */; };
 		F16A2B0020CDB62B00BF3A0A /* GenericElementToTagConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AFF20CDB62B00BF3A0A /* GenericElementToTagConverter.swift */; };
 		F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */; };
 		F17BC8921F4E4BA500398E2B /* CSSPropertyRepresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */; };
@@ -342,7 +342,7 @@
 		F16A2AD820CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2ADA20CC4DC500BF3A0A /* ImageAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2ADC20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAttachmentToElementConverter.swift; sourceTree = "<group>"; };
-		F16A2AFC20CDB54000BF3A0A /* ElementToStringConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementToStringConverter.swift; sourceTree = "<group>"; };
+		F16A2AFC20CDB54000BF3A0A /* ElementToTagConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementToTagConverter.swift; sourceTree = "<group>"; };
 		F16A2AFF20CDB62B00BF3A0A /* GenericElementToTagConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericElementToTagConverter.swift; sourceTree = "<group>"; };
 		F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILayoutPriority+Swift4.swift"; sourceTree = "<group>"; };
 		F17BC88F1F4E4BA500398E2B /* CSSPropertyRepresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSPropertyRepresentation.swift; sourceTree = "<group>"; };
@@ -885,7 +885,7 @@
 		F16A2AFB20CDB51B00BF3A0A /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				F16A2AFC20CDB54000BF3A0A /* ElementToStringConverter.swift */,
+				F16A2AFC20CDB54000BF3A0A /* ElementToTagConverter.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -1196,7 +1196,7 @@
 				F16A2AD320CC428B00BF3A0A /* AttachmentToElementConverter.swift in Sources */,
 				F12F586C1EF20394008AE298 /* HTMLParagraphFormatter.swift in Sources */,
 				F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */,
-				F16A2AFD20CDB54000BF3A0A /* ElementToStringConverter.swift in Sources */,
+				F16A2AFD20CDB54000BF3A0A /* ElementToTagConverter.swift in Sources */,
 				40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */,
 				F12F58661EF20394008AE298 /* StandardAttributeFormatter.swift in Sources */,
 				F16A2AD920CC479500BF3A0A /* HTMLAttachmentToElementConverter.swift in Sources */,
