@@ -60,7 +60,7 @@ public class VideoShortcodeProcessor {
     static var videoPressPostProcessor: Processor {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        let postWordPressVideoProcessor = HTMLProcessor(for: .video, replacer: { (element) in
+        let postWordPressVideoProcessor = HTMLProcessor(for: "video", replacer: { (element) in
             
             guard let videoPressID = element.attributes[videoPressHTMLAttribute] else {
                 return nil
@@ -121,7 +121,7 @@ public class VideoShortcodeProcessor {
     static var wordPressVideoPostProcessor: Processor {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
-        let postWordPressVideoProcessor = HTMLProcessor(for: .video, replacer: { (element) in
+        let postWordPressVideoProcessor = HTMLProcessor(for: "video", replacer: { (element) in
             var html = "[video "
             
             if let src = element.attributes["src"] {

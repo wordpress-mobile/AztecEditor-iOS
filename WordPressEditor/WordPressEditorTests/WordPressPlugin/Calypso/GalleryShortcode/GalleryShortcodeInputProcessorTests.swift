@@ -9,7 +9,7 @@ class GalleryShortcodeInputProcessorTests: XCTestCase {
     ///
     func testGalleryShortcodeWithOnlyColumns() {
         let input = "[gallery columns=\"4\"]"
-        let expected = "<gallery columns=\"4\">"
+        let expected = "<gallery columns=\"4\" />"
         
         let output = processor.process(input)
         
@@ -20,7 +20,7 @@ class GalleryShortcodeInputProcessorTests: XCTestCase {
     ///
     func testGalleryShortcodeWithOnlyIDs() {
         let input = "[gallery ids=\"4,10,22,11\"]"
-        let expected = "<gallery ids=\"4,10,22,11\">"
+        let expected = "<gallery ids=\"4,10,22,11\" />"
         
         let output = processor.process(input)
         
