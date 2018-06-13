@@ -1,12 +1,7 @@
 import Aztec
 import UIKit
 
-/// Plugins that implements all of the WordPress specific HTML customizations.
-///
-/// The Calypso processor is one that must DEFINITELY not be run on Gutenberg
-/// posts.
-///
-/// The Gutenberg processors are harmless on Calypso posts.
+/// WordPress Plugin for Aztec.
 ///
 open class WordPressPlugin: Plugin {
     

@@ -1,6 +1,6 @@
 import Aztec
 
-/// Plugins that implements all of the WordPress specific HTML customizations.
+/// Input customizer for the WordPress Plugin.
 ///
 /// The Calypso processor is one that must DEFINITELY not be run on Gutenberg
 /// posts.
