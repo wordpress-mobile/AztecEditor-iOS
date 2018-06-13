@@ -9,8 +9,9 @@ public class HTMLSerializer {
     ///
     let indentationSpaces: Int
 
-    /// Converters
-    private let genericElementConverter = GenericElementToTagConverter()
+    /// Converter
+    ///
+    private let elementConverter = ElementToTagConverter()
     
     /// Default Initializer
     ///
@@ -75,7 +76,7 @@ private extension HTMLSerializer {
     /// Serializes an `ElementNode` into its HTML representation
     ///
     private func serialize(_ elementNode: ElementNode, prettify: Bool, level: Int) -> String {
-        let tag = genericElementConverter.convert(elementNode)
+        let tag = elementConverter.convert(elementNode)
         
         let openingTagPrefix = self.openingTagPrefix(for: elementNode, prettify: prettify, level: level)
         let opening = openingTagPrefix + tag.opening
