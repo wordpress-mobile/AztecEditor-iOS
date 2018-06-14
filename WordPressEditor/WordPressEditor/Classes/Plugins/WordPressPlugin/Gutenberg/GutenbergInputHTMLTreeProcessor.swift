@@ -9,6 +9,10 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
     private static let classInitializer: () = {
         Element.blockLevelElements.append(.gutenblock)
+
+        Element.mergeableBlocklevelElements.append(.gutenblock)
+
+        Element.mergeableBlocklevelElementsSingleChildren.append(.gutenblock)
         
         // Self-closing blocks are packed into attachments.
         Element.blockLevelElements.append(.gutenpack)
