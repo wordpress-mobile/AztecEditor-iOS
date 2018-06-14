@@ -263,43 +263,7 @@ public class ElementNode: Node {
         return elements.first { element in
             return element.isNodeType(type)
         }
-    }
-
-
-    /// Indicates whether the children of the specified node can be merged in, or not.
-    ///
-    /// - Parameters:
-    ///     - node: Target node for which we'll determine Merge-ability status.
-    ///
-    /// - Returns: true if both nodes can be merged, or not.
-    ///
-    func canMergeChildren(of node: ElementNode, blocklevelEnforced: Bool) -> Bool {
-        guard name == node.name && Set(attributes) == Set(node.attributes) else {
-            return false
-        }
-
-        guard blocklevelEnforced else {
-            return Element.mergeableStyleElements.contains(type)
-        }
-
-        return isBlockLevelMergeable()
-    }
-
-    public func isBlockLevelMergeable() -> Bool {
-        guard Element.mergeableBlockLevelElements.contains(type) else {
-            return false
-        }
-        guard Element.mergeableBlocklevelElementsSingleChildren.contains(type) else {
-            return Element.mergeableBlockLevelElements.contains(type)
-        }
-
-        guard children.count == 1,
-            let singleChildren = children.first as? ElementNode, singleChildren.isBlockLevel() else {
-            return false
-        }
-
-        return true
-    }
+    }    
 
     // MARK: - DOM Queries
     
