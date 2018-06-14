@@ -20,7 +20,13 @@ public struct Element: RawRepresentable, Hashable {
     /// Ref. http://w3c.github.io/html/syntax.html#void-elements
     ///
     public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
-    
+
+    public static var mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul]
+
+    public static var mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code, .cite]
+
+    public static var mergeableBlocklevelElementsSingleChildren: [Element] = []
+
     // MARK: - Initializers
     
     public init?(rawValue: RawValue) {

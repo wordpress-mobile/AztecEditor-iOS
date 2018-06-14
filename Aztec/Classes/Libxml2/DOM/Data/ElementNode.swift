@@ -20,10 +20,7 @@ public class ElementNode: Node {
             return nil
         }
         return headerLevels[headerLevel - 1]
-    }
-
-    private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul]
-    private static let mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code, .cite]
+    }    
     
     public var type: Element {
         get {
@@ -282,12 +279,28 @@ public class ElementNode: Node {
         }
 
         guard blocklevelEnforced else {
-            return ElementNode.mergeableStyleElements.contains(type)
+            return Element.mergeableStyleElements.contains(type)
         }
 
-        return ElementNode.mergeableBlocklevelElements.contains(type)
+        return isBlockLevelMergeable()
     }
 
+    public func isBlockLevelMergeable() -> Bool {
+        guard Element.mergeableBlocklevelElements.contains(type) else {
+            return false
+        }
+        guard Element.mergeableBlocklevelElementsSingleChildren.contains(type) else {
+            return Element.mergeableBlocklevelElements.contains(type)
+        }
+
+        guard children.count == 1,
+            let singleChildren = children.first as? ElementNode,
+            Element.mergeableBlocklevelElements.contains(singleChildren.type) else {
+            return false
+        }
+
+        return true
+    }
 
     // MARK: - DOM Queries
     
