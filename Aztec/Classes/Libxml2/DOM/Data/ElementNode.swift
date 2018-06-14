@@ -286,11 +286,11 @@ public class ElementNode: Node {
     }
 
     public func isBlockLevelMergeable() -> Bool {
-        guard Element.mergeableBlocklevelElements.contains(type) else {
+        guard Element.mergeableBlockLevelElements.contains(type) else {
             return false
         }
         guard Element.mergeableBlocklevelElementsSingleChildren.contains(type) else {
-            return Element.mergeableBlocklevelElements.contains(type)
+            return Element.mergeableBlockLevelElements.contains(type)
         }
 
         guard children.count == 1,

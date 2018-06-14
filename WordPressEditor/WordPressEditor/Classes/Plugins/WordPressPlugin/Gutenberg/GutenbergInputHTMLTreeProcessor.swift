@@ -10,7 +10,7 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     private static let classInitializer: () = {
         Element.blockLevelElements.insert(.gutenblock)
 
-        Element.mergeableBlocklevelElements.insert(.gutenblock)
+        Element.mergeableBlockLevelElements.insert(.gutenblock)
 
         Element.mergeableBlocklevelElementsSingleChildren.insert(.gutenblock)
         

@@ -23,7 +23,7 @@ public struct Element: RawRepresentable, Hashable {
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///
-    public static var mergeableBlocklevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p])
+    public static var mergeableBlockLevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p])
 
     /// List of style HTML elements that can be merged together when they are sibling to each other
     public static var mergeableStyleElements: Set<Element> = Set([.i, .em, .b, .strong, .strike, .u, .code, .cite])
