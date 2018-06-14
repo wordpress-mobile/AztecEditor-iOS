@@ -13,7 +13,7 @@ public struct Element: RawRepresentable, Hashable {
     
     /// This can be extended in case new elements need to be defined.
     ///
-    public static var blockLevelElements: [Element] = [.address, .aztecRootNode, .blockquote, .div, .dl, .dd, .dt, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
+    public static var blockLevelElements: Set<Element> = Set([.address, .aztecRootNode, .blockquote, .div, .dl, .dd, .dt, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul])
     
     /// List of void elements.  These will *not* to have a closing tag and cannot have children.
     ///
@@ -23,14 +23,14 @@ public struct Element: RawRepresentable, Hashable {
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///
-    public static var mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul]
+    public static var mergeableBlocklevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul])
 
     /// List of style HTML elements that can be merged together when they are sibling to each other
-    public static var mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code, .cite]
+    public static var mergeableStyleElements: Set<Element> = Set([.i, .em, .b, .strong, .strike, .u, .code, .cite])
 
     /// List of block level elements that can be merged but only when they have a single children that is also mergeable
     ///
-    public static var mergeableBlocklevelElementsSingleChildren: [Element] = []
+    public static var mergeableBlocklevelElementsSingleChildren =  Set<Element>()
 
     // MARK: - Initializers
     
