@@ -107,8 +107,12 @@ private extension GutenbergInputHTMLTreeProcessor {
     func openerAttributes(for commentNode: CommentNode) -> [Attribute] {
         let attributeName = GutenbergAttributeNames.blockOpener
         let openerBase64String = encode(commentNode)
-        
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
+        // TODO: Parse and create an extra attribute to get the block name.        
+        let blockName = commentNode.comment.trimmingCharacters(in: .whitespaces).prefix { (char) -> Bool in
+            return char != " "
+        }
+        let nameAttribute = Attribute(name:GutenbergAttributeNames.blockType, value: .string(String(blockName)))
+        return [Attribute(name: attributeName, value: .string(openerBase64String)), nameAttribute]
     }
     
     func selfClosingAttributes(for commentNode: CommentNode) -> [Attribute] {

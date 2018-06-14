@@ -8,4 +8,5 @@ struct GutenbergAttributeNames {
     public static let selfCloser = "selfCloser"
     public static let blockOpener = "opener"
     public static let blockCloser = "closer"
+    public static let blockType = "blockType"
 }
