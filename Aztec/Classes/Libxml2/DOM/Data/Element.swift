@@ -21,10 +21,15 @@ public struct Element: RawRepresentable, Hashable {
     ///
     public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
 
+    /// List of block HTML elements that can be merged together when they are sibling to each other
+    ///
     public static var mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul]
 
+    /// List of style HTML elements that can be merged together when they are sibling to each other
     public static var mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code, .cite]
 
+    /// List of block level elements that can be merged but only when they have a single children that is also mergeable
+    ///
     public static var mergeableBlocklevelElementsSingleChildren: [Element] = []
 
     // MARK: - Initializers
