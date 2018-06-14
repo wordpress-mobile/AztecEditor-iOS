@@ -294,8 +294,7 @@ public class ElementNode: Node {
         }
 
         guard children.count == 1,
-            let singleChildren = children.first as? ElementNode,
-            Element.mergeableBlocklevelElements.contains(singleChildren.type) else {
+            let singleChildren = children.first as? ElementNode, singleChildren.isBlockLevel() else {
             return false
         }
 
