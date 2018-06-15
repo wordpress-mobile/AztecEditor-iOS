@@ -21,7 +21,7 @@ public class HTMLConverter {
     
     // MARK: - Converters: HTML -> AttributedString
     
-    let htmlToTree = HTMLParser()
+    private let htmlToTree = HTMLParser()
     
     private(set) lazy var treeToAttributedString: AttributedStringSerializer = {
         return AttributedStringSerializer(customizer: pluginManager)
@@ -33,9 +33,7 @@ public class HTMLConverter {
         return AttributedStringParser(customizer: pluginManager)
     }()
     
-    private(set) lazy var treeToHTML: HTMLSerializer = {
-        return HTMLSerializer(customizer: pluginManager)
-    }()
+    private let treeToHTML = HTMLSerializer()
     
     // MARK: - Conversion Logic
     

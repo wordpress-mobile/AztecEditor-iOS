@@ -1,27 +1,23 @@
 import Aztec
 import Foundation
 
-class GalleryElementToTagConverter: ElementToTagConverter {
-    func convert(_ elementNode: ElementNode) -> ElementToTagConverter.Tag {
+class GalleryOutputElementConverter {
+    func convert(_ elementNode: ElementNode) -> TextNode {
         let shortcode = self.shortcode(for: elementNode)
         
-        return (shortcode, nil)
+        return TextNode(text: shortcode)
     }
-}
 
-// MARK: - Shortcode Construction
+    // MARK: - Shortcode Construction
 
-private extension GalleryElementToTagConverter {
     private func shortcode(for elementNode: ElementNode) -> String {
         let attributes = serialize(attributes: elementNode.attributes)
         
         return "[gallery " + attributes + "]"
     }
-}
 
-// MARK: - Attribute Conversion Logic
+    // MARK: - Attribute Conversion Logic
 
-private extension GalleryElementToTagConverter {
     /// Serializes an array of attributes into their HTML representation
     ///
     private func serialize(attributes: [Attribute]) -> String {

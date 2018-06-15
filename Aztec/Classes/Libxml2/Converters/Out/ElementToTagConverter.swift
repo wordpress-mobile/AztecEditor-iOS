@@ -1,6 +1,8 @@
 import Foundation
 
-class GenericElementToTagConverter: ElementToTagConverter {
+class ElementToTagConverter {
+    typealias Tag = (opening: String, closing: String?)
+    
     func convert(_ elementNode: ElementNode) -> Tag {
         let openingTag = self.openingTag(for: elementNode)
         let closingTag = self.closingTag(for: elementNode)
@@ -11,7 +13,7 @@ class GenericElementToTagConverter: ElementToTagConverter {
 
 // MARK: - Opening and Closing Tag Conversion Logic
 
-private extension GenericElementToTagConverter {
+private extension ElementToTagConverter {
     /// Returns the Opening Tag for a given Element Node
     ///
     private func openingTag(for node: ElementNode) -> String {
@@ -41,7 +43,7 @@ private extension GenericElementToTagConverter {
 
 // MARK: - Attribute Conversion Logic
 
-private extension GenericElementToTagConverter {
+private extension ElementToTagConverter {
     /// Serializes an array of attributes into their HTML representation
     ///
     private func serialize(attributes: [Attribute]) -> String {

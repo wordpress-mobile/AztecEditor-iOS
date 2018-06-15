@@ -19,13 +19,14 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
         RemovePProcessor(),
         ])
     
+    private let calypsoOutputHTMLTreeProcessor = GalleryOutputHTMLTreeProcessor()
+    
     // MARK: - Gutenberg
     
     private let isGutenbergContent: (String) -> Bool
     
     private let gutenbergOutputHTMLTreeProcessor = GutenbergOutputHTMLTreeProcessor()
     let attachmentToElementConverters: [BaseAttachmentToElementConverter] = [GalleryAttachmentToElementConverter()]
-    let elementToTagConverters: [Element: ElementToTagConverter] = [.gallery: GalleryElementToTagConverter()]
     
     // MARK: - Initializers
     
@@ -46,6 +47,7 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
     }
     
     override open func process(htmlTree: RootNode) {
+        calypsoOutputHTMLTreeProcessor.process(htmlTree)
         gutenbergOutputHTMLTreeProcessor.process(htmlTree)
     }
     
@@ -57,14 +59,6 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
         }
         
         return nil
-    }
-    
-    override open func converter(for elementNode: ElementNode) -> ElementToTagConverter? {
-        guard let converter = elementToTagConverters[elementNode.type] else {
-            return nil
-        }
-        
-        return converter
     }
     
     // MARK: - AttributedStringParserCustomizer

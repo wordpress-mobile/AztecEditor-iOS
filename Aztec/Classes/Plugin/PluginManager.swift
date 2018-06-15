@@ -117,19 +117,3 @@ extension PluginManager: AttributedStringParserCustomizer {
     }
 }
 
-// MARK: - HTMLSerializerCustomizer
-
-extension PluginManager: HTMLSerializerCustomizer {
-    func converter(for element: ElementNode) -> ElementToTagConverter? {
-        for plugin in plugins {
-            if let customizer = plugin.outputCustomizer,
-                let converter = customizer.converter(for: element) as ElementToTagConverter? {
-                
-                return converter
-            }
-        }
-        
-        return nil
-    }
-}
-

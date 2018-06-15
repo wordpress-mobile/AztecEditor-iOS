@@ -45,8 +45,6 @@ open class Plugin {
         /// When a conversion is not implemented, just return nil.
         ///
         open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? { return nil }
-        
-        open func converter(for elementNode: ElementNode) -> ElementToTagConverter? { return nil }
     }
     
     // MARK: - Customizers
