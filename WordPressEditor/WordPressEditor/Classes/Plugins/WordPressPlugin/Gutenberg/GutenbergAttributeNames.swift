@@ -5,7 +5,7 @@ struct GutenbergAttributeNames {
     
     // MARK: - HTML Attribute Names
     
-    public static let selfCloser = "selfCloser"
+    public static let selfCloser = "selfcloser"
     public static let blockOpener = "opener"
     public static let blockCloser = "closer"
 }
