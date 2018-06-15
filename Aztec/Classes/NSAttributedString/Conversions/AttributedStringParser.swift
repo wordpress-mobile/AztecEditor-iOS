@@ -406,8 +406,15 @@ private extension AttributedStringParser {
             
             unmergeableConversions = convert(newProperties[firstUnmergedIndex ..< newProperties.count], styleNodes: styleNodes)
         } else {
-            let paragraphSeparator = TextNode(text: String(.paragraphSeparator))
-            let nodes = [paragraphSeparator] + styleNodes
+            let nodes: [Node]
+            
+            if lastMergeableConversion.preformatted {
+                let paragraphSeparator = TextNode(text: String(.paragraphSeparator))
+                
+                nodes = [paragraphSeparator] + styleNodes
+            } else {
+                nodes = styleNodes
+            }
             
             append(nodes, to: mergeableConversions)
             unmergeableConversions = []
