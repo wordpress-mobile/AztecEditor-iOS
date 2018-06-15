@@ -194,15 +194,15 @@ open class TextView: UITextView {
     
     // MARK: - Plugin Loading
     
-    public func load(_ plugin: Plugin) {
-        storage.pluginsManager.load(plugin)
+    var pluginManager: PluginManager {
+        get {
+            return storage.pluginManager
+        }
     }
-
-    // MARK: - Output Serialization
-
-    /// Serializes the DOM Tree into an HTML String.
-    ///
-    public var outputSerializer: HTMLSerializer = DefaultHTMLSerializer()
+    
+    public func load(_ plugin: Plugin) {
+        pluginManager.load(plugin)
+    }
 
     // MARK: - TextKit Aztec Subclasses
 
@@ -591,6 +591,8 @@ open class TextView: UITextView {
 
         ensureCopyOfCodeCustomTypingAttributes(at: selectedRange)
 
+        ensureCopyOfCiteCustomTypingAttributes(at: selectedRange)
+
         // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
         // attributes under certain circumstances.  The attributes are lost exactly after the call
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
@@ -687,15 +689,15 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    @objc public func getHTML() -> String {
-        return storage.getHTML(serializer: outputSerializer)
+    public func getHTML(prettify: Bool = true) -> String {
+        return storage.getHTML(prettify: prettify)
     }
 
     /// Loads the specified HTML into the editor.
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    @objc public func setHTML(_ html: String) {
+    public func setHTML(_ html: String) {
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
@@ -1144,6 +1146,19 @@ open class TextView: UITextView {
         }
 
         typingAttributesSwifted[.codeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
+    }
+
+    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
+    ///
+    /// - Parameter range: the range where the new text will be inserted
+    ///
+    private func ensureCopyOfCiteCustomTypingAttributes(at range: NSRange) {
+        guard typingAttributesSwifted[.citeHtmlRepresentation] == nil,
+            storage.isLocation(range.location, preceededBy: .citeHtmlRepresentation) else {
+                return
+        }
+
+        typingAttributesSwifted[.citeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "cite", attributes: [])))
     }
 
 

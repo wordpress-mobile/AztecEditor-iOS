@@ -78,10 +78,18 @@ protocol TextStorageAttachmentsDelegate: class {
 /// Custom NSTextStorage
 ///
 open class TextStorage: NSTextStorage {
-
-    // MARK: - Plugins
     
-    let pluginsManager = PluginsManager()
+    // MARK: - HTML Conversion
+    
+    private let htmlConverter = HTMLConverter()
+    
+    // MARK: - PluginManager
+    
+    var pluginManager: PluginManager {
+        get {
+            return htmlConverter.pluginManager
+        }
+    }
     
     // MARK: - Storage
 
@@ -117,8 +125,7 @@ open class TextStorage: NSTextStorage {
 
         return attachments
     }
-
-
+    
     // MARK: - Range Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
@@ -180,14 +187,12 @@ open class TextStorage: NSTextStorage {
                 attachment.delegate = self
             case let attachment as HTMLAttachment:
                 attachment.delegate = self
-            case let attachment as ImageAttachment:
-                attachment.delegate = self
-            case let attachment as VideoAttachment:
+            case let attachment as MediaAttachment:
                 attachment.delegate = self
             default:
                 guard let image = textAttachment.image else {
                     // We only suppot image attachments for now. All other attachment types are
-                    /// stripped for safety.
+                    // stripped for safety.
                     //
                     finalString.removeAttribute(.attachment, range: range)
                     return
@@ -348,29 +353,15 @@ open class TextStorage: NSTextStorage {
 
     // MARK: - HTML Interaction
 
-    open func getHTML(serializer: HTMLSerializer) -> String {
-        
-        let parser = AttributedStringParser()
-        let rootNode = parser.parse(self)
-        
-        pluginsManager.process(outputHTMLTree: rootNode)
-        
-        let html =  serializer.serialize(rootNode)
-        
-        return pluginsManager.process(outputHTML: html)
+    open func getHTML(prettify: Bool = false) -> String {
+        return htmlConverter.html(from: self, prettify: prettify)
     }
 
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
+        let originalLength = length
+        let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
 
-        let originalLength = textStore.length
-        let processedHTML = pluginsManager.process(inputHTML: html)
-        let htmlParser = HTMLParser()
-        let rootNode = htmlParser.parse(processedHTML)
-        
-        pluginsManager.process(inputHTMLTree: rootNode)
-        
-        let serializer = AttributedStringSerializer(defaultAttributes: defaultAttributes)
-        textStore = NSMutableAttributedString(attributedString: serializer.serialize(rootNode))
+        textStore = NSMutableAttributedString(attributedString: attrString)
         textStoreString = textStore.string
         
         setupAttachmentDelegates()
@@ -379,15 +370,14 @@ open class TextStorage: NSTextStorage {
     }
     
     private func setupAttachmentDelegates() {
-        textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
+        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
-        textStore.enumerateAttachmentsOfType(VideoAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
+        
         textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
+        
         textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
