@@ -13,22 +13,18 @@ public class ElementNode: Node {
         }
     }
 
-    private static let headerLevels: [StandardElementType] = [.h1, .h2, .h3, .h4, .h5, .h6]
+    private static let headerLevels: [Element] = [.h1, .h2, .h3, .h4, .h5, .h6]
 
-    class func elementTypeForHeaderLevel(_ headerLevel: Int) -> StandardElementType? {
+    class func elementTypeForHeaderLevel(_ headerLevel: Int) -> Element? {
         if headerLevel < 1 || headerLevel > headerLevels.count {
             return nil
         }
         return headerLevels[headerLevel - 1]
-    }
-
-    private static let knownElements: [StandardElementType] = [.a, .b, .br, .blockquote, .del, .div, .em, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .i, .img, .li, .ol, .p, .pre, .s, .span, .strike, .strong, .u, .ul, .video, .code]
-    private static let mergeableBlocklevelElements: [StandardElementType] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul]
-    private static let mergeableStyleElements: [StandardElementType] = [.i, .em, .b, .strong, .strike, .u, .code]
-
-    public var standardName: StandardElementType? {
+    }    
+    
+    public var type: Element {
         get {
-            return StandardElementType(rawValue: name)
+            return Element(name)
         }
     }
     
@@ -78,7 +74,7 @@ public class ElementNode: Node {
         updateParentForChildren()
     }
 
-    public convenience init(type: StandardElementType, attributes: [Attribute] = [], children: [Node] = []) {
+    public convenience init(type: Element, attributes: [Attribute] = [], children: [Node] = []) {
         self.init(name: type.rawValue, attributes: attributes, children: children)
     }
     
@@ -189,30 +185,29 @@ public class ElementNode: Node {
         }
 
         if let lastChild = childrenIgnoringEmptyTextNodes.last as? ElementNode {
-           return lastChild.isBlockLevelElement()
+           return lastChild.isBlockLevel()
         }
 
         return false
     }
 
-
     /// Find out if this is a block-level element.
     ///
     /// - Returns: `true` if this is a block-level element.  `false` otherwise.
     ///
-    public func isBlockLevelElement() -> Bool {
-
-        guard let standardName = standardName else {
-            // For now we're treating all non-standard element names as non-block-level
-            // elements.
-            //
-            return false
-        }
-
-        return standardName.isBlockLevelNodeName()
+    public func isBlockLevel() -> Bool {
+        return type.isBlockLevel()
+    }
+    
+    public func isVoid() -> Bool {
+        return type.isVoid()
+    }
+    
+    public func requiresClosingTag() -> Bool {
+        return !isVoid()
     }
 
-    public func isNodeType(_ type: StandardElementType) -> Bool {
+    public func isNodeType(_ type: Element) -> Bool {
         return type.equivalentNames.contains(name.lowercased())
     }
     
@@ -246,7 +241,7 @@ public class ElementNode: Node {
     ///
     /// - Returns: the requested child (if it's the only children in the collection, and if the type matches), or nil otherwise.
     ///
-    func onlyChild(ofType type: StandardElementType) -> ElementNode? {
+    func onlyChild(ofType type: Element) -> ElementNode? {
         guard let child = onlyChild(), child.isNodeType(type) else {
             return nil
         }
@@ -260,7 +255,7 @@ public class ElementNode: Node {
     ///
     /// - Returns: the first child in the children collection, that matches the specified type.
     ///
-    public func firstChild(ofType type: StandardElementType) -> ElementNode? {
+    public func firstChild(ofType type: Element) -> ElementNode? {
         let elements = children.compactMap { node in
             return node as? ElementNode
         }
@@ -268,32 +263,7 @@ public class ElementNode: Node {
         return elements.first { element in
             return element.isNodeType(type)
         }
-    }
-
-
-    /// Indicates whether the children of the specified node can be merged in, or not.
-    ///
-    /// - Parameters:
-    ///     - node: Target node for which we'll determine Merge-ability status.
-    ///
-    /// - Returns: true if both nodes can be merged, or not.
-    ///
-    func canMergeChildren(of node: ElementNode, blocklevelEnforced: Bool) -> Bool {
-        guard name == node.name && Set(attributes) == Set(node.attributes) else {
-            return false
-        }
-
-        guard let standardName = self.standardName else {
-            return false
-        }
-
-        guard blocklevelEnforced else {
-            return ElementNode.mergeableStyleElements.contains(standardName)
-        }
-
-        return ElementNode.mergeableBlocklevelElements.contains(standardName)
-    }
-
+    }    
 
     // MARK: - DOM Queries
     
@@ -347,17 +317,6 @@ public class ElementNode: Node {
 
         return siblingNode as? T
     }
-
-    // MARK: - Editing behavior
-
-    func isSupportedByEditor() -> Bool {
-
-        guard let standardName = standardName else {
-            return false
-        }
-
-        return ElementNode.knownElements.contains(standardName)
-    }
 }
 
 
@@ -387,12 +346,6 @@ public class RootNode: ElementNode {
     // MARK: - Initializers
 
     public init(children: [Node]) {
-        super.init(name: type(of: self).name, attributes: [], children: children)
-    }
-
-    // MARK: - Overriden Methods
-
-    override func isSupportedByEditor() -> Bool {
-        return true
+        super.init(name: Swift.type(of: self).name, attributes: [], children: children)
     }
 }

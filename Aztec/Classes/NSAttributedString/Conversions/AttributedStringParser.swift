@@ -2,9 +2,36 @@ import Foundation
 import UIKit
 import libxml2
 
+/// This protocol can be implemented by an object that wants to modify the behavior
+/// of the AttributedStringParser.
+///
+protocol AttributedStringParserCustomizer: ParagraphPropertyConverter, BaseAttachmentToElementConverter {}
+
 /// Parses an attributed string into an HTML tree.
 ///
 class AttributedStringParser {
+    
+    // MARK: - Plugin Manager
+    
+    let customizer: AttributedStringParserCustomizer?
+    
+    // MARK: - Initializers
+    
+    init(customizer: AttributedStringParserCustomizer? = nil) {
+        self.customizer = customizer
+    }
+    
+    // MARK: - Attachment Converters
+    
+    private let attachmentConverters: [BaseAttachmentToElementConverter] = [
+        CommentAttachmentToElementConverter(),
+        HTMLAttachmentToElementConverter(),
+        ImageAttachmentToElementConverter(),
+        LineAttachmentToElementConverter(),
+        VideoAttachmentToElementConverter(),
+    ]
+    
+    // MARK: - Parsing
 
     /// Parses an attributed string and returns the corresponding HTML tree.
     ///
@@ -144,7 +171,7 @@ private extension AttributedStringParser {
             let left = left[currentIndex]
             let right = right[currentIndex]
 
-            guard left.canMergeChildren(of: right, blocklevelEnforced: blocklevelEnforced) else {
+            guard canMergeNodes(left:left, right: right, blocklevelEnforced: blocklevelEnforced) else {
                 break
             }
 
@@ -154,6 +181,25 @@ private extension AttributedStringParser {
         }
 
         return matching.isEmpty ? nil : matching
+    }
+
+    /// Indicates whether the children of the specified node can be merged in, or not.
+    ///
+    /// - Parameters:
+    ///     - node: Target node for which we'll determine Merge-ability status.
+    ///
+    /// - Returns: true if both nodes can be merged, or not.
+    ///
+    func canMergeNodes(left: ElementNode, right: ElementNode, blocklevelEnforced: Bool) -> Bool {
+        guard left.name == right.name && Set(left.attributes) == Set(right.attributes) else {
+            return false
+        }
+
+        guard blocklevelEnforced else {
+            return Element.mergeableStyleElements.contains(left.type)
+        }
+
+        return Element.mergeableBlockLevelElements.contains(left.type)
     }
 }
 
@@ -321,7 +367,7 @@ private extension AttributedStringParser {
             return false
         }
 
-        leftMerger.children += rightMerger.children
+        leftMerger.children = leftMerger.children + rightMerger.children
 
         return true
     }
@@ -345,14 +391,20 @@ private extension AttributedStringParser {
         
         // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
         // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
-        if mergeableNodes.last?.left.standardName == .figure {
+        if mergeableNodes.last?.left.type == .figure {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()
+            
+            if let last = mergeCandidates.last,
+                Element.mergeableBlocklevelElementsSingleChildren.contains(last.left.type) {
+                
+                mergeCandidates = mergeCandidates.dropLast()
+            }
         }
 
-        if lastNodeName != StandardElementType.li.rawValue {
-            mergeCandidates = prefix(upToLast: StandardElementType.li.rawValue, from: mergeCandidates)
+        if lastNodeName != Element.li.rawValue {
+            mergeCandidates = prefix(upToLast: Element.li.rawValue, from: mergeCandidates)
         }
         
         return mergeCandidates.last
@@ -411,7 +463,7 @@ extension AttributedStringParser {
         var nextElement = childPicker(nodes) as? ElementNode
 
         while let currentElement = nextElement {
-            guard currentElement.isBlockLevelElement() else {
+            guard currentElement.isBlockLevel() else {
                 break
             }
 
@@ -480,6 +532,13 @@ private extension AttributedStringParser {
         var paragraphNodes = [ElementNode]()
         
         for property in paragraphStyle.properties.reversed() {
+            
+            // The customizer overrides any default behaviour, which is the reason why it's run first.
+            if let element = customizer?.convert(property) {
+                paragraphNodes.append(element)
+                continue
+            }
+            
             switch property {
             case let blockquote as Blockquote:
                 let element = processBlockquoteStyle(blockquote: blockquote)
@@ -629,7 +688,7 @@ private extension AttributedStringParser {
     /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
     private func processListStyle(list: TextList) -> [ElementNode] {
-        let listType = list.style == .ordered ? StandardElementType.ol : StandardElementType.ul
+        let listType = list.style == .ordered ? Element.ol : Element.ul
 
         let listElement: ElementNode
         let lineElement = ElementNode(type: .li)
@@ -719,7 +778,7 @@ private extension AttributedStringParser {
 
         if let element = processCodeStyle(in: attributes) {
             nodes.append(element)
-        }
+        }        
 
         nodes += processUnsupportedHTML(in: attributes)
 
@@ -755,6 +814,10 @@ private extension AttributedStringParser {
         let element: ElementNode
 
         if let representation = attributes[NSAttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
+            case let .element(representationElement) = representation.kind {
+
+            element = representationElement.toElementNode()
+        } else if let representation = attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
 
             element = representationElement.toElementNode()
@@ -836,7 +899,6 @@ private extension AttributedStringParser {
         return ElementNode(type: .code)
     }
 
-
     /// Extracts all of the Unsupported HTML Snippets contained within a collection of Attributes.
     ///
     private func processUnsupportedHTML(in attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
@@ -863,164 +925,26 @@ private extension AttributedStringParser {
     /// - Returns: Leaf Nodes contained within the specified collection of attributes
     ///
     func createLeafNodes(from attrString: NSAttributedString) -> [Node] {
+        
         var nodes = [Node]()
-
-        if let attachment = processLineAttachment(from: attrString) {
-            nodes.append(attachment)
-        }
-
-        if let attachment = processCommentAttachment(from: attrString) {
-            nodes.append(attachment)
-        }
-
-        nodes += processHtmlAttachment(from: attrString)
-
-        if let attachment = processImageAttachment(from: attrString) {
-            nodes.append(attachment)
-        }
-
-        if let attachment = processVideoAttachment(from: attrString) {
-            nodes.append(attachment)
+        
+        if let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? NSTextAttachment {
+            let attributes = attrString.attributes(at: 0, effectiveRange: nil)
+            
+            if let newNodes = customizer?.convert(attachment, attributes: attributes) {
+                nodes += newNodes
+            } else {
+                for converter in attachmentConverters {
+                    if let newNodes = converter.convert(attachment, attributes: attributes) {
+                        nodes += newNodes
+                        break
+                    }
+                }
+            }
         }
 
         return nodes.isEmpty ? processTextNodes(from: attrString.string) : nodes
     }
-
-    /// Converts a Line Attachment into it's representing nodes.
-    ///
-    private func processLineAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard attrString.attribute(.attachment, at: 0, effectiveRange: nil) is LineAttachment else {
-            return nil
-        }
-
-        let element: ElementNode
-        let range = attrString.rangeOfEntireString
-
-        if let representation = attrString.attribute(NSAttributedStringKey.hrHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .hr)
-        }
-
-        return element
-    }
-
-
-    /// Converts a Comment Attachment into it's representing nodes.
-    ///
-    private func processCommentAttachment(from attrString: NSAttributedString) -> Node? {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? CommentAttachment else {
-            return nil
-        }
-
-        let node = CommentNode(text: attachment.text)
-        return node
-    }
-
-
-    /// Converts an HTML Attachment into it's representing nodes.
-    ///
-    private func processHtmlAttachment(from attrString: NSAttributedString) -> [Node] {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? HTMLAttachment else {
-            return []
-        }
-
-        let htmlParser = HTMLParser()
-
-        let rootNode = htmlParser.parse(attachment.rawHTML)
-
-        guard let firstChild = rootNode.children.first else {
-            return processTextNodes(from: attachment.rawHTML)
-        }
-
-        guard rootNode.children.count == 1 else {
-            let node = ElementNode(type: .span, attributes: [], children: rootNode.children)
-            return [node]
-        }
-
-        return [firstChild]
-    }
-
-
-    /// Converts an Image Attachment into it's representing nodes.
-    ///
-    private func processImageAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? ImageAttachment else {
-            return nil
-        }
-
-        let imageElement: ElementNode
-        let range = attrString.rangeOfEntireString
-
-        if let representation = attrString.attribute(.imageHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            imageElement = representationElement.toElementNode()
-        } else {
-            imageElement = ElementNode(type: .img)
-        }
-
-        if let attribute = imageSourceAttribute(from: attachment) {
-            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        if let attribute = imageClassAttribute(from: attachment) {
-            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        for attribute in imageSizeAttributes(from: attachment) {
-            imageElement.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        for (key,value) in attachment.extraAttributes {
-            var finalValue = value
-            if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
-                let baseComponents = Set(baseValue.components(separatedBy: " "))
-                let extraComponents = Set(value.components(separatedBy: " "))
-                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
-            }
-            imageElement.updateAttribute(named: key, value: .string(finalValue))
-        }
-
-        return imageElement
-    }
-
-
-    /// Converts an Video Attachment into it's representing nodes.
-    ///
-    private func processVideoAttachment(from attrString: NSAttributedString) -> ElementNode? {
-        guard let attachment = attrString.attribute(.attachment, at: 0, effectiveRange: nil) as? VideoAttachment else {
-            return nil
-        }
-
-        let element: ElementNode
-        let range = attrString.rangeOfEntireString
-
-        if let representation = attrString.attribute(.videoHtmlRepresentation, at: 0, longestEffectiveRange: nil, in: range) as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .video)
-        }
-
-        if let attribute = videoSourceAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        if let attribute = videoPosterAttribute(from: attachment) {
-            element.updateAttribute(named: attribute.name, value: attribute.value)
-        }
-
-        for (key,value) in attachment.extraAttributes {
-            element.updateAttribute(named: key, value: .string(value))
-        }
-
-        return element
-    }
-
 
     /// Converts a String into it's representing nodes.
     ///
@@ -1038,75 +962,5 @@ private extension AttributedStringParser {
         }
         
         return output
-    }
-
-
-    /// Extracts the Video Source Attribute from a VideoAttachment Instance.
-    ///
-    private func videoSourceAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let source = attachment.srcURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the Video Poster Attribute from a VideoAttachment Instance.
-    ///
-    private func videoPosterAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let poster = attachment.posterURL?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "poster", value: .string(poster))
-    }
-
-
-    /// Extracts the src attribute from an ImageAttachment Instance.
-    ///
-    private func imageSourceAttribute(from attachment: ImageAttachment) -> Attribute? {
-        guard let source = attachment.url?.absoluteString else {
-            return nil
-        }
-
-        return Attribute(name: "src", value: .string(source))
-    }
-
-
-    /// Extracts the class attribute from an ImageAttachment Instance.
-    ///
-    private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
-        var style = String()
-        style += attachment.alignment.htmlString()        
-        
-        if attachment.size != .none {
-            style += style.isEmpty ? String() : String(.space)
-            style += attachment.size.htmlString()
-        }
-
-        guard !style.isEmpty else {
-            return nil
-        }
-
-        return Attribute(name: "class", value: .string(style))
-    }
-
-
-    /// Extracts the Image's Width and Height attributes, whenever the Attachment's Size is set to (anything) but .none.
-    ///
-    private func imageSizeAttributes(from attachment: ImageAttachment) -> [Attribute] {
-        guard let imageSize = attachment.image?.size, attachment.size.shouldResizeAsset else {
-            return []
-        }
-
-        let calculatedHeight = floor(attachment.size.width * imageSize.height / imageSize.width)
-        let heightValue = String(describing: Int(calculatedHeight))
-        let widthValue = String(describing: Int(attachment.size.width))
-
-        return [
-            Attribute(name: "width", value: .string(widthValue)),
-            Attribute(name: "height", value: .string(heightValue))
-        ]
     }
 }

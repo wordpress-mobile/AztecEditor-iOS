@@ -25,7 +25,6 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
     }
 
-
     // MARK - Hashable
 
     public var hashValue: Int {
@@ -40,7 +39,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
 
     // MARK: - DOM Queries
     
-    func hasAncestor(ofType type: StandardElementType) -> Bool {
+    func hasAncestor(ofType type: Element) -> Bool {
         var ancestor: ElementNode? = parent
         
         while let currentAncestor = ancestor {
@@ -65,7 +64,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
     }
 
     func isLastIn(blockLevelElement element: ElementNode) -> Bool {
-        return element.isBlockLevelElement() && element.children.last === self
+        return element.isBlockLevel() && element.children.last === self
     }
 
     /// Checks if the receiver is the last node in its parent.
@@ -118,11 +117,11 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
 
         return isLastInParent() &&
-            (parent.isBlockLevelElement() || parent.isLastInBlockLevelAncestor())
+            (parent.isBlockLevel() || parent.isLastInBlockLevelAncestor())
     }
 
     func hasRightBlockLevelSibling() -> Bool {
-        if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevelElement() {
+        if let rightSibling = rightSibling() as? ElementNode, rightSibling.isBlockLevel() {
             return true
         } else {
             return false
@@ -139,6 +138,8 @@ public class Node: Equatable, CustomReflectable, Hashable {
                 return true
             } else if let textNode = node as? TextNode {
                 return textNode.length() > 0
+            } else if node is CommentNode {
+                return true
             }
 
             return false
@@ -149,7 +150,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
 
         return parent.children[lastChildIndex] === self
-            && (parent.isBlockLevelElement()
+            && (parent.isBlockLevel()
                 || parent.hasRightBlockLevelSibling()
                 || parent.isLastInAncestorEndingInBlockLevelSeparation())
     }

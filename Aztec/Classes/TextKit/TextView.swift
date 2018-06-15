@@ -138,7 +138,7 @@ open class TextView: UITextView {
     /// Formatting Delegate: to be used by the Edition's Format Bar.
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
-
+    
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
@@ -191,23 +191,18 @@ open class TextView: UITextView {
         
         return attributes
     }
-
-
-    // MARK: - Properties: Processors
-
-    /// This processor will be executed on any HTML you provide to the method `setHTML()` and
-    /// before Aztec attempts to parse it.
-    ///
-    public var inputProcessor: Processor?
-    public var inputTreeProcessor: HTMLTreeProcessor?
-
-    /// This processor will be executed right before returning the HTML in `getHTML()`.
-    ///
-    public var outputProcessor: Processor?
-
-    /// Serializes the DOM Tree into an HTML String.
-    ///
-    public var outputSerializer: HTMLSerializer = DefaultHTMLSerializer()
+    
+    // MARK: - Plugin Loading
+    
+    var pluginManager: PluginManager {
+        get {
+            return storage.pluginManager
+        }
+    }
+    
+    public func load(_ plugin: Plugin) {
+        pluginManager.load(plugin)
+    }
 
     // MARK: - TextKit Aztec Subclasses
 
@@ -596,6 +591,8 @@ open class TextView: UITextView {
 
         ensureCopyOfCodeCustomTypingAttributes(at: selectedRange)
 
+        ensureCopyOfCiteCustomTypingAttributes(at: selectedRange)
+
         // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
         // attributes under certain circumstances.  The attributes are lost exactly after the call
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
@@ -692,20 +689,15 @@ open class TextView: UITextView {
     ///
     /// - Returns: The HTML version of the current Attributed String.
     ///
-    @objc public func getHTML() -> String {
-        let pristineHTML = storage.getHTML(serializer: outputSerializer)
-        let processedHTML = outputProcessor?.process(pristineHTML) ?? pristineHTML
-
-        return processedHTML
+    public func getHTML(prettify: Bool = true) -> String {
+        return storage.getHTML(prettify: prettify)
     }
 
     /// Loads the specified HTML into the editor.
     ///
     /// - Parameter html: The raw HTML we'd be editing.
     ///
-    @objc public func setHTML(_ html: String) {
-        let processedHTML = inputProcessor?.process(html) ?? html
-        
+    public func setHTML(_ html: String) {
         // NOTE: there's a bug in UIKit that causes the textView's font to be changed under certain
         //      conditions.  We are assigning the default font here again to avoid that issue.
         //
@@ -714,9 +706,7 @@ open class TextView: UITextView {
         //
         font = defaultFont
         
-        storage.setHTML(processedHTML,
-                        defaultAttributes: defaultAttributes,
-                        postProcessingHTMLWith: inputTreeProcessor)
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
 
         if storage.length > 0 && selectedRange.location < storage.length {
             typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
@@ -1158,6 +1148,19 @@ open class TextView: UITextView {
         typingAttributesSwifted[.codeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
     }
 
+    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
+    ///
+    /// - Parameter range: the range where the new text will be inserted
+    ///
+    private func ensureCopyOfCiteCustomTypingAttributes(at range: NSRange) {
+        guard typingAttributesSwifted[.citeHtmlRepresentation] == nil,
+            storage.isLocation(range.location, preceededBy: .citeHtmlRepresentation) else {
+                return
+        }
+
+        typingAttributesSwifted[.citeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "cite", attributes: [])))
+    }
+
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
@@ -1238,13 +1241,14 @@ open class TextView: UITextView {
             let currentAttributes = self.typingAttributesSwifted
             superMethod(self, selector, range, replacementText)
             // apply all attributes that where set before the call to the new text
-            self.textStorage.setAttributes(currentAttributes, range: rangeFrom(uiTextRange: range))
+            self.textStorage.setAttributes(currentAttributes, range: adjustedRangeFrom(uiTextRange: range, replacedBy: replacementText))
         }
     }
 
-    func rangeFrom(uiTextRange range: UITextRange) -> NSRange {
+    func adjustedRangeFrom(uiTextRange range: UITextRange, replacedBy text: String) -> NSRange {
         let location = offset(from: beginningOfDocument, to: range.start)
-        let length = offset(from: range.start, to: range.end)
+        let length = (text as NSString).length
+
         return NSRange(location: location, length: length)
     }
 
@@ -1757,7 +1761,6 @@ open class TextView: UITextView {
         return attachment
     }
 }
-
 
 // MARK: - Single line attributes removal
 //
