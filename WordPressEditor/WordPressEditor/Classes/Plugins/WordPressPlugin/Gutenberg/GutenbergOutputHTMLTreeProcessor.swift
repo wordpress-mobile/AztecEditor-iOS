@@ -13,20 +13,88 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
             }
             
             if element.type == .gutenblock {
-                let openingComment = gutenbergOpener(for: element)
-                let containedNodes = element.children
-                let closingComment = gutenbergCloser(for: element)
-                let closingNewline = TextNode(text: "\n")
-                
-                return [openingComment] + containedNodes + [closingComment, closingNewline]
+                return process(gutenblock: element)
             } else if element.type == .gutenpack {
-                let selfContainedBlockComment = gutenbergSelfCloser(for: element)
-                
-                return [selfContainedBlockComment]
+                return process(gutenpack: element)
+            } else if element.type == .p {
+                // Our output serializer is a bit dumb, and it wraps gutenpack elements into P tags.
+                // If we find any, we remove them here.
+                return process(paragraph: element)
             } else {
                 return [element]
             }
         })
+    }
+    
+    private func process(gutenblock: ElementNode) -> [Node] {
+        precondition(gutenblock.type == .gutenblock)
+        
+        let openingComment = gutenbergOpener(for: gutenblock)
+        let containedNodes = gutenblock.children
+        let closingComment = gutenbergCloser(for: gutenblock)
+        let closingNewline = TextNode(text: "\n")
+        
+        return [openingComment] + containedNodes + [closingComment, closingNewline]
+    }
+    
+    private func process(gutenpack: ElementNode) -> [Node] {
+        precondition(gutenpack.type == .gutenpack)
+        
+        let selfContainedBlockComment = gutenbergSelfCloser(for: gutenpack)
+        let closingNewline = TextNode(text: "\n")
+        
+        return [selfContainedBlockComment, closingNewline]
+    }
+    
+    private func process(paragraph: ElementNode) -> [Node] {
+        var children = ArraySlice<Node>(paragraph.children)
+        var result = [Node]()
+        
+        while let (index, gutenpack) = nextGutenpack(in: children) {
+            defer {
+                let replacementNodes = process(gutenpack: gutenpack)
+                
+                result.append(contentsOf: replacementNodes)
+                children = children.dropFirst(replacementNodes.count)
+            }
+            
+            let nodesToKeepInParagraph = children.prefix(upTo: index)
+            
+            guard nodesToKeepInParagraph.count > 0 else {
+                continue
+            }
+            
+            let newParagraph = deepCopy(paragraph, withChildren: Array(nodesToKeepInParagraph))
+            
+            result.append(newParagraph)
+            children = children.dropFirst(nodesToKeepInParagraph.count)
+        }
+        
+        if children.count > 0 {
+            result.append(contentsOf: children)
+        }
+        
+        return result
+    }
+    
+    private func deepCopy(_ elementNode: ElementNode, withChildren children: [Node]) -> ElementNode {
+        let copiedAttributes = elementNode.attributes.map { (attribute) -> Attribute in
+            return Attribute(name: attribute.name, value: attribute.value)
+        }
+        
+        return ElementNode(type: elementNode.type, attributes: copiedAttributes, children: children)
+    }
+    
+    private func nextGutenpack(in nodes: ArraySlice<Node>) -> (index: Int, element: ElementNode)? {
+        for (index, node) in nodes.enumerated() {
+            if let element = node as? ElementNode,
+                element.type == .gutenpack {
+                
+                return (index, element)
+            }
+        }
+        
+        return nil
     }
 }
 
@@ -81,7 +149,7 @@ private extension GutenbergOutputHTMLTreeProcessor {
     
     private func attribute(named name: String, from element: ElementNode) -> Attribute? {
         return element.attributes.first { (attribute) -> Bool in
-            return attribute.name == name
+            return attribute.name.lowercased() == name.lowercased()
         }
     }
     

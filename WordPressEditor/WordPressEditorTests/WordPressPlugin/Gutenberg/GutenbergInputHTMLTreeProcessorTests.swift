@@ -186,6 +186,8 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         let expected = "<gutenblock data=\"\(encodedGutentag)\">"
         
         let output = processor.process(input)
+        let rootNode = parser.parse(input)
+        processor.process(rootNode)
         
         XCTAssertEqual(output, expected)
     }
