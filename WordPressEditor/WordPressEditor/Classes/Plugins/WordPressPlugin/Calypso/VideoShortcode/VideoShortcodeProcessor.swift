@@ -32,8 +32,7 @@ public class VideoShortcodeProcessor {
             }
             
             html += "src=\"\(videoPressScheme)://\(src)\" "
-            html += "data-wpvideopress=\"\(src)\" "
-            html += "poster=\"\(videoPressScheme)://\(src)\" "
+            html += "data-wpvideopress=\"\(src)\" "            
 
             if let width = shortcode.attributes["w"] {
                 html += shortcodeAttributeSerializer.serialize(key: "width", value: width.value) + " "
@@ -62,7 +61,8 @@ public class VideoShortcodeProcessor {
         
         let postWordPressVideoProcessor = HTMLProcessor(for: "video", replacer: { (element) in
             
-            guard let videoPressID = element.attributes[videoPressHTMLAttribute] else {
+            guard let videoPressValue = element.attributes[videoPressHTMLAttribute]?.value,
+                case let .string(videoPressID) = videoPressValue else {
                 return nil
             }
             
