@@ -199,24 +199,7 @@ private extension AttributedStringParser {
             return Element.mergeableStyleElements.contains(left.type)
         }
 
-        return isBlockLevelMergeable(node: left)
-    }
-
-    func isBlockLevelMergeable(node: ElementNode) -> Bool {
-        guard Element.mergeableBlockLevelElements.contains(node.type) else {
-            return false
-        }
-        guard Element.mergeableBlocklevelElementsSingleChildren.contains(node.type) else {
-            return Element.mergeableBlockLevelElements.contains(node.type)
-        }
-
-        guard node.children.count == 1,
-            let singleChildren = node.children.first as? ElementNode,
-            singleChildren.isBlockLevel() else {
-                return false
-        }
-
-        return true
+        return Element.mergeableBlockLevelElements.contains(left.type)
     }
 }
 
@@ -412,6 +395,12 @@ private extension AttributedStringParser {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()
+            
+            if let last = mergeCandidates.last,
+                Element.mergeableBlocklevelElementsSingleChildren.contains(last.left.type) {
+                
+                mergeCandidates = mergeCandidates.dropLast()
+            }
         }
 
         if lastNodeName != Element.li.rawValue {
