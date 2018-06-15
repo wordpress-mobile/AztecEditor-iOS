@@ -18,9 +18,6 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		B570B1C91E82D332008CF41E /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1C81E82D332008CF41E /* SpecialTagAttachmentRenderer.swift */; };
-		B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */; };
-		B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */; };
 		B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */; };
 		B5FB212A1FEC38470067D597 /* captions.html in Resources */ = {isa = PBXBuildFile; fileRef = B5FB21271FEC37DB0067D597 /* captions.html */; };
 		BE2672F31FC6E5A80026107E /* EditorPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2672F21FC6E5A80026107E /* EditorPage.swift */; };
@@ -36,7 +33,6 @@
 		CC400F251E9EC16900859AB4 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC400F241E9EC16900859AB4 /* XCTest+Extensions.swift */; };
 		E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */; };
 		F122C2572072B07E0018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C2502072AE190018ED06 /* libxml2.tbd */; };
-		F122C2582072B0D60018ED06 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F122C2502072AE190018ED06 /* libxml2.tbd */; };
 		F1D3610920929EBD00B4E7A5 /* WordPressEditor.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = F1D3610420929E6D00B4E7A5 /* WordPressEditor.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F1D3610A20929EF700B4E7A5 /* Aztec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 599F25771D8BD045002871D6 /* Aztec.framework */; };
 		F1D3610B20929F0200B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D3610420929E6D00B4E7A5 /* WordPressEditor.framework */; };
@@ -66,13 +62,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 5951CB8D1D8BC93600E1866F;
 			remoteInfo = Aztec;
-		};
-		607FACE61AFB9204008FA782 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
-			remoteInfo = "WordPress-Aztec-iOS";
 		};
 		CC400F1C1E9EC04200859AB4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -142,11 +131,6 @@
 		607FACDA1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AztecExample-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B570B1C81E82D332008CF41E /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
-		B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachmentRenderer.swift; sourceTree = "<group>"; };
-		B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentRenderer.swift; sourceTree = "<group>"; };
 		B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnknownEditorViewController.swift; sourceTree = "<group>"; };
 		B5FB21271FEC37DB0067D597 /* captions.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = captions.html; sourceTree = "<group>"; };
 		BE2672F21FC6E5A80026107E /* EditorPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorPage.swift; sourceTree = "<group>"; };
@@ -178,14 +162,6 @@
 				F1D3610A20929EF700B4E7A5 /* Aztec.framework in Frameworks */,
 				596719401D8BC60D00F18F7F /* Gridicons.framework in Frameworks */,
 				F1D3610B20929F0200B4E7A5 /* WordPressEditor.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		607FACE21AFB9204008FA782 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F122C2582072B0D60018ED06 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,7 +218,6 @@
 			isa = PBXGroup;
 			children = (
 				607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */,
-				607FACE81AFB9204008FA782 /* Tests */,
 				CC400F181E9EC04200859AB4 /* AztecUITests */,
 				02ECB379638AE0CDEAB24BEC /* Frameworks */,
 				607FACD11AFB9204008FA782 /* Products */,
@@ -254,7 +229,6 @@
 			isa = PBXGroup;
 			children = (
 				607FACD01AFB9204008FA782 /* AztecExample.app */,
-				607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */,
 				CC400F171E9EC04200859AB4 /* AztecUITests.xctest */,
 			);
 			name = Products;
@@ -263,7 +237,6 @@
 		607FACD21AFB9204008FA782 /* Example for WordPress-Aztec-iOS */ = {
 			isa = PBXGroup;
 			children = (
-				B570B1CD1E82D349008CF41E /* Renders */,
 				599F256F1D8BCF57002871D6 /* AppDelegate.swift */,
 				59D287391D8C599B00B99C80 /* AttachmentDetailsViewController.swift */,
 				FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */,
@@ -287,32 +260,6 @@
 				607FACD41AFB9204008FA782 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		607FACE81AFB9204008FA782 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				607FACE91AFB9204008FA782 /* Supporting Files */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		607FACE91AFB9204008FA782 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				607FACEA1AFB9204008FA782 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		B570B1CD1E82D349008CF41E /* Renders */ = {
-			isa = PBXGroup;
-			children = (
-				B570B1CB1E82D343008CF41E /* CommentAttachmentRenderer.swift */,
-				B570B1C81E82D332008CF41E /* SpecialTagAttachmentRenderer.swift */,
-				B5AF89331E93ECE60051EFDB /* HTMLAttachmentRenderer.swift */,
-			);
-			name = Renders;
 			sourceTree = "<group>";
 		};
 		BE8EAC6A1FC1DCF3005CD7D0 /* Pages */ = {
@@ -375,24 +322,6 @@
 			productReference = 607FACD01AFB9204008FA782 /* AztecExample.app */;
 			productType = "com.apple.product-type.application";
 		};
-		607FACE41AFB9204008FA782 /* AztecExample-Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AztecExample-Tests" */;
-			buildPhases = (
-				607FACE11AFB9204008FA782 /* Sources */,
-				607FACE21AFB9204008FA782 /* Frameworks */,
-				607FACE31AFB9204008FA782 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				607FACE71AFB9204008FA782 /* PBXTargetDependency */,
-			);
-			name = "AztecExample-Tests";
-			productName = Tests;
-			productReference = 607FACE51AFB9204008FA782 /* AztecExample-Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		CC400F161E9EC04200859AB4 /* AztecUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CC400F231E9EC04200859AB4 /* Build configuration list for PBXNativeTarget "AztecUITests" */;
@@ -427,12 +356,6 @@
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Manual;
 					};
-					607FACE41AFB9204008FA782 = {
-						CreatedOnToolsVersion = 6.3.1;
-						LastSwiftMigration = 0910;
-						ProvisioningStyle = Manual;
-						TestTargetID = 607FACCF1AFB9204008FA782;
-					};
 					CC400F161E9EC04200859AB4 = {
 						CreatedOnToolsVersion = 8.3.1;
 						LastSwiftMigration = 0930;
@@ -465,7 +388,6 @@
 			projectRoot = "";
 			targets = (
 				607FACCF1AFB9204008FA782 /* AztecExample */,
-				607FACE41AFB9204008FA782 /* AztecExample-Tests */,
 				CC400F161E9EC04200859AB4 /* AztecUITests */,
 			);
 		};
@@ -518,13 +440,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		607FACE31AFB9204008FA782 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CC400F151E9EC04200859AB4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -543,18 +458,8 @@
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
-				B570B1CC1E82D343008CF41E /* CommentAttachmentRenderer.swift in Sources */,
-				B5AF89341E93ECE60051EFDB /* HTMLAttachmentRenderer.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
-				B570B1C91E82D332008CF41E /* SpecialTagAttachmentRenderer.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		607FACE11AFB9204008FA782 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -583,11 +488,6 @@
 			isa = PBXTargetDependency;
 			name = Aztec;
 			targetProxy = 599F257C1D8BD06E002871D6 /* PBXContainerItemProxy */;
-		};
-		607FACE71AFB9204008FA782 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 607FACCF1AFB9204008FA782 /* AztecExample */;
-			targetProxy = 607FACE61AFB9204008FA782 /* PBXContainerItemProxy */;
 		};
 		CC400F1D1E9EC04200859AB4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -778,41 +678,6 @@
 			};
 			name = Release;
 		};
-		607FACF31AFB9204008FA782 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AztecExample.app/AztecExample";
-			};
-			name = Debug;
-		};
-		607FACF41AFB9204008FA782 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AztecExample.app/AztecExample";
-			};
-			name = Release;
-		};
 		CC400F1E1E9EC04200859AB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -955,21 +820,6 @@
 			};
 			name = Profiling;
 		};
-		F111A10F1DA7E77500294FD3 /* Profiling */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AztecExample.app/AztecExample";
-			};
-			name = Profiling;
-		};
 		F1882B661D9E0F55000B48D6 /* Release-Alpha */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1052,26 +902,6 @@
 			};
 			name = "Release-Alpha";
 		};
-		F1882B681D9E0F55000B48D6 /* Release-Alpha */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.wordpress.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AztecExample.app/AztecExample";
-			};
-			name = "Release-Alpha";
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1093,17 +923,6 @@
 				F1882B671D9E0F55000B48D6 /* Release-Alpha */,
 				607FACF11AFB9204008FA782 /* Release */,
 				F111A10E1DA7E77500294FD3 /* Profiling */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AztecExample-Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				607FACF31AFB9204008FA782 /* Debug */,
-				F1882B681D9E0F55000B48D6 /* Release-Alpha */,
-				607FACF41AFB9204008FA782 /* Release */,
-				F111A10F1DA7E77500294FD3 /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
