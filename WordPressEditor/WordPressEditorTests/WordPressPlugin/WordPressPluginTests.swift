@@ -140,5 +140,13 @@ class WordpressPluginTests: XCTestCase {
 
         XCTAssertEqual(finalHTML, initialHTML)
     }
+
+    func testSelfClosingGutenbergBlock() {
+        let initialHTML = "<!-- wp:latest-posts /-->"
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
+    }
 }
 
