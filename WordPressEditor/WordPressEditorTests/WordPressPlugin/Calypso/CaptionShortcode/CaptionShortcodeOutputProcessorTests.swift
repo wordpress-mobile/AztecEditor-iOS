@@ -29,7 +29,7 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
     /// Verifies that a Figure Tag (with parameters) gets properly converted into a Caption Shortcode.
     ///
     func testCaptionShortcodeAttributesAreProperlyPassedOntoTheFigureTag() {
-        let input = "<figure align=\"alignleft\" class=\"span data-mce-type=\" id=\"attachment_6\" width=\"300\">" +
+        let input = "<figure id=\"attachment_6\" align=\"alignleft\" class=\"span data-mce-type=\" width=\"300\">" +
                         "<img src=\".\"><figcaption>Text</figcaption>" +
                     "</figure>"
 
@@ -47,7 +47,7 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
             "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\"><figcaption>Text</figcaption>" +
         "</figure>"
 
-        let expected = "[caption id=\"attachment_6\" align=\"alignleft\" width=\"300\"]" +
+        let expected = "[caption align=\"alignleft\" id=\"attachment_6\" width=\"300\"]" +
             "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\">Text" +
         "[/caption]"
 

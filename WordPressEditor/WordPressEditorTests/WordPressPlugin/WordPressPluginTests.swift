@@ -39,13 +39,11 @@ class WordpressPluginTests: XCTestCase {
 
     // MARK: - Full Conversion, beautified
     
-    func testFullConversionOfParagraphBlockBeautified() {
-        let serializer = DefaultHTMLSerializer(prettyPrint: true)
-        
+    func testFullConversionOfParagraphBlockBeautified() {        
         let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
         let expectedHTML = "<!-- wp:paragraph -->\n<p>Hello 🌍!</p>\n<!-- /wp:paragraph -->"
         let attrString = htmlConverter.attributedString(from: initialHTML)
-        let finalHTML = htmlConverter.html(from: attrString, serializer: serializer)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
         
         XCTAssertEqual(finalHTML, expectedHTML)
     }
@@ -90,6 +88,65 @@ class WordpressPluginTests: XCTestCase {
         }
         
         XCTAssertEqual(outputTextNode.text(), text)
+    }
+
+    // MARK: - Test merging of gutenberg block
+
+    func testMergingOfListBlockWithMultipleListElements() {
+        let initialHTML = """
+<!-- wp:list -->
+<ul>
+  <li>Media library/HTML for images, multimedia and approved files.</li>
+  <li>Pasted links for embeds.</li>
+  <li>Shortcodes for specialized assets from plugins.</li>
+  <li>Featured images for the image at the top of a post or page.</li>
+  <li>Excerpts for subheads.</li>
+  <li>Widgets for content on the side of a page.</li>
+</ul>
+<!-- /wp:list -->
+"""
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
+    }
+
+    func testMerginOfBlockquoteBlockWithMultipleLinesElements() {
+        let initialHTML = """
+<!-- wp:quote -->
+<blockquote class="wp-block-quote is-large">
+  <p>Take comfort in the fact that you 'can' keep your current publishing flow... </p>
+  <p>and then take some time to explore the possibilities that Gutenberg opens up to you.</p>
+</blockquote>
+<!-- /wp:quote -->
+"""
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
+    }
+
+    func testMerginOfMultipleParagraphsElements() {
+        let initialHTML = """
+<!-- wp:paragraph -->
+<p>Take comfort in the fact that you 'can' keep your current publishing flow... </p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>and then take some time to explore the possibilities that Gutenberg opens up to you.</p>
+<!-- /wp:paragraph -->
+"""
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
+    }
+
+    func testSelfClosingGutenbergBlock() {
+        let initialHTML = "<!-- wp:latest-posts /-->"
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
     }
 }
 

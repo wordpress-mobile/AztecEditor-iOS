@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
@@ -25,18 +26,24 @@ class PluginManager {
     /// Processes an HTML string right before parsing it to convert it into a nodes tree in
     /// the input conversion process.
     ///
-    func process(inputHTML html: String) -> String {
+    func process(html: String) -> String {
         return plugins.reduce(html) { (html, plugin) -> String in
-            plugin.process(inputHTML: html)
+            guard let customizer = plugin.inputCustomizer else {
+                return html
+            }
+            
+            return customizer.process(html: html)
         }
     }
     
     /// Processes a nodes tree right after it's been parsed from a string, and before finalizing
     /// the input conversion process.
     ///
-    func process(inputHTMLTree tree: RootNode) {
+    func process(htmlTree: RootNode) {
         for plugin in plugins {
-            plugin.process(inputHTMLTree: tree)
+            if let customizer = plugin.inputCustomizer {
+                customizer.process(htmlTree: htmlTree)
+            }
         }
     }
     
@@ -47,7 +54,11 @@ class PluginManager {
     ///
     func process(outputHTML html: String) -> String {
         return plugins.reduce(html) { (html, plugin) -> String in
-            plugin.process(outputHTML: html)
+            guard let customizer = plugin.outputCustomizer else {
+                return html
+            }
+            
+            return customizer.process(html: html)
         }
     }
     
@@ -56,7 +67,9 @@ class PluginManager {
     ///
     func process(outputHTMLTree tree: RootNode) {
         for plugin in plugins {
-            plugin.process(outputHTMLTree: tree)
+            if let customizer = plugin.outputCustomizer {
+                customizer.process(htmlTree: tree)
+            }
         }
     }
 }
@@ -66,7 +79,8 @@ class PluginManager {
 extension PluginManager: AttributedStringSerializerCustomizer {
     func converter(for element: ElementNode) -> ElementConverter? {
         for plugin in plugins {
-            if let converter = plugin.converter(for: element) {
+            if let customizer = plugin.inputCustomizer,
+                let converter = customizer.converter(for: element) as ElementConverter? {
                 return converter
             }
         }
@@ -80,8 +94,38 @@ extension PluginManager: AttributedStringSerializerCustomizer {
 extension PluginManager: AttributedStringParserCustomizer {
     func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
         for plugin in plugins {
-            if let element = plugin.convert(paragraphProperty) {
+            if let customizer = plugin.outputCustomizer,
+                let element = customizer.convert(paragraphProperty) {
+                
                 return element
+            }
+        }
+        
+        return nil
+    }
+    
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+        for plugin in plugins {
+            if let customizer = plugin.outputCustomizer,
+                let elements = customizer.convert(attachment, attributes: attributes) {
+                
+                return elements
+            }
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - HTMLSerializerCustomizer
+
+extension PluginManager: HTMLSerializerCustomizer {
+    func converter(for element: ElementNode) -> ElementToTagConverter? {
+        for plugin in plugins {
+            if let customizer = plugin.outputCustomizer,
+                let converter = customizer.converter(for: element) as ElementToTagConverter? {
+                
+                return converter
             }
         }
         

@@ -461,7 +461,7 @@ class AttributedStringParserTests: XCTestCase {
             return
         }
 
-        let reconvertedHTML = DefaultHTMLSerializer().serialize(htmlNode)
+        let reconvertedHTML = HTMLSerializer().serialize(htmlNode)
 
         XCTAssertEqual(reconvertedHTML, htmlAttachment.rawHTML)
         XCTAssertEqual(textNode.contents, textString.string)

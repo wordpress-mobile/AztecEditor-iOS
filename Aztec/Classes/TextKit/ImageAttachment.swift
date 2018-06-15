@@ -167,14 +167,14 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues:[String: Alignment] = [
+        private static let mappedValues:[String: Alignment] = [
             Alignment.none.htmlString():.none,
             Alignment.left.htmlString():.left,
             Alignment.center.htmlString():.center,
             Alignment.right.htmlString():.right
         ]
 
-        static func fromHTML(string value: String) -> Alignment? {
+        public static func fromHTML(string value: String) -> Alignment? {
             return mappedValues[value]
         }
     }
@@ -207,7 +207,7 @@ extension ImageAttachment {
             }
         }
 
-        static let mappedValues: [String: Size] = [
+        private static let mappedValues: [String: Size] = [
             Size.thumbnail.htmlString():.thumbnail,
             Size.medium.htmlString():.medium,
             Size.large.htmlString():.large,
@@ -215,7 +215,7 @@ extension ImageAttachment {
             Size.none.htmlString():.none
         ]
 
-        static func fromHTML(string value: String) -> Size? {
+        public static func fromHTML(string value: String) -> Size? {
             return mappedValues[value]
         }
 

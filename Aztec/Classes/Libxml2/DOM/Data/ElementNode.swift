@@ -20,10 +20,7 @@ public class ElementNode: Node {
             return nil
         }
         return headerLevels[headerLevel - 1]
-    }
-
-    private static let mergeableBlocklevelElements: [Element] = [.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .p, .ul, .pre]
-    private static let mergeableStyleElements: [Element] = [.i, .em, .b, .strong, .strike, .u, .code, .cite]
+    }    
     
     public var type: Element {
         get {
@@ -199,7 +196,15 @@ public class ElementNode: Node {
     /// - Returns: `true` if this is a block-level element.  `false` otherwise.
     ///
     public func isBlockLevel() -> Bool {
-        return Element.isBlockLevelElement(name)
+        return type.isBlockLevel()
+    }
+    
+    public func isVoid() -> Bool {
+        return type.isVoid()
+    }
+    
+    public func requiresClosingTag() -> Bool {
+        return !isVoid()
     }
 
     public func isNodeType(_ type: Element) -> Bool {
@@ -258,28 +263,7 @@ public class ElementNode: Node {
         return elements.first { element in
             return element.isNodeType(type)
         }
-    }
-
-
-    /// Indicates whether the children of the specified node can be merged in, or not.
-    ///
-    /// - Parameters:
-    ///     - node: Target node for which we'll determine Merge-ability status.
-    ///
-    /// - Returns: true if both nodes can be merged, or not.
-    ///
-    func canMergeChildren(of node: ElementNode, blocklevelEnforced: Bool) -> Bool {
-        guard name == node.name && Set(attributes) == Set(node.attributes) else {
-            return false
-        }
-
-        guard blocklevelEnforced else {
-            return ElementNode.mergeableStyleElements.contains(type)
-        }
-
-        return ElementNode.mergeableBlocklevelElements.contains(type)
-    }
-
+    }    
 
     // MARK: - DOM Queries
     

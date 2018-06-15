@@ -20,7 +20,17 @@
 		F13E8ADE20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8ADD20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift */; };
 		F14C4D2820C0E9AB007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */; };
 		F15A8B5F20BDB9E800C57ED2 /* GutenbergAttributeNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15A8B5E20BDB9E800C57ED2 /* GutenbergAttributeNames.swift */; };
+		F16A2AC420CAD66700BF3A0A /* GalleryElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */; };
+		F16A2AC820CAF62F00BF3A0A /* GalleryAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */; };
+		F16A2ACC20CB115900BF3A0A /* GalleryElementConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */; };
+		F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */; };
+		F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */; };
 		F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */; };
+		F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */; };
+		F1B0012D20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */; };
+		F1B1FDCE20D14ACB0090A0A5 /* WordPressInputCustomizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */; };
+		F1B1FDD220D14B6D0090A0A5 /* WordPressOutputCustomizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */; };
+		F1C14C4B20CDE653002A4083 /* GalleryElementToTagConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */; };
 		F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */; };
 		F1C9F40A20AF62E900205227 /* GutenblockConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40520AF62E800205227 /* GutenblockConverter.swift */; };
 		F1C9F40D20AF62E900205227 /* GutenbergInputHTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */; };
@@ -83,7 +93,17 @@
 		F13E8ADD20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessorTests.swift; sourceTree = "<group>"; };
 		F15A8B5E20BDB9E800C57ED2 /* GutenbergAttributeNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeNames.swift; sourceTree = "<group>"; };
+		F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachment.swift; sourceTree = "<group>"; };
+		F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementConverterTests.swift; sourceTree = "<group>"; };
+		F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverter.swift; sourceTree = "<group>"; };
+		F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GallerySupportedAttribute.swift; sourceTree = "<group>"; };
 		F1AFD65120B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialTagAttachmentRenderer.swift; sourceTree = "<group>"; };
+		F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessor.swift; sourceTree = "<group>"; };
+		F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryShortcodeInputProcessorTests.swift; sourceTree = "<group>"; };
+		F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressInputCustomizer.swift; sourceTree = "<group>"; };
+		F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressOutputCustomizer.swift; sourceTree = "<group>"; };
+		F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementToTagConverter.swift; sourceTree = "<group>"; };
 		F1C9F40420AF62E800205227 /* GutenbergOutputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergOutputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1C9F40520AF62E800205227 /* GutenblockConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenblockConverter.swift; sourceTree = "<group>"; };
 		F1C9F40820AF62E800205227 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
@@ -137,6 +157,8 @@
 			isa = PBXGroup;
 			children = (
 				F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */,
+				F1B1FDCD20D14ACB0090A0A5 /* WordPressInputCustomizer.swift */,
+				F1B1FDD120D14B6D0090A0A5 /* WordPressOutputCustomizer.swift */,
 				F1065DBF20ADEEF4008C72CC /* Calypso */,
 				F1C9F40320AF62E800205227 /* Gutenberg */,
 			);
@@ -146,13 +168,114 @@
 		F1065DBF20ADEEF4008C72CC /* Calypso */ = {
 			isa = PBXGroup;
 			children = (
-				F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */,
-				F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */,
-				F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */,
-				F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */,
-				F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */,
+				F16A2AEA20CDA19500BF3A0A /* AutopRemovep */,
+				F16A2AE820CDA16D00BF3A0A /* CaptionShortcode */,
+				F16A2AE720CDA15700BF3A0A /* GalleryShortcode */,
+				F16A2AE920CDA18100BF3A0A /* VideoShortcode */,
 			);
 			path = Calypso;
+			sourceTree = "<group>";
+		};
+		F16A2AE720CDA15700BF3A0A /* GalleryShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AC720CAF62F00BF3A0A /* GalleryAttachment.swift */,
+				F16A2ADE20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift */,
+				F16A2AC320CAD66700BF3A0A /* GalleryElementConverter.swift */,
+				F1C14C4A20CDE653002A4083 /* GalleryElementToTagConverter.swift */,
+				F1B0012820C5895800612EE9 /* GalleryShortcodeInputProcessor.swift */,
+				F16A2AEB20CDA20300BF3A0A /* GallerySupportedAttribute.swift */,
+			);
+			path = GalleryShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AE820CDA16D00BF3A0A /* CaptionShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DC120ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift */,
+				F1065DC020ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift */,
+			);
+			path = CaptionShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AE920CDA18100BF3A0A /* VideoShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DD120AE3D98008C72CC /* VideoShortcodeProcessor.swift */,
+			);
+			path = VideoShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AEA20CDA19500BF3A0A /* AutopRemovep */ = {
+			isa = PBXGroup;
+			children = (
+				F1065DCC20ADF5CA008C72CC /* AutoPProcessor.swift */,
+				F1065DCE20ADF5D2008C72CC /* RemovePProcessor.swift */,
+			);
+			path = AutopRemovep;
+			sourceTree = "<group>";
+		};
+		F16A2AED20CDAB7600BF3A0A /* GalleryShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */,
+				F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */,
+			);
+			path = GalleryShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AEE20CDAB8900BF3A0A /* AutopRemovep */ = {
+			isa = PBXGroup;
+			children = (
+				F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */,
+				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
+			);
+			path = AutopRemovep;
+			sourceTree = "<group>";
+		};
+		F16A2AEF20CDAB9A00BF3A0A /* CaptionShortcode */ = {
+			isa = PBXGroup;
+			children = (
+				F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */,
+				F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */,
+			);
+			path = CaptionShortcode;
+			sourceTree = "<group>";
+		};
+		F16A2AF020CDABB200BF3A0A /* Gutenberg */ = {
+			isa = PBXGroup;
+			children = (
+				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
+			);
+			path = Gutenberg;
+			sourceTree = "<group>";
+		};
+		F16A2AF120CDABBC00BF3A0A /* Calypso */ = {
+			isa = PBXGroup;
+			children = (
+				F16A2AEE20CDAB8900BF3A0A /* AutopRemovep */,
+				F16A2AEF20CDAB9A00BF3A0A /* CaptionShortcode */,
+				F16A2AED20CDAB7600BF3A0A /* GalleryShortcode */,
+			);
+			path = Calypso;
+			sourceTree = "<group>";
+		};
+		F16A2AF320CDABE200BF3A0A /* Processors */ = {
+			isa = PBXGroup;
+			children = (
+				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
+			);
+			path = Processors;
+			sourceTree = "<group>";
+		};
+		F16A2AF420CDABF800BF3A0A /* WordPressPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				F118745220BC41BF0079C631 /* WordPressPluginTests.swift */,
+				F16A2AF120CDABBC00BF3A0A /* Calypso */,
+				F16A2AF020CDABB200BF3A0A /* Gutenberg */,
+			);
+			path = WordPressPlugin;
 			sourceTree = "<group>";
 		};
 		F1AFD65020B45DBB00CB0279 /* Renderers */ = {
@@ -219,13 +342,8 @@
 		F1D360BA2092947500B4E7A5 /* WordPressEditorTests */ = {
 			isa = PBXGroup;
 			children = (
-				F1D361132092A37600B4E7A5 /* AutoPProcessorTests.swift */,
-				F1D36124209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift */,
-				F1D36123209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift */,
-				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
-				F1D361122092A37600B4E7A5 /* RemovePProcessorTests.swift */,
-				F1D36127209352AA00B4E7A5 /* ShortcodeProcessorTests.swift */,
-				F118745220BC41BF0079C631 /* WordPressPluginTests.swift */,
+				F16A2AF420CDABF800BF3A0A /* WordPressPlugin */,
+				F16A2AF320CDABE200BF3A0A /* Processors */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
 			path = WordPressEditorTests;
@@ -417,24 +535,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1B1FDCE20D14ACB0090A0A5 /* WordPressInputCustomizer.swift in Sources */,
 				F1C9F40A20AF62E900205227 /* GutenblockConverter.swift in Sources */,
 				F1065DD220AE3D98008C72CC /* VideoShortcodeProcessor.swift in Sources */,
 				F15A8B5F20BDB9E800C57ED2 /* GutenbergAttributeNames.swift in Sources */,
 				F1C9F40920AF62E900205227 /* GutenbergOutputHTMLTreeProcessor.swift in Sources */,
 				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
+				F1B1FDD220D14B6D0090A0A5 /* WordPressOutputCustomizer.swift in Sources */,
+				F1C14C4B20CDE653002A4083 /* GalleryElementToTagConverter.swift in Sources */,
+				F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
 				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
+				F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */,
 				F13E8ADA20B71DFF007C9F8A /* GutenblockAttachment.swift in Sources */,
+				F16A2AC820CAF62F00BF3A0A /* GalleryAttachment.swift in Sources */,
 				F1065DCD20ADF5CB008C72CC /* AutoPProcessor.swift in Sources */,
 				F1C9F40D20AF62E900205227 /* GutenbergInputHTMLTreeProcessor.swift in Sources */,
 				F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */,
 				F1D360FB20929E0700B4E7A5 /* String+RegEx.swift in Sources */,
 				F1065DC320ADEEF4008C72CC /* CaptionShortcodeInputProcessor.swift in Sources */,
+				F16A2AC420CAD66700BF3A0A /* GalleryElementConverter.swift in Sources */,
 				F105937720B317D7005A836E /* CommentNode+Gutenberg.swift in Sources */,
 				F13E8ADE20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift in Sources */,
 				F1D3611020929F7900B4E7A5 /* ShortcodeProcessor.swift in Sources */,
+				F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */,
 				F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */,
 				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
 			);
@@ -446,8 +572,10 @@
 			files = (
 				F118745320BC41BF0079C631 /* WordPressPluginTests.swift in Sources */,
 				F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */,
+				F1B0012D20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift in Sources */,
 				F14C4D2820C0E9AB007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift in Sources */,
 				F1D36125209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift in Sources */,
+				F16A2ACC20CB115900BF3A0A /* GalleryElementConverterTests.swift in Sources */,
 				F1D36126209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift in Sources */,
 				F1D361142092A37600B4E7A5 /* RemovePProcessorTests.swift in Sources */,
 				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,

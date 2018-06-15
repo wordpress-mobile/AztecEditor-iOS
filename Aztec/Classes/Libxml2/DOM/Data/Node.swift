@@ -25,7 +25,6 @@ public class Node: Equatable, CustomReflectable, Hashable {
         }
     }
 
-
     // MARK - Hashable
 
     public var hashValue: Int {

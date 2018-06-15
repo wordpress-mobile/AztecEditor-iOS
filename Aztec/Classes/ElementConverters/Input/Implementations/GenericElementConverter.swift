@@ -86,7 +86,7 @@ class GenericElementConverter: ElementConverter {
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
     private func convert(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
-        let serializer = DefaultHTMLSerializer()
+        let serializer = HTMLSerializer()
         let attachment = HTMLAttachment()
         
         attachment.rootTagName = element.name

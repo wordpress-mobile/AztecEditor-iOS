@@ -13,8 +13,25 @@ public struct Element: RawRepresentable, Hashable {
     
     /// This can be extended in case new elements need to be defined.
     ///
-    public static var blockLevelElements: [Element] = [.address, .aztecRootNode, .blockquote, .div, .dl, .dd, .dt, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul]
+    public static var blockLevelElements: Set<Element> = Set([.address, .aztecRootNode, .blockquote, .div, .dl, .dd, .dt, .fieldset, .figure, .figcaption, .form, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .noscript, .ol, .p, .pre, .table, .td, .tr, .ul])
     
+    /// List of void elements.  These will *not* to have a closing tag and cannot have children.
+    ///
+    /// Ref. http://w3c.github.io/html/syntax.html#void-elements
+    ///
+    public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
+
+    /// List of block HTML elements that can be merged together when they are sibling to each other
+    ///
+    public static var mergeableBlockLevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p])
+
+    /// List of style HTML elements that can be merged together when they are sibling to each other
+    public static var mergeableStyleElements: Set<Element> = Set([.i, .em, .b, .strong, .strike, .u, .code, .cite])
+
+    /// List of block level elements that can be merged but only when they have a single children that is also mergeable
+    ///
+    public static var mergeableBlocklevelElementsSingleChildren =  Set<Element>()
+
     // MARK: - Initializers
     
     public init?(rawValue: RawValue) {
@@ -28,6 +45,10 @@ public struct Element: RawRepresentable, Hashable {
     public func isBlockLevel() -> Bool {
         return Element.blockLevelElements.contains(self)
     }
+    
+    public func isVoid() -> Bool {
+        return Element.voidElements.contains(self)
+    }
 }
 
 extension Element {
@@ -38,20 +59,27 @@ extension Element {
 ///
 extension Element {
     public static let a = Element("a")
+    public static let area = Element("area")
     public static let address = Element("address")
     public static let b = Element("b")
+    public static let base = Element("base")
     public static let br = Element("br")
     public static let blockquote = Element("blockquote")
+    public static let cite = Element("cite")
+    public static let code = Element("code")
+    public static let col = Element("col")
     public static let dd = Element("dd")
     public static let del = Element("del")
     public static let div = Element("div")
     public static let dl = Element("dl")
     public static let dt = Element("dt")
     public static let em = Element("em")
+    public static let embed = Element("embed")
     public static let fieldset = Element("fieldset")
     public static let figure = Element("figure")
     public static let figcaption = Element("figcaption")
     public static let form = Element("form")
+    public static let meta = Element("meta")
     public static let h1 = Element("h1")
     public static let h2 = Element("h2")
     public static let h3 = Element("h3")
@@ -61,12 +89,16 @@ extension Element {
     public static let hr = Element("hr")
     public static let i = Element("i")
     public static let img = Element("img")
+    public static let input = Element("input")
     public static let li = Element("li")
+    public static let link = Element("link")
     public static let noscript = Element("noscript")
     public static let ol = Element("ol")
     public static let p = Element("p")
+    public static let param = Element("param")
     public static let pre = Element("pre")
     public static let s = Element("s")
+    public static let source = Element("source")
     public static let span = Element("span")
     public static let strike = Element("strike")
     public static let strong = Element("strong")
@@ -77,11 +109,11 @@ extension Element {
     public static let th = Element("th")
     public static let thead = Element("thead")
     public static let tr = Element("tr")
+    public static let track = Element("track")
     public static let u = Element("u")
     public static let ul = Element("ul")
     public static let video = Element("video")
-    public static let code = Element("code")
-    public static let cite = Element("cite")
+    public static let wbr = Element("wbr")
 
 }
 
