@@ -171,7 +171,7 @@ private extension AttributedStringParser {
             let left = left[currentIndex]
             let right = right[currentIndex]
 
-            guard left.canMergeChildren(of: right, blocklevelEnforced: blocklevelEnforced) else {
+            guard canMergeNodes(left:left, right: right, blocklevelEnforced: blocklevelEnforced) else {
                 break
             }
 
@@ -181,6 +181,25 @@ private extension AttributedStringParser {
         }
 
         return matching.isEmpty ? nil : matching
+    }
+
+    /// Indicates whether the children of the specified node can be merged in, or not.
+    ///
+    /// - Parameters:
+    ///     - node: Target node for which we'll determine Merge-ability status.
+    ///
+    /// - Returns: true if both nodes can be merged, or not.
+    ///
+    func canMergeNodes(left: ElementNode, right: ElementNode, blocklevelEnforced: Bool) -> Bool {
+        guard left.name == right.name && Set(left.attributes) == Set(right.attributes) else {
+            return false
+        }
+
+        guard blocklevelEnforced else {
+            return Element.mergeableStyleElements.contains(left.type)
+        }
+
+        return Element.mergeableBlockLevelElements.contains(left.type)
     }
 }
 
@@ -348,7 +367,7 @@ private extension AttributedStringParser {
             return false
         }
 
-        leftMerger.children += rightMerger.children
+        leftMerger.children = leftMerger.children + rightMerger.children
 
         return true
     }
@@ -376,6 +395,12 @@ private extension AttributedStringParser {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()
+            
+            if let last = mergeCandidates.last,
+                Element.mergeableBlocklevelElementsSingleChildren.contains(last.left.type) {
+                
+                mergeCandidates = mergeCandidates.dropLast()
+            }
         }
 
         if lastNodeName != Element.li.rawValue {
