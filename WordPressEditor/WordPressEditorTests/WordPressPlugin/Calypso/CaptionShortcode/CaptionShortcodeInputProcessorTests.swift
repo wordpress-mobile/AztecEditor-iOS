@@ -10,7 +10,7 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
     ///
     func testCaptionShortcodeIsProperlyConvertedIntoFigureTag() {
         let input = "[caption]<img src=\".\">Text[/caption]"
-        let expected = "<figure><img src=\".\"><figcaption>Text</figcaption></figure>"
+        let expected = "<figure><img src=\".\" /><figcaption>Text</figcaption></figure>"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -20,7 +20,7 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
     ///
     func testCaptionShortcodeIsProperlyConvertedIntoFigureTagPreservingNestedTags() {
         let input = "[caption]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
-        let expected = "<figure><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
+        let expected = "<figure><img src=\".\" /><figcaption><b>Text</b><br/><br/><br/></figcaption></figure>"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -34,7 +34,7 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
                     "[/caption]"
 
         let expected = "<figure id=\"attachment_6\" align=\"alignleft\" width=\"300\" class=\"span data-mce-type=\">" +
-                            "<img src=\".\"><figcaption>Text</figcaption>" +
+                            "<img src=\".\" /><figcaption>Text</figcaption>" +
                         "</figure>"
 
         XCTAssertEqual(processor.process(input), expected)

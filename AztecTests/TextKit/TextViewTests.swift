@@ -607,7 +607,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(prettify: false), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<ol><li>First</li><li>SecondAhoi<br/>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -1530,7 +1530,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML(prettify: false)
 
-        XCTAssertEqual(html, "<p><hr></p>")
+        XCTAssertEqual(html, "<p><hr/></p>")
     }
 
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
@@ -1542,7 +1542,7 @@ class TextViewTests: XCTestCase {
         textView.replaceWithHorizontalRuler(at: .zero)
         let html = textView.getHTML(prettify: false)
 
-        XCTAssertEqual(html, "<p><hr><hr></p>")
+        XCTAssertEqual(html, "<p><hr/><hr/></p>")
     }
 
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
@@ -1555,7 +1555,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML(prettify: false)
         
-        XCTAssertEqual(html, "<p><hr></p>")
+        XCTAssertEqual(html, "<p><hr/></p>")
     }
 
     func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
@@ -1565,7 +1565,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\" /></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1592,7 +1592,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\" /></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1605,10 +1605,10 @@ class TextViewTests: XCTestCase {
     /// It also tests if changes on those attributes is correctly reflected on the generated HTML
     ///
     func testParseImageWithExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
+        let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\" />"
         let textView = createTextView(withHTML: html)
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" title=\"Title\" alt=\"Alt\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" title=\"Title\" alt=\"Alt\" /></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
             XCTFail("An video attachment should be present")
@@ -1620,7 +1620,7 @@ class TextViewTests: XCTestCase {
         attachment.extraAttributes["alt"] = "Changed Alt"
         attachment.extraAttributes["class"] = "wp-image-169"
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" title=\"Title\" alt=\"Changed Alt\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" title=\"Title\" alt=\"Changed Alt\" /></p>")
     }
 
 
@@ -1633,7 +1633,7 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: pristineHTML)
         let generatedHTML = textView.getHTML(prettify: false)
 
-        XCTAssertEqual(generatedHTML, "<p><br><br></p><h1>Header</h1>")
+        XCTAssertEqual(generatedHTML, "<p><br/><br/></p><h1>Header</h1>")
     }
 
     /// This test verifies that the H1 Header does not get lost, in the scenario in which the H1 is contained
@@ -1644,13 +1644,13 @@ class TextViewTests: XCTestCase {
         let textView = createTextView(withHTML: pristineHTML)
         let generatedHTML = textView.getHTML(prettify: false)
 
-        XCTAssertEqual(generatedHTML, "<p><br>1<br>2</p><h1>Heder</h1>")
+        XCTAssertEqual(generatedHTML, "<p><br/>1<br/>2</p><h1>Heder</h1>")
     }
 
     /// This test verifies that img class attributes are not duplicated
     ///
     func testParseImageDoesntDuplicateExtraAttributes() {
-        let html = "<img src=\"image.jpg\" class=\"alignnone wp-image-test\" title=\"Title\" alt=\"Alt\">"
+        let html = "<img src=\"image.jpg\" class=\"alignnone wp-image-test\" title=\"Title\" alt=\"Alt\" />"
         let textView = createTextView(withHTML: html)
         let generatedHTML = textView.getHTML()
 
@@ -1821,7 +1821,7 @@ class TextViewTests: XCTestCase {
     /// of text that never had H1 style, to begin with!.
     ///
     func testAttributesOnMediaAttachmentsAreRemoved() {
-        let textView = createTextView(withHTML: "<img src=\"http://placeholder\" data-wp_upload_id=\"ABCDE\" >")
+        let textView = createTextView(withHTML: "<img src=\"http://placeholder\" data-wp_upload_id=\"ABCDE\" />")
 
         guard let attachment = textView.storage.mediaAttachments.first else {
             XCTFail("There must be an attachment")
@@ -1840,7 +1840,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\" /></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.
@@ -1849,7 +1849,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML(prettify: false)
 
-        XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr></p>")
+        XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr/></p>")
     }
 
     /// This test makes sure that if an auto replacement is made with smaller text, for example an emoji, things work correctly

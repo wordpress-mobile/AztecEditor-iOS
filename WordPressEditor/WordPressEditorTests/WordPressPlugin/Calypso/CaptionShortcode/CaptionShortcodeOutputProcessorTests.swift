@@ -10,7 +10,7 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
     ///
     func testFigureAndFigcaptionAreProperlyConvertedIntoCaptionShortcode() {
         let input = "<figure><img src=\".\"><figcaption>Text</figcaption></figure>"
-        let expected = "[caption id=\"\"]<img src=\".\">Text[/caption]"
+        let expected = "[caption id=\"\"]<img src=\".\" />Text[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -20,7 +20,7 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
     ///
     func testFigureTagWithNestedFigcaptionEntitiesIsProperlyConvertedBackIntoCaptionShortcode() {
         let input = "<figure><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
-        let expected = "[caption id=\"\"]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
+        let expected = "[caption id=\"\"]<img src=\".\" /><b>Text</b><br/><br/><br/>[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -34,7 +34,7 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
                     "</figure>"
 
         let expected = "[caption id=\"attachment_6\" align=\"alignleft\" class=\"span data-mce-type=\" width=\"300\"]" +
-                            "<img src=\".\">Text" +
+                            "<img src=\".\" />Text" +
                         "[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
@@ -44,11 +44,11 @@ class CaptionShortcodeOutputProcessorTests: XCTestCase {
     ///
     func testImgTagAttributesAreProperlyPassedOntoTheCaptionShortcode() {
         let input = "<figure>" +
-            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\"><figcaption>Text</figcaption>" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\" /><figcaption>Text</figcaption>" +
         "</figure>"
 
         let expected = "[caption align=\"alignleft\" id=\"attachment_6\" width=\"300\"]" +
-            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\">Text" +
+            "<img src=\".\" class=\"alignleft wp-image-6\" width=\"300\" />Text" +
         "[/caption]"
 
         XCTAssertEqual(processor.process(input), expected)
