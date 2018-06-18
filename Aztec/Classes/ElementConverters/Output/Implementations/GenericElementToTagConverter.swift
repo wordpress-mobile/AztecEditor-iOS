@@ -17,7 +17,7 @@ private extension GenericElementToTagConverter {
     private func openingTag(for node: ElementNode) -> String {
         let attributes = serialize(attributes: node.attributes)
         
-        return "<" + node.name + attributes + ">"
+        return "<" + node.name + attributes + (node.isVoid() ? (attributes.isEmpty ? "/" : " /") : "") + ">"
     }
     
     
