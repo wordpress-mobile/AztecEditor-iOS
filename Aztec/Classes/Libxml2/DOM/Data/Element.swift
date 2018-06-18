@@ -19,7 +19,7 @@ public struct Element: RawRepresentable, Hashable {
     ///
     /// Ref. http://w3c.github.io/html/syntax.html#void-elements
     ///
-    public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
+    public static var voidElements: Set<Element> = Set<Element>([.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr])
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///

@@ -101,7 +101,7 @@ class AttributedStringSerializerTests: XCTestCase {
     /// Ref. #658
     ///
     func testLineBreakTagWithinHTMLDivGetsProperlyEncodedAndDecoded() {
-        let inHtml = "<div><br>Aztec, don't forget me!</div>"
+        let inHtml = "<div><br/>Aztec, don't forget me!</div>"
 
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
@@ -117,8 +117,8 @@ class AttributedStringSerializerTests: XCTestCase {
     /// Ref. #658
     ///
     func testLineBreakTagWithinUnsupportedHTMLDoesNotCauseDataLoss() {
-        let inHtml = "<span><br>Aztec, don't forget me!</span>"
-        let expectedHtml = "<p><span><br>Aztec, don't forget me!</span></p>"
+        let inHtml = "<span><br/>Aztec, don't forget me!</span>"
+        let expectedHtml = "<p><span><br/>Aztec, don't forget me!</span></p>"
 
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)
@@ -136,9 +136,9 @@ class AttributedStringSerializerTests: XCTestCase {
     func testMultipleUnrelatedUnsupportedHTMLSnippetsDoNotGetAppliedToTheEntireStringRange() {
         let inHtml = "<div>" +
             "<p><span>One</span></p>" +
-            "<p><span><br></span></p>" +
+            "<p><span><br/></span></p>" +
             "<p><span>Two</span></p>" +
-            "<p><br></p>" +
+            "<p><br/></p>" +
             "<p><span>Three</span><span>Four</span><span>Five</span></p>" +
         "</div>"
 
@@ -154,7 +154,7 @@ class AttributedStringSerializerTests: XCTestCase {
     /// Verifies that a linked image is properly converted from HTML to attributed string and back to HTML.
     ///
     func testLinkedImageGetsProperlyEncodedAndDecoded() {
-        let inHtml = "<p><a href=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\" class=\"alignnone\"></a></p>"
+        let inHtml = "<p><a href=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://s.w.org/about/images/wordpress-logo-notext-bg.png\" class=\"alignnone\" /></a></p>"
         
         let inNode = HTMLParser().parse(inHtml)
         let attrString = attributedString(from: inNode)

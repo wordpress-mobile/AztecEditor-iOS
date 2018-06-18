@@ -56,8 +56,8 @@ class DefaultHTMLSerializerTests: XCTestCase {
     /// Verifies that unknown TAG Attributes do not get removed.
     ///
     func testConverterDoesNotDropProprietaryAttributes() {
-        let sample = "something something <img unknown=\"true\">"
-        let expected =  "something something <img unknown=\"true\">"
+        let sample = "something something <img unknown=\"true\" />"
+        let expected =  "something something <img unknown=\"true\" />"
 
         let inNode = HTMLParser().parse(sample)
         let outHtml = HTMLSerializer().serialize(inNode)
