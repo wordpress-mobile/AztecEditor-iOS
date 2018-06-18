@@ -1717,7 +1717,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML(prettify: false) == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.

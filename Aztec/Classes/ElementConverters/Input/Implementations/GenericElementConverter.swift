@@ -33,6 +33,7 @@ class GenericElementConverter: ElementConverter {
     lazy var underlineFormatter = UnderlineFormatter()
     lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
     lazy var codeFormatter = CodeFormatter()
+    lazy var liFormatter = LiFormatter()
     
     public lazy var elementFormattersMap: [Element: AttributeFormatter] = {
         return [
@@ -53,7 +54,8 @@ class GenericElementConverter: ElementConverter {
             .h6: self.h6Formatter,
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
-            .code: self.codeFormatter
+            .code: self.codeFormatter,
+            .li: self.liFormatter
         ]
     }()
     
@@ -131,8 +133,6 @@ private extension GenericElementConverter {
         
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: inheritedAttributes, andStore: representation)
-        } else if element.type == .li {
-            finalAttributes = inheritedAttributes
         } else {
             finalAttributes = attributes(storing: elementRepresentation, in: inheritedAttributes)
         }
