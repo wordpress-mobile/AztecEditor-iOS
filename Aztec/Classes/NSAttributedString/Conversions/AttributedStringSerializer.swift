@@ -237,6 +237,10 @@ private extension AttributedStringSerializer {
     }
     
     private func sanitize(_ text: String) -> String {
+        guard text != String(.space) else {
+            return text
+        }
+
         let hasAnEndingSpace = text.hasSuffix(String(.space))
         let hasAStartingSpace = text.hasPrefix(String(.space))
         

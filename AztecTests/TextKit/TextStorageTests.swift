@@ -130,7 +130,7 @@ class TextStorageTests: XCTestCase {
         let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
     }
 
     /// Verifies that any edition performed on ImageAttachment attributes is properly serialized back during
@@ -317,7 +317,7 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.org\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\"></p>")
     }
 
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
@@ -332,7 +332,7 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\"></p>")
     }
 
     /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
@@ -440,6 +440,17 @@ class TextStorageTests: XCTestCase {
 
             XCTAssertEqual(expectedHTML, outputHTML)
         }
+    }
+
+    func testSingleSpaceBetweenElements() {
+        let html = "<p><strong>WordPress</strong> <em>App</em></p>"
+
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+
+        XCTAssertEqual(html, outputHTML)
     }
 
     func testListElemeAttributes() {

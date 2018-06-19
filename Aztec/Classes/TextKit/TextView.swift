@@ -1407,6 +1407,7 @@ open class TextView: UITextView {
         let attachment = ImageAttachment(identifier: identifier, url: url)
         attachment.delegate = storage
         attachment.image = placeHolderImage
+        attachment.alignment = .none
         replace(at: range, with: attachment)
         return attachment
     }
