@@ -442,5 +442,16 @@ class TextStorageTests: XCTestCase {
         }
     }
 
+    func testSingleSpaceBetweenElements() {
+        let html = "<p><strong>WordPress</strong> <em>App</em></p>"
+
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+
+        XCTAssertEqual(html, outputHTML)
+    }
+
 
 }
