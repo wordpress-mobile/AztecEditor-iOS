@@ -14,7 +14,7 @@ class AttachmentDetailsViewController: UITableViewController
     var attachment: ImageAttachment?
     var caption: NSAttributedString?
     var linkURL: URL?
-    var onUpdate: ((_ alignment: ImageAttachment.Alignment, _ size: ImageAttachment.Size, _ imageURL: URL, _ linkURL: URL?, _ altText: String?, _ captionText: NSAttributedString?) -> Void)?
+    var onUpdate: ((_ alignment: ImageAttachment.Alignment?, _ size: ImageAttachment.Size, _ imageURL: URL, _ linkURL: URL?, _ altText: String?, _ captionText: NSAttributedString?) -> Void)?
     var onDismiss: (() -> ())?
 
 
@@ -48,10 +48,13 @@ class AttachmentDetailsViewController: UITableViewController
             fatalError()
         }
 
-        let alignment = Alignment(attachmentAlignment: attachment.alignment)
-        let size = Size(attachmentSize: attachment.size)
+        alignmentSegmentedControl.selectedSegmentIndex = UISegmentedControlNoSegment
+        if let alignmentValue = attachment.alignment {
+            let alignment = Alignment(attachmentAlignment: alignmentValue)
+            alignmentSegmentedControl.selectedSegmentIndex = alignment.rawValue
+        }
 
-        alignmentSegmentedControl.selectedSegmentIndex = alignment.rawValue
+        let size = Size(attachmentSize: attachment.size)
         sizeSegmentedControl.selectedSegmentIndex = size.rawValue
 
         sourceURLTextField.text = attachment.url?.absoluteString
@@ -67,8 +70,11 @@ class AttachmentDetailsViewController: UITableViewController
     }
 
     @IBAction func doneWasPressed() {
+        var alignment: ImageAttachment.Alignment?
+        if alignmentSegmentedControl.selectedSegmentIndex != UISegmentedControlNoSegment {
+            alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex)?.toAttachmentAlignment()
+        }
         guard
-            let alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex),
             let size = Size(rawValue: sizeSegmentedControl.selectedSegmentIndex)
             else {
             fatalError()
@@ -84,7 +90,7 @@ class AttachmentDetailsViewController: UITableViewController
         let alt = altTextField.text
         let caption = captionTextView.attributedText
         let linkURL = URL(string: linkURLTextField.text ?? "")
-        onUpdate(alignment.toAttachmentAlignment(), size.toAttachmentSize(), url, linkURL, alt, caption)
+        onUpdate(alignment, size.toAttachmentSize(), url, linkURL, alt, caption)
         dismiss(animated: true, completion: onDismiss)
     }
 

@@ -42,7 +42,10 @@ class ImageAttachmentToElementConverter: AttachmentToElementConverter {
     ///
     private func imageClassAttribute(from attachment: ImageAttachment) -> Attribute? {
         var style = String()
-        style += attachment.alignment.htmlString()
+
+        if let alignment = attachment.alignment {
+            style += alignment.htmlString()
+        }
         
         if attachment.size != .none {
             style += style.isEmpty ? String() : String(.space)
