@@ -23,14 +23,16 @@ public struct Element: RawRepresentable, Hashable {
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///
-    public static var mergeableBlockLevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p, .pre])
+    public static var mergeableBlockLevelElements = Set<Element>([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p, .pre])
 
     /// List of style HTML elements that can be merged together when they are sibling to each other
-    public static var mergeableStyleElements: Set<Element> = Set([.i, .em, .b, .strong, .strike, .u, .code, .cite])
+    public static var mergeableStyleElements = Set<Element>([.i, .em, .b, .strong, .strike, .u, .code, .cite])
 
     /// List of block level elements that can be merged but only when they have a single children that is also mergeable
     ///
     public static var mergeableBlocklevelElementsSingleChildren =  Set<Element>()
+    
+    public static var mergeableBlockLevelElementWithoutBlockLevelChildren = Set<Element>([.figure, .pre])
 
     // MARK: - Initializers
     
