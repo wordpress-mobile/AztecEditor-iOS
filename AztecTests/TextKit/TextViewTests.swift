@@ -1450,8 +1450,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(String(.lineFeed))
         
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
-    }
-
+    }    
 
     // MARK: - Media
 

@@ -367,7 +367,10 @@ private extension AttributedStringParser {
             return false
         }
 
-        leftMerger.children = leftMerger.children + rightMerger.children
+        // Pre has a custom joining logic because it joins different paragraphs without removing the paragraph separator.
+        let junctureNodes: [Node] = leftMerger.type == .pre ? [TextNode(text: String(.paragraphSeparator))] : []
+        
+        leftMerger.children = leftMerger.children + junctureNodes + rightMerger.children
 
         return true
     }
@@ -381,17 +384,15 @@ private extension AttributedStringParser {
     private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
         assert(mergeableNodes.count > 0)
         
-        // Business logic: The last mergeable node is never merged, so we need more than 1 node to continue.
-        //
-        guard let lastNodeName = mergeableNodes.last?.left.name else {
+        guard let lastNode = mergeableNodes.last?.left else {
             return nil
         }
+        
+        let lastNodeName = lastNode.name
 
         var mergeCandidates: ArraySlice<MergeablePair>
         
-        // TODO: Remove this hack!!  This is a horrible horrible hack, but it's the simplest solution until we can
-        // refactor this Parser to work in a different way, analyzing the NSAttributedString directly for merges.
-        if mergeableNodes.last?.left.type == .figure {
+        if Element.mergeableBlockLevelElementWithoutBlockLevelChildren.contains(lastNode.type) {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()

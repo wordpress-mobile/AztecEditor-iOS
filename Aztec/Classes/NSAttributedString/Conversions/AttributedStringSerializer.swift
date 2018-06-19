@@ -221,7 +221,6 @@ private extension AttributedStringSerializer {
         guard shouldSanitizeText(for: textNode) else {
             return textNode.text()
         }
-        
         return sanitize(textNode.text())
     }
     
@@ -235,7 +234,7 @@ private extension AttributedStringSerializer {
     private func shouldSanitizeText(for textNode: TextNode) -> Bool {
         return !textNode.hasAncestor(ofType: .pre)
     }
-    
+
     private func sanitize(_ text: String) -> String {
         guard text != String(.space) else {
             return text
