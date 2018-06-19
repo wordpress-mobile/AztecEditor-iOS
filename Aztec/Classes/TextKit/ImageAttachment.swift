@@ -8,7 +8,7 @@ open class ImageAttachment: MediaAttachment {
 
     /// Attachment Alignment
     ///
-    open var alignment: Alignment = .none {
+    open var alignment: Alignment? {
         willSet {
             if newValue != alignment {
                 glyphImage = nil
@@ -68,7 +68,9 @@ open class ImageAttachment: MediaAttachment {
 
     override open func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
-        aCoder.encode(alignment.rawValue, forKey: EncodeKeys.alignment.rawValue)
+        if let alignmentValue = alignment?.rawValue {
+            aCoder.encode(alignmentValue, forKey: EncodeKeys.alignment.rawValue)
+        }
         aCoder.encode(size.rawValue, forKey: EncodeKeys.size.rawValue)
     }
 
@@ -84,8 +86,8 @@ open class ImageAttachment: MediaAttachment {
     ///
     override func imagePositionX(for containerWidth: CGFloat) -> CGFloat {
         let imageWidth = onScreenWidth(for: containerWidth)
-
-        switch alignment {
+        let alignmentValue = alignment ?? .none
+        switch alignmentValue {
         case .center:
             return CGFloat(floor((containerWidth - imageWidth) / 2))
         case .right:

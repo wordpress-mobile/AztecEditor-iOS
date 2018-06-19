@@ -179,6 +179,8 @@
 		FF20D6441EDC395E00294B78 /* NSTextingResult+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */; };
 		FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */; };
 		FF24AC991F0146AF003CA91D /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF24AC981F0146AF003CA91D /* Assets.swift */; };
+		FF437B6420D7CB2D000D9666 /* HTMLLi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF437B6320D7CB2D000D9666 /* HTMLLi.swift */; };
+		FF437B6620D7CB83000D9666 /* LiFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF437B6520D7CB83000D9666 /* LiFormatter.swift */; };
 		FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */; };
 		FF61909E202481F4004BCD0A /* CodeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF61909D202481F4004BCD0A /* CodeFormatter.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
@@ -398,6 +400,8 @@
 		FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSTextingResult+Helpers.swift"; sourceTree = "<group>"; };
 		FF20D6461EDC3B3900294B78 /* HTMLProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessorTests.swift; sourceTree = "<group>"; };
 		FF24AC981F0146AF003CA91D /* Assets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
+		FF437B6320D7CB2D000D9666 /* HTMLLi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLLi.swift; sourceTree = "<group>"; };
+		FF437B6520D7CB83000D9666 /* LiFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiFormatter.swift; sourceTree = "<group>"; };
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
@@ -780,6 +784,7 @@
 				B524228C1F30C039002E7C6C /* HTMLDiv.swift */,
 				F11326AB1EF1AA91007FEE9A /* HTMLParagraph.swift */,
 				F11326AC1EF1AA91007FEE9A /* HTMLPre.swift */,
+				FF437B6320D7CB2D000D9666 /* HTMLLi.swift */,
 				F11326AD1EF1AA91007FEE9A /* ParagraphProperty.swift */,
 				F11326AE1EF1AA91007FEE9A /* TextList.swift */,
 			);
@@ -811,6 +816,7 @@
 				F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */,
 				F12F585D1EF20394008AE298 /* LinkFormatter.swift */,
 				F12F585E1EF20394008AE298 /* PreFormatter.swift */,
+				FF437B6520D7CB83000D9666 /* LiFormatter.swift */,
 				F12F585F1EF20394008AE298 /* StrikethroughFormatter.swift */,
 				F12F58601EF20394008AE298 /* TextListFormatter.swift */,
 				F12F58611EF20394008AE298 /* UnderlineFormatter.swift */,
@@ -1250,6 +1256,7 @@
 				F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
 				F1FF7D9F201A1D24007B0B32 /* Figcaption.swift in Sources */,
+				FF437B6620D7CB83000D9666 /* LiFormatter.swift in Sources */,
 				FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */,
 				F12F58671EF20394008AE298 /* BlockquoteFormatter.swift in Sources */,
 				B5DA1C1D1EBD1CCE000AAB45 /* HTMLSerializer.swift in Sources */,
@@ -1257,6 +1264,7 @@
 				599F25351D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift in Sources */,
 				F16A2B0020CDB62B00BF3A0A /* GenericElementToTagConverter.swift in Sources */,
 				599F25521D8BC9A1002871D6 /* MediaAttachment.swift in Sources */,
+				FF437B6420D7CB2D000D9666 /* HTMLLi.swift in Sources */,
 				F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */,
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,

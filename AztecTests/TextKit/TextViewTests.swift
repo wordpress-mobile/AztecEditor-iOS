@@ -1564,7 +1564,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1591,7 +1591,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1716,7 +1716,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML(prettify: false) == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
@@ -1839,7 +1839,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.

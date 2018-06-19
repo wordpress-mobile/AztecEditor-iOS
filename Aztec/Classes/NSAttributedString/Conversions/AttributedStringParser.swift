@@ -557,12 +557,15 @@ private extension AttributedStringParser {
                 guard let element = processHeaderStyle(header: header) else {
                     continue
                 }
-
                 paragraphNodes.append(element)
 
             case let list as TextList:
-                let elements = processListStyle(list: list)
-                paragraphNodes += elements
+                let element = processListStyle(list: list)
+                paragraphNodes.append(element)
+
+            case let listItem as HTMLLi:
+                let element = processListItem(listItem: listItem)
+                paragraphNodes.append(element)
 
             case let div as HTMLDiv:
                 let element = processDivStyle(div: div)
@@ -688,11 +691,10 @@ private extension AttributedStringParser {
 
     /// Extracts all of the List Elements contained within a collection of Attributes.
     ///
-    private func processListStyle(list: TextList) -> [ElementNode] {
+    private func processListStyle(list: TextList) -> ElementNode {
         let listType = list.style == .ordered ? Element.ol : Element.ul
 
         let listElement: ElementNode
-        let lineElement = ElementNode(type: .li)
 
         if let representation = list.representation,
             case let .element(element) = representation.kind {
@@ -702,7 +704,22 @@ private extension AttributedStringParser {
             listElement = ElementNode(type: listType)
         }
 
-        return [lineElement, listElement]
+        return listElement
+    }
+
+    private func processListItem(listItem: HTMLLi) -> ElementNode {
+
+        let lineElement: ElementNode
+
+        if let representation = listItem.representation,
+            case let .element(element) = representation.kind {
+
+            lineElement = element.toElementNode()
+        } else {
+            lineElement = ElementNode(type: .li)
+        }
+
+        return lineElement
     }
 
 
