@@ -40,6 +40,10 @@ public class TextNode: Node {
 
         return super.needsClosingParagraphSeparator()
     }
+    
+    override func rawText() -> String {
+        return contents
+    }
 
     // MARK: - LeafNode
     
