@@ -148,5 +148,18 @@ class WordpressPluginTests: XCTestCase {
 
         XCTAssertEqual(finalHTML, initialHTML)
     }
+
+    func testGutenbergBlockNotClosed() {
+        let initialHTML = """
+<!-- wp:list -->
+<ul>
+  <li>Media library/HTML for images, multimedia and approved files.</li>
+</ul>
+"""
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, initialHTML)
+    }
 }
 
