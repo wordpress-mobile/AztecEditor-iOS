@@ -1032,9 +1032,48 @@ extension EditorDemoController {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+    func exportPreviewImageForVideo(atURL url: URL, onCompletion: @escaping (UIImage) -> (), onError: @escaping () -> ()) {
+        DispatchQueue.global(qos: .background).async {
+            let asset = AVURLAsset(url: url)
+            guard asset.isExportable else {
+                onError()
+                return
+            }
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
+                                                     completionHandler: { (time, cgImage, actualTime, result, error) in
+                                                        guard let cgImage = cgImage else {
+                                                            onError()
+                                                            return
+                                                        }
+                                                        let image = UIImage(cgImage: cgImage)
+                                                        onCompletion(image)
+            })
+        }
+    }
 
-        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+        var urlToRequest = url
+        if let videoAttachment = attachment as? VideoAttachment {
+            if let posterURL = videoAttachment.posterURL {
+                urlToRequest = posterURL
+            } else {
+                // Let's get a frame from the video directly
+                exportPreviewImageForVideo(atURL: url, onCompletion: { (image) in
+                    DispatchQueue.main.async {
+                        success(image)
+                    }
+                }, onError: {
+                    DispatchQueue.main.async {
+                    failure()
+                    }
+                })
+                return
+            }
+        }
+
+        let task = URLSession.shared.dataTask(with: urlToRequest) { [weak self] (data, _, error) in
             DispatchQueue.main.async {
                 guard self != nil else {
                     return
@@ -1307,7 +1346,7 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL
+                videoAttachment.updateURL(videoURL)
             }
         }
         richTextView.refresh(attachment, overlayUpdateOnly: true)
@@ -1351,7 +1390,7 @@ private extension EditorDemoController
                                                 self?.displayDetailsForAttachment(imageAttachment, position: position)
             })
             alertController.addAction(detailsAction)
-        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.srcURL {
+        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.url {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
                                               style: .default,
                                               handler: { [weak self] (action) in
