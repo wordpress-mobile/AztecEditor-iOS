@@ -33,7 +33,7 @@ open class HTMLAttachment: NSTextAttachment {
 
     // MARK: - Initializers
 
-    init() {
+    public init() {
         super.init(data: nil, ofType: nil)
     }
 

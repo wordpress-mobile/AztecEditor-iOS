@@ -46,6 +46,7 @@
 		F1D3612B209352F400B4E7A5 /* ImageAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */; };
 		F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */; };
 		F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */; };
+		FFC41BEA20DD04A8004DFB4D /* GutenpackConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +124,7 @@
 		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "VideoAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
+		FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackConverter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -305,6 +307,7 @@
 				F13E8AD920B71DFF007C9F8A /* GutenblockAttachment.swift */,
 				F13E8ADD20B7214B007C9F8A /* GutenblockAttachmentRenderer.swift */,
 				F1C9F40520AF62E800205227 /* GutenblockConverter.swift */,
+				FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */,
 			);
 			path = Gutenberg;
 			sourceTree = "<group>";
@@ -543,6 +546,7 @@
 				F1065DCF20ADF5D3008C72CC /* RemovePProcessor.swift in Sources */,
 				F1B1FDD220D14B6D0090A0A5 /* WordPressOutputCustomizer.swift in Sources */,
 				F1C14C4B20CDE653002A4083 /* GalleryElementToTagConverter.swift in Sources */,
+				FFC41BEA20DD04A8004DFB4D /* GutenpackConverter.swift in Sources */,
 				F1B0012920C5895800612EE9 /* GalleryShortcodeInputProcessor.swift in Sources */,
 				F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */,
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,

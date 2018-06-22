@@ -129,21 +129,24 @@ private extension GutenbergOutputHTMLTreeProcessor {
     // MARK: - Gutenberg HTML Attribute Data
     
     private func gutenblockCloserData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.blockCloser, from: element)
+        let decoder = GutenbergAttributeDecoder()
+        return decoder.decodedAttribute(named: GutenbergAttributeNames.blockCloser, from: element)
     }
     
     private func gutenblockOpenerData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.blockOpener, from: element)
+        let decoder = GutenbergAttributeDecoder()
+        return decoder.decodedAttribute(named: GutenbergAttributeNames.blockOpener, from: element)
     }
     
     private func gutenblockSelfCloserData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element)
+        let decoder = GutenbergAttributeDecoder()
+        return decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element)
     }
 }
 
 // MARK: - HTML Attributes
 
-private extension GutenbergOutputHTMLTreeProcessor {
+public class GutenbergAttributeDecoder {
 
     // MARK: - Attribute Data
     
