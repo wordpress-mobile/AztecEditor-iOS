@@ -5,8 +5,7 @@ import Foundation
 ///
 public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
-    typealias OpenerMatch = (offset: Int, opener: CommentNode)
-    typealias CloserMatch = (offset: Int, closer: CommentNode)
+    typealias GutenbergDelimiterMatch = (offset: Int, match: CommentNode)
     
     // MARK: - Initializers
     
@@ -39,32 +38,43 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     private func process(_ nodes: [Node]) -> [Node] {
         var result = [Node]()
         var openerSlice = nodes[0 ..< nodes.count]
-        
-        while let (relativeOpenerOffset, opener) = self.nextOpener(in: openerSlice) {
+
+        while let (relativeOpenerOffset, match) = self.nextOpenerOrSelfClosing(in: openerSlice) {
             let openerOffset = openerSlice.startIndex + relativeOpenerOffset
             
-            // Any nodes before the first opener found are immediately added to the results.
-            result += nodes[openerSlice.startIndex ..< openerOffset]
-            
-            let nextOffset = openerOffset + 1
-            let closerSlice = nodes[nextOffset ..< nodes.count]
-            
-            guard let (relativeCloserOffset, closer) = nextCloser(in: closerSlice, forOpener: opener) else {
-                // If a closer is not found, we just add teh opener as a regular comment block
-                // and continue from the following offset (opener offset + 1).
-                result.append(opener)
-                openerSlice = closerSlice
+            if match.isGutenbergBlockOpener() {
+                let opener = match
+
+                // Any nodes before the first starter found are immediately added to the results.
+                result += nodes[openerSlice.startIndex ..< openerOffset]
+
+                let nextOffset = openerOffset + 1
+                let closerSlice = nodes[nextOffset ..< nodes.count]
                 
-                continue
+                guard let (relativeCloserOffset, closer) = nextCloser(in: closerSlice, forOpener: opener) else {
+                    // If a closer is not found, we just add teh opener as a regular comment block
+                    // and continue from the following offset (opener offset + 1).
+                    result.append(opener)
+                    openerSlice = closerSlice
+
+                    continue
+                }
+
+                // If a closer is found, we create a Gutenblock and wrap all nodes between the opener and the closer.
+                let closerOffset = closerSlice.startIndex + relativeCloserOffset
+                let children = nodes[closerSlice.startIndex ..< closerOffset]
+                let gutenblock = self.gutenblock(wrapping: children, opener: opener, closer: closer)
+
+                result.append(gutenblock)
+                openerSlice = nodes[closerOffset + 1 ..< nodes.count]
+            } else if match.isGutenbergSelfClosingBlock() {
+                let attributes = selfClosingAttributes(for: match)
+                let gutenblock = ElementNode(type: .gutenpack, attributes: attributes, children: [])
+                
+                result.append(gutenblock)
+                let nextOffset = openerOffset + 1
+                openerSlice = nodes[nextOffset ..< nodes.count]
             }
-            
-            // If a closer is found, we create a Gutenblock and wrap all nodes between the opener and the closer.
-            let closerOffset = closerSlice.startIndex + relativeCloserOffset
-            let children = nodes[closerSlice.startIndex ..< closerOffset]
-            let gutenblock = self.gutenblock(wrapping: children, opener: opener, closer: closer)
-            
-            result.append(gutenblock)
-            openerSlice = nodes[closerOffset + 1 ..< nodes.count]
         }
         
         if openerSlice.count > 0 {
@@ -92,27 +102,27 @@ private extension GutenbergInputHTMLTreeProcessor {
         return gutenblock
     }
     
-    private func nextOpener(in nodes: ArraySlice<Node>) -> OpenerMatch? {
-        for (index, node) in nodes.enumerated() {
-            guard let commentNode = node as? CommentNode,
-                commentNode.isGutenbergBlockOpener() else {
-                    continue
-            }
-            
-            return OpenerMatch(offset: index, opener: commentNode)
-        }
-        
-        return nil
-    }
-
-    private func nextCloser(in nodes: ArraySlice<Node>, forOpener opener: CommentNode) -> CloserMatch? {
+    private func nextCloser(in nodes: ArraySlice<Node>, forOpener opener: CommentNode) -> GutenbergDelimiterMatch? {
         for (index, node) in nodes.enumerated() {
             guard let commentNode = node as? CommentNode,
                 commentNode.isGutenbergBlockCloser(forOpener: opener) else {
                     continue
             }
             
-            return CloserMatch(offset: index, closer: commentNode)
+            return GutenbergDelimiterMatch(offset: index, match: commentNode)
+        }
+        
+        return nil
+    }
+    
+    private func nextOpenerOrSelfClosing(in nodes: ArraySlice<Node>) -> GutenbergDelimiterMatch? {
+        for (index, node) in nodes.enumerated() {
+            guard let commentNode = node as? CommentNode,
+                commentNode.isGutenbergBlockOpener() || commentNode.isGutenbergSelfClosingBlock() else {
+                    continue
+            }
+            
+            return GutenbergDelimiterMatch(offset: index, match: commentNode)
         }
         
         return nil
