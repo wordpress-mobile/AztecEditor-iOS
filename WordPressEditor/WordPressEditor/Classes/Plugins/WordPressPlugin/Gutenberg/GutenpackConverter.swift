@@ -19,7 +19,7 @@ public class GutenpackConverter: ElementConverter {
         let attachment = HTMLAttachment()
         let decoder = GutenbergAttributeDecoder()
         if let content = decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element) {
-            attachment.rawHTML = String(content.prefix(upTo: content.index(before:content.endIndex)))
+            attachment.rawHTML = String(content[content.startIndex ..< content.index(before: content.endIndex)])
             attachment.rootTagName = String(content.trimmingCharacters(in: .whitespacesAndNewlines).prefix(while: { (char) -> Bool in
                 char != " "
             }))
