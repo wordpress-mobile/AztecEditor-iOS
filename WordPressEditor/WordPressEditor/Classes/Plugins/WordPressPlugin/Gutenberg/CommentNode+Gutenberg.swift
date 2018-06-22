@@ -12,7 +12,7 @@ public extension CommentNode {
         return isGutenbergBlockCloser() && opener.canBeClosedBy(self)
     }
     
-    private func isGutenbergBlockCloser() -> Bool {
+    func isGutenbergBlockCloser() -> Bool {
         let prefix = CommentNode.closerPrefix
         
         return comment.trimmingCharacters(in: .whitespaces).prefix(prefix.count) == prefix
