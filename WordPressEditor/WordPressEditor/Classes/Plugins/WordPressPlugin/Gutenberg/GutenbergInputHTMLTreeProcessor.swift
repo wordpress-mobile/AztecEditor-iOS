@@ -42,11 +42,11 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
         while let (relativeOpenerOffset, match) = self.nextOpenerOrSelfClosing(in: openerSlice) {
             let openerOffset = openerSlice.startIndex + relativeOpenerOffset
             
+            // Any nodes before the first match found are immediately added to the results.
+            result += nodes[openerSlice.startIndex ..< openerOffset]
+            
             if match.isGutenbergBlockOpener() {
                 let opener = match
-
-                // Any nodes before the first starter found are immediately added to the results.
-                result += nodes[openerSlice.startIndex ..< openerOffset]
 
                 let nextOffset = openerOffset + 1
                 let closerSlice = nodes[nextOffset ..< nodes.count]

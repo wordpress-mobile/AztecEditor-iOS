@@ -196,7 +196,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
     
     // MARK: - Raw text representation of nodes
     
-    func rawText() -> String {
+    public func rawText() -> String {
         return ""
     }
 }

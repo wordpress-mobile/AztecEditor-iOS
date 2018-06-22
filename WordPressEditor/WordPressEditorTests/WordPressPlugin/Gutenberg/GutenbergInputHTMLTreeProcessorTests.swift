@@ -127,7 +127,7 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
     /// Verifies that a self closing block is properly processed
     ///
     func testSelfClosedBlock() {
-        let selfClosingCommentText = " wp:latest-posts "
+        let selfClosingCommentText = " wp:latest-posts /"
         let openingCommentText = " wp:paragraph {\"fontColor\": red, \"fontSize\": 12} "
         let closingCommentText = " /wp:paragraph "
         let selfClosingGutentag = htmlComment(withContent: selfClosingCommentText)
@@ -168,5 +168,16 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         }
         
         XCTAssertEqual(paragraph.rawText(), text)
+        
+        guard let gutenpack = gutenblock.children[1] as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(gutenpack.type, .gutenpack)
+        
+        XCTAssert(gutenpack.attributes.contains(where: { (attribute) -> Bool in
+            return attribute.name == GutenbergAttributeNames.selfCloser
+                && attribute.value.toString() == selfClosingComment
+        }))
     }
 }
