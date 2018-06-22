@@ -41,7 +41,7 @@ public class TextNode: Node {
         return super.needsClosingParagraphSeparator()
     }
     
-    override func rawText() -> String {
+    override public func rawText() -> String {
         return contents
     }
 
