@@ -33,7 +33,7 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
         let containedNodes = gutenblock.children
         let closingComment = gutenbergCloser(for: gutenblock)
         let closingNewline = TextNode(text: "\n")
-        
+
         return [openingComment] + containedNodes + [closingComment, closingNewline]
     }
     
