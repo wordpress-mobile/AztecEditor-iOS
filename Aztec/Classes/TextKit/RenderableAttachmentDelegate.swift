@@ -4,7 +4,7 @@ import UIKit
 
 /// NSTextAttachment Renderable Delegate Helpers
 ///
-protocol RenderableAttachmentDelegate: class {
+public protocol RenderableAttachmentDelegate: class {
 
     /// Returns the Bounds that should be used to render a given attachment
     ///
@@ -25,4 +25,9 @@ protocol RenderableAttachmentDelegate: class {
     /// - Returns: Optional UIImage instance, representing a given comment.
     ///
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage?
+}
+
+public protocol RenderableAttachment: class {
+
+    var delegate: RenderableAttachmentDelegate? {get set}
 }

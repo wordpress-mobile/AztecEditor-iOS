@@ -5,7 +5,7 @@ import UIKit
 
 // MARK: - SpecialTagAttachmentRenderer. This render aims rendering WordPress specific tags.
 //
-final public class GutenblockAttachmentRenderer {
+final public class GutenpackAttachmentRenderer {
     
     /// Text Color
     ///
@@ -17,20 +17,20 @@ final public class GutenblockAttachmentRenderer {
 
 // MARK: - TextViewCommentsDelegate Methods
 //
-extension GutenblockAttachmentRenderer: TextViewAttachmentImageProvider {
+extension GutenpackAttachmentRenderer: TextViewAttachmentImageProvider {
     
     public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
-        return attachment is GutenblockAttachment
+        return attachment is GutenpackAttachment
     }
     
     public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
-        guard let attachment = attachment as? CommentAttachment else {
+        guard let attachment = attachment as? GutenpackAttachment else {
             return nil
         }
         
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         
-        let label = attachment.text.uppercased()
+        let label = attachment.blockName.uppercased()
         let colorMessage = NSAttributedString(string: label, attributes: [.foregroundColor: textColor])
         
         let textRect = colorMessage.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
@@ -70,7 +70,7 @@ extension GutenblockAttachmentRenderer: TextViewAttachmentImageProvider {
 
 // MARK: - Constants
 //
-extension GutenblockAttachmentRenderer {
+extension GutenpackAttachmentRenderer {
     
     struct Constants {
         static let defaultDashCount = CGFloat(8.0)

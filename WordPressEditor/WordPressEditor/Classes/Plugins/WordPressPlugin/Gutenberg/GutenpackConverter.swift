@@ -15,21 +15,22 @@ public class GutenpackConverter: ElementConverter {
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
         
         precondition(element.type == .gutenpack)
-        
-        let attachment = HTMLAttachment()
+
         let decoder = GutenbergAttributeDecoder()
-        if let content = decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element) {
-            attachment.rawHTML = String(content[content.startIndex ..< content.index(before: content.endIndex)])
-            attachment.rootTagName = String(content.trimmingCharacters(in: .whitespacesAndNewlines).prefix(while: { (char) -> Bool in
-                char != " "
-            }))
-        } else {
+        guard let content = decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element) else {
             let serializer = HTMLSerializer()
+            let attachment = HTMLAttachment()
             attachment.rootTagName = element.name
             attachment.rawHTML = serializer.serialize(element)
+            return NSAttributedString(attachment: attachment, attributes: attributes)
         }
 
-            return NSAttributedString(attachment: attachment, attributes: attributes)
+        let blockContent = String(content[content.startIndex ..< content.index(before: content.endIndex)])
+        let blockName = String(content.trimmingCharacters(in: .whitespacesAndNewlines).prefix(while: { (char) -> Bool in
+            char != " "
+        }))
+        let attachment = GutenpackAttachment(name: blockName, content: blockContent)
+        return NSAttributedString(attachment: attachment, attributes: attributes)
     }
         
 }
