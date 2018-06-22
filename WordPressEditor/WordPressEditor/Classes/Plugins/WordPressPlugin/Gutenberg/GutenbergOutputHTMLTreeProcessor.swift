@@ -31,13 +31,10 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
         
         let openingComment = gutenbergOpener(for: gutenblock)
         let containedNodes = gutenblock.children
+        let closingComment = gutenbergCloser(for: gutenblock)
+        let closingNewline = TextNode(text: "\n")
 
-        var result = [openingComment] + containedNodes
-        if let closingComment = gutenbergCloser(for: gutenblock) {
-            let closingNewline = TextNode(text: "\n")
-            result += [closingComment, closingNewline]
-        }
-        return result
+        return [openingComment] + containedNodes + [closingComment, closingNewline]
     }
     
     private func process(gutenpack: ElementNode) -> [Node] {
@@ -105,9 +102,9 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
 
 private extension GutenbergOutputHTMLTreeProcessor {
     
-    func gutenbergCloser(for element: ElementNode) -> CommentNode? {
+    func gutenbergCloser(for element: ElementNode) -> CommentNode {
         guard let closer = gutenblockCloserData(for: element) else {
-            return nil
+            fatalError("There's no scenario in which this information missing can make sense.  Review the logic.")
         }
         
         return CommentNode(text: closer)
