@@ -43,26 +43,27 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
         while let (relativeOpenerOffset, opener) = self.nextOpener(in: openerSlice) {
             let openerOffset = openerSlice.startIndex + relativeOpenerOffset
             
+            // Any nodes before the first opener found are immediately added to the results.
             result += nodes[openerSlice.startIndex ..< openerOffset]
             
             let nextOffset = openerOffset + 1
             let closerSlice = nodes[nextOffset ..< nodes.count]
             
             guard let (relativeCloserOffset, closer) = nextCloser(in: closerSlice, forOpener: opener) else {
+                // If a closer is not found, we just add teh opener as a regular comment block
+                // and continue from the following offset (opener offset + 1).
                 result.append(opener)
                 openerSlice = closerSlice
                 
                 continue
             }
             
+            // If a closer is found, we create a Gutenblock and wrap all nodes between the opener and the closer.
             let closerOffset = closerSlice.startIndex + relativeCloserOffset
-            
-            let attributes = openerAttributes(for: opener) + closerAttributes(for: closer)
-            let children = [Node](nodes[closerSlice.startIndex ..< closerOffset])
-            let gutenblock = ElementNode(type: .gutenblock, attributes: attributes, children: children)
+            let children = nodes[closerSlice.startIndex ..< closerOffset]
+            let gutenblock = self.gutenblock(wrapping: children, opener: opener, closer: closer)
             
             result.append(gutenblock)
-            
             openerSlice = nodes[closerOffset + 1 ..< nodes.count]
         }
         
@@ -83,6 +84,14 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
 // MARK: - Gutenblock pairing logic
 
 private extension GutenbergInputHTMLTreeProcessor {
+    private func gutenblock(wrapping nodes: ArraySlice<Node>, opener: CommentNode, closer: CommentNode) -> ElementNode {
+        let attributes = openerAttributes(for: opener) + closerAttributes(for: closer)
+        let children = [Node](nodes)
+        let gutenblock = ElementNode(type: .gutenblock, attributes: attributes, children: children)
+        
+        return gutenblock
+    }
+    
     private func nextOpener(in nodes: ArraySlice<Node>) -> OpenerMatch? {
         for (index, node) in nodes.enumerated() {
             guard let commentNode = node as? CommentNode,
