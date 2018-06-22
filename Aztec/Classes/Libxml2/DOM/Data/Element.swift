@@ -31,8 +31,6 @@ public struct Element: RawRepresentable, Hashable {
     /// List of block level elements that can be merged but only when they have a single children that is also mergeable
     ///
     public static var mergeableBlocklevelElementsSingleChildren =  Set<Element>()
-    
-    public static var mergeableBlockLevelElementWithoutBlockLevelChildren = Set<Element>([.figure, .pre])
 
     // MARK: - Initializers
     

@@ -147,7 +147,11 @@ private extension AttributedStringParser {
 
     /// Defines a pair of Nodes that can be merged
     ///
-    typealias MergeablePair = (left: ElementNode, right: ElementNode)
+    private struct MergeablePair {
+        let left: ElementNode
+        let right: ElementNode
+        let preformatted: Bool
+    }
 
 
     /// Sets Up a collection of Nodes and Leaves as a chain of Parent-Children, and returns the root node.and
@@ -163,19 +167,25 @@ private extension AttributedStringParser {
 
     /// Finds the Deepest node that can be merged "Right to Left", and returns the Left / Right matching touple, if any.
     ///
-    func findMergeableNodes(left: [ElementNode], right: [ElementNode], blocklevelEnforced: Bool = true) -> [MergeablePair]? {
+    private func findMergeableNodes(left leftElements: [ElementNode], right rightElements: [ElementNode], blocklevelEnforced: Bool = true) -> [MergeablePair]? {
         var currentIndex = 0
         var matching = [MergeablePair]()
+        var preformatted = false
 
-        while currentIndex < left.count && currentIndex < right.count {
-            let left = left[currentIndex]
-            let right = right[currentIndex]
+        while currentIndex < leftElements.count && currentIndex < rightElements.count {
+            let left = leftElements[currentIndex]
+            let right = rightElements[currentIndex]
 
             guard canMergeNodes(left:left, right: right, blocklevelEnforced: blocklevelEnforced) else {
                 break
             }
+            
+            if left.type == .pre {
+                // Once we find a `<pre>` node, all children become preformatted.
+                preformatted = true
+            }
 
-            let pair = MergeablePair(left: left, right: right)
+            let pair = MergeablePair(left: left, right: right, preformatted: preformatted)
             matching.append(pair)
             currentIndex += 1
         }
@@ -363,14 +373,14 @@ private extension AttributedStringParser {
             return false
         }
 
-        guard let (leftMerger, rightMerger) = mergeablePair(from: mergeableCandidates) else {
+        guard let mergeablePair = mergeablePair(from: mergeableCandidates) else {
             return false
         }
 
         // Pre has a custom joining logic because it joins different paragraphs without removing the paragraph separator.
-        let junctureNodes: [Node] = leftMerger.type == .pre ? [TextNode(text: String(.paragraphSeparator))] : []
+        let junctureNodes: [Node] = mergeablePair.preformatted ? [TextNode(text: String(.paragraphSeparator))] : []
         
-        leftMerger.children = leftMerger.children + junctureNodes + rightMerger.children
+        mergeablePair.left.children = mergeablePair.left.children + junctureNodes + mergeablePair.right.children
 
         return true
     }
@@ -384,15 +394,17 @@ private extension AttributedStringParser {
     private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
         assert(mergeableNodes.count > 0)
         
-        guard let lastNode = mergeableNodes.last?.left else {
+        guard let lastMergeablePair = mergeableNodes.last else {
             return nil
         }
         
-        let lastNodeName = lastNode.name
-
+        let lastNodeName = lastMergeablePair.left.name
         var mergeCandidates: ArraySlice<MergeablePair>
         
-        if Element.mergeableBlockLevelElementWithoutBlockLevelChildren.contains(lastNode.type) {
+        // Whenever the last mergeable nodes are preformatted (either because they're `<pre>` or a child
+        // of a `<pre>` element), they can be merged without dropping the last mergeable pair.  This is because
+        // they'll be joined with an actual paragraph separator character.
+        if lastMergeablePair.preformatted || lastMergeablePair.left.type == .figure {
             mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
         } else {
             mergeCandidates = mergeableNodes.dropLast()

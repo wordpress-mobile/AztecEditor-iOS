@@ -1019,6 +1019,27 @@ class AttributedStringParserTests: XCTestCase {
         
         XCTAssertEqual(textNode.text(), captionText)
     }
+    
+    // MARK: - Pre
+    
+    func testPreParagraphsAreMergedRight() {
+        let formatter = PreFormatter(monospaceFont: UIFont.systemFont(ofSize: 14.0), placeholderAttributes: [:])
+        let attributes = formatter.apply(to: Constants.sampleAttributes)
+        let string = NSMutableAttributedString(string: "Hello 🌍!\nHello 🌎!", attributes: attributes)
+        
+        let rootNode = AttributedStringParser().parse(string)
+        XCTAssertEqual(rootNode.children.count, 1)
+        
+        guard let pre = rootNode.firstChild(ofType: .pre) else {
+            XCTFail()
+            return
+        }
+        
+        // Aztec normalizes newlines to paragraph separators.
+        let expected = string.string.replacingOccurrences(of: "\n", with: String(.paragraphSeparator))
+        
+        XCTAssertEqual(pre.rawText(), expected)
+    }
 }
 
 // MARK: - Helpers

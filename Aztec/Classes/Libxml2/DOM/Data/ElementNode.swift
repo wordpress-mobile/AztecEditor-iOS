@@ -317,6 +317,12 @@ public class ElementNode: Node {
 
         return siblingNode as? T
     }
+    
+    override public func rawText() -> String {
+        return children.reduce("", { (previous, node) -> String in
+            return previous + node.rawText()
+        })
+    }
 }
 
 
