@@ -27,6 +27,8 @@ public protocol RenderableAttachmentDelegate: class {
     func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage?
 }
 
+/// Protocol to mark attachments object that are renderable through the delegate interface.
+///
 public protocol RenderableAttachment: class {
 
     var delegate: RenderableAttachmentDelegate? {get set}
