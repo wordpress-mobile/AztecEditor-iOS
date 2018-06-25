@@ -20,6 +20,10 @@ public struct Element: RawRepresentable, Hashable {
     /// Ref. http://w3c.github.io/html/syntax.html#void-elements
     ///
     public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
+    
+    /// This should hardly be anything other than .pre, but has been made customizable anyway.
+    ///
+    public static var preformattedElements: [Element] = [.pre]
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///

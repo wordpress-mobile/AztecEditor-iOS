@@ -29,8 +29,8 @@ public class HTMLConverter {
     
     // MARK: - Converters: AttributedString -> HTML
     
-    private(set) lazy var attributedStringToTree: AttributedStringParser = {
-        return AttributedStringParser(customizer: pluginManager)
+    private(set) lazy var attributedStringToTree: NewAttributedStringParser = {
+        return NewAttributedStringParser(customizer: pluginManager)
     }()
     
     private(set) lazy var treeToHTML: HTMLSerializer = {
