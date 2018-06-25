@@ -3,6 +3,8 @@ import Foundation
 
 public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
     
+    private let decoder = GutenbergAttributeDecoder()
+
     public init() {}
     
     public func process(_ rootNode: RootNode) {
@@ -129,17 +131,14 @@ private extension GutenbergOutputHTMLTreeProcessor {
     // MARK: - Gutenberg HTML Attribute Data
     
     private func gutenblockCloserData(for element: ElementNode) -> String? {
-        let decoder = GutenbergAttributeDecoder()
         return decoder.decodedAttribute(named: GutenbergAttributeNames.blockCloser, from: element)
     }
     
     private func gutenblockOpenerData(for element: ElementNode) -> String? {
-        let decoder = GutenbergAttributeDecoder()
         return decoder.decodedAttribute(named: GutenbergAttributeNames.blockOpener, from: element)
     }
     
-    private func gutenblockSelfCloserData(for element: ElementNode) -> String? {
-        let decoder = GutenbergAttributeDecoder()
+    private func gutenblockSelfCloserData(for element: ElementNode) -> String? {        
         return decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element)
     }
 }
