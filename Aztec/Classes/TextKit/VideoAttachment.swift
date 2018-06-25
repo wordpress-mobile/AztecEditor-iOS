@@ -22,6 +22,8 @@ open class VideoAttachment: MediaAttachment {
     /// Creates a new attachment
     ///
     /// - parameter identifier: An unique identifier for the attachment
+    /// - parameter srcURL: the url for the video to display
+    /// - parameter posterURL: the url for a poster image for the video
     ///
     required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil) {
         super.init(identifier: identifier, url: srcURL)
