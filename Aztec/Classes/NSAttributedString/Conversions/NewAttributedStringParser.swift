@@ -35,14 +35,6 @@ class NewAttributedStringParser {
     }
     
     // MARK: - Parsing
-    
-    private func append(_ nodes: [Node], to conversions: [ParagraphPropertyConversion]) {
-        precondition(conversions.count > 0)
-        
-        let lastConversion = conversions.last!
-        
-        lastConversion.elementNode.children.append(contentsOf: nodes)
-    }
 
     /// Parses an attributed string and returns the corresponding HTML tree.
     ///
@@ -472,6 +464,21 @@ private extension NewAttributedStringParser {
 // MARK: - Paragraph Properties Conversion
 //
 extension NewAttributedStringParser {
+    
+    /// Appends the provided nodes to the last element in a list of conversions.
+    /// Used mainly for adding sub-paragraph style nodes.
+    ///
+    /// - Parameters:
+    ///     - nodes: the nodes to append
+    ///     - conversions: the conversions to append the nodes to.
+    ///
+    private func append(_ nodes: [Node], to conversions: [ParagraphPropertyConversion]) {
+        precondition(conversions.count > 0)
+        
+        let lastConversion = conversions.last!
+        
+        lastConversion.elementNode.children.append(contentsOf: nodes)
+    }
     
     /// Converts paragraph properties
     ///
