@@ -31,6 +31,14 @@ class AttributedStringParser {
         VideoAttachmentToElementConverter(),
     ]
     
+    // MARK: - Internal Data Structures
+    
+    private struct ParagraphPropertyConversion {
+        let property: ParagraphProperty
+        let elementNode: ElementNode
+        let preformatted: Bool
+    }
+    
     // MARK: - Parsing
 
     /// Parses an attributed string and returns the corresponding HTML tree.
@@ -42,23 +50,34 @@ class AttributedStringParser {
     ///
     func parse(_ attrString: NSAttributedString) -> RootNode {
         var nodes = [Node]()
-        var previous: [Node]?
+        var previousParagraphConversions = [ParagraphPropertyConversion]()
+        
+        /// This internal mini-method just "submits" the previous conversions.
+        /// It appends the root element from that conversion into the result.
+        func submitPreviousConversions() {
+            if let firstConversion = previousParagraphConversions.first {
+                nodes.append(firstConversion.elementNode)
+            }
+        }
 
         attrString.enumerateParagraphRanges(spanning: attrString.rangeOfEntireString) { (paragraphRange, enclosingRange) in
-            let children = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
-
-            if let previous = previous {
-                let left = rightmostParagraphStyleElements(from: previous)
-                let right = leftmostParagraphStyleElements(from: children)
-
-                guard !merge(left: left, right: right) else {
-                    return
-                }
+            
+            let attributes = attrString.attributes(at: paragraphRange.location, effectiveRange: nil)
+            let paragraphStyle = attributes.paragraphStyle()
+            
+            if let mergedConversions = merge(paragraphStyle.properties, into: previousParagraphConversions) {
+                previousParagraphConversions = mergedConversions
+            } else {
+                submitPreviousConversions()
+                
+                previousParagraphConversions = convert(ArraySlice(paragraphStyle.properties))
             }
-
-            nodes += children
-            previous = children
+            
+            let styleNodes = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
+            append(styleNodes, to: previousParagraphConversions)
         }
+        
+        submitPreviousConversions()
 
         return RootNode(children: nodes)
     }
@@ -112,10 +131,7 @@ class AttributedStringParser {
             branches.append(branch)
         }
 
-        let paragraphNodes = createParagraphNodes(from: paragraph)
-        let processedBranches = process(branches: branches)
-
-        return reduce(nodes: paragraphNodes, leaves: processedBranches)
+        return process(branches: branches)
     }
 
 
@@ -126,7 +142,7 @@ class AttributedStringParser {
     /// - Returns: Array of Node instances.
     ///
     private func createNodes(from attributes: [NSAttributedStringKey: Any]) -> [Node] {
-        let nodes = createParagraphNodes(from: attributes) + createStyleNodes(from: attributes)
+        let nodes = createStyleNodes(from: attributes)
 
         return nodes.reversed().reduce([]) { (result, node) in
             node.children = result
@@ -365,126 +381,229 @@ private extension AttributedStringParser {
 // MARK: - Merge: Paragraphs
 //
 private extension AttributedStringParser {
-
-    /// Attempts to merge the Right array of Element Nodes (Paragraph Level) into the Left array of Nodes.
+    
+    /// Tries to merge an array of properties with the (property -> elementNode) conversions form the previous paragraph.
     ///
-    func merge(left: [ElementNode], right: [ElementNode]) -> Bool {
-        guard let mergeableCandidates = findMergeableNodes(left: left, right: right) else {
-            return false
+    /// - Parameters:
+    ///     - newProperties: the properties from the paragraph being converted.
+    ///     - previousConversions: the conversions used for the previous paragraph.
+    ///
+    /// -Returns: `nil` if no previous conversion can be re-used.
+    ///
+    private func merge(_ newProperties: [ParagraphProperty], into previousConversions: [ParagraphPropertyConversion]) -> [ParagraphPropertyConversion]? {
+        guard let mergeableConversions = self.mergeableConversions(from: previousConversions, for: newProperties),
+            let lastMergeableElementNode = mergeableConversions.last?.elementNode else {
+                return nil
         }
-
-        guard let mergeablePair = mergeablePair(from: mergeableCandidates) else {
-            return false
-        }
-
-        // Pre has a custom joining logic because it joins different paragraphs without removing the paragraph separator.
-        let junctureNodes: [Node] = mergeablePair.preformatted ? [TextNode(text: String(.paragraphSeparator))] : []
         
-        mergeablePair.left.children = mergeablePair.left.children + junctureNodes + mergeablePair.right.children
-
-        return true
+        let unmergeableConversions: [ParagraphPropertyConversion]
+        
+        if mergeableConversions.count < newProperties.count {
+            let firstUnmergedIndex = mergeableConversions.count
+            
+            unmergeableConversions = convert(newProperties[firstUnmergedIndex ..< newProperties.count])
+        } else {
+            unmergeableConversions = []
+        }
+        
+        if let firstUnmergeableElementNode = unmergeableConversions.first?.elementNode {
+            lastMergeableElementNode.children.append(firstUnmergeableElementNode)
+        }
+        
+        return mergeableConversions + unmergeableConversions
     }
-
-
-    /// Finds the last valid Mergeable Pair within a collection of mergeable nodes
+    
+    /// Calculates which previous conversions can be merged for the new properties.
     ///
-    /// - Last LI item is never merged
-    /// - Last 'Mergeable' element is never merged (ie. <h1>Hello\nWorld</h1> >> <h1>Hello</h1><h1>World</h1>
-    ///
-    private func mergeablePair(from mergeableNodes: [MergeablePair]) -> MergeablePair? {
-        assert(mergeableNodes.count > 0)
+    private func mergeableConversions(from previousConversions: [ParagraphPropertyConversion], for newProperties: [ParagraphProperty]) -> ArraySlice<ParagraphPropertyConversion>? {
         
-        guard let lastMergeablePair = mergeableNodes.last else {
+        var lastMergeableIndex = -1
+        
+        for (index, conversion) in previousConversions.enumerated() {
+            guard newProperties.count > index else {
+                break
+            }
+            
+            let previousProperty = conversion.property
+            let newProperty = newProperties[index]
+            
+            guard newProperty.isEqual(previousProperty) else {
+                break
+            }
+            
+            lastMergeableIndex = index
+        }
+        
+        guard lastMergeableIndex >= 0 else {
             return nil
         }
         
-        let lastNodeName = lastMergeablePair.left.name
-        var mergeCandidates: ArraySlice<MergeablePair>
+        let mergeableCount = lastMergeableIndex + 1
         
-        // Whenever the last mergeable nodes are preformatted (either because they're `<pre>` or a child
-        // of a `<pre>` element), they can be merged without dropping the last mergeable pair.  This is because
-        // they'll be joined with an actual paragraph separator character.
-        if lastMergeablePair.preformatted || lastMergeablePair.left.type == .figure {
-            mergeCandidates = ArraySlice<MergeablePair>(mergeableNodes)
-        } else {
-            mergeCandidates = mergeableNodes.dropLast()
-            
-            if let last = mergeCandidates.last,
-                Element.mergeableBlocklevelElementsSingleChildren.contains(last.left.type) {
-                
-                mergeCandidates = mergeCandidates.dropLast()
+        // There are certain scenarios in which the last block-level element that's mergeable has to remain unmerged.
+        //
+        // The first way to represent a newline (a paragraph interruption) in HTML is by interrupting the "lowest" / "last"
+        // block-level element in a tree.
+        //
+        // As an alternative, preformatted blocks don't need to be broken because they respect their whitespace.  This means
+        // that a regular newline character is enough to break the paragraph.
+        //
+        let canKeepLastConversion =
+            mergeableCount < previousConversions.count // If the previous conversions have a block-level child, we can avoid breaking
+                || mergeableCount < newProperties.count // If the current conversions have a block-level child, we can avoid breaking
+                || previousConversions[lastMergeableIndex].preformatted // Preformatted blocks can be broken by a regular newline character
+        
+        if !canKeepLastConversion {
+            guard lastMergeableIndex > 0 else {
+                return nil
             }
-        }
-
-        if lastNodeName != Element.li.rawValue {
-            mergeCandidates = prefix(upToLast: Element.li.rawValue, from: mergeCandidates)
+            
+            lastMergeableIndex -= 1
         }
         
-        return mergeCandidates.last
-    }
-
-
-    /// Slices the specified array until the last LI node. For instance:
-    ///
-    /// - Input: [.ul, .li, .h1]
-    ///
-    /// - Output: [.ul]
-    ///
-    private func prefix(upToLast name: String, from nodes: ArraySlice<MergeablePair>) -> ArraySlice<MergeablePair> {
-        var lastItemIndex: Int?
-        for (index, node) in nodes.enumerated().reversed() where node.left.name == name {
-            lastItemIndex = index
-            break
-        }
-
-        guard let sliceIndex = lastItemIndex else {
-            return nodes
-        }
-
-        return nodes[0..<sliceIndex]
+        return previousConversions.prefix(through: lastMergeableIndex)
     }
 }
 
 
-// MARK: - Paragraph Nodes Extraction
+// MARK: - Paragraph Properties Conversion
 //
 extension AttributedStringParser {
-
-    /// Returns the "Rightmost" Blocklevel Node from a collection fo nodes.
+    
+    /// Appends the provided nodes to the last element in a list of conversions.
+    /// Used mainly for adding sub-paragraph style nodes.
     ///
-    func rightmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.last
-        }
+    /// - Parameters:
+    ///     - nodes: the nodes to append
+    ///     - conversions: the conversions to append the nodes to.
+    ///
+    private func append(_ nodes: [Node], to conversions: [ParagraphPropertyConversion]) {
+        precondition(conversions.count > 0)
+        
+        let lastConversion = conversions.last!
+        
+        lastConversion.elementNode.children.append(contentsOf: nodes)
     }
-
-
-    /// Returns the "Leftmost" Blocklevel Node from a collection fo nodes.
+    
+    /// Converts paragraph properties
     ///
-    func leftmostParagraphStyleElements(from nodes: [Node]) -> [ElementNode] {
-        return paragraphStyleElements(from: nodes) { children in
-            return children.first
-        }
-    }
-
-
-    /// Returns a children Blocklevel Node from a collection of nodes, using a Child Picker to determine the
-    /// navigational-direction.
+    /// - Parameters:
+    ///     - properties: the properties to convert.
     ///
-    private func paragraphStyleElements(from nodes: [Node], childPicker: (([Node]) -> Node?)) -> [ElementNode] {
-        var elements = [ElementNode]()
-        var nextElement = childPicker(nodes) as? ElementNode
-
-        while let currentElement = nextElement {
-            guard currentElement.isBlockLevel() else {
-                break
+    /// - Returns: the conversions for the provided properties.
+    ///
+    private func convert(_ properties: ArraySlice<ParagraphProperty>) -> [ParagraphPropertyConversion] {
+        var preformatted = false
+        var parentElementNode: ElementNode?
+        
+        /// Updates the parent.
+        ///
+        func updateParent(for elementNode: ElementNode) {
+            defer {
+                // No matter what exit point we take, the provided element will
+                // be set as the parent after this method is executed.
+                parentElementNode = elementNode
             }
-
-            elements.append(currentElement)
-            nextElement = childPicker(currentElement.children) as? ElementNode
+            
+            guard let previousParentElementNode = parentElementNode else {
+                return
+            }
+            
+            previousParentElementNode.children.append(elementNode)
         }
-
-        return elements
+        
+        let conversions = properties.compactMap({ (property) -> ParagraphPropertyConversion? in
+            guard let conversion = convert(property, preformatted: &preformatted) else {
+                return nil
+            }
+            
+            updateParent(for: conversion.elementNode)
+            return conversion
+        })
+        
+        // We don't allow not having at least 1 block-level element, so we enforce a
+        // paragraph element in that case.
+        guard conversions.count > 0 else {
+            let defaultConversion = ParagraphPropertyConversion(property: HTMLParagraph(with: nil), elementNode: ElementNode(type: .p), preformatted: false)
+            return [defaultConversion]
+        }
+        
+        return conversions
+    }
+    
+    /// Converts a paragraph property.
+    ///
+    /// - Parameters:
+    ///     - property: the property to convert.
+    ///     - preformatted: whether the property is preformatted, or a child of a preformatted property.
+    ///
+    /// - Returns: the conversion.
+    ///
+    private func convert(_ property: ParagraphProperty, preformatted: inout Bool) -> ParagraphPropertyConversion? {
+        guard let elementNode = convert(property) else {
+            return nil
+        }
+        
+        preformatted = Element.preformattedElements.contains(elementNode.type)
+        
+        return ParagraphPropertyConversion(property: property, elementNode: elementNode, preformatted: preformatted)
+    }
+    
+    /// Converts a paragraph property into an `ElementNode`.
+    ///
+    /// - Parameters:
+    ///     - property: the property to convert.
+    ///
+    /// - Returns: an `ElementNode` to represent the property.
+    ///
+    private func convert(_ property: ParagraphProperty) -> ElementNode? {
+        // The customizer overrides any default behaviour, which is the reason why it's run first.
+        if let element = customizer?.convert(property) {
+            return element
+        }
+        
+        switch property {
+        case let blockquote as Blockquote:
+            let element = processBlockquoteStyle(blockquote: blockquote)
+            return element
+            
+        case let figcaption as Figcaption:
+            let element = processFigcaptionStyle(figcaption: figcaption)
+            return element
+            
+        case let figure as Figure:
+            let element = processFigureStyle(figure: figure)
+            return element
+            
+        case let header as Header:
+            guard let element = processHeaderStyle(header: header) else {
+                return nil
+            }
+            return element
+            
+        case let list as TextList:
+            let element = processListStyle(list: list)
+            return element
+            
+        case let listItem as HTMLLi:
+            let element = processListItem(listItem: listItem)
+            return element
+            
+        case let div as HTMLDiv:
+            let element = processDivStyle(div: div)
+            return element
+            
+        case let paragraph as HTMLParagraph:
+            let element = processParagraphStyle(paragraph: paragraph)
+            return element
+            
+        case let pre as HTMLPre:
+            let element = processPreStyle(pre: pre)
+            return element
+            
+        default:
+            return nil
+        }
     }
 }
 
@@ -492,136 +611,6 @@ extension AttributedStringParser {
 // MARK: - Paragraph Nodes: Allocation
 //
 private extension AttributedStringParser {
-
-    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
-    ///
-    /// - Parameters:
-    ///     - attrString: Paragraph's AttributedString from which we intend to extract the ElementNode
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    func createParagraphNodes(from paragraph: NSAttributedString) -> [ElementNode] {
-        let paragraphStyle = (paragraph.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle) ?? ParagraphStyle()
-
-        return createParagraphNodes(from: paragraphStyle)
-    }
-
-
-    /// Extracts the ElementNodes contained within a Paragraph's AttributedString.
-    ///
-    /// - Parameters:
-    ///     - attributes: Paragraph's Attributes from which we intend to extract the ElementNode
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    func createParagraphNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
-        let paragraphStyle = (attributes[.paragraphStyle] as? ParagraphStyle) ?? ParagraphStyle()
-
-        return createParagraphNodes(from: paragraphStyle)
-    }
-
-
-    /// Extracts the ElementNodes contained within a ParagraphStyle Instance.
-    ///
-    /// - Parameters:
-    ///     - paragraphStyle: ParagraphStyle from which we intend to extract the ElementNode
-    ///
-    /// - Returns: ElementNode representing the specified Paragraph.
-    ///
-    private func createParagraphNodes(from paragraphStyle: ParagraphStyle) -> [ElementNode] {
-        let extraAttributes = attributes(for: paragraphStyle)
-        
-        // If we're unable to find any paragraph-level styles, we return an HTML paragraph element as
-        // default.  The reason behind this decision is that no text can exist outside block-level
-        // elements in Aztec.
-        //
-        // See here for more info:
-        // https://github.com/wordpress-mobile/AztecEditor-iOS/issues/667
-        //
-        guard paragraphStyle.properties.count > 0 else {
-            return [ElementNode(type: .p, attributes: extraAttributes)]
-        }
-        
-        var paragraphNodes = [ElementNode]()
-        
-        for property in paragraphStyle.properties.reversed() {
-            
-            // The customizer overrides any default behaviour, which is the reason why it's run first.
-            if let element = customizer?.convert(property) {
-                paragraphNodes.append(element)
-                continue
-            }
-            
-            switch property {
-            case let blockquote as Blockquote:
-                let element = processBlockquoteStyle(blockquote: blockquote)
-                paragraphNodes.append(element)
-                
-            case let figcaption as Figcaption:
-                let element = processFigcaptionStyle(figcaption: figcaption)
-                paragraphNodes.append(element)
-
-            case let figure as Figure:
-                let element = processFigureStyle(figure: figure)
-                paragraphNodes.append(element)
-                
-            case let header as Header:
-                guard let element = processHeaderStyle(header: header) else {
-                    continue
-                }
-                paragraphNodes.append(element)
-
-            case let list as TextList:
-                let element = processListStyle(list: list)
-                paragraphNodes.append(element)
-
-            case let listItem as HTMLLi:
-                let element = processListItem(listItem: listItem)
-                paragraphNodes.append(element)
-
-            case let div as HTMLDiv:
-                let element = processDivStyle(div: div)
-                paragraphNodes.append(element)
-
-            case let paragraph as HTMLParagraph:
-                let element = processParagraphStyle(paragraph: paragraph)
-                paragraphNodes.append(element)
-
-            case let pre as HTMLPre:
-                let element = processPreStyle(pre: pre)
-                paragraphNodes.append(element)
-
-            default:
-                continue
-            }
-        }
-        
-        if let lastElement = paragraphNodes.last {
-            lastElement.attributes.append(contentsOf: extraAttributes)
-        }
-        
-        return paragraphNodes
-    }
-    
-    /// Processes the paragraph style to figure out the attributes that will be applied to the outermost Element
-    /// produced from it.
-    ///
-    /// - Parameters:
-    ///     - paragraphStyle: the paragraph style to process.
-    ///
-    /// - Returns: any attributes necessary to represent the paragraph values.
-    ///
-    private func attributes(for paragraphStyle: ParagraphStyle) -> [Attribute] {
-        var attributes = [Attribute]()
-        
-        if paragraphStyle.baseWritingDirection == .rightToLeft {
-            let rtlAttribute = Attribute(name: "dir", value: .string("rtl"))
-            
-            attributes.append(rtlAttribute)
-        }
-        
-        return attributes
-    }
 
 
     /// Extracts all of the Blockquote Elements contained within a collection of Attributes.
