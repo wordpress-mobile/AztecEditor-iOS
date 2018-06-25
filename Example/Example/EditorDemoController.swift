@@ -1044,36 +1044,21 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
                                                      completionHandler: { (time, cgImage, actualTime, result, error) in
                                                         guard let cgImage = cgImage else {
-                                                            onError()
+                                                            DispatchQueue.main.async {
+                                                                onError()
+                                                            }
                                                             return
                                                         }
                                                         let image = UIImage(cgImage: cgImage)
-                                                        onCompletion(image)
+                                                        DispatchQueue.main.async {
+                                                            onCompletion(image)
+                                                        }
             })
         }
     }
 
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
-        var urlToRequest = url
-        if let videoAttachment = attachment as? VideoAttachment {
-            if let posterURL = videoAttachment.posterURL {
-                urlToRequest = posterURL
-            } else {
-                // Let's get a frame from the video directly
-                exportPreviewImageForVideo(atURL: url, onCompletion: { (image) in
-                    DispatchQueue.main.async {
-                        success(image)
-                    }
-                }, onError: {
-                    DispatchQueue.main.async {
-                    failure()
-                    }
-                })
-                return
-            }
-        }
-
-        let task = URLSession.shared.dataTask(with: urlToRequest) { [weak self] (data, _, error) in
+    func downloadImage(from url: URL, success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
             DispatchQueue.main.async {
                 guard self != nil else {
                     return
@@ -1089,6 +1074,25 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         }
 
         task.resume()
+    }
+
+    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+
+        switch attachment {
+        case let videoAttachment as VideoAttachment:
+            guard let posterURL = videoAttachment.posterURL else {
+                // Let's get a frame from the video directly
+                exportPreviewImageForVideo(atURL: url, onCompletion: success, onError: failure)
+                return
+            }
+            downloadImage(from: posterURL, success: success, onFailure: failure)
+        case let imageAttachment as ImageAttachment:
+            if let imageURL = imageAttachment.url {
+                downloadImage(from: imageURL, success: success, onFailure: failure)
+            }
+        default:
+            failure()
+        }
     }
 
     func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
