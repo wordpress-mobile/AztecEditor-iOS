@@ -1034,22 +1034,21 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
 
-        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
-            DispatchQueue.main.async {
-                guard self != nil else {
-                    return
-                }
-
-                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
-                    failure()
-                    return
-                }
-
-                success(image)
+        switch attachment {
+        case let videoAttachment as VideoAttachment:
+            guard let posterURL = videoAttachment.posterURL else {
+                // Let's get a frame from the video directly
+                exportPreviewImageForVideo(atURL: url, onCompletion: success, onError: failure)
+                return
             }
+            downloadImage(from: posterURL, success: success, onFailure: failure)
+        case let imageAttachment as ImageAttachment:
+            if let imageURL = imageAttachment.url {
+                downloadImage(from: imageURL, success: success, onFailure: failure)
+            }
+        default:
+            failure()
         }
-
-        task.resume()
     }
 
     func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
@@ -1057,7 +1056,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
     }
 
     func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
-        let imageSize = CGSize(width:32, height:32)
+        let imageSize = CGSize(width:64, height:64)
         let placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
@@ -1232,6 +1231,54 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
     }
 }
 
+// MARK: - Media fetch methods
+//
+private extension EditorDemoController {
+
+    func exportPreviewImageForVideo(atURL url: URL, onCompletion: @escaping (UIImage) -> (), onError: @escaping () -> ()) {
+        DispatchQueue.global(qos: .background).async {
+            let asset = AVURLAsset(url: url)
+            guard asset.isExportable else {
+                onError()
+                return
+            }
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
+                                                     completionHandler: { (time, cgImage, actualTime, result, error) in
+                                                        guard let cgImage = cgImage else {
+                                                            DispatchQueue.main.async {
+                                                                onError()
+                                                            }
+                                                            return
+                                                        }
+                                                        let image = UIImage(cgImage: cgImage)
+                                                        DispatchQueue.main.async {
+                                                            onCompletion(image)
+                                                        }
+            })
+        }
+    }
+
+    func downloadImage(from url: URL, success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+            DispatchQueue.main.async {
+                guard self != nil else {
+                    return
+                }
+
+                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
+                    failure()
+                    return
+                }
+
+                success(image)
+            }
+        }
+
+        task.resume()
+    }
+}
 // MARK: - Misc
 //
 private extension EditorDemoController
@@ -1307,7 +1354,7 @@ private extension EditorDemoController
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.srcURL = videoURL
+                videoAttachment.updateURL(videoURL)
             }
         }
         richTextView.refresh(attachment, overlayUpdateOnly: true)
@@ -1351,7 +1398,7 @@ private extension EditorDemoController
                                                 self?.displayDetailsForAttachment(imageAttachment, position: position)
             })
             alertController.addAction(detailsAction)
-        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.srcURL {
+        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.url {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
                                               style: .default,
                                               handler: { [weak self] (action) in
