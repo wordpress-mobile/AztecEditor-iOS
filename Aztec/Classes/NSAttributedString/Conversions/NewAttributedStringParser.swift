@@ -182,14 +182,13 @@ class NewAttributedStringParser {
         
         let mergeableCount = lastMergeableIndex + 1
         
-        // There are certain scenarios in which the last element that's mergeable has to remain unmerged.
-        // The way to represent a newline (a paragraph interruption) is by interrupting the last
-        // block-level HTML element either in the previous conversion or in the current conversions.
-        // So if the last merged block-level element has no block-level element children in either side
-        // it needs to be broken.
+        // There are certain scenarios in which the last block-level element that's mergeable has to remain unmerged.
         //
-        // Also, preformatted blocks don't suffer from this because they respect their whitespace, so adding a
-        // newline character is enough to break the paragraph.
+        // The first way to represent a newline (a paragraph interruption) in HTML is by interrupting the "lowest" / "last"
+        // block-level element in a tree.
+        //
+        // As an alternative, preformatted blocks don't need to be broken because they respect their whitespace.  This means
+        // that a regular newline character is enough to break the paragraph.
         //
         let canKeepLastConversion =
             mergeableCount < previousConversions.count // If the previous conversions have a block-level child, we can avoid breaking
