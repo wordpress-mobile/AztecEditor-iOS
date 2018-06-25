@@ -459,37 +459,8 @@ extension TextStorage: MediaAttachmentDelegate {
     }
 }
 
-
-// MARK: - TextStorage: VideoAttachmentDelegate Methods
-//
-extension TextStorage: VideoAttachmentDelegate {
-
-    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
-        guard let delegate = attachmentsDelegate else {
-            fatalError()
-        }
-
-        return delegate.storage(self, placeholderFor: attachment)
-    }
-
-    func videoAttachment(
-        _ videoAttachment: VideoAttachment,
-        imageForURL url: URL,
-        onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ())
-    {
-        guard let delegate = attachmentsDelegate else {
-            fatalError()
-        }
-
-        delegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
-    }
-}
-
-
-
 // MARK: - TextStorage: RenderableAttachmentDelegate Methods
-
+//
 extension TextStorage: RenderableAttachmentDelegate {
 
     public func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
