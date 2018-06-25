@@ -351,6 +351,15 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    private func enumerateRenderableAttachments(in text: NSAttributedString, range: NSRange? = nil, block: ((RenderableAttachment, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
+        let range = range ?? NSMakeRange(0, length)
+        text.enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
+            if let object = object as? RenderableAttachment {
+                block(object, range, stop)
+            }
+        }
+    }
+
     // MARK: - HTML Interaction
 
     open func getHTML(prettify: Bool = false) -> String {
@@ -378,15 +387,6 @@ open class TextStorage: NSTextStorage {
             attachment.delegate = self
         })
                 
-    }
-
-    private func enumerateRenderableAttachments(in text: NSAttributedString, range: NSRange? = nil, block: ((RenderableAttachment, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
-        let range = range ?? NSMakeRange(0, length)
-        text.enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
-            if let object = object as? RenderableAttachment {
-                block(object, range, stop)
-            }
-        }
     }
 }
 
