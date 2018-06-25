@@ -64,17 +64,15 @@ class AttributedStringParser {
             
             let attributes = attrString.attributes(at: paragraphRange.location, effectiveRange: nil)
             let paragraphStyle = attributes.paragraphStyle()
+            let styleNodes = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
             
-            if let mergedConversions = merge(paragraphStyle.properties, into: previousParagraphConversions) {
+            if let mergedConversions = merge(paragraphStyle.properties, into: previousParagraphConversions, styleNodes: styleNodes) {
                 previousParagraphConversions = mergedConversions
             } else {
                 submitPreviousConversions()
                 
-                previousParagraphConversions = convert(ArraySlice(paragraphStyle.properties))
+                previousParagraphConversions = convert(ArraySlice(paragraphStyle.properties), styleNodes: styleNodes)
             }
-            
-            let styleNodes = createNodes(from: attrString, paragraphRange: paragraphRange, enclosingRange: enclosingRange)
-            append(styleNodes, to: previousParagraphConversions)
         }
         
         submitPreviousConversions()
@@ -390,19 +388,28 @@ private extension AttributedStringParser {
     ///
     /// -Returns: `nil` if no previous conversion can be re-used.
     ///
-    private func merge(_ newProperties: [ParagraphProperty], into previousConversions: [ParagraphPropertyConversion]) -> [ParagraphPropertyConversion]? {
+    private func merge(
+        _ newProperties: [ParagraphProperty],
+        into previousConversions: [ParagraphPropertyConversion],
+        styleNodes: [Node]) -> [ParagraphPropertyConversion]? {
+        
         guard let mergeableConversions = self.mergeableConversions(from: previousConversions, for: newProperties),
-            let lastMergeableElementNode = mergeableConversions.last?.elementNode else {
+            let lastMergeableConversion = mergeableConversions.last else {
                 return nil
         }
         
+        let lastMergeableElementNode = lastMergeableConversion.elementNode
         let unmergeableConversions: [ParagraphPropertyConversion]
         
         if mergeableConversions.count < newProperties.count {
             let firstUnmergedIndex = mergeableConversions.count
             
-            unmergeableConversions = convert(newProperties[firstUnmergedIndex ..< newProperties.count])
+            unmergeableConversions = convert(newProperties[firstUnmergedIndex ..< newProperties.count], styleNodes: styleNodes)
         } else {
+            let paragraphSeparator = TextNode(text: String(.paragraphSeparator))
+            let nodes = [paragraphSeparator] + styleNodes
+            
+            append(nodes, to: mergeableConversions)
             unmergeableConversions = []
         }
         
@@ -477,22 +484,23 @@ extension AttributedStringParser {
     ///     - nodes: the nodes to append
     ///     - conversions: the conversions to append the nodes to.
     ///
-    private func append(_ nodes: [Node], to conversions: [ParagraphPropertyConversion]) {
+    private func append(_ nodes: [Node], to conversions: ArraySlice<ParagraphPropertyConversion>) {
         precondition(conversions.count > 0)
         
         let lastConversion = conversions.last!
         
-        lastConversion.elementNode.children.append(contentsOf: nodes)
+        lastConversion.elementNode.children += nodes
     }
     
     /// Converts paragraph properties
     ///
     /// - Parameters:
     ///     - properties: the properties to convert.
+    ///     - styleNodes: the style nodes.
     ///
     /// - Returns: the conversions for the provided properties.
     ///
-    private func convert(_ properties: ArraySlice<ParagraphProperty>) -> [ParagraphPropertyConversion] {
+    private func convert(_ properties: ArraySlice<ParagraphProperty>, styleNodes: [Node]) -> [ParagraphPropertyConversion] {
         var preformatted = false
         var parentElementNode: ElementNode?
         
@@ -525,9 +533,13 @@ extension AttributedStringParser {
         // paragraph element in that case.
         guard conversions.count > 0 else {
             let defaultConversion = ParagraphPropertyConversion(property: HTMLParagraph(with: nil), elementNode: ElementNode(type: .p), preformatted: false)
+            
+            defaultConversion.elementNode.children += styleNodes
+            
             return [defaultConversion]
         }
         
+        append(styleNodes, to: ArraySlice(conversions))
         return conversions
     }
     

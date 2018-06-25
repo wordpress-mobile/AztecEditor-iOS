@@ -15,6 +15,14 @@ class HTMLLi: ParagraphProperty {
     }
 
     static func ==(lhs: HTMLLi, rhs: HTMLLi) -> Bool {
-        return lhs === rhs
+        return false
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let rightElement = object as? HTMLLi else {
+            return false
+        }
+        
+        return self == rightElement
     }
 }

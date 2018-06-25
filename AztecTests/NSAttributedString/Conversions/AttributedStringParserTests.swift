@@ -619,6 +619,7 @@ class AttributedStringParserTests: XCTestCase {
         TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
         LiFormatter().applyAttributes(to: testingString, at: testingRange)
         BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
+        
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
         XCTAssertEqual(node.children.count, 1)
