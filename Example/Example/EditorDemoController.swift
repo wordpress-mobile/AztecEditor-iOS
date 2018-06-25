@@ -1032,50 +1032,6 @@ extension EditorDemoController {
 
 extension EditorDemoController: TextViewAttachmentDelegate {
 
-    func exportPreviewImageForVideo(atURL url: URL, onCompletion: @escaping (UIImage) -> (), onError: @escaping () -> ()) {
-        DispatchQueue.global(qos: .background).async {
-            let asset = AVURLAsset(url: url)
-            guard asset.isExportable else {
-                onError()
-                return
-            }
-            let generator = AVAssetImageGenerator(asset: asset)
-            generator.appliesPreferredTrackTransform = true
-            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
-                                                     completionHandler: { (time, cgImage, actualTime, result, error) in
-                                                        guard let cgImage = cgImage else {
-                                                            DispatchQueue.main.async {
-                                                                onError()
-                                                            }
-                                                            return
-                                                        }
-                                                        let image = UIImage(cgImage: cgImage)
-                                                        DispatchQueue.main.async {
-                                                            onCompletion(image)
-                                                        }
-            })
-        }
-    }
-
-    func downloadImage(from url: URL, success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
-        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
-            DispatchQueue.main.async {
-                guard self != nil else {
-                    return
-                }
-
-                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
-                    failure()
-                    return
-                }
-
-                success(image)
-            }
-        }
-
-        task.resume()
-    }
-
     func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
 
         switch attachment {
@@ -1275,6 +1231,54 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
     }
 }
 
+// MARK: - Media fetch methods
+//
+private extension EditorDemoController {
+
+    func exportPreviewImageForVideo(atURL url: URL, onCompletion: @escaping (UIImage) -> (), onError: @escaping () -> ()) {
+        DispatchQueue.global(qos: .background).async {
+            let asset = AVURLAsset(url: url)
+            guard asset.isExportable else {
+                onError()
+                return
+            }
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
+                                                     completionHandler: { (time, cgImage, actualTime, result, error) in
+                                                        guard let cgImage = cgImage else {
+                                                            DispatchQueue.main.async {
+                                                                onError()
+                                                            }
+                                                            return
+                                                        }
+                                                        let image = UIImage(cgImage: cgImage)
+                                                        DispatchQueue.main.async {
+                                                            onCompletion(image)
+                                                        }
+            })
+        }
+    }
+
+    func downloadImage(from url: URL, success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+            DispatchQueue.main.async {
+                guard self != nil else {
+                    return
+                }
+
+                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
+                    failure()
+                    return
+                }
+
+                success(image)
+            }
+        }
+
+        task.resume()
+    }
+}
 // MARK: - Misc
 //
 private extension EditorDemoController
