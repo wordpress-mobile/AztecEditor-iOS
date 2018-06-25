@@ -180,15 +180,23 @@ class NewAttributedStringParser {
             return nil
         }
         
-        // If the last element is not preformatted, it needs to be dropped because the only
-        // way to represent a newline (a paragraph interruption) is by interrupting the last
-        // block-level HTML element (or in this case, by not merging it).
+        let mergeableCount = lastMergeableIndex + 1
+        
+        // There are certain scenarios in which the last element that's mergeable has to remain unmerged.
+        // The way to represent a newline (a paragraph interruption) is by interrupting the last
+        // block-level HTML element either in the previous conversion or in the current conversions.
+        // So if the last merged block-level element has no block-level element children in either side
+        // it needs to be broken.
         //
-        // If the last element is preformatted, we can just output a regular newline character,
-        // since it won't be sanitized by the HTML parsers, so there's no need to interrupt the
-        // last block-level element.
+        // Also, preformatted blocks don't suffer from this because they respect their whitespace, so adding a
+        // newline character is enough to break the paragraph.
         //
-        if !previousConversions[lastMergeableIndex].preformatted {
+        let canKeepLastConversion =
+            mergeableCount < previousConversions.count // If the previous conversions have a block-level child, we can avoid breaking
+                || mergeableCount < newProperties.count // If the current conversions have a block-level child, we can avoid breaking
+                || previousConversions[lastMergeableIndex].preformatted // Preformatted blocks can be broken by a regular newline character
+
+        if !canKeepLastConversion {
             guard lastMergeableIndex > 0 else {
                 return nil
             }
