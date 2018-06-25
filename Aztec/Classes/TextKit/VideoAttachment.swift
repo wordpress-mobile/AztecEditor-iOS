@@ -1,16 +1,6 @@
 import Foundation
 import UIKit
 
-protocol VideoAttachmentDelegate: class {
-    func videoAttachment(
-        _ videoAttachment: VideoAttachment,
-        imageForURL url: URL,
-        onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ())
-
-    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage
-}
-
 /// Custom text attachment.
 ///
 open class VideoAttachment: MediaAttachment {
