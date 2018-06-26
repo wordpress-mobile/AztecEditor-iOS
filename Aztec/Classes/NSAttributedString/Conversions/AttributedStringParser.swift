@@ -512,6 +512,12 @@ extension AttributedStringParser {
         return [paragraphSeparator] + nodes
     }
     
+    private func defaultParagraphPropertyConversion(styleNodes: [Node]) -> ParagraphPropertyConversion {
+        let defaultElement = ElementNode(type: .p, attributes: [], children: styleNodes)
+        
+        return ParagraphPropertyConversion(property: HTMLParagraph(with: nil), elementNode: defaultElement, preformatted: false)
+    }
+    
     /// Converts paragraph properties
     ///
     /// - Parameters:
@@ -549,14 +555,9 @@ extension AttributedStringParser {
             return conversion
         })
         
-        // We don't allow not having at least 1 block-level element, so we enforce a
-        // paragraph element in that case.
+        // We don't allow not having at least 1 block-level element.
         guard conversions.count > 0 else {
-            let defaultConversion = ParagraphPropertyConversion(property: HTMLParagraph(with: nil), elementNode: ElementNode(type: .p), preformatted: false)
-            
-            defaultConversion.elementNode.children += styleNodes
-            
-            return [defaultConversion]
+            return [defaultParagraphPropertyConversion(styleNodes: styleNodes)]
         }
         
         append(styleNodes, to: ArraySlice(conversions))
