@@ -330,9 +330,10 @@ class EditorDemoController: UIViewController {
 
     private func registerAttachmentImageProviders() {
         let providers: [TextViewAttachmentImageProvider] = [
+            GutenpackAttachmentRenderer(),
             SpecialTagAttachmentRenderer(),
             CommentAttachmentRenderer(font: Constants.defaultContentFont),
-            HTMLAttachmentRenderer(font: Constants.defaultHtmlFont)
+            HTMLAttachmentRenderer(font: Constants.defaultHtmlFont),
         ]
 
         for provider in providers {

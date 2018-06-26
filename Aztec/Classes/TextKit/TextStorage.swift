@@ -351,6 +351,15 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    private func enumerateRenderableAttachments(in text: NSAttributedString, range: NSRange? = nil, block: ((RenderableAttachment, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
+        let range = range ?? NSMakeRange(0, length)
+        text.enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
+            if let object = object as? RenderableAttachment {
+                block(object, range, stop)
+            }
+        }
+    }
+
     // MARK: - HTML Interaction
 
     open func getHTML(prettify: Bool = false) -> String {
@@ -374,13 +383,10 @@ open class TextStorage: NSTextStorage {
             attachment.delegate = self
         }
         
-        textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
+        enumerateRenderableAttachments(in: textStore, block: { [weak self] (attachment, _, _) in
             attachment.delegate = self
-        }
-        
-        textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
+        })
+                
     }
 }
 
@@ -457,7 +463,7 @@ extension TextStorage: MediaAttachmentDelegate {
 //
 extension TextStorage: RenderableAttachmentDelegate {
 
-    func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
+    public func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }
@@ -465,7 +471,7 @@ extension TextStorage: RenderableAttachmentDelegate {
         return delegate.storage(self, imageFor: attachment, with: size)
     }
 
-    func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+    public func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }

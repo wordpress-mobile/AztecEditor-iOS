@@ -25,7 +25,8 @@ open class WordPressInputCustomizer: Plugin.InputCustomizer {
     
     private let gutenbergInputHTMLTreeProcessor = GutenbergInputHTMLTreeProcessor()
     let inputElementConverters: [Element: ElementConverter] = [.gallery: GalleryElementConverter(),
-                                                               .gutenblock: GutenblockConverter()]
+                                                               .gutenblock: GutenblockConverter(),
+                                                               .gutenpack: GutenpackConverter()]
     
     // MARK: - Initializers
     

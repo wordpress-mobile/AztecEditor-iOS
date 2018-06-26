@@ -24,7 +24,7 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
     private let isGutenbergContent: (String) -> Bool
     
     private let gutenbergOutputHTMLTreeProcessor = GutenbergOutputHTMLTreeProcessor()
-    let attachmentToElementConverters: [BaseAttachmentToElementConverter] = [GalleryAttachmentToElementConverter()]
+    let attachmentToElementConverters: [BaseAttachmentToElementConverter] = [GalleryAttachmentToElementConverter(), GutenpackAttachmentToElementConverter()]
     let elementToTagConverters: [Element: ElementToTagConverter] = [.gallery: GalleryElementToTagConverter()]
     
     // MARK: - Initializers

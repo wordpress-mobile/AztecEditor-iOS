@@ -4,7 +4,7 @@ import UIKit
 
 /// Comment Attachments: Represents an HTML Comment
 ///
-open class CommentAttachment: NSTextAttachment {
+open class CommentAttachment: NSTextAttachment, RenderableAttachment {
 
     /// Internal Cached Image
     ///
@@ -12,7 +12,7 @@ open class CommentAttachment: NSTextAttachment {
 
     /// Delegate
     ///
-    weak var delegate: RenderableAttachmentDelegate?
+    public weak var delegate: RenderableAttachmentDelegate?
 
     /// A message to display overlaid on top of the image
     ///

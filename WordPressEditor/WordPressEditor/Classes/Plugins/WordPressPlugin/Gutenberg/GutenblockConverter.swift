@@ -2,8 +2,7 @@ import Aztec
 import Foundation
 
 public extension Element {
-    static let gutenblock = Element("gutenblock")
-    static let gutenpack = Element("gutenpack")
+    static let gutenblock = Element("gutenblock")    
 }
 
 class GutenblockConverter: ElementConverter {
