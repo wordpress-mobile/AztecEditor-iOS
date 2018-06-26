@@ -399,26 +399,22 @@ private extension AttributedStringParser {
         }
         
         let lastMergeableElementNode = lastMergeableConversion.elementNode
-        let unmergeableConversions: [ParagraphPropertyConversion]
+        let somePropertiesAreNotMergeable = newProperties.count > mergeableConversions.count
         
-        if mergeableConversions.count < newProperties.count {
-            let firstUnmergedIndex = mergeableConversions.count
+        guard somePropertiesAreNotMergeable else {
             
-            unmergeableConversions = convert(newProperties[firstUnmergedIndex ..< newProperties.count], styleNodes: styleNodes)
-        } else {
-            let nodes: [Node]
+            // If all properties are merged and the last mergeable conversion is preformatted, we should prepend the
+            // styleNodes with a paragraph separator text node.
+            let finalStyleNodes = lastMergeableConversion.preformatted ? prependParagraphSeparatorTextNode(to: styleNodes) : styleNodes
             
-            if lastMergeableConversion.preformatted {
-                let paragraphSeparator = TextNode(text: String(.paragraphSeparator))
-                
-                nodes = [paragraphSeparator] + styleNodes
-            } else {
-                nodes = styleNodes
-            }
+            append(finalStyleNodes, to: mergeableConversions)
             
-            append(nodes, to: mergeableConversions)
-            unmergeableConversions = []
+            return Array(mergeableConversions)
         }
+        
+        let firstUnmergedIndex = mergeableConversions.count
+        let unmergedSlice = newProperties[firstUnmergedIndex ..< newProperties.count]
+        let unmergeableConversions = convert(unmergedSlice, styleNodes: styleNodes)
         
         if let firstUnmergeableElementNode = unmergeableConversions.first?.elementNode {
             lastMergeableElementNode.children.append(firstUnmergeableElementNode)
@@ -491,12 +487,28 @@ extension AttributedStringParser {
     ///     - nodes: the nodes to append
     ///     - conversions: the conversions to append the nodes to.
     ///
-    private func append(_ nodes: [Node], to conversions: ArraySlice<ParagraphPropertyConversion>) {
+    private func append(
+        _ nodes: [Node],
+        to conversions: ArraySlice<ParagraphPropertyConversion>) {
+        
         precondition(conversions.count > 0)
         
         let lastConversion = conversions.last!
         
         lastConversion.elementNode.children += nodes
+    }
+    
+    /// Prepends a paragraph separator text node before the provided nodes.
+    ///
+    /// - Parameters:
+    ///     - nodes: the nodes to prepend the paragraph separator to.
+    ///
+    /// - Returns: the nodes prepended with the requested paragraph separator text node.
+    ///
+    private func prependParagraphSeparatorTextNode(to nodes: [Node]) -> [Node] {
+        let paragraphSeparator = TextNode(text: String(.paragraphSeparator))
+        
+        return [paragraphSeparator] + nodes
     }
     
     /// Converts paragraph properties
