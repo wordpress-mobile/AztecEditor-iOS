@@ -536,10 +536,10 @@ extension AttributedStringParser {
             }
             
             if let previousParentElementNode = parentElementNode {
-                previousParentElementNode.children.append(elementNode)
+                previousParentElementNode.children.append(conversion.elementNode)
             }
             
-            parentElementNode = elementNode
+            parentElementNode = conversion.elementNode
             
             return conversion
         })
