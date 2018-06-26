@@ -530,28 +530,17 @@ extension AttributedStringParser {
         var preformatted = false
         var parentElementNode: ElementNode?
         
-        /// Updates the parent.
-        ///
-        func updateParent(for elementNode: ElementNode) {
-            defer {
-                // No matter what exit point we take, the provided element will
-                // be set as the parent after this method is executed.
-                parentElementNode = elementNode
-            }
-            
-            guard let previousParentElementNode = parentElementNode else {
-                return
-            }
-            
-            previousParentElementNode.children.append(elementNode)
-        }
-        
         let conversions = properties.compactMap({ (property) -> ParagraphPropertyConversion? in
             guard let conversion = convert(property, preformatted: &preformatted) else {
                 return nil
             }
             
-            updateParent(for: conversion.elementNode)
+            if let previousParentElementNode = parentElementNode {
+                previousParentElementNode.children.append(elementNode)
+            }
+            
+            parentElementNode = elementNode
+            
             return conversion
         })
         
