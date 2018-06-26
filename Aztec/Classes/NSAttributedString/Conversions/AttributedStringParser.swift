@@ -512,6 +512,13 @@ extension AttributedStringParser {
         return [paragraphSeparator] + nodes
     }
     
+    /// Provides the default paragraph property conversion.
+    ///
+    /// - Parameters:
+    ///     - styleNodes: the style nodes to add to the current-paragraph conversions.
+    ///
+    /// - Returns: the default paragraph property conversion.
+    ///
     private func defaultParagraphPropertyConversion(styleNodes: [Node]) -> ParagraphPropertyConversion {
         let defaultElement = ElementNode(type: .p, attributes: [], children: styleNodes)
         
