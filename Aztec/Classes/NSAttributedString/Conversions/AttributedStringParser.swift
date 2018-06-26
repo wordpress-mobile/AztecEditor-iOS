@@ -416,6 +416,7 @@ private extension AttributedStringParser {
         let unmergedSlice = newProperties[firstUnmergedIndex ..< newProperties.count]
         let unmergeableConversions = convert(unmergedSlice, styleNodes: styleNodes)
         
+        // This isn't very evident immediately, but what this does it connect the mergeable and unmergeable conversion elements.
         if let firstUnmergeableElementNode = unmergeableConversions.first?.elementNode {
             lastMergeableElementNode.children.append(firstUnmergeableElementNode)
         }
