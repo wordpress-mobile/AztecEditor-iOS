@@ -15,7 +15,15 @@ class Blockquote: ParagraphProperty {
     }
 
     static func ==(lhs: Blockquote, rhs: Blockquote) -> Bool {
-        return true
+        return lhs.representation == rhs.representation
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let rightBlockquote = object as? Blockquote else {
+            return false
+        }
+        
+        return self == rightBlockquote
     }
 }
 

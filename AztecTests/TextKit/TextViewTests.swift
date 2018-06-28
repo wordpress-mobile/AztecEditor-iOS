@@ -1861,4 +1861,13 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(html, "<p>😘</p>")
     }
 
+    func testMultipleFigureCaptionAreProperlyParsed() {
+        let originalHTML = """
+<figure><img src=\"a.png\" class=\"alignnone\"><figcaption>caption a</figcaption></figure><figure><img src=\"b.png\" class=\"alignnone\"><figcaption>caption b</figcaption></figure>
+"""
+        let textView = createTextView(withHTML: originalHTML)
+
+        XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
+    }
+
 }

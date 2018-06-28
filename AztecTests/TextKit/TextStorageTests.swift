@@ -428,7 +428,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testCommentSurroundingBlockLevelElements() {
-        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6, .blockquote]
 
         for element in elementsToTest {
             let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><!-- comment -->"
@@ -440,6 +440,18 @@ class TextStorageTests: XCTestCase {
 
             XCTAssertEqual(expectedHTML, outputHTML)
         }
+    }
+
+    func testBlockquotesWithCite() {
+        let html = """
+<blockquote class="wp-block-quote is-large"><p>Take comfort in the fact that you 'can' keep your current publishing flow... and then take some time to explore the possibilities that Gutenberg opens up to you.</p><cite>By M</cite></blockquote>
+"""
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+        
+        XCTAssertEqual(html, outputHTML)
     }
 
     func testSingleSpaceBetweenElements() {
