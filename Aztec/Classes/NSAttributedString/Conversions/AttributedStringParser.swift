@@ -385,6 +385,7 @@ private extension AttributedStringParser {
     /// - Parameters:
     ///     - newProperties: the properties from the paragraph being converted.
     ///     - previousConversions: the conversions used for the previous paragraph.
+    ///     - styleNodes: the style nodes.
     ///
     /// -Returns: `nil` if no previous conversion can be re-used.
     ///
