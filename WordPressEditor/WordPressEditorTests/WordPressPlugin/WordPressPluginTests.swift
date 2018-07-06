@@ -46,9 +46,9 @@ class WordpressPluginTests: XCTestCase {
         XCTAssertEqual(finalHTML, expectedHTML)
     }
     
-    func testFullConversionOfMultipleParagraphBlocksWithoutGutentags() {
+    func testFullConversionOfMultipleParagraphForCalypso() {
         let initialHTML = "<p>Hello 🌍!</p><p>Hello 🌍!</p><p>Hello 🌍!</p>"
-        let expectedHTML = "<p>Hello 🌍!</p>\n<p>Hello 🌍!</p>\n<p>Hello 🌍!</p>"
+        let expectedHTML = "Hello 🌍!\n\nHello 🌍!\n\nHello 🌍!"
         let attrString = htmlConverter.attributedString(from: initialHTML)
         let finalHTML = htmlConverter.html(from: attrString)
         
