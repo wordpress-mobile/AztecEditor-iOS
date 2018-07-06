@@ -21,15 +21,15 @@ class GutenbergAttributeEncoder {
     
     // MARK: - Encoding Strings
     
-    func closerAttributes(_ text: String) -> Attribute {
+    func closerAttribute(_ text: String) -> Attribute {
         return attribute(.blockCloser, withValue: text)
     }
     
-    func openerAttributes(_ text: String) -> Attribute {
+    func openerAttribute(_ text: String) -> Attribute {
         return attribute(.blockOpener, withValue: text)
     }
     
-    func selfClosingAttributes(_ text: String) -> Attribute {
+    func selfClosingAttribute(_ text: String) -> Attribute {
         return attribute(.selfCloser, withValue: text)
     }
     
