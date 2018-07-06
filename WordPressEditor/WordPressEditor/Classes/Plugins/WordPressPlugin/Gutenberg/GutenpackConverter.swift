@@ -17,7 +17,7 @@ public class GutenpackConverter: ElementConverter {
         precondition(element.type == .gutenpack)
 
         let decoder = GutenbergAttributeDecoder()
-        guard let content = decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element) else {
+        guard let content = decoder.attribute(.selfCloser, from: element) else {
             let serializer = HTMLSerializer()
             let attachment = HTMLAttachment()
             attachment.rootTagName = element.name

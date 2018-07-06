@@ -7,6 +7,10 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
     typealias GutenbergDelimiterMatch = (offset: Int, match: CommentNode)
     
+    // MARK: - Encoding
+    
+    let encoder = GutenbergAttributeEncoder()
+    
     // MARK: - Initializers
     
     private static let classInitializer: () = {
@@ -68,7 +72,7 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
                 result.append(gutenblock)
                 openerSlice = nodes[closerOffset + 1 ..< nodes.count]
             } else if match.isGutenbergSelfClosingBlock() {
-                let attributes = selfClosingAttributes(for: match)
+                let attributes = [encoder.selfClosingAttribute(for: match)]
                 let gutenblock = ElementNode(type: .gutenpack, attributes: attributes, children: [])
                 
                 result.append(gutenblock)
@@ -95,7 +99,7 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
 
 private extension GutenbergInputHTMLTreeProcessor {
     private func gutenblock(wrapping nodes: ArraySlice<Node>, opener: CommentNode, closer: CommentNode) -> ElementNode {
-        let attributes = openerAttributes(for: opener) + closerAttributes(for: closer)
+        let attributes = [encoder.openerAttribute(for: opener), encoder.closerAttribute(for: closer)]
         let children = [Node](nodes)
         let gutenblock = ElementNode(type: .gutenblock, attributes: attributes, children: children)
         
@@ -126,46 +130,5 @@ private extension GutenbergInputHTMLTreeProcessor {
         }
         
         return nil
-    }
-}
-
-// MARK: - Gutenblock attributes
-
-private extension GutenbergInputHTMLTreeProcessor {
-    func closerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.blockCloser
-        let openerBase64String = encode(commentNode)
-        
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
-    }
-    
-    func openerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.blockOpener
-        let openerBase64String = encode(commentNode)
-        
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
-    }
-    
-    func selfClosingAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.selfCloser
-        let openerBase64String = encode(commentNode)
-        
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
-    }
-}
-
-// MARK: - Gutenblock Encoding Logic
-
-private extension GutenbergInputHTMLTreeProcessor {
-    
-    func encode(_ gutenblock: CommentNode) -> String {
-        return encode(gutenblock.comment)
-    }
-    
-    private func encode(_ string: String) -> String {
-        let data = string.data(using: .utf16)!
-        let base64String = data.base64EncodedString()
-        
-        return base64String
     }
 }

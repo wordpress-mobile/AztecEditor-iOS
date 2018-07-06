@@ -1,24 +1,18 @@
 import Foundation
 import Aztec
 
-/// Class to facilitate decoding of Gutenberg comments data from Elemen attributes
+/// Class to facilitate decoding of Gutenberg comments data from Element attributes
 ///
-public class GutenbergAttributeDecoder {
+class GutenbergAttributeDecoder {
 
     // MARK: - Attribute Data
 
-    private func attribute(named name: String, from element: ElementNode) -> Attribute? {
-        return element.attributes.first { (attribute) -> Bool in
-            return attribute.name.lowercased() == name.lowercased()
-        }
-    }
-
-    func decodedAttribute(named name: String, from element: ElementNode) -> String? {
-        guard let attribute = attribute(named: name, from: element),
+    func attribute(_ gutenbergAttribute: GutenbergAttribute, from element: ElementNode) -> String? {
+        guard let attribute = element.attribute(named: gutenbergAttribute.rawValue),
             let opener = decode(attribute) else {
                 return nil
         }
-
+        
         return opener
     }
 
