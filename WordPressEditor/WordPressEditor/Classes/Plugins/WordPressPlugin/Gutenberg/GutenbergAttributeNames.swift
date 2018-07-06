@@ -1,11 +1,14 @@
 import Aztec
 import Foundation
 
-struct GutenbergAttributeNames {
-    
-    // MARK: - HTML Attribute Names
-    
-    public static let selfCloser = "selfcloser"
-    public static let blockOpener = "opener"
-    public static let blockCloser = "closer"
+enum GutenbergAttribute: String {
+    case selfCloser = "selfcloser"
+    case blockOpener = "opener"
+    case blockCloser = "closer"
+}
+
+extension Attribute {
+    convenience init(name: GutenbergAttribute, value: Attribute.Value) {
+        self.init(name: name.rawValue, value: value)
+    }
 }

@@ -49,12 +49,12 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         }
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockOpener
+            return attribute.name == GutenbergAttribute.blockOpener.rawValue
                 && attribute.value.toString() == encodedOpeningComment
         }))
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockCloser
+            return attribute.name == GutenbergAttribute.blockCloser.rawValue
                 && attribute.value.toString() == encodedClosingComment
         }))
         
@@ -98,12 +98,12 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         }
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockOpener
+            return attribute.name == GutenbergAttribute.blockOpener.rawValue
                 && attribute.value.toString() == encodedOpeningComment
         }))
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockCloser
+            return attribute.name == GutenbergAttribute.blockCloser.rawValue
                 && attribute.value.toString() == encodedClosingComment
         }))
         
@@ -152,12 +152,12 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         }
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockOpener
+            return attribute.name == GutenbergAttribute.blockOpener.rawValue
                 && attribute.value.toString() == encodedOpeningComment
         }))
         
         XCTAssert(gutenblock.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.blockCloser
+            return attribute.name == GutenbergAttribute.blockCloser.rawValue
                 && attribute.value.toString() == encodedClosingComment
         }))
         
@@ -176,7 +176,7 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         XCTAssertEqual(gutenpack.type, .gutenpack)
         
         XCTAssert(gutenpack.attributes.contains(where: { (attribute) -> Bool in
-            return attribute.name == GutenbergAttributeNames.selfCloser
+            return attribute.name == GutenbergAttribute.selfCloser.rawValue
                 && attribute.value.toString() == selfClosingComment
         }))
     }

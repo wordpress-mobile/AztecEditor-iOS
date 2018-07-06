@@ -59,21 +59,21 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
                 result.append(contentsOf: replacementNodes)
                 children = children.dropFirst(replacementNodes.count)
             }
-            
+
             let nodesToKeepInParagraph = children.prefix(upTo: index)
-            
+
             guard nodesToKeepInParagraph.count > 0 else {
                 continue
             }
-            
+
             let newParagraph = deepCopy(paragraph, withChildren: Array(nodesToKeepInParagraph))
-            
+
             result.append(newParagraph)
             children = children.dropFirst(nodesToKeepInParagraph.count)
         }
-        
+
         if children.count > 0 {
-            result.append(contentsOf: children)
+            result.append(paragraph)
         }
         
         return result
@@ -131,14 +131,14 @@ private extension GutenbergOutputHTMLTreeProcessor {
     // MARK: - Gutenberg HTML Attribute Data
     
     private func gutenblockCloserData(for element: ElementNode) -> String? {
-        return decoder.decodedAttribute(named: GutenbergAttributeNames.blockCloser, from: element)
+        return decoder.attribute(.blockCloser, from: element)
     }
     
     private func gutenblockOpenerData(for element: ElementNode) -> String? {
-        return decoder.decodedAttribute(named: GutenbergAttributeNames.blockOpener, from: element)
+        return decoder.attribute(.blockOpener, from: element)
     }
     
     private func gutenblockSelfCloserData(for element: ElementNode) -> String? {        
-        return decoder.decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element)
+        return decoder.attribute(.selfCloser, from: element)
     }
 }

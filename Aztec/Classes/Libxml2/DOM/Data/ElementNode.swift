@@ -105,6 +105,12 @@ public class ElementNode: Node {
     }
 
     // MARK: - Node Queries
+    
+    public func attribute(named name: String) -> Attribute? {
+        return attributes.first { (attribute) -> Bool in
+            return attribute.name.lowercased() == name.lowercased()
+        }
+    }
 
     func stringValueForAttribute(named attributeName: String) -> String? {
 
