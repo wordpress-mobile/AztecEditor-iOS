@@ -30,7 +30,25 @@ class WordpressPluginTests: XCTestCase {
     
     func testFullConversionOfParagraphBlock() {
         let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
-        let expectedHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let expectedHTML = initialHTML
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString)
+        
+        XCTAssertEqual(finalHTML, expectedHTML)
+    }
+    
+    func testFullConversionOfMultipleParagraphBlocks() {
+        let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let expectedHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->\n<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->\n<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString)
+        
+        XCTAssertEqual(finalHTML, expectedHTML)
+    }
+    
+    func testFullConversionOfMultipleParagraphBlocksWithoutGutentags() {
+        let initialHTML = "<p>Hello 🌍!</p><p>Hello 🌍!</p><p>Hello 🌍!</p>"
+        let expectedHTML = "<p>Hello 🌍!</p>\n<p>Hello 🌍!</p>\n<p>Hello 🌍!</p>"
         let attrString = htmlConverter.attributedString(from: initialHTML)
         let finalHTML = htmlConverter.html(from: attrString)
         
