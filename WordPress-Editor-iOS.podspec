@@ -7,9 +7,9 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'WordPress-Aztec-iOS'
+  s.name             = 'WordPress-Editor-iOS'
   s.version          = '1.0.0-beta.22'
-  s.summary          = 'The native HTML Editor.'
+  s.summary          = 'The WordPress HTML Editor.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-                       The native HTML Editor by Automattic Inc.
+                       The WordPress HTML Editor by Automattic Inc.
                        DESC
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
@@ -29,12 +29,14 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   s.ios.deployment_target = '9.0'
 
-  s.module_name = "Aztec"
-  s.source_files = 'Aztec/Classes/**/*'
-  s.resources = 'Aztec/Assets/**/*'
+  s.module_name = "WordPressEditor"
+  s.source_files = 'WordPressEditor/WordPressEditor/Classes/**/*'
+  s.resources = 'WordPressEditor/WordPressEditor/Assets/**/*'
 
   s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
   				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
+
+  s.dependency "WordPress-Aztec-iOS", "1.0.0-beta.22"
 end
 
 
