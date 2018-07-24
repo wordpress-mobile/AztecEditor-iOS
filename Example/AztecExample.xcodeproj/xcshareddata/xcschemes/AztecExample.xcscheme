@@ -40,7 +40,25 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      codeCoverageEnabled = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "YES"
       shouldUseLaunchSchemeArgsEnv = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5951CB8D1D8BC93600E1866F"
+            BuildableName = "Aztec.framework"
+            BlueprintName = "Aztec"
+            ReferencedContainer = "container:../Aztec.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F1D360AC2092947500B4E7A5"
+            BuildableName = "WordPressEditor.framework"
+            BlueprintName = "WordPressEditor"
+            ReferencedContainer = "container:../WordPressEditor/WordPressEditor.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "YES">
