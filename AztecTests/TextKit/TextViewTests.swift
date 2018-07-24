@@ -1450,8 +1450,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(String(.lineFeed))
         
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
-    }
-
+    }    
 
     // MARK: - Media
 
@@ -1470,7 +1469,7 @@ class TextViewTests: XCTestCase {
             fatalError()
         }
 
-        videoAttachment.srcURL = URL(string:"newVideo.mp4")!
+        videoAttachment.updateURL(URL(string:"newVideo.mp4")!)
         textView.refresh(videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video></p>")
@@ -1565,7 +1564,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1592,7 +1591,7 @@ class TextViewTests: XCTestCase {
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1717,7 +1716,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML(prettify: false) == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
@@ -1840,7 +1839,7 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.
@@ -1860,6 +1859,15 @@ class TextViewTests: XCTestCase {
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p>😘</p>")
+    }
+
+    func testMultipleFigureCaptionAreProperlyParsed() {
+        let originalHTML = """
+<figure><img src=\"a.png\" class=\"alignnone\"><figcaption>caption a</figcaption></figure><figure><img src=\"b.png\" class=\"alignnone\"><figcaption>caption b</figcaption></figure>
+"""
+        let textView = createTextView(withHTML: originalHTML)
+
+        XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
     }
 
 }

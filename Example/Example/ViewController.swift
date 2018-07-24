@@ -17,11 +17,13 @@ class ViewController: UITableViewController
             DemoSection(title: "Plain HTML Editor", rows: [
                 DemoRow(title: "Standard Demo", action: { self.showEditorDemo(filename: "content") }),
                 DemoRow(title: "Captions Demo", action: { self.showEditorDemo(filename: "captions") }),
+                DemoRow(title: "Image Overlays", action: { self.showEditorDemo(filename: "imagesOverlays") }),
                 DemoRow(title: "Empty Demo", action: { self.showEditorDemo() })
                 ]
             ),
             DemoSection(title: "WordPressEditor (Calypso & Gutenberg)", rows: [
                 DemoRow(title: "Gutenberg Demo", action: { self.showEditorDemo(filename: "gutenberg", wordPressMode: true) }),
+                DemoRow(title: "Video Shortcode Demo", action: { self.showEditorDemo(filename: "video", wordPressMode: true) }),
                 DemoRow(title: "Empty Demo", action: { self.showEditorDemo(wordPressMode: true) })
                 ]
             ),

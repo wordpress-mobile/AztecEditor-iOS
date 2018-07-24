@@ -194,8 +194,8 @@ class AttributedStringParserTests: XCTestCase {
         let firstText = "First Line"
         let secondText = "Second Line"
 
-        let attributes = TextListFormatter(style: .unordered).apply(to: Constants.sampleAttributes)
-
+        var attributes = TextListFormatter(style: .unordered).apply(to: Constants.sampleAttributes)
+        attributes = LiFormatter().apply(to: attributes)
         let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
@@ -248,8 +248,8 @@ class AttributedStringParserTests: XCTestCase {
         let firstText = "First Line"
         let secondText = "Second Line"
 
-        let attributes = TextListFormatter(style: .ordered).apply(to: Constants.sampleAttributes)
-
+        var attributes = TextListFormatter(style: .ordered).apply(to: Constants.sampleAttributes)
+        attributes = LiFormatter().apply(to: attributes)
         let text = firstText + String(.lineFeed) + secondText
         let testingString = NSMutableAttributedString(string: text, attributes: attributes)
 
@@ -560,6 +560,7 @@ class AttributedStringParserTests: XCTestCase {
 
         BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
         TextListFormatter(style: .ordered).applyAttributes(to: testingString, at: testingRange)
+        LiFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
@@ -616,8 +617,9 @@ class AttributedStringParserTests: XCTestCase {
         let testingRange = testingString.rangeOfEntireString
 
         TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
+        LiFormatter().applyAttributes(to: testingString, at: testingRange)
         BlockquoteFormatter().applyAttributes(to: testingString, at: testingRange)
-
+        
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
         XCTAssertEqual(node.children.count, 1)
@@ -676,6 +678,7 @@ class AttributedStringParserTests: XCTestCase {
         let testingRange = testingString.rangeOfEntireString
 
         TextListFormatter(style: .unordered).applyAttributes(to: testingString, at: testingRange)
+        LiFormatter().applyAttributes(to: testingString, at: testingRange)
         HeaderFormatter().applyAttributes(to: testingString, at: testingRange)
 
         // Convert + Verify
@@ -1016,6 +1019,27 @@ class AttributedStringParserTests: XCTestCase {
         }
         
         XCTAssertEqual(textNode.text(), captionText)
+    }
+    
+    // MARK: - Pre
+    
+    func testPreParagraphsAreMergedRight() {
+        let formatter = PreFormatter(monospaceFont: UIFont.systemFont(ofSize: 14.0), placeholderAttributes: [:])
+        let attributes = formatter.apply(to: Constants.sampleAttributes)
+        let string = NSMutableAttributedString(string: "Hello 🌍!\nHello 🌎!", attributes: attributes)
+        
+        let rootNode = AttributedStringParser().parse(string)
+        XCTAssertEqual(rootNode.children.count, 1)
+        
+        guard let pre = rootNode.firstChild(ofType: .pre) else {
+            XCTFail()
+            return
+        }
+        
+        // Aztec normalizes newlines to paragraph separators.
+        let expected = string.string.replacingOccurrences(of: "\n", with: String(.paragraphSeparator))
+        
+        XCTAssertEqual(pre.rawText(), expected)
     }
 }
 

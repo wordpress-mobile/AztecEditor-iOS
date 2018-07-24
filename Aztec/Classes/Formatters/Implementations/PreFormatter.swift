@@ -59,7 +59,12 @@ open class PreFormatter: ParagraphAttributeFormatter {
     }
 
     func present(in attributes: [NSAttributedStringKey : Any]) -> Bool {
-        let font = attributes[.font] as? UIFont
-        return font == monospaceFont
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
+            return false
+        }
+
+        return paragraphStyle.hasProperty(where: { (property) -> Bool in
+            return property.isMember(of: HTMLPre.self)
+        })
     }
 }

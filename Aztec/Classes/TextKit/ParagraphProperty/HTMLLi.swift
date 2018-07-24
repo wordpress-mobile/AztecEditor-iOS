@@ -1,8 +1,8 @@
 import Foundation
 
-class Blockquote: ParagraphProperty {
+class HTMLLi: ParagraphProperty {
 
-    public override func encode(with aCoder: NSCoder) {
+    override public func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
     }
 
@@ -14,16 +14,15 @@ class Blockquote: ParagraphProperty {
         super.init(coder: aDecoder)
     }
 
-    static func ==(lhs: Blockquote, rhs: Blockquote) -> Bool {
-        return lhs.representation == rhs.representation
+    static func ==(lhs: HTMLLi, rhs: HTMLLi) -> Bool {
+        return false
     }
     
     override func isEqual(_ object: Any?) -> Bool {
-        guard let rightBlockquote = object as? Blockquote else {
+        guard let rightElement = object as? HTMLLi else {
             return false
         }
         
-        return self == rightBlockquote
+        return self == rightElement
     }
 }
-

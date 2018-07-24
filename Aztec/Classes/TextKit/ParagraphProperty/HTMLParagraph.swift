@@ -18,6 +18,6 @@ class HTMLParagraph: ParagraphProperty {
     }
 
     static func ==(lhs: HTMLParagraph, rhs: HTMLParagraph) -> Bool {
-        return lhs === rhs
+        return lhs == rhs
     }
 }

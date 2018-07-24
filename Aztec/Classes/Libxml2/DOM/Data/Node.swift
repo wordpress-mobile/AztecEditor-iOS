@@ -193,4 +193,10 @@ public class Node: Equatable, CustomReflectable, Hashable {
 
         return lhs.isEqual(rhs)
     }
+    
+    // MARK: - Raw text representation of nodes
+    
+    public func rawText() -> String {
+        return ""
+    }
 }

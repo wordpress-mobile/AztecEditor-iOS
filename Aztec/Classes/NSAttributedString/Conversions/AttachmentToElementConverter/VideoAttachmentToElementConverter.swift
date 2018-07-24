@@ -31,7 +31,7 @@ class VideoAttachmentToElementConverter: AttachmentToElementConverter {
     /// Extracts the Video Source Attribute from a VideoAttachment Instance.
     ///
     private func videoSourceAttribute(from attachment: VideoAttachment) -> Attribute? {
-        guard let source = attachment.srcURL?.absoluteString else {
+        guard let source = attachment.url?.absoluteString else {
             return nil
         }
         

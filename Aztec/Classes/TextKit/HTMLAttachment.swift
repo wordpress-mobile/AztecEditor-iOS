@@ -4,7 +4,7 @@ import UIKit
 
 /// HTML Attachments: Represents unknown HTML
 ///
-open class HTMLAttachment: NSTextAttachment {
+open class HTMLAttachment: NSTextAttachment, RenderableAttachment  {
 
     /// Internal Cached Image
     ///
@@ -12,7 +12,7 @@ open class HTMLAttachment: NSTextAttachment {
 
     /// Delegate
     ///
-    weak var delegate: RenderableAttachmentDelegate?
+    public weak var delegate: RenderableAttachmentDelegate?
 
     /// Name of the Root "Unknown" Tag
     ///
@@ -33,7 +33,7 @@ open class HTMLAttachment: NSTextAttachment {
 
     // MARK: - Initializers
 
-    init() {
+    public init() {
         super.init(data: nil, ofType: nil)
     }
 

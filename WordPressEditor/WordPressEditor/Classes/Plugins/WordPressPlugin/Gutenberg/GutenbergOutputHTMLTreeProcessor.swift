@@ -3,6 +3,8 @@ import Foundation
 
 public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
     
+    private let decoder = GutenbergAttributeDecoder()
+
     public init() {}
     
     public func process(_ rootNode: RootNode) {
@@ -33,7 +35,7 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
         let containedNodes = gutenblock.children
         let closingComment = gutenbergCloser(for: gutenblock)
         let closingNewline = TextNode(text: "\n")
-        
+
         return [openingComment] + containedNodes + [closingComment, closingNewline]
     }
     
@@ -57,21 +59,21 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
                 result.append(contentsOf: replacementNodes)
                 children = children.dropFirst(replacementNodes.count)
             }
-            
+
             let nodesToKeepInParagraph = children.prefix(upTo: index)
-            
+
             guard nodesToKeepInParagraph.count > 0 else {
                 continue
             }
-            
+
             let newParagraph = deepCopy(paragraph, withChildren: Array(nodesToKeepInParagraph))
-            
+
             result.append(newParagraph)
             children = children.dropFirst(nodesToKeepInParagraph.count)
         }
-        
+
         if children.count > 0 {
-            result.append(contentsOf: children)
+            result.append(paragraph)
         }
         
         return result
@@ -129,51 +131,14 @@ private extension GutenbergOutputHTMLTreeProcessor {
     // MARK: - Gutenberg HTML Attribute Data
     
     private func gutenblockCloserData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.blockCloser, from: element)
+        return decoder.attribute(.blockCloser, from: element)
     }
     
     private func gutenblockOpenerData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.blockOpener, from: element)
+        return decoder.attribute(.blockOpener, from: element)
     }
     
-    private func gutenblockSelfCloserData(for element: ElementNode) -> String? {
-        return decodedAttribute(named: GutenbergAttributeNames.selfCloser, from: element)
-    }
-}
-
-// MARK: - HTML Attributes
-
-private extension GutenbergOutputHTMLTreeProcessor {
-
-    // MARK: - Attribute Data
-    
-    private func attribute(named name: String, from element: ElementNode) -> Attribute? {
-        return element.attributes.first { (attribute) -> Bool in
-            return attribute.name.lowercased() == name.lowercased()
-        }
-    }
-    
-    func decodedAttribute(named name: String, from element: ElementNode) -> String? {
-        guard let attribute = attribute(named: name, from: element),
-            let opener = decode(attribute) else {
-                return nil
-        }
-        
-        return opener
-    }
-    
-    // MARK: - Base64 Decoding
-    
-    private func decode(_ attribute: Attribute) -> String? {
-        guard let base64Gutenblock = attribute.value.toString() else {
-            return nil
-        }
-        
-        return decode(base64Gutenblock: base64Gutenblock)
-    }
-    
-    private func decode(base64Gutenblock: String) -> String {
-        let data = Data(base64Encoded: base64Gutenblock)!
-        return String(data: data, encoding: .utf16)!
+    private func gutenblockSelfCloserData(for element: ElementNode) -> String? {        
+        return decoder.attribute(.selfCloser, from: element)
     }
 }

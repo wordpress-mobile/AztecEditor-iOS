@@ -30,7 +30,25 @@ class WordpressPluginTests: XCTestCase {
     
     func testFullConversionOfParagraphBlock() {
         let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
-        let expectedHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let expectedHTML = initialHTML
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString)
+        
+        XCTAssertEqual(finalHTML, expectedHTML)
+    }
+    
+    func testFullConversionOfMultipleParagraphBlocks() {
+        let initialHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let expectedHTML = "<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->\n<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->\n<!-- wp:paragraph --><p>Hello 🌍!</p><!-- /wp:paragraph -->"
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString)
+        
+        XCTAssertEqual(finalHTML, expectedHTML)
+    }
+    
+    func testFullConversionOfMultipleParagraphForCalypso() {
+        let initialHTML = "<p>Hello 🌍!</p><p>Hello 🌍!</p><p>Hello 🌍!</p>"
+        let expectedHTML = "Hello 🌍!\n\nHello 🌍!\n\nHello 🌍!"
         let attrString = htmlConverter.attributedString(from: initialHTML)
         let finalHTML = htmlConverter.html(from: attrString)
         
@@ -147,6 +165,29 @@ class WordpressPluginTests: XCTestCase {
         let finalHTML = htmlConverter.html(from: attrString, prettify: true)
 
         XCTAssertEqual(finalHTML, initialHTML)
+    }
+
+    func testGutenbergBlockNotClosed() {
+        let initialHTML = """
+<!-- wp:list -->
+<ul>
+  <li>Media library/HTML for images, multimedia and approved files.</li>
+</ul>
+"""
+    
+        // The input would ideally match the output, but unfortunately we can't avoid P elements from
+        // wrapping non-closed gutenberg tags at this time.
+        let expected = """
+<p><!-- wp:list --></p>
+<ul>
+  <li>Media library/HTML for images, multimedia and approved files.</li>
+</ul>
+"""
+        
+        let attrString = htmlConverter.attributedString(from: initialHTML)
+        let finalHTML = htmlConverter.html(from: attrString, prettify: true)
+
+        XCTAssertEqual(finalHTML, expected)
     }
 }
 

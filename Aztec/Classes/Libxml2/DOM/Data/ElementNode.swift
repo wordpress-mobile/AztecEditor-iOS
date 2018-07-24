@@ -105,6 +105,12 @@ public class ElementNode: Node {
     }
 
     // MARK: - Node Queries
+    
+    public func attribute(named name: String) -> Attribute? {
+        return attributes.first { (attribute) -> Bool in
+            return attribute.name.lowercased() == name.lowercased()
+        }
+    }
 
     func stringValueForAttribute(named attributeName: String) -> String? {
 
@@ -316,6 +322,12 @@ public class ElementNode: Node {
         }
 
         return siblingNode as? T
+    }
+    
+    override public func rawText() -> String {
+        return children.reduce("", { (previous, node) -> String in
+            return previous + node.rawText()
+        })
     }
 }
 

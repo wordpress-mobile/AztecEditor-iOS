@@ -20,13 +20,17 @@ public struct Element: RawRepresentable, Hashable {
     /// Ref. http://w3c.github.io/html/syntax.html#void-elements
     ///
     public static var voidElements: [Element] = [.area, .base, .br, .col, .embed, .hr, .img, .input, .link, .meta, .param, .source, .track, .wbr]
+    
+    /// This should hardly be anything other than .pre, but has been made customizable anyway.
+    ///
+    public static var preformattedElements: [Element] = [.pre]
 
     /// List of block HTML elements that can be merged together when they are sibling to each other
     ///
-    public static var mergeableBlockLevelElements: Set<Element> = Set([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p])
+    public static var mergeableBlockLevelElements = Set<Element>([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p, .pre])
 
     /// List of style HTML elements that can be merged together when they are sibling to each other
-    public static var mergeableStyleElements: Set<Element> = Set([.i, .em, .b, .strong, .strike, .u, .code, .cite])
+    public static var mergeableStyleElements = Set<Element>([.i, .em, .b, .strong, .strike, .u, .code, .cite])
 
     /// List of block level elements that can be merged but only when they have a single children that is also mergeable
     ///

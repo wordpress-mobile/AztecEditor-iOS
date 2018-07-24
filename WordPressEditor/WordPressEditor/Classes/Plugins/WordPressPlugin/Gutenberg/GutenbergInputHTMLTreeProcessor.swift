@@ -5,6 +5,12 @@ import Foundation
 ///
 public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
     
+    typealias GutenbergDelimiterMatch = (offset: Int, match: CommentNode)
+    
+    // MARK: - Encoding
+    
+    let encoder = GutenbergAttributeEncoder()
+    
     // MARK: - Initializers
     
     private static let classInitializer: () = {
@@ -23,114 +29,106 @@ public class GutenbergInputHTMLTreeProcessor: HTMLTreeProcessor {
         GutenbergInputHTMLTreeProcessor.classInitializer
     }
     
-    private enum State {
-        case noBlock
-        case blockInProgress(opener: CommentNode, gutenblock: ElementNode)
-    }
-    
     typealias Replacement = (range: Range<Int>, nodes: [Node])
     
     public func process(_ rootNode: RootNode) {
-        process(elementNode: rootNode)
+        process(rootNode as ElementNode)
     }
     
-    private func process(elementNode: ElementNode) {
-        var state: State = .noBlock
-        
-        elementNode.children = elementNode.children.compactMap { (node) -> Node? in
-            switch state {
-            case .noBlock:
-                let (newState, nodeToAppend) = process(node)
+    public func process(_ elementNode: ElementNode) {
+        elementNode.children = process(elementNode.children)
+    }
+    
+    private func process(_ nodes: [Node]) -> [Node] {
+        var result = [Node]()
+        var openerSlice = nodes[0 ..< nodes.count]
+
+        while let (relativeOpenerOffset, match) = self.nextOpenerOrSelfClosing(in: openerSlice) {
+            let openerOffset = openerSlice.startIndex + relativeOpenerOffset
+            
+            // Any nodes before the first match found are immediately added to the results.
+            result += nodes[openerSlice.startIndex ..< openerOffset]
+            
+            if match.isGutenbergBlockOpener() {
+                let opener = match
+
+                let nextOffset = openerOffset + 1
+                let closerSlice = nodes[nextOffset ..< nodes.count]
                 
-                state = newState
-                return nodeToAppend
-            case .blockInProgress(let opener, let gutenblock):
-                if let elementNode = node as? ElementNode {
-                    // This call ensures we support multiple levels of gutenblocks.
-                    process(elementNode: elementNode)
+                guard let (relativeCloserOffset, closer) = nextCloser(in: closerSlice, forOpener: opener) else {
+                    // If a closer is not found, we just add teh opener as a regular comment block
+                    // and continue from the following offset (opener offset + 1).
+                    result.append(opener)
+                    openerSlice = closerSlice
+
+                    continue
                 }
-                
-                // If the node is the gutenblock closer, the state will change to .noBlock.
-                // If it's any other node, it will be added to the gutenblock's children.
-                state = process(node, opener: opener, gutenblock: gutenblock)
-                
-                return nil
-            }
-        }
-    }
 
-    private func process(_ node: Node) -> (newState: State, nodeToAppend: Node) {
-        if let commentNode = node as? CommentNode {
-            if commentNode.isGutenbergBlockOpener() {
-                let attributes = self.openerAttributes(for: commentNode)
-                let element = ElementNode(type: .gutenblock, attributes: attributes, children: [])
-                let newState: State = .blockInProgress(opener: commentNode, gutenblock: element)
+                // If a closer is found, we create a Gutenblock and wrap all nodes between the opener and the closer.
+                let closerOffset = closerSlice.startIndex + relativeCloserOffset
+                let children = nodes[closerSlice.startIndex ..< closerOffset]
+                let gutenblock = self.gutenblock(wrapping: children, opener: opener, closer: closer)
+
+                result.append(gutenblock)
+                openerSlice = nodes[closerOffset + 1 ..< nodes.count]
+            } else if match.isGutenbergSelfClosingBlock() {
+                let attributes = [encoder.selfClosingAttribute(for: match)]
+                let gutenblock = ElementNode(type: .gutenpack, attributes: attributes, children: [])
                 
-                return (newState, element)
-            } else if commentNode.isGutenbergSelfClosingBlock() {
-                let attributes = self.selfClosingAttributes(for: commentNode)
-                let element = ElementNode(type: .gutenpack, attributes: attributes, children: [])
-                
-                return (.noBlock, element)
+                result.append(gutenblock)
+                let nextOffset = openerOffset + 1
+                openerSlice = nodes[nextOffset ..< nodes.count]
             }
         }
         
-        return (.noBlock, node)
-    }
-
-    private func process(_ node: Node, opener: CommentNode, gutenblock: ElementNode) -> State {
-        guard let commentNode = node as? CommentNode,
-            commentNode.isGutenbergBlockCloser(forOpener: opener) else {
-
-            gutenblock.children.append(node)
-            return .blockInProgress(opener: opener, gutenblock: gutenblock)
+        if openerSlice.count > 0 {
+            result += [Node](openerSlice)
         }
         
-        let closerAttributes = self.closerAttributes(for: commentNode)
+        for node in result {
+            if let elementNode = node as? ElementNode {
+                process(elementNode)
+            }
+        }
         
-        gutenblock.attributes.append(contentsOf: closerAttributes)
-        
-        return .noBlock
+        return result
     }
 }
 
-// MARK: - Gutenblock attributes
+// MARK: - Gutenblock pairing logic
 
 private extension GutenbergInputHTMLTreeProcessor {
-    func closerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.blockCloser
-        let openerBase64String = encode(commentNode)
+    private func gutenblock(wrapping nodes: ArraySlice<Node>, opener: CommentNode, closer: CommentNode) -> ElementNode {
+        let attributes = [encoder.openerAttribute(for: opener), encoder.closerAttribute(for: closer)]
+        let children = [Node](nodes)
+        let gutenblock = ElementNode(type: .gutenblock, attributes: attributes, children: children)
         
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
+        return gutenblock
     }
     
-    func openerAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.blockOpener
-        let openerBase64String = encode(commentNode)
+    private func nextCloser(in nodes: ArraySlice<Node>, forOpener opener: CommentNode) -> GutenbergDelimiterMatch? {
+        for (index, node) in nodes.enumerated() {
+            guard let commentNode = node as? CommentNode,
+                commentNode.isGutenbergBlockCloser(forOpener: opener) else {
+                    continue
+            }
+            
+            return GutenbergDelimiterMatch(offset: index, match: commentNode)
+        }
         
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
+        return nil
     }
     
-    func selfClosingAttributes(for commentNode: CommentNode) -> [Attribute] {
-        let attributeName = GutenbergAttributeNames.selfCloser
-        let openerBase64String = encode(commentNode)
+    private func nextOpenerOrSelfClosing(in nodes: ArraySlice<Node>) -> GutenbergDelimiterMatch? {
+        for (index, node) in nodes.enumerated() {
+            guard let commentNode = node as? CommentNode,
+                commentNode.isGutenbergBlockOpener() || commentNode.isGutenbergSelfClosingBlock() else {
+                    continue
+            }
+            
+            return GutenbergDelimiterMatch(offset: index, match: commentNode)
+        }
         
-        return [Attribute(name: attributeName, value: .string(openerBase64String))]
-    }
-}
-
-// MARK: - Gutenblock Encoding Logic
-
-private extension GutenbergInputHTMLTreeProcessor {
-    
-    func encode(_ gutenblock: CommentNode) -> String {
-        return encode(gutenblock.comment)
-    }
-    
-    private func encode(_ string: String) -> String {
-        let data = string.data(using: .utf16)!
-        let base64String = data.base64EncodedString()
-        
-        return base64String
+        return nil
     }
 }

@@ -513,10 +513,12 @@ open class TextView: UITextView {
         }
 
         let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let liFormatter = LiFormatter(placeholderAttributes: nil)
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) {
             let finalRange = formatter.removeAttributes(from: storage, at: targetRange)
+            liFormatter.removeAttributes(from: storage, at: targetRange)
             typingAttributesSwifted = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
             return finalRange
         }
@@ -530,10 +532,12 @@ open class TextView: UITextView {
         }
 
         let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
+        let liFormatter = LiFormatter(placeholderAttributes: nil)
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) { 
             let finalRange = formatter.applyAttributes(to: storage, at: targetRange)
+            liFormatter.applyAttributes(to: storage, at: targetRange)
             typingAttributesSwifted = textStorage.attributes(at: targetRange.location, effectiveRange: nil)
             return finalRange
         }
@@ -980,6 +984,9 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .ordered, placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
+        let liFormatter = LiFormatter(placeholderAttributes: typingAttributesSwifted)
+        toggle(formatter: liFormatter, atRange: range)
+
         forceRedrawCursorAfterDelay()
     }
 
@@ -994,6 +1001,9 @@ open class TextView: UITextView {
         let formatter = TextListFormatter(style: .unordered, placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
 
+        let liFormatter = LiFormatter(placeholderAttributes: typingAttributesSwifted)
+        toggle(formatter: liFormatter, atRange: range)
+        
         forceRedrawCursorAfterDelay()
     }
 
@@ -1397,6 +1407,7 @@ open class TextView: UITextView {
         let attachment = ImageAttachment(identifier: identifier, url: url)
         attachment.delegate = storage
         attachment.image = placeHolderImage
+        attachment.alignment = .none
         replace(at: range, with: attachment)
         return attachment
     }
