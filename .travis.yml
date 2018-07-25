@@ -8,4 +8,5 @@ before_script:
 script:
 - Scripts/build.sh
 after_success:
+  - gem install coveralls
   - coveralls
