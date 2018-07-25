@@ -7,5 +7,3 @@ before_script:
 - cd Example && carthage update && cd -
 script:
 - Scripts/build.sh
-after_success:
-  - coveralls
