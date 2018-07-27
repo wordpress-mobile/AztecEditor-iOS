@@ -1079,6 +1079,34 @@ class TextViewTests: XCTestCase {
         XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: 0))
         XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: textView.selectedRange))
     }
+    
+    /// This test makes sure that lists are ended when the user presses ENTER twice.
+    ///
+    /// Related issue:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1012
+    ///
+    func testDoubleNewlineEndsList() {
+        let textView = createEmptyTextView()
+        let firstLine = "First Line"
+        let secondLine = "Second Line"
+        
+        textView.insertText(firstLine)
+        textView.toggleUnorderedList(range: textView.selectedRange)
+        textView.insertText(String(.paragraphSeparator))
+        textView.insertText(String(.paragraphSeparator))
+        textView.insertText(secondLine)
+        
+        let firstLineParagraphStyle = textView.storage.attributes(at: 0, effectiveRange: nil).paragraphStyle()
+        let secondLineParagraphStyle = textView.storage.attributes(at: firstLine.count + 1, effectiveRange: nil).paragraphStyle()
+        
+        XCTAssertTrue(firstLineParagraphStyle.properties.contains(where: { (property) -> Bool in
+            return property is TextList || property is HTMLLi
+        }))
+        
+        XCTAssertFalse(secondLineParagraphStyle.properties.contains(where: { (property) -> Bool in
+            return property is TextList || property is HTMLLi
+        }))
+    }
 
 
     // MARK: - Blockquotes

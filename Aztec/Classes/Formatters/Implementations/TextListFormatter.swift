@@ -56,7 +56,8 @@ class TextListFormatter: ParagraphAttributeFormatter {
         }
 
         let newParagraphStyle = ParagraphStyle()
-        newParagraphStyle.setParagraphStyle(paragraphStyle)       
+        newParagraphStyle.setParagraphStyle(paragraphStyle)
+        newParagraphStyle.removeProperty(ofType: HTMLLi.self)
         newParagraphStyle.removeProperty(ofType: TextList.self)
 
         var resultingAttributes = attributes
