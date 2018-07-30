@@ -27,4 +27,35 @@ class PreFormatterTests: XCTestCase {
 
         XCTAssert(updatedValue == expectedValue)
     }
+    
+    /// Tests that the Pre formatter doesn't drop the inherited ParagraphStyle.
+    ///
+    /// Issue:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/993
+    ///
+    func testPreFormatterDoesNotDropInheritedParagraphStyle(){
+        let placeholderAttributes: [NSAttributedStringKey: Any] = [
+            .font: "Value",
+            .paragraphStyle: NSParagraphStyle()
+        ]
+        
+        let div = HTMLDiv(with: nil)
+        let paragraphStyle = ParagraphStyle()
+        
+        paragraphStyle.appendProperty(div)
+        
+        let previousAttributes: [NSAttributedStringKey: Any] = [.paragraphStyle: paragraphStyle]
+        
+        let formatter = PreFormatter(placeholderAttributes: placeholderAttributes)
+        let newAttributes = formatter.apply(to: previousAttributes, andStore: nil)
+        
+        guard let newParagraphStyle = newAttributes[.paragraphStyle] as? ParagraphStyle else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssert(newParagraphStyle.hasProperty(where: { property -> Bool in
+            return property === div
+        }))
+    }
 }

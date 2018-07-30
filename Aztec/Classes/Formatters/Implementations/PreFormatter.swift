@@ -35,7 +35,7 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
     func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
-        let newParagraphStyle = ParagraphStyle()
+        let newParagraphStyle = attributes.paragraphStyle()
 
         newParagraphStyle.appendProperty(HTMLPre(with: representation))
 
