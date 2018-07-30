@@ -413,14 +413,14 @@ private extension AttributedStringParser {
                 previousStyleNode.children.append(contentsOf: children)
                 
                 if styleNodes.count > 1 {
-                    append(styleNodes[1 ... styleNodes.count - 1], to: mergeableConversions)
+                    append(styleNodes[1 ..< styleNodes.endIndex], to: mergeableConversions)
                 }
             } else {
                 // If all properties are merged and the last mergeable conversion is preformatted, we should prepend the
                 // styleNodes with a paragraph separator text node.
                 let finalStyleNodes = lastMergeableConversion.preformatted ? prependParagraphSeparatorTextNode(to: styleNodes) : styleNodes
                 
-                append(finalStyleNodes[0 ... finalStyleNodes.count - 1], to: mergeableConversions)
+                append(finalStyleNodes[0 ..< finalStyleNodes.endIndex], to: mergeableConversions)
             }
             
             return Array(mergeableConversions)
@@ -570,7 +570,7 @@ extension AttributedStringParser {
             return [defaultParagraphPropertyConversion(styleNodes: styleNodes)]
         }
         
-        append(styleNodes[0 ... styleNodes.count - 1], to: ArraySlice(conversions))
+        append(styleNodes[0 ..< styleNodes.endIndex], to: ArraySlice(conversions))
         return conversions
     }
     
