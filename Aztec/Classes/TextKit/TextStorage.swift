@@ -201,6 +201,7 @@ open class TextStorage: NSTextStorage {
                 let replacementAttachment = ImageAttachment(identifier: NSUUID().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
+                replacementAttachment.size = .full
 
                 let imageURL = delegate.storage(self, urlFor: replacementAttachment)
                 replacementAttachment.updateURL(imageURL)
