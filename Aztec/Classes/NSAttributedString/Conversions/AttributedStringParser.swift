@@ -403,12 +403,25 @@ private extension AttributedStringParser {
         let somePropertiesAreNotMergeable = newProperties.count > mergeableConversions.count
         
         guard somePropertiesAreNotMergeable else {
-            
-            // If all properties are merged and the last mergeable conversion is preformatted, we should prepend the
-            // styleNodes with a paragraph separator text node.
-            let finalStyleNodes = lastMergeableConversion.preformatted ? prependParagraphSeparatorTextNode(to: styleNodes) : styleNodes
-            
-            append(finalStyleNodes, to: mergeableConversions)
+            // At this point we gotta check if we can merge the last style element from the left with the first style element from the right.
+            if let previousStyleNode = lastMergeableConversion.elementNode.children.last as? ElementNode,
+                let styleNode = styleNodes.first as? ElementNode,
+                canMergeNodes(left: previousStyleNode, right: styleNode, blocklevelEnforced: false) {
+                
+                let children = lastMergeableConversion.preformatted ? prependParagraphSeparatorTextNode(to: styleNode.children) : styleNode.children
+                
+                previousStyleNode.children.append(contentsOf: children)
+                
+                if styleNodes.count > 1 {
+                    append(styleNodes[1 ..< styleNodes.endIndex], to: mergeableConversions)
+                }
+            } else {
+                // If all properties are merged and the last mergeable conversion is preformatted, we should prepend the
+                // styleNodes with a paragraph separator text node.
+                let finalStyleNodes = lastMergeableConversion.preformatted ? prependParagraphSeparatorTextNode(to: styleNodes) : styleNodes
+                
+                append(finalStyleNodes[0 ..< finalStyleNodes.endIndex], to: mergeableConversions)
+            }
             
             return Array(mergeableConversions)
         }
@@ -490,7 +503,7 @@ extension AttributedStringParser {
     ///     - conversions: the conversions to append the nodes to.
     ///
     private func append(
-        _ nodes: [Node],
+        _ nodes: ArraySlice<Node>,
         to conversions: ArraySlice<ParagraphPropertyConversion>) {
         
         precondition(conversions.count > 0)
@@ -557,7 +570,7 @@ extension AttributedStringParser {
             return [defaultParagraphPropertyConversion(styleNodes: styleNodes)]
         }
         
-        append(styleNodes, to: ArraySlice(conversions))
+        append(styleNodes[0 ..< styleNodes.endIndex], to: ArraySlice(conversions))
         return conversions
     }
     
