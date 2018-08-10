@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Editor-iOS'
-  s.version          = '1.0.0-beta.24'
+  s.version          = '1.0.0-beta.25'
   s.summary          = 'The WordPress HTML Editor.'
 
 # This description is used to generate tags and improve search results.
