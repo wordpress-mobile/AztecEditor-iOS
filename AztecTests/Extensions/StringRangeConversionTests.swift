@@ -27,7 +27,9 @@ class StringRangeConversionTests: XCTestCase {
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
-    func testRangeConversion2() {
+    // MARK: - UTF16 to Swift Range conversion
+    
+    func testUTF16RangeToSwiftRangeConversion() {
         let string = "Hello 🌍!"
         let wordToCapture = "🌍"
 
@@ -40,9 +42,9 @@ class StringRangeConversionTests: XCTestCase {
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
-    func testRangeConversion3() {
-        let string = "Hello 🇮🇳!"
-        let wordToCapture = "🇮🇳"
+    func testUTF16RangeToSwiftRangeConversion2() {
+        let string = "Hello 🇮🇳 World 🌎!"
+        let wordToCapture = "🌎"
 
         let utf16NSRange = (string as NSString).range(of: wordToCapture)
         let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
@@ -53,8 +55,8 @@ class StringRangeConversionTests: XCTestCase {
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
 
-    func testRangeConversion4() {
-        let string = "Hello 🇮🇳 🌍!"
+    func testUTF16RangeToSwiftRangeConversion3() {
+        let string = "🌍 Hello 🇮🇳!"
         let wordToCapture = "🌍"
 
         let utf16NSRange = (string as NSString).range(of: wordToCapture)
@@ -65,6 +67,8 @@ class StringRangeConversionTests: XCTestCase {
 
         XCTAssertEqual(wordToCapture, wordCaptured)
     }
+    
+    // MARK: - Location Conversion
 
     func testLocationConversion1() {
         // test simple word
