@@ -131,7 +131,6 @@
 		F185A5B12123C0DA00DDFAB1 /* NSAttributedStringAttachmentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A22123C0D900DDFAB1 /* NSAttributedStringAttachmentsTests.swift */; };
 		F185A5B22123C0DA00DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A32123C0D900DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift */; };
 		F185A5B32123C0DA00DDFAB1 /* StringHTMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A42123C0D900DDFAB1 /* StringHTMLTests.swift */; };
-		F185A5B42123C0DA00DDFAB1 /* StringRegexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A52123C0D900DDFAB1 /* StringRegexTests.swift */; };
 		F185A5B52123C0DA00DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A62123C0D900DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */; };
 		F185A5B62123C0DA00DDFAB1 /* NSAttributedStringKeyHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A72123C0D900DDFAB1 /* NSAttributedStringKeyHelperTests.swift */; };
 		F185A5B72123C0DA00DDFAB1 /* StringEndOfLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F185A5A82123C0D900DDFAB1 /* StringEndOfLineTests.swift */; };
@@ -353,7 +352,6 @@
 		F185A5A22123C0D900DDFAB1 /* NSAttributedStringAttachmentsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringAttachmentsTests.swift; sourceTree = "<group>"; };
 		F185A5A32123C0D900DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringParagraphProperty.swift; sourceTree = "<group>"; };
 		F185A5A42123C0D900DDFAB1 /* StringHTMLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringHTMLTests.swift; sourceTree = "<group>"; };
-		F185A5A52123C0D900DDFAB1 /* StringRegexTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringRegexTests.swift; sourceTree = "<group>"; };
 		F185A5A62123C0D900DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringReplaceOcurrencesTests.swift; sourceTree = "<group>"; };
 		F185A5A72123C0D900DDFAB1 /* NSAttributedStringKeyHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringKeyHelperTests.swift; sourceTree = "<group>"; };
 		F185A5A82123C0D900DDFAB1 /* StringEndOfLineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringEndOfLineTests.swift; sourceTree = "<group>"; };
@@ -996,21 +994,20 @@
 		F185A5A02123C0D900DDFAB1 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				F185A5A12123C0D900DDFAB1 /* NSRangeComparisonTests.swift */,
-				F185A5A22123C0D900DDFAB1 /* NSAttributedStringAttachmentsTests.swift */,
-				F185A5A32123C0D900DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift */,
-				F185A5A42123C0D900DDFAB1 /* StringHTMLTests.swift */,
-				F185A5A52123C0D900DDFAB1 /* StringRegexTests.swift */,
-				F185A5A62123C0D900DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */,
-				F185A5A72123C0D900DDFAB1 /* NSAttributedStringKeyHelperTests.swift */,
-				F185A5A82123C0D900DDFAB1 /* StringEndOfLineTests.swift */,
-				F185A5A92123C0D900DDFAB1 /* StringRangeConversionTests.swift */,
-				F185A5AA2123C0D900DDFAB1 /* StringParagraphTests.swift */,
-				F185A5AB2123C0D900DDFAB1 /* NSAttributedStringReplaceOcurrencesTests.swift */,
-				F185A5AC2123C0D900DDFAB1 /* NSAttributedStringAnalyzerTests.swift */,
-				F185A5AD2123C0D900DDFAB1 /* UIColorHexParserTests.swift */,
 				F185A5AE2123C0D900DDFAB1 /* ArrayHelperTests.swift */,
+				F185A5AC2123C0D900DDFAB1 /* NSAttributedStringAnalyzerTests.swift */,
+				F185A5A22123C0D900DDFAB1 /* NSAttributedStringAttachmentsTests.swift */,
+				F185A5A72123C0D900DDFAB1 /* NSAttributedStringKeyHelperTests.swift */,
 				F185A5AF2123C0D900DDFAB1 /* NSAttributedStringListsTests.swift */,
+				F185A5AB2123C0D900DDFAB1 /* NSAttributedStringReplaceOcurrencesTests.swift */,
+				F185A5A32123C0D900DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift */,
+				F185A5A62123C0D900DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift */,
+				F185A5A12123C0D900DDFAB1 /* NSRangeComparisonTests.swift */,
+				F185A5A82123C0D900DDFAB1 /* StringEndOfLineTests.swift */,
+				F185A5A42123C0D900DDFAB1 /* StringHTMLTests.swift */,
+				F185A5AA2123C0D900DDFAB1 /* StringParagraphTests.swift */,
+				F185A5A92123C0D900DDFAB1 /* StringRangeConversionTests.swift */,
+				F185A5AD2123C0D900DDFAB1 /* UIColorHexParserTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1395,7 +1392,6 @@
 				B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */,
 				F17BC8A51F4E4F5A00398E2B /* TextNodeTests.swift in Sources */,
 				F185A5B12123C0DA00DDFAB1 /* NSAttributedStringAttachmentsTests.swift in Sources */,
-				F185A5B42123C0DA00DDFAB1 /* StringRegexTests.swift in Sources */,
 				F185A5B72123C0DA00DDFAB1 /* StringEndOfLineTests.swift in Sources */,
 				FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */,
 			);
