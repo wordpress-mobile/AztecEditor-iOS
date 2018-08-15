@@ -50,7 +50,7 @@ extension String {
     /// - Returns: the new string.
     ///
     func replacingMatches(of regex: String, options: NSRegularExpression.Options = [], using block: (String, [String]) -> String) -> String {
-
+        
         let regex = try! NSRegularExpression(pattern: regex, options: options)
         let fullRange = NSRange(location: 0, length: utf16.count)
         let matches = regex.matches(in: self, options: [], range: fullRange)
