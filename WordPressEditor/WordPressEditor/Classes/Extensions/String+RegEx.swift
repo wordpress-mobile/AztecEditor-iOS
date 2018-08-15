@@ -57,7 +57,10 @@ extension String {
         var newString = self
 
         for match in matches.reversed() {
-            let matchRange = range(fromUTF16NSRange: match.range)
+            guard let matchRange = Range(match.range, in: self) else {
+                continue
+            }
+            
             let matchString = String(self[matchRange])
 
             var submatchStrings = [String]()
