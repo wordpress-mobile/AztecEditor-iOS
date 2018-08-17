@@ -366,21 +366,6 @@ open class TextStorage: NSTextStorage {
     open func getHTML(prettify: Bool = false) -> String {
         return htmlConverter.html(from: self, prettify: prettify)
     }
-
-    func insert(html: String, at characterPosition: Int, defaultAttributes: [NSAttributedStringKey: Any]) {
-        let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
-        
-        insert(attrString, at: characterPosition)
-        setupAttachmentDelegates()
-    }
-    
-    func replace(range: NSRange, withHTML html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
-        if range.length > 0 {
-            deleteCharacters(in: range)
-        }
-        
-        insert(html: html, at: range.location, defaultAttributes: defaultAttributes)
-    }
     
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
         let originalLength = length
