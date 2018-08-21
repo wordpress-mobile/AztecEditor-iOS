@@ -377,7 +377,7 @@ open class TextView: UITextView {
 
     private func setupMenuController() {
         let pasteAndMatchTitle = NSLocalizedString("Paste without Formatting", comment: "Paste without Formatting Menu Item")
-        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteWithoutFormatting))
         UIMenuController.shared.menuItems = [pasteAndMatchItem]
     }
 
@@ -428,7 +428,7 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString()
+        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString() || tryPastingString()
         
         guard pasteHandled else {
             super.paste(sender)
@@ -436,18 +436,11 @@ open class TextView: UITextView {
         }
     }
 
-    @objc open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let string = UIPasteboard.general.string else {
+    @objc open func pasteWithoutFormatting(_ sender: Any?) {
+        guard tryPastingString() else {
             super.paste(sender)
             return
         }
-
-        let attributedString = NSMutableAttributedString(string: string, attributes: typingAttributesSwifted)
-        attributedString.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: attributedString)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + attributedString.length, length: 0)
     }
     
     // MARK: - Try Pasting
@@ -478,6 +471,20 @@ open class TextView: UITextView {
         }
         
         replace(selectedRange, withHTML: html)
+        return true
+    }
+    
+    private func tryPastingString() -> Bool {
+        guard let string = UIPasteboard.general.string else {
+            return false
+        }
+        
+        let attributedString = NSMutableAttributedString(string: string, attributes: typingAttributesSwifted)
+        attributedString.loadLazyAttachments()
+        
+        storage.replaceCharacters(in: selectedRange, with: attributedString)
+        notifyTextViewDidChange()
+        selectedRange = NSRange(location: selectedRange.location + attributedString.length, length: 0)
         return true
     }
 
