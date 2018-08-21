@@ -479,6 +479,13 @@ open class TextView: UITextView {
             return false
         }
         
+        let finalRange = NSRange(location: selectedRange.location, length: string.count)
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+        
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+        
         let attributedString = NSMutableAttributedString(string: string, attributes: typingAttributesSwifted)
         attributedString.loadLazyAttachments()
         
