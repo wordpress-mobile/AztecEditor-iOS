@@ -445,6 +445,10 @@ open class TextView: UITextView {
     
     // MARK: - Try Pasting
     
+    /// Tries to paste an attributed string from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
     private func tryPastingAttributedString() -> Bool {
         guard let string = UIPasteboard.general.attributedString() else {
             return false
@@ -464,7 +468,11 @@ open class TextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
         return true
     }
-    
+
+    /// Tries to paste HTML from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
     func tryPastingHTML() -> Bool {
         guard let html = UIPasteboard.general.html() else {
             return false
@@ -473,7 +481,11 @@ open class TextView: UITextView {
         replace(selectedRange, withHTML: html)
         return true
     }
-    
+
+    /// Tries to paste raw text from the clipboard, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
     private func tryPastingString() -> Bool {
         guard let string = UIPasteboard.general.string else {
             return false
@@ -495,10 +507,9 @@ open class TextView: UITextView {
         return true
     }
 
-    /// If there is selected text and a URL is available on the pasteboard,
-    /// this method creates a link to the URL using the selected text.
+    /// Tries to paste a URL from the clipboard as a link applied to the selected range.
     ///
-    /// - returns: True if a link was successfully created
+    /// - Returns: True if this method succeeds.
     ///
     private func tryPastingURL() -> Bool {
         guard selectedRange.length > 0,
