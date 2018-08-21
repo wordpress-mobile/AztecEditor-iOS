@@ -376,7 +376,7 @@ open class TextView: UITextView {
     }
 
     private func setupMenuController() {
-        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
+        let pasteAndMatchTitle = NSLocalizedString("Paste without Formatting", comment: "Paste without Formatting Menu Item")
         let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
         UIMenuController.shared.menuItems = [pasteAndMatchItem]
     }
