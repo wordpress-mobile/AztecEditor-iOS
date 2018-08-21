@@ -437,18 +437,17 @@ open class TextView: UITextView {
     }
 
     @objc open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let string = UIPasteboard.general.attributedString()?.mutableCopy() as? NSMutableAttributedString else {
+        guard let string = UIPasteboard.general.string else {
             super.paste(sender)
             return
         }
 
-        let range = string.rangeOfEntireString
-        string.addAttributes(typingAttributesSwifted, range: range)
-        string.loadLazyAttachments()
+        let attributedString = NSMutableAttributedString(string: string, attributes: typingAttributesSwifted)
+        attributedString.loadLazyAttachments()
 
-        storage.replaceCharacters(in: selectedRange, with: string)
+        storage.replaceCharacters(in: selectedRange, with: attributedString)
         notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+        selectedRange = NSRange(location: selectedRange.location + attributedString.length, length: 0)
     }
     
     // MARK: - Try Pasting
