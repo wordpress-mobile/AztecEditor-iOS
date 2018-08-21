@@ -428,31 +428,16 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        if tryPastingURL() {
-            return
-        }
-
-        guard let string = UIPasteboard.general.loadAttributedString() else {
+        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString()
+        
+        guard pasteHandled else {
             super.paste(sender)
             return
         }
-
-        let finalRange = NSRange(location: selectedRange.location, length: string.length)
-        let originalText = attributedText.attributedSubstring(from: selectedRange)
-
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
-
-        string.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: string)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
 
     @objc open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let string = UIPasteboard.general.loadAttributedString()?.mutableCopy() as? NSMutableAttributedString else {
+        guard let string = UIPasteboard.general.attributedString()?.mutableCopy() as? NSMutableAttributedString else {
             super.paste(sender)
             return
         }
@@ -465,22 +450,50 @@ open class TextView: UITextView {
         notifyTextViewDidChange()
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
+    
+    // MARK: - Try Pasting
+    
+    private func tryPastingAttributedString() -> Bool {
+        guard let string = UIPasteboard.general.attributedString() else {
+            return false
+        }
+        
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+        
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+        
+        string.loadLazyAttachments()
+        
+        storage.replaceCharacters(in: selectedRange, with: string)
+        notifyTextViewDidChange()
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+        return true
+    }
+    
+    func tryPastingHTML() -> Bool {
+        guard let html = UIPasteboard.general.html() else {
+            return false
+        }
+        
+        replace(selectedRange, withHTML: html)
+        return true
+    }
 
     /// If there is selected text and a URL is available on the pasteboard,
     /// this method creates a link to the URL using the selected text.
+    ///
     /// - returns: True if a link was successfully created
     ///
     private func tryPastingURL() -> Bool {
-        guard let urlTypes = UIPasteboardTypeListURL as? [String],
-            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
-            let pastedURL = UIPasteboard.general.url,
-            selectedRange.length > 0 else {
+        guard selectedRange.length > 0,
+            let url = UIPasteboard.general.url() else {
                 return false
         }
-
-        // If we have some selected text, and a URL is pasted,
-        // create a link with the selected text.
-        setLink(pastedURL, inRange: selectedRange)
+        
+        setLink(url, inRange: selectedRange)
         return true
     }
 
@@ -714,6 +727,21 @@ open class TextView: UITextView {
 
         notifyTextViewDidChange()
         formattingDelegate?.textViewCommandToggledAStyle()
+    }
+    
+    public func replace(_ range: NSRange, withHTML html: String) {
+        
+        let string = storage.htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
+        
+        let originalString = storage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: string.length)
+        
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: finalRange)
+        })
+        
+        storage.replaceCharacters(in: range, with: string)
+        selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
     }
 
 

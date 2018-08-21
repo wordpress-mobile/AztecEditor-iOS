@@ -81,7 +81,7 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - HTML Conversion
     
-    private let htmlConverter = HTMLConverter()
+    let htmlConverter = HTMLConverter()
     
     // MARK: - PluginManager
     
@@ -366,7 +366,7 @@ open class TextStorage: NSTextStorage {
     open func getHTML(prettify: Bool = false) -> String {
         return htmlConverter.html(from: self, prettify: prettify)
     }
-
+    
     func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
         let originalLength = length
         let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
