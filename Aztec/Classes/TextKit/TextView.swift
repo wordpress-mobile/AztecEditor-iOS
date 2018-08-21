@@ -477,7 +477,7 @@ open class TextView: UITextView {
         guard let html = UIPasteboard.general.html() else {
             return false
         }
-        
+
         replace(selectedRange, withHTML: html)
         return true
     }
@@ -487,23 +487,33 @@ open class TextView: UITextView {
     /// - Returns: True if this method succeeds.
     ///
     private func tryPastingString() -> Bool {
-        guard let string = UIPasteboard.general.string else {
+        guard let string = UIPasteboard.general.attributedString() else {
             return false
         }
-        
-        let finalRange = NSRange(location: selectedRange.location, length: string.count)
+
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
         let originalText = attributedText.attributedSubstring(from: selectedRange)
-        
+
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
         
-        let attributedString = NSMutableAttributedString(string: string, attributes: typingAttributesSwifted)
-        attributedString.loadLazyAttachments()
+        let newString = NSMutableAttributedString(attributedString: string)
         
-        storage.replaceCharacters(in: selectedRange, with: attributedString)
+        string.enumerateAttributes(in: string.rangeOfEntireString, options: []) { (attributes, range, stop) in
+            let newAttributes = attributes.filter({ (key, value) -> Bool in
+                return value is NSTextAttachment
+            })
+            
+            newString.setAttributes(newAttributes, range: range)
+        }
+        
+        newString.addAttributes(typingAttributesSwifted, range: string.rangeOfEntireString)
+        newString.loadLazyAttachments()
+
+        storage.replaceCharacters(in: selectedRange, with: newString)
         notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + attributedString.length, length: 0)
+        selectedRange = NSRange(location: selectedRange.location + newString.length, length: 0)
         return true
     }
 

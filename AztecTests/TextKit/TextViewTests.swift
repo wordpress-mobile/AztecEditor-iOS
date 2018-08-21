@@ -1480,12 +1480,79 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }    
 
-    // MARK: - Media
+    // MARK: - Media: Images
+    
+    
+    func testPasteImage() {
+        let sourceTextView = createTextView(withHTML: "<em>This is an image </em>")
+        let targetTextView = createTextView(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithImage(at: videoInsertionRange, sourceURL: URL(string: "image.jpg")!, placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.paste(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: </strong><em>This is an image <img src=\"image.jpg\"></em></p>")
+    }
+    
+    func testPasteImageWithoutFormatting() {
+        let sourceTextView = createTextView(withHTML: "<em>This is an image </em>")
+        let targetTextView = createTextView(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithImage(at: videoInsertionRange, sourceURL: URL(string: "image.jpg")!, placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.pasteWithoutFormatting(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: This is an image <img src=\"image.jpg\"></strong></p>")
+    }
+    
+    // MARK: - Media: Video
 
     func testInsertVideo() {
         let textView = createEmptyTextView()
         let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"video.mp4\" poster=\"video.jpg\"></video></p>")
+    }
+    
+    func testPasteVideo() {
+        let sourceTextView = createTextView(withHTML: "<em>This is a video </em>")
+        let targetTextView = createTextView(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithVideo(at: videoInsertionRange, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.paste(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: </strong><em>This is a video <video src=\"video.mp4\" poster=\"video.jpg\"></video></em></p>")
+    }
+    
+    func testPasteVideoWithoutFormatting() {
+        let sourceTextView = createTextView(withHTML: "<em>This is a video </em>")
+        let targetTextView = createTextView(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithVideo(at: videoInsertionRange, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.pasteWithoutFormatting(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: This is a video <video src=\"video.mp4\" poster=\"video.jpg\"></video></strong></p>")
     }
 
     /// Verifies that any edition performed on VideoAttachment's srcURL attribute is properly serialized back,
