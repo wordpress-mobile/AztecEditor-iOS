@@ -376,8 +376,8 @@ open class TextView: UITextView {
     }
 
     private func setupMenuController() {
-        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
-        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        let pasteAndMatchTitle = NSLocalizedString("Paste without Formatting", comment: "Paste without Formatting Menu Item")
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteWithoutFormatting))
         UIMenuController.shared.menuItems = [pasteAndMatchItem]
     }
 
@@ -428,7 +428,7 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString()
+        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString() || tryPastingString()
         
         guard pasteHandled else {
             super.paste(sender)
@@ -436,23 +436,19 @@ open class TextView: UITextView {
         }
     }
 
-    @objc open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let string = UIPasteboard.general.attributedString()?.mutableCopy() as? NSMutableAttributedString else {
+    @objc open func pasteWithoutFormatting(_ sender: Any?) {
+        guard tryPastingString() else {
             super.paste(sender)
             return
         }
-
-        let range = string.rangeOfEntireString
-        string.addAttributes(typingAttributesSwifted, range: range)
-        string.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: string)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
     }
     
     // MARK: - Try Pasting
     
+    /// Tries to paste an attributed string from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
     private func tryPastingAttributedString() -> Bool {
         guard let string = UIPasteboard.general.attributedString() else {
             return false
@@ -472,20 +468,58 @@ open class TextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
         return true
     }
-    
+
+    /// Tries to paste HTML from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
     func tryPastingHTML() -> Bool {
         guard let html = UIPasteboard.general.html() else {
             return false
         }
-        
+
         replace(selectedRange, withHTML: html)
         return true
     }
 
-    /// If there is selected text and a URL is available on the pasteboard,
-    /// this method creates a link to the URL using the selected text.
+    /// Tries to paste raw text from the clipboard, replacing the selected range.
     ///
-    /// - returns: True if a link was successfully created
+    /// - Returns: True if this method succeeds.
+    ///
+    private func tryPastingString() -> Bool {
+        guard let string = UIPasteboard.general.attributedString() else {
+            return false
+        }
+
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+        
+        let newString = NSMutableAttributedString(attributedString: string)
+        
+        string.enumerateAttributes(in: string.rangeOfEntireString, options: []) { (attributes, range, stop) in
+            let newAttributes = attributes.filter({ (key, value) -> Bool in
+                return value is NSTextAttachment
+            })
+            
+            newString.setAttributes(newAttributes, range: range)
+        }
+        
+        newString.addAttributes(typingAttributesSwifted, range: string.rangeOfEntireString)
+        newString.loadLazyAttachments()
+
+        storage.replaceCharacters(in: selectedRange, with: newString)
+        notifyTextViewDidChange()
+        selectedRange = NSRange(location: selectedRange.location + newString.length, length: 0)
+        return true
+    }
+
+    /// Tries to paste a URL from the clipboard as a link applied to the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
     ///
     private func tryPastingURL() -> Bool {
         guard selectedRange.length > 0,
