@@ -95,7 +95,7 @@ open class HTMLStorage: NSTextStorage {
         textStore.replaceCharacters(in: range, with: str)
         replaceTextStoreString(range, with: str)
         
-        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: string.count - range.length)
+        edited([.editedAttributes, .editedCharacters], range: range, changeInLength: str.utf16.count - range.length)
         
         colorizeHTML()
         endEditing()
@@ -150,11 +150,11 @@ private extension HTMLStorage {
 
 // MARK: - Constants
 //
-private extension HTMLStorage {
+extension HTMLStorage {
 
     /// Regular Expressions used to match HTML
     ///
-    struct RegExes {
+    private struct RegExes {
         static let comments = try! NSRegularExpression(pattern: "<!--[^>]+-->", options: .caseInsensitive)
         static let html = try! NSRegularExpression(pattern: "<[^>]+>", options: .caseInsensitive)
         static let quotes = try! NSRegularExpression(pattern: "\".*?\"", options: .caseInsensitive)
@@ -163,7 +163,7 @@ private extension HTMLStorage {
 
     /// Default Styles
     ///
-    struct Styles {
+    public struct Styles {
         static let defaultCommentColor = UIColor.lightGray
         static let defaultTagColor = UIColor(red: 0x00/255.0, green: 0x75/255.0, blue: 0xB6/255.0, alpha: 0xFF/255.0)
         static let defaultQuotedColor = UIColor(red: 0x6E/255.0, green: 0x96/255.0, blue: 0xB1/255.0, alpha: 0xFF/255.0)
