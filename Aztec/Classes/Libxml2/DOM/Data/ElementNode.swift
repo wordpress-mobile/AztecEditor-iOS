@@ -325,7 +325,7 @@ public class ElementNode: Node {
     }
     
     override public func rawText() -> String {
-        var rawText: String
+        let rawText: String
         
         switch type {
         case .br:
