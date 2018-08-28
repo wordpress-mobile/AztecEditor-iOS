@@ -233,7 +233,7 @@ open class TextStorage: NSTextStorage {
     /// - Important: please note that this method returns the style at the character location, and
     ///     NOT at the caret location.  For N characters we always have N+1 character locations.
     ///
-    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedStringKey : Any] {
+    override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedString.Key : Any] {
 
         guard textStore.length > 0 else {
             return [:]
@@ -279,7 +279,7 @@ open class TextStorage: NSTextStorage {
         endEditing()
     }
 
-    override open func setAttributes(_ attrs: [NSAttributedStringKey: Any]?, range: NSRange) {
+    override open func setAttributes(_ attrs: [NSAttributedString.Key: Any]?, range: NSRange) {
         beginEditing()
 
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
@@ -367,7 +367,7 @@ open class TextStorage: NSTextStorage {
         return htmlConverter.html(from: self, prettify: prettify)
     }
 
-    func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
+    func setHTML(_ html: String, defaultAttributes: [NSAttributedString.Key: Any]) {
         let originalLength = length
         let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
 
@@ -404,7 +404,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, if needed.
     ///
-    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [NSAttributedStringKey: Any], at range: NSRange) -> [NSAttributedStringKey: Any] {
+    func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [NSAttributedString.Key: Any], at range: NSRange) -> [NSAttributedString.Key: Any] {
         let newStyle = attrs[.paragraphStyle] as? ParagraphStyle
         let oldStyle = textStore.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? ParagraphStyle
 
@@ -427,7 +427,7 @@ private extension TextStorage {
     ///
     /// - Returns: Collection of attributes with the Font Attribute corrected, so that it matches the specified HeaderLevel.
     ///
-    private func fixFontAttribute(in attrs: [NSAttributedStringKey: Any], headerLevel: Header.HeaderType) ->  [NSAttributedStringKey: Any] {
+    private func fixFontAttribute(in attrs: [NSAttributedString.Key: Any], headerLevel: Header.HeaderType) ->  [NSAttributedString.Key: Any] {
         let formatter = HeaderFormatter(headerLevel: headerLevel)
         return formatter.apply(to: attrs)
     }

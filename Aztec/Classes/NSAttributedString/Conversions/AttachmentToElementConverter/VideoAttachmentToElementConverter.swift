@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class VideoAttachmentToElementConverter: AttachmentToElementConverter {
-    func convert(_ attachment: VideoAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: VideoAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         let element: ElementNode
         
         if let representation = attributes[.videoHtmlRepresentation] as? HTMLRepresentation,

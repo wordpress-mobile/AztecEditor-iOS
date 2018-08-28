@@ -20,7 +20,7 @@ open class ParagraphProperty: NSObject, NSCoding {
     }
 
     static func ==(lhs: ParagraphProperty, rhs: ParagraphProperty) -> Bool {
-        return lhs == rhs
+        return lhs === rhs
     }
     
     // MARK: - Dynamic Styling
@@ -31,7 +31,7 @@ open class ParagraphProperty: NSObject, NSCoding {
     ///
     /// The default implementation does not add any dynamic styling.
     ///
-    func addDynamicAttributes(to attributes: [NSAttributedStringKey:Any]) -> [NSAttributedStringKey:Any] {
+    func addDynamicAttributes(to attributes: [NSAttributedString.Key:Any]) -> [NSAttributedString.Key:Any] {
         return attributes
     }
 }

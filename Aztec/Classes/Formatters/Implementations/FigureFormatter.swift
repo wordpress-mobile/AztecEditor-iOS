@@ -5,18 +5,18 @@ import UIKit
 // MARK: - Figure Formatter
 //
 open class FigureFormatter: ParagraphAttributeFormatter {
-    var placeholderAttributes: [NSAttributedStringKey : Any]?
+    var placeholderAttributes: [NSAttributedString.Key : Any]?
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
+    init(placeholderAttributes: [NSAttributedString.Key: Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         let figure = Figure(with: representation)
         let paragraphStyle = attributes.paragraphStyle()
         
@@ -29,7 +29,7 @@ open class FigureFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         let paragraphStyle = attributes.paragraphStyle()
         
@@ -47,7 +47,7 @@ open class FigureFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }

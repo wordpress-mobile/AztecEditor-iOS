@@ -49,7 +49,7 @@ open class WordPressOutputCustomizer: Plugin.OutputCustomizer {
         gutenbergOutputHTMLTreeProcessor.process(htmlTree)
     }
     
-    override open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+    override open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node]? {
         for converter in attachmentToElementConverters {
             if let element = converter.convert(attachment, attributes: attributes) {
                 return element

@@ -30,8 +30,8 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
     }
 
     // MARK - Hashable
-
-    public override var hashValue: Int {
+    
+    override public var hash: Int {
         return name.hashValue ^ value.hashValue
     }
 

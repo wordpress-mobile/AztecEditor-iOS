@@ -9,7 +9,7 @@ class BRElementConverter: ElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
         
         precondition(element.type == .br)

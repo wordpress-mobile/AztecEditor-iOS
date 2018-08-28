@@ -4,11 +4,11 @@ import UIKit
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string.
 class CodeFormatter: AttributeFormatter {
 
-    var placeholderAttributes: [NSAttributedStringKey: Any]?
+    var placeholderAttributes: [NSAttributedString.Key: Any]?
 
     let monospaceFont: UIFont
     let backgroundColor: UIColor
-    let htmlRepresentationKey: NSAttributedStringKey
+    let htmlRepresentationKey: NSAttributedString.Key
 
     // MARK: - Init
 
@@ -33,7 +33,7 @@ class CodeFormatter: AttributeFormatter {
         return false
     }
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
 
         resultingAttributes[.font] = monospaceFont
@@ -47,7 +47,7 @@ class CodeFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
 
         resultingAttributes.removeValue(forKey: .font)
@@ -62,8 +62,8 @@ class CodeFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
-        return attributes[NSAttributedStringKey.codeHtmlRepresentation] != nil            
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
+        return attributes[NSAttributedString.Key.codeHtmlRepresentation] != nil            
     }
 }
 

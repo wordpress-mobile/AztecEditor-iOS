@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class ImageAttachmentToElementConverter: AttachmentToElementConverter {
-    func convert(_ attachment: ImageAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: ImageAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         let imageElement: ElementNode
         
         if let representation = attributes[.imageHtmlRepresentation] as? HTMLRepresentation,

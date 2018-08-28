@@ -44,7 +44,7 @@ open class Plugin {
         /// Converts an attachment into the `[Node]`s that represent it.
         /// When a conversion is not implemented, just return nil.
         ///
-        open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? { return nil }
+        open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) -> [Node]? { return nil }
         
         open func converter(for elementNode: ElementNode) -> ElementToTagConverter? { return nil }
     }

@@ -8,7 +8,7 @@ class LinkFormatter: StandardAttributeFormatter {
                    htmlRepresentationKey: .linkHtmlRepresentation)
     }
 
-    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    override func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
 
         if let representation = representation,
             case let .element(element) = representation.kind {

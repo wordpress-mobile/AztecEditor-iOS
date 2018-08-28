@@ -11,7 +11,7 @@ class ImageElementConverter: AttachmentElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: ImageAttachment, string: NSAttributedString) {
         
         let attachment = self.attachment(for: element)

@@ -10,12 +10,12 @@ class PreFormatterTests: XCTestCase {
     /// to the formatter's behavior.
     ///
     func testPreFormatterDoesNotLooseAttachmentAttribuesOnRemove() {
-        let placeholderAttributes: [NSAttributedStringKey: Any] = [
+        let placeholderAttributes: [NSAttributedString.Key: Any] = [
             .font: "Value",
             .paragraphStyle: NSParagraphStyle()
         ]
 
-        let stringAttributes: [NSAttributedStringKey: Any] = [
+        let stringAttributes: [NSAttributedString.Key: Any] = [
             .attachment: NSTextAttachment(),
         ]
 
@@ -34,7 +34,7 @@ class PreFormatterTests: XCTestCase {
     /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/993
     ///
     func testPreFormatterDoesNotDropInheritedParagraphStyle(){
-        let placeholderAttributes: [NSAttributedStringKey: Any] = [
+        let placeholderAttributes: [NSAttributedString.Key: Any] = [
             .font: "Value",
             .paragraphStyle: NSParagraphStyle()
         ]
@@ -44,7 +44,7 @@ class PreFormatterTests: XCTestCase {
         
         paragraphStyle.appendProperty(div)
         
-        let previousAttributes: [NSAttributedStringKey: Any] = [.paragraphStyle: paragraphStyle]
+        let previousAttributes: [NSAttributedString.Key: Any] = [.paragraphStyle: paragraphStyle]
         
         let formatter = PreFormatter(placeholderAttributes: placeholderAttributes)
         let newAttributes = formatter.apply(to: previousAttributes, andStore: nil)

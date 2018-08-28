@@ -48,7 +48,7 @@ class AttachmentDetailsViewController: UITableViewController
             fatalError()
         }
 
-        alignmentSegmentedControl.selectedSegmentIndex = UISegmentedControlNoSegment
+        alignmentSegmentedControl.selectedSegmentIndex = UISegmentedControl.noSegment
         if let alignmentValue = attachment.alignment {
             let alignment = Alignment(attachmentAlignment: alignmentValue)
             alignmentSegmentedControl.selectedSegmentIndex = alignment.rawValue
@@ -71,7 +71,7 @@ class AttachmentDetailsViewController: UITableViewController
 
     @IBAction func doneWasPressed() {
         var alignment: ImageAttachment.Alignment?
-        if alignmentSegmentedControl.selectedSegmentIndex != UISegmentedControlNoSegment {
+        if alignmentSegmentedControl.selectedSegmentIndex != UISegmentedControl.noSegment {
             alignment = Alignment(rawValue: alignmentSegmentedControl.selectedSegmentIndex)?.toAttachmentAlignment()
         }
         guard
