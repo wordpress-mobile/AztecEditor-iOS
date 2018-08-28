@@ -90,7 +90,6 @@
 		F12328771FB638C6001E35EF /* NSAttributedStringKey+Aztec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328761FB638C6001E35EF /* NSAttributedStringKey+Aztec.swift */; };
 		F12328791FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */; };
 		F123287B1FB63F7A001E35EF /* DocumentType+Swift4.swift in Sources */ = {isa = PBXBuildFile; fileRef = F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */; };
-		F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7111F058B20008A00D7 /* StandardAttribute.swift */; };
 		F127F7141F0591AD008A00D7 /* CSSAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127F7131F0591AD008A00D7 /* CSSAttribute.swift */; };
 		F12B1A0120482B9600284C00 /* NSAttributedStringAttachmentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12B1A0020482B9600284C00 /* NSAttributedStringAttachmentsTests.swift */; };
 		F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12F58511EF20394008AE298 /* AttributeFormatter.swift */; };
@@ -308,7 +307,6 @@
 		F12328761FB638C6001E35EF /* NSAttributedStringKey+Aztec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Aztec.swift"; sourceTree = "<group>"; };
 		F12328781FB63CF6001E35EF /* DocumentReadingOptionKey+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentReadingOptionKey+Swift4.swift"; sourceTree = "<group>"; };
 		F123287A1FB63F7A001E35EF /* DocumentType+Swift4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentType+Swift4.swift"; sourceTree = "<group>"; };
-		F127F7111F058B20008A00D7 /* StandardAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StandardAttribute.swift; sourceTree = "<group>"; };
 		F127F7131F0591AD008A00D7 /* CSSAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSAttribute.swift; sourceTree = "<group>"; };
 		F12B1A0020482B9600284C00 /* NSAttributedStringAttachmentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSAttributedStringAttachmentsTests.swift; path = Extensions/NSAttributedStringAttachmentsTests.swift; sourceTree = "<group>"; };
 		F12F58511EF20394008AE298 /* AttributeFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributeFormatter.swift; sourceTree = "<group>"; };
@@ -1014,7 +1012,6 @@
 				F1FA0E7F1E6EF514009D98EE /* Element.swift */,
 				F1FA0E7B1E6EF514009D98EE /* ElementNode.swift */,
 				F1FA0E7E1E6EF514009D98EE /* Node.swift */,
-				F127F7111F058B20008A00D7 /* StandardAttribute.swift */,
 				F1FA0E801E6EF514009D98EE /* TextNode.swift */,
 			);
 			path = Data;
@@ -1298,7 +1295,6 @@
 				B5AF89321E93CFC80051EFDB /* RenderableAttachment.swift in Sources */,
 				B5BC4FEE1DA2C17800614582 /* NSAttributedString+Lists.swift in Sources */,
 				B5F84B611E70595B0089A76C /* NSAttributedString+Analyzers.swift in Sources */,
-				F127F7121F058B20008A00D7 /* StandardAttribute.swift in Sources */,
 				599F25361D8BC9A1002871D6 /* Converter.swift in Sources */,
 				40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */,
 				599F25381D8BC9A1002871D6 /* InAttributesConverter.swift in Sources */,

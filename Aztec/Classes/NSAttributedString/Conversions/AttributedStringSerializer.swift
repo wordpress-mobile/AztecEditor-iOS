@@ -173,8 +173,6 @@ class AttributedStringSerializer {
         return [:]
     }()
 
-    let attributesToFormattersMap: [StandardHTMLAttribute: AttributeFormatter] = [:]
-
     public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
         "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
         "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.single.rawValue : nil})
