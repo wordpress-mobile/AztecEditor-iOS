@@ -41,12 +41,12 @@ extension GalleryAttachmentToElementConverter {
     }
     
     private func getUnsupportedAttributes(from attachment: GalleryAttachment) -> [Attribute] {
-        return attachment.extraAttributes.compactMap { (key, value) -> Attribute? in
-            guard !GallerySupportedAttribute.isSupported(key) else {
+        return attachment.extraAttributes.compactMap { attribute -> Attribute? in
+            guard !GallerySupportedAttribute.isSupported(attribute.name) else {
                 return nil
             }
             
-            return Attribute(name: key, value: .string(value))
+            return Attribute(attribute)
         }
     }
     

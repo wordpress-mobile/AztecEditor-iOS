@@ -1439,7 +1439,7 @@ private extension EditorDemoController
 
             let attachment = self.richTextView.edit(attachment) { attachment in
                 if let alt = alt {
-                    attachment.extraAttributes["alt"] = alt
+                    attachment.extraAttributes["alt"] = .string(alt)
                 }
 
                 attachment.alignment = alignment

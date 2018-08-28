@@ -20,6 +20,13 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
         self.name = name
         self.value = value
     }
+    
+    /// Copy constructor
+    ///
+    public init(_ attribute: Attribute) {
+        self.name = attribute.name
+        self.value = attribute.value
+    }
 
     // MARK: - CustomReflectable
 

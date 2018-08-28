@@ -62,7 +62,7 @@ class AttachmentDetailsViewController: UITableViewController
         linkURLTextField.text = linkURL?.absoluteString
 
         captionTextView.attributedText = caption
-        altTextField.text = attachment.extraAttributes["alt"]
+        altTextField.text = attachment.extraAttributes["alt"]?.toString()
     }
 
     @IBAction func cancelWasPressed() {
