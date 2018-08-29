@@ -1389,9 +1389,10 @@ open class TextView: UITextView {
     /// - Parameters:
     ///     - url: the NSURL to link to.
     ///     - title: the text for the link.
+    ///     - target: the target for the link
     ///     - range: The NSRange to edit.
     ///
-    open func setLink(_ url: URL, title: String, inRange range: NSRange) {
+    open func setLink(_ url: URL, title: String, target: String? = nil, inRange range: NSRange) {
 
         let originalText = attributedText.attributedSubstring(from: range)
         let attributedTitle = NSAttributedString(string: title)
@@ -1403,7 +1404,7 @@ open class TextView: UITextView {
 
         let formatter = LinkFormatter()
         formatter.attributeValue = url
-
+        formatter.target = target
         let attributes = formatter.apply(to: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
 
@@ -1416,11 +1417,13 @@ open class TextView: UITextView {
     ///
     /// - Parameters:
     ///     - url: the NSURL to link to.
+    ///     - target: the target for the link
     ///     - range: The NSRange to edit.
     ///
-    open func setLink(_ url: URL, inRange range: NSRange) {
+    open func setLink(_ url: URL, target: String? = nil, inRange range: NSRange) {
         let formatter = LinkFormatter()
         formatter.attributeValue = url
+        formatter.target = target
         apply(formatter: formatter, atRange: range, remove: false)
     }
 
@@ -1646,6 +1649,29 @@ open class TextView: UITextView {
 
         if let urlString = attr as? String {
             return URL(string:urlString)
+        }
+
+        return nil
+    }
+
+    /// Returns the link target value if the specified range has attached a link attribute
+    ///
+    /// - Parameter range: The NSRange to inspect
+    ///
+    /// - Returns: The target if available
+    ///
+    open func linkTarget(forRange range: NSRange) -> String? {
+        let index = maxIndex(range.location)
+        var effectiveRange = NSRange()
+        guard index < storage.length,
+            let representation = storage.attribute(.linkHtmlRepresentation, at: index, effectiveRange: &effectiveRange) as? HTMLRepresentation,
+            case .element(let element) = representation.kind
+            else {
+                return nil
+        }
+
+        if let target = element.attribute(named: HTMLLinkAttribute.target.rawValue)?.value.toString() {
+            return target
         }
 
         return nil
