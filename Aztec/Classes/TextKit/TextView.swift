@@ -1402,9 +1402,9 @@ open class TextView: UITextView {
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
-        let formatter = LinkFormatter()
+        let formatter = LinkFormatter(target: target)
         formatter.attributeValue = url
-        formatter.target = target
+
         let attributes = formatter.apply(to: typingAttributesSwifted)
         storage.replaceCharacters(in: range, with: NSAttributedString(string: title, attributes: attributes))
 
@@ -1421,9 +1421,9 @@ open class TextView: UITextView {
     ///     - range: The NSRange to edit.
     ///
     open func setLink(_ url: URL, target: String? = nil, inRange range: NSRange) {
-        let formatter = LinkFormatter()
+        let formatter = LinkFormatter(target: target)
         formatter.attributeValue = url
-        formatter.target = target
+
         apply(formatter: formatter, atRange: range, remove: false)
     }
 

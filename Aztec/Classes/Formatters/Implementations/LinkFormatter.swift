@@ -2,9 +2,10 @@ import UIKit
 
 class LinkFormatter: StandardAttributeFormatter {
 
-    var target: String?
+    let target: String?
 
-    init() {
+    init(target: String? = nil) {
+        self.target = target
         super.init(attributeKey: .link,
                    attributeValue: NSURL(string:"")!,
                    htmlRepresentationKey: .linkHtmlRepresentation)
@@ -33,14 +34,17 @@ class LinkFormatter: StandardAttributeFormatter {
             //
             assert(representation == nil)
             var attributes = [Attribute]()
+
             if let url = attributeValue as? URL {
                 let urlValue = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: .string(url.absoluteString))
                 attributes.append(urlValue)
             }
+
             if let target = target {
                 let targetValue = Attribute(name: HTMLLinkAttribute.target.rawValue, value: .string(target))
                 attributes.append(targetValue)
             }
+
             let linkRepresentation = HTMLElementRepresentation(name: Element.a.rawValue, attributes: attributes)
             finalRepresentation = HTMLRepresentation(for: .element(linkRepresentation))
         }
