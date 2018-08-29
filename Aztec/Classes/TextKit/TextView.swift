@@ -1664,7 +1664,8 @@ open class TextView: UITextView {
         let index = maxIndex(range.location)
         var effectiveRange = NSRange()
         guard index < storage.length,
-            let representation = storage.attribute(.linkHtmlRepresentation, at: index, effectiveRange: &effectiveRange) as? HTMLRepresentation,
+            let _ = storage.attribute(.link, at: index, longestEffectiveRange: &effectiveRange, in: storage.rangeOfEntireString),        
+            let representation = storage.attribute(.linkHtmlRepresentation, at: effectiveRange.location, effectiveRange: nil) as? HTMLRepresentation,
             case .element(let element) = representation.kind
             else {
                 return nil
