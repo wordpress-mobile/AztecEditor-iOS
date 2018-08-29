@@ -325,7 +325,16 @@ public class ElementNode: Node {
     }
     
     override public func rawText() -> String {
-        return children.reduce("", { (previous, node) -> String in
+        let rawText: String
+        
+        switch type {
+        case .br:
+            rawText = "\n"
+        default:
+            rawText = ""
+        }
+        
+        return children.reduce(rawText, { (previous, node) -> String in
             return previous + node.rawText()
         })
     }

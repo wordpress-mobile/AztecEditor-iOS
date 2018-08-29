@@ -163,14 +163,10 @@ open class TextView: UITextView {
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [NSAttributedString.Key: Any] {
-        var attributes: [NSAttributedString.Key: Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
             .font: defaultFont,
             .paragraphStyle: defaultParagraphStyle
         ]
-
-        if let textColor = textColor {
-            attributes[.foregroundColor] = textColor
-        }
 
         return attributes
     }
@@ -356,8 +352,8 @@ open class TextView: UITextView {
     }
 
     private func setupMenuController() {
-        let pasteAndMatchTitle = NSLocalizedString("Paste and Match Style", comment: "Paste and Match Menu Item")
-        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteAndMatchStyle))
+        let pasteAndMatchTitle = NSLocalizedString("Paste without Formatting", comment: "Paste without Formatting Menu Item")
+        let pasteAndMatchItem = UIMenuItem(title: pasteAndMatchTitle, action: #selector(pasteWithoutFormatting))
         UIMenuController.shared.menuItems = [pasteAndMatchItem]
     }
 
@@ -408,13 +404,67 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        if tryPastingURL() {
-            return
-        }
-
-        guard let string = UIPasteboard.general.loadAttributedString() else {
+        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString() || tryPastingString()
+        
+        guard pasteHandled else {
             super.paste(sender)
             return
+        }
+    }
+
+    @objc open func pasteWithoutFormatting(_ sender: Any?) {
+        guard tryPastingString() else {
+            super.paste(sender)
+            return
+        }
+    }
+    
+    // MARK: - Try Pasting
+    
+    /// Tries to paste an attributed string from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
+    private func tryPastingAttributedString() -> Bool {
+        guard let string = UIPasteboard.general.attributedString() else {
+            return false
+        }
+        
+        let finalRange = NSRange(location: selectedRange.location, length: string.length)
+        let originalText = attributedText.attributedSubstring(from: selectedRange)
+        
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+        })
+        
+        string.loadLazyAttachments()
+        
+        storage.replaceCharacters(in: selectedRange, with: string)
+        notifyTextViewDidChange()
+        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+        return true
+    }
+
+    /// Tries to paste HTML from the clipboard as source, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
+    func tryPastingHTML() -> Bool {
+        guard let html = UIPasteboard.general.html() else {
+            return false
+        }
+
+        replace(selectedRange, withHTML: html)
+        return true
+    }
+
+    /// Tries to paste raw text from the clipboard, replacing the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
+    ///
+    private func tryPastingString() -> Bool {
+        guard let string = UIPasteboard.general.attributedString() else {
+            return false
         }
 
         let finalRange = NSRange(location: selectedRange.location, length: string.length)
@@ -423,44 +473,37 @@ open class TextView: UITextView {
         undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
-
-        string.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: string)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
-    }
-
-    @objc open func pasteAndMatchStyle(_ sender: Any?) {
-        guard let string = UIPasteboard.general.loadAttributedString()?.mutableCopy() as? NSMutableAttributedString else {
-            super.paste(sender)
-            return
+        
+        let newString = NSMutableAttributedString(attributedString: string)
+        
+        string.enumerateAttributes(in: string.rangeOfEntireString, options: []) { (attributes, range, stop) in
+            let newAttributes = attributes.filter({ (key, value) -> Bool in
+                return value is NSTextAttachment
+            })
+            
+            newString.setAttributes(newAttributes, range: range)
         }
+        
+        newString.addAttributes(typingAttributes, range: string.rangeOfEntireString)
+        newString.loadLazyAttachments()
 
-        let range = string.rangeOfEntireString
-        string.addAttributes(typingAttributes, range: range)
-        string.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: string)
+        storage.replaceCharacters(in: selectedRange, with: newString)
         notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
+        selectedRange = NSRange(location: selectedRange.location + newString.length, length: 0)
+        return true
     }
 
-    /// If there is selected text and a URL is available on the pasteboard,
-    /// this method creates a link to the URL using the selected text.
-    /// - returns: True if a link was successfully created
+    /// Tries to paste a URL from the clipboard as a link applied to the selected range.
+    ///
+    /// - Returns: True if this method succeeds.
     ///
     private func tryPastingURL() -> Bool {
-        guard let urlTypes = UIPasteboard.typeListURL as? [String],
-            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
-            let pastedURL = UIPasteboard.general.url,
-            selectedRange.length > 0 else {
+        guard selectedRange.length > 0,
+            let url = UIPasteboard.general.url() else {
                 return false
         }
-
-        // If we have some selected text, and a URL is pasted,
-        // create a link with the selected text.
-        setLink(pastedURL, inRange: selectedRange)
+        
+        setLink(url, inRange: selectedRange)
         return true
     }
 
@@ -694,6 +737,21 @@ open class TextView: UITextView {
 
         notifyTextViewDidChange()
         formattingDelegate?.textViewCommandToggledAStyle()
+    }
+    
+    public func replace(_ range: NSRange, withHTML html: String) {
+        
+        let string = storage.htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
+        
+        let originalString = storage.attributedSubstring(from: range)
+        let finalRange = NSRange(location: range.location, length: string.length)
+        
+        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+            self?.undoTextReplacement(of: originalString, finalRange: finalRange)
+        })
+        
+        storage.replaceCharacters(in: range, with: string)
+        selectedRange = NSRange(location: finalRange.location + finalRange.length, length: 0)
     }
 
 

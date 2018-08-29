@@ -7,67 +7,86 @@ import UIKit
 //
 extension UIPasteboard {
 
-    /// Attempts to load the Pasteboard's contents into a NSAttributedString Instance, if possible.
+    /// Attempts to retrieve the Pasteboard's contents as an attributed string, if possible.
     ///
-    func loadAttributedString() -> NSAttributedString? {
-
-        if let string = aztecAttributedString {
+    func attributedString() -> NSAttributedString? {
+        
+        if let string = aztecAttributedString() {
             return string
         }
 
-        if let string = RTFDAttributedString {
+        if let string = rtfdAttributedString() {
             return string
         }
 
-        if let string = RTFAttributedString {
+        if let string = rtfAttributedString() {
             return string
         }
 
-        if let string = richTextAttributedString {
+        if let string = richTextAttributedString() {
             return string
         }
 
-        return plainTextAttributedString
+        return plainTextAttributedString()
+    }
+    
+    func html() -> String? {
+        guard let htmlData = data(forPasteboardType: String(kUTTypeHTML)) else {
+            return nil
+        }
+        
+        return String(data: htmlData, encoding: .utf8)
+    }
+    
+    func url() -> URL? {
+        guard let urlTypes = UIPasteboard.typeListURL as? [String],
+            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
+            let url = UIPasteboard.general.url else {
+                return nil
+        }
+        
+        return url
     }
 }
 
+// MARK: - Attributed String Conversion
 
-// MARK: - Pasteboard Private Helpers
-//
 private extension UIPasteboard {
 
+    // MARK: -
+    
+    /// Attempts to unarchive the Pasteboard's Aztec-Archived String
+    ///
+    func aztecAttributedString() -> NSAttributedString? {
+        guard let data = data(forPasteboardType: NSAttributedString.pastesboardUTI) else {
+            return nil
+        }
+        
+        return NSAttributedString.unarchive(with: data)
+    }
+    
+    /// Attempts to unarchive the Pasteboard's Plain Text contents into an Attributed String
+    ///
+    func plainTextAttributedString() -> NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypePlainText, with: StringOptions.plainText)
+    }
+    
+    /// Attempts to unarchive the Pasteboard's Text contents into an Attributed String
+    ///
+    func richTextAttributedString() -> NSAttributedString? {
+        return unarchiveAttributedString(fromPasteboardCFType: kUTTypeText, with: StringOptions.RTFText)
+    }
+    
     /// Attempts to unarchive the Pasteboard's RTF contents into an Attributed String
     ///
-    var RTFAttributedString: NSAttributedString? {
+    func rtfAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeRTF, with: StringOptions.RTFText)
     }
 
     /// Attempts to unarchive the Pasteboard's RTFD contents into an Attributed String
     ///
-    var RTFDAttributedString: NSAttributedString? {
+    func rtfdAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeFlatRTFD, with: StringOptions.RTFDText)
-    }
-
-    /// Attempts to unarchive the Pasteboard's Text contents into an Attributed String
-    ///
-    var richTextAttributedString: NSAttributedString? {
-        return unarchiveAttributedString(fromPasteboardCFType: kUTTypeText, with: StringOptions.RTFText)
-    }
-
-    /// Attempts to unarchive the Pasteboard's Plain Text contents into an Attributed String
-    ///
-    var plainTextAttributedString: NSAttributedString? {
-        return unarchiveAttributedString(fromPasteboardCFType: kUTTypePlainText, with: StringOptions.plainText)
-    }
-
-    /// Attempts to unarchive the Pasteboard's Aztec-Archived String
-    ///
-    var aztecAttributedString: NSAttributedString? {
-        guard let data = data(forPasteboardType: NSAttributedString.pastesboardUTI) else {
-            return nil
-        }
-
-        return NSAttributedString.unarchive(with: data)
     }
 
     // MARK: - Helpers
@@ -75,9 +94,10 @@ private extension UIPasteboard {
     /// String Initialization Options
     ///
     private struct StringOptions {
+        static let html: [DocumentReadingOptionKey: DocumentType] = [.documentType: .html]
+        static let plainText: [DocumentReadingOptionKey: DocumentType] = [.documentType: .plain]
         static let RTFText: [DocumentReadingOptionKey: DocumentType] = [.documentType: .rtf]
         static let RTFDText: [DocumentReadingOptionKey: DocumentType] = [.documentType: .rtfd]
-        static let plainText: [DocumentReadingOptionKey: DocumentType] = [.documentType: .plain]
     }
 
     /// Attempts to unarchive a Pasteboard's Entry into a NSAttributedString Instance.
@@ -93,6 +113,6 @@ private extension UIPasteboard {
             return nil
         }
         
-        return try? NSAttributedString.init(data: data, options: options, documentAttributes: nil)
+        return try? NSAttributedString(data: data, options: options, documentAttributes: nil)
     }
 }
