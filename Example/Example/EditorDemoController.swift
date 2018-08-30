@@ -800,17 +800,17 @@ extension EditorDemoController {
            linkRange = expandedRange
            linkURL = richTextView.linkURL(forRange: expandedRange)
         }
-
+        let target = richTextView.linkTarget(forRange: richTextView.selectedRange)
         linkTitle = richTextView.attributedText.attributedSubstring(from: linkRange).string
         let allowTextEdit = !richTextView.attributedText.containsAttachments(in: linkRange)
-        showLinkDialog(forURL: linkURL, text: linkTitle, range: linkRange, allowTextEdit: allowTextEdit)
+        showLinkDialog(forURL: linkURL, text: linkTitle, target: target, range: linkRange, allowTextEdit: allowTextEdit)
     }
 
     func insertMoreAttachment() {
         richTextView.replace(richTextView.selectedRange, withComment: Constants.moreAttachmentText)
     }
 
-    func showLinkDialog(forURL url: URL?, text: String?, range: NSRange, allowTextEdit: Bool = true) {
+    func showLinkDialog(forURL url: URL?, text: String?, target: String?, range: NSRange, allowTextEdit: Bool = true) {
 
         let isInsertingNewLink = (url == nil)
         var urlToUse = url
@@ -834,7 +834,10 @@ extension EditorDemoController {
         alertController.addTextField(configurationHandler: { [weak self]textField in
             textField.clearButtonMode = UITextField.ViewMode.always;
             textField.placeholder = NSLocalizedString("URL", comment:"URL text field placeholder");
-            
+            textField.keyboardType = .URL
+            if #available(iOS 10, *) {
+                textField.textContentType = .URL
+            }
             textField.text = urlToUse?.absoluteString
 
             textField.addTarget(self,
@@ -859,13 +862,35 @@ extension EditorDemoController {
 
                 })
         }
+
+        alertController.addTextField(configurationHandler: { textField in
+            textField.clearButtonMode = UITextField.ViewMode.always
+            textField.placeholder = NSLocalizedString("Target", comment:"Link text field placeholder")
+            textField.isSecureTextEntry = false
+            textField.autocapitalizationType = UITextAutocapitalizationType.sentences
+            textField.autocorrectionType = UITextAutocorrectionType.default
+            textField.spellCheckingType = UITextSpellCheckingType.default
+
+            textField.text = target;
+
+            textField.accessibilityIdentifier = "linkModalTarget"
+
+        })
+
         let insertAction = UIAlertAction(title:insertButtonTitle,
                                          style:UIAlertAction.Style.default,
                                          handler:{ [weak self]action in
 
                                             self?.richTextView.becomeFirstResponder()
-                                            let linkURLString = alertController.textFields?.first?.text
-                                            var linkTitle = alertController.textFields?.last?.text
+                                            guard let textFields = alertController.textFields else {
+                                                    return
+                                            }
+                                            let linkURLField = textFields[0]
+                                            let linkTextField = textFields[1]
+                                            let linkTargetField = textFields[2]
+                                            let linkURLString = linkURLField.text
+                                            var linkTitle = linkTextField.text
+                                            let target = linkTargetField.text
 
                                             if  linkTitle == nil  || linkTitle!.isEmpty {
                                                 linkTitle = linkURLString
@@ -879,10 +904,10 @@ extension EditorDemoController {
                                             }
                                             if allowTextEdit {
                                                 if let title = linkTitle {
-                                                    self?.richTextView.setLink(url, title:title, inRange: range)
+                                                    self?.richTextView.setLink(url, title: title, target: target, inRange: range)
                                                 }
                                             } else {
-                                                self?.richTextView.setLink(url, inRange: range)
+                                                self?.richTextView.setLink(url, target: target, inRange: range)
                                             }
                                             })
         
