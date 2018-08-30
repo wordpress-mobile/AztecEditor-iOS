@@ -172,6 +172,7 @@
 		F1FA0E871E6EF514009D98EE /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E7F1E6EF514009D98EE /* Element.swift */; };
 		F1FA0E881E6EF514009D98EE /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E801E6EF514009D98EE /* TextNode.swift */; };
 		F1FC704B21383365007AAFB3 /* EditorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC704A21383365007AAFB3 /* EditorViewTests.swift */; };
+		F1FC705321383F98007AAFB3 /* UIStackViewHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC705221383F98007AAFB3 /* UIStackViewHelpersTests.swift */; };
 		F1FF7D9D201A147B007B0B32 /* Figure.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7D9C201A147B007B0B32 /* Figure.swift */; };
 		F1FF7D9F201A1D24007B0B32 /* Figcaption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7D9E201A1D24007B0B32 /* Figcaption.swift */; };
 		F1FF7DA1201A1D3E007B0B32 /* FigcaptionElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */; };
@@ -396,6 +397,7 @@
 		F1FA0E7F1E6EF514009D98EE /* Element.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
 		F1FA0E801E6EF514009D98EE /* TextNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextNode.swift; sourceTree = "<group>"; };
 		F1FC704A21383365007AAFB3 /* EditorViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewTests.swift; sourceTree = "<group>"; };
+		F1FC705221383F98007AAFB3 /* UIStackViewHelpersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStackViewHelpersTests.swift; sourceTree = "<group>"; };
 		F1FF7D9C201A147B007B0B32 /* Figure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Figure.swift; sourceTree = "<group>"; };
 		F1FF7D9E201A1D24007B0B32 /* Figcaption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Figcaption.swift; sourceTree = "<group>"; };
 		F1FF7DA0201A1D3E007B0B32 /* FigcaptionElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FigcaptionElementConverter.swift; sourceTree = "<group>"; };
@@ -648,17 +650,17 @@
 				F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */,
 				F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */,
 				B5375F461EC2566200F5D7EC /* String+HTML.swift */,
+				B5AB79F71F5F3E0B00DF26F5 /* String+Paragraph.swift */,
 				599F25261D8BC9A1002871D6 /* String+RangeConversion.swift */,
 				F18B81EA1EA5601000885F43 /* StringUnicodeScalarView+RangeConversion.swift */,
 				F18B81EC1EA560B700885F43 /* StringUTF16+RangeConversion.swift */,
+				F1DE83D41EF20493009269E6 /* UIColor+Parsers.swift */,
 				B551A49F1E770B3800EE3A7F /* UIFont+Emoji.swift */,
 				B59C9F9E1DF74BB80073B1D6 /* UIFont+Traits.swift */,
+				74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */,
 				F177FF741FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift */,
 				B5B96DAA1E01B2F300791315 /* UIPasteboard+Helpers.swift */,
 				B5C99D3E1E72E2E700335355 /* UIStackView+Helpers.swift */,
-				F1DE83D41EF20493009269E6 /* UIColor+Parsers.swift */,
-				B5AB79F71F5F3E0B00DF26F5 /* String+Paragraph.swift */,
-				74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1030,6 +1032,7 @@
 				F185A5AA2123C0D900DDFAB1 /* StringParagraphTests.swift */,
 				F185A5A92123C0D900DDFAB1 /* StringRangeConversionTests.swift */,
 				F185A5AD2123C0D900DDFAB1 /* UIColorHexParserTests.swift */,
+				F1FC705221383F98007AAFB3 /* UIStackViewHelpersTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1424,6 +1427,7 @@
 				B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */,
 				F17BC8A51F4E4F5A00398E2B /* TextNodeTests.swift in Sources */,
 				F185A5B12123C0DA00DDFAB1 /* NSAttributedStringAttachmentsTests.swift in Sources */,
+				F1FC705321383F98007AAFB3 /* UIStackViewHelpersTests.swift in Sources */,
 				F185A5B72123C0DA00DDFAB1 /* StringEndOfLineTests.swift in Sources */,
 				FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */,
 			);
