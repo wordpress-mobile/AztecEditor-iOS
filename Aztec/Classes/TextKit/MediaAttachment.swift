@@ -20,7 +20,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Default Appearance to be applied to new MediaAttachment Instances.
     ///
-    open static var defaultAppearance = Appearance()
+    public static var defaultAppearance = Appearance()
 
     /// Appearance associated to the current TextAttachment Instance.
     ///
@@ -28,7 +28,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Attributes accessible by the user, for general purposes.
     ///
-    open var extraAttributes = [String: String]()
+    open var extraAttributes = [Attribute]()
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///

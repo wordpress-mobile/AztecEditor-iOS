@@ -8,19 +8,19 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
-    let placeholderAttributes: [NSAttributedStringKey: Any]?
+    let placeholderAttributes: [NSAttributedString.Key: Any]?
 
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
+    init(placeholderAttributes: [NSAttributedString.Key: Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         let newParagraphStyle = ParagraphStyle()
 
         if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
@@ -35,7 +35,7 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             !paragraphStyle.htmlDiv.isEmpty
         else {
@@ -51,7 +51,7 @@ class HTMLDivFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         let style = attributes[.paragraphStyle] as? ParagraphStyle
         return style?.htmlDiv.isEmpty == false
     }

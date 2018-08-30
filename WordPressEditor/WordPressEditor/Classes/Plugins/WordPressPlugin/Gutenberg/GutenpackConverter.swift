@@ -11,7 +11,7 @@ public class GutenpackConverter: ElementConverter {
     
     public func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
         
         precondition(element.type == .gutenpack)

@@ -2,7 +2,7 @@ import Aztec
 import Foundation
 
 class GalleryAttachmentToElementConverter: AttachmentToElementConverter {    
-    func convert(_ attachment: GalleryAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: GalleryAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         
         let attributes = getAttributes(from: attachment)
         let galleryElement = ElementNode(type: .gallery, attributes: attributes, children: [])
@@ -41,12 +41,12 @@ extension GalleryAttachmentToElementConverter {
     }
     
     private func getUnsupportedAttributes(from attachment: GalleryAttachment) -> [Attribute] {
-        return attachment.extraAttributes.compactMap { (key, value) -> Attribute? in
-            guard !GallerySupportedAttribute.isSupported(key) else {
+        return attachment.extraAttributes.compactMap { attribute -> Attribute? in
+            guard !GallerySupportedAttribute.isSupported(attribute.name) else {
                 return nil
             }
             
-            return Attribute(name: key, value: .string(value))
+            return Attribute(attribute)
         }
     }
     

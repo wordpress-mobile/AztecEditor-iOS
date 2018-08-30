@@ -1,6 +1,6 @@
 import UIKit
 
-extension Dictionary where Key == NSAttributedStringKey, Value == Any {
+extension Dictionary where Key == NSAttributedString.Key, Value == Any {
     
     // MARK: - ParagraphStyle interactions
     
@@ -27,7 +27,7 @@ extension Dictionary where Key == NSAttributedStringKey, Value == Any {
     ///
     /// - Returns: the final string attributes.
     ///
-    func appending(_ property: ParagraphProperty) -> [NSAttributedStringKey:Any] {
+    func appending(_ property: ParagraphProperty) -> [NSAttributedString.Key:Any] {
         let finalParagraphStyle = paragraphStyle()
         finalParagraphStyle.appendProperty(property)
         

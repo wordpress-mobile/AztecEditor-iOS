@@ -11,7 +11,7 @@ class FigcaptionElementConverter: ElementConverter {
 
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
         
         precondition(element.type == .figcaption)
@@ -21,7 +21,7 @@ class FigcaptionElementConverter: ElementConverter {
         return serializeChildren(element.children, attributes)
     }
     
-    private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         

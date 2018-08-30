@@ -15,7 +15,7 @@ class GalleryElementConverter: AttachmentElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: GalleryAttachment, string: NSAttributedString) {
         
         precondition(element.type == .gallery)
@@ -69,21 +69,16 @@ private extension GalleryElementConverter {
         return attribute(.orderBy, in: attributes, withType: GalleryAttachment.OrderBy.self)
     }
     
-    private func getUnsupportedAttributes(_ attributes: [Attribute]) -> [String: String] {
+    private func getUnsupportedAttributes(_ attributes: [Attribute]) -> [Attribute] {
         
-        var output = [String: String]()
+        var output = [Attribute]()
         
         for attribute in attributes {
-            guard !GallerySupportedAttribute.isSupported(attribute.name),
-                // The following condition is only necessary because we're storing attributes as [String: String]
-                // which was a poor decision since it can't represent attributes without values.  To remove this
-                // condition we need to pick a more appropriate type to represent attributes in attachments,
-                // which is outside of the scope of my current modification.
-                let value = attribute.value.toString() else {
-                    continue
+            guard !GallerySupportedAttribute.isSupported(attribute.name) else {
+                continue
             }
             
-            output[attribute.name] = value
+            output[attribute.name] = attribute.value
         }
         
         return output

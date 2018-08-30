@@ -87,7 +87,7 @@ private extension CommentAttachmentRenderer {
     }
 
     func messageAttributedString() -> NSAttributedString {
-        let attributes: [NSAttributedStringKey: Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: textColor,
             .font: textFont
         ]

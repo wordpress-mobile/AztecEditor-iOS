@@ -13,7 +13,7 @@ extension NSAttributedString {
     ///   - key: the attributed to check
     /// - Returns: True if the attribute is there
     ///
-    func isLocation(_ location: Int, preceededBy key: NSAttributedStringKey) -> Bool {
+    func isLocation(_ location: Int, preceededBy key: NSAttributedString.Key) -> Bool {
         guard location != 0 else {
             return false
         }

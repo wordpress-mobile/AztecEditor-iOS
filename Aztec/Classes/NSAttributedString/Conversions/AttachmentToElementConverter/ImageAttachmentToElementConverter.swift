@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class ImageAttachmentToElementConverter: AttachmentToElementConverter {
-    func convert(_ attachment: ImageAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: ImageAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         let imageElement: ElementNode
         
         if let representation = attributes[.imageHtmlRepresentation] as? HTMLRepresentation,
@@ -25,14 +25,28 @@ class ImageAttachmentToElementConverter: AttachmentToElementConverter {
             imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
         
-        for (key,value) in attachment.extraAttributes {
-            var finalValue = value
-            if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
-                let baseComponents = Set(baseValue.components(separatedBy: " "))
-                let extraComponents = Set(value.components(separatedBy: " "))
-                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
+        for attribute in attachment.extraAttributes {
+            guard attribute.name == "class",
+                let baseValues = imageElement.stringValueForAttribute(named: "class") else {
+                
+                    imageElement.attributes[attribute.name] = attribute.value
+                    continue
             }
-            imageElement.updateAttribute(named: key, value: .string(finalValue))
+            
+            var finalComponents = baseValues.components(separatedBy: " ")
+            
+            if let extraValues = attribute.value.toString() {
+                let extraComponents = extraValues.components(separatedBy: " ")
+                
+                for extraComponent in extraComponents {
+                    if !finalComponents.contains(extraComponent) {
+                        finalComponents.append(extraComponent)
+                    }
+                }
+            }
+
+            let finalValue = finalComponents.joined(separator: " ")
+            imageElement.updateAttribute(named: attribute.name, value: .string(finalValue))
         }
         
         return [imageElement]

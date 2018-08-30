@@ -39,7 +39,7 @@ extension UIPasteboard {
     }
     
     func url() -> URL? {
-        guard let urlTypes = UIPasteboardTypeListURL as? [String],
+        guard let urlTypes = UIPasteboard.typeListURL as? [String],
             UIPasteboard.general.contains(pasteboardTypes: urlTypes),
             let url = UIPasteboard.general.url else {
                 return nil

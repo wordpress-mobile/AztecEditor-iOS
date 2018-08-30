@@ -14,7 +14,7 @@ public extension NSAttributedString {
     ///
     /// - Returns: True if found.
     ///
-    public func fontTrait(_ traits: UIFontDescriptorSymbolicTraits, existsAtIndex index: Int) -> Bool {
+    public func fontTrait(_ traits: UIFontDescriptor.SymbolicTraits, existsAtIndex index: Int) -> Bool {
         guard let attr = attribute(.font, at: index, effectiveRange: nil) else {
             return false
         }
@@ -33,7 +33,7 @@ public extension NSAttributedString {
     ///
     /// - Returns: True if the trait spans the entire range.
     ///
-    public func fontTrait(_ traits: UIFontDescriptorSymbolicTraits, spansRange range: NSRange) -> Bool {
+    public func fontTrait(_ traits: UIFontDescriptor.SymbolicTraits, spansRange range: NSRange) -> Bool {
         var spansRange = true
 
         // Assume we're removing the trait. If the trait is missing anywhere in the range assign it.
@@ -62,7 +62,7 @@ public extension NSMutableAttributedString {
     ///     - traits: Font traits.
     ///     - range: The NSRange to inspect
     ///
-    public func toggle(_ fontTraits: UIFontDescriptorSymbolicTraits, inRange range: NSRange) {
+    public func toggle(_ fontTraits: UIFontDescriptor.SymbolicTraits, inRange range: NSRange) {
         // Bail if nothing is selected
         if range.length == 0 {
             return
@@ -73,7 +73,7 @@ public extension NSMutableAttributedString {
         modify(fontTraits, range: range, enable: enable)
     }
 
-    fileprivate func modify(_ fontTraits: UIFontDescriptorSymbolicTraits, range: NSRange, enable: Bool) {
+    fileprivate func modify(_ fontTraits: UIFontDescriptor.SymbolicTraits, range: NSRange, enable: Bool) {
 
         enumerateAttribute(.font,
                            in: range,
