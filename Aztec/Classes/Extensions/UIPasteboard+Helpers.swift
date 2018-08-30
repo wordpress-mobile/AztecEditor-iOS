@@ -2,7 +2,6 @@ import Foundation
 import MobileCoreServices
 import UIKit
 
-
 // MARK: - Pasteboard Helpers
 //
 extension UIPasteboard {
@@ -36,16 +35,6 @@ extension UIPasteboard {
         }
         
         return String(data: htmlData, encoding: .utf8)
-    }
-    
-    func url() -> URL? {
-        guard let urlTypes = UIPasteboardTypeListURL as? [String],
-            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
-            let url = UIPasteboard.general.url else {
-                return nil
-        }
-        
-        return url
     }
 }
 

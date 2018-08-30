@@ -522,8 +522,9 @@ open class TextView: UITextView {
     /// - Returns: True if this method succeeds.
     ///
     private func tryPastingURL() -> Bool {
-        guard selectedRange.length > 0,
-            let url = UIPasteboard.general.url() else {
+        
+        guard UIPasteboard.general.hasURLs,
+            let url = UIPasteboard.general.url else {
                 return false
         }
         
