@@ -39,7 +39,7 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
-    // Confirm the composed textView is property configured.
+    // MARK: - Configuration
 
     func testTextViewReferencesStorage() {
 
@@ -1927,5 +1927,4 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
     }
-
 }

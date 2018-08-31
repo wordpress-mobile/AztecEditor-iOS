@@ -51,8 +51,8 @@ extension GalleryAttachmentToElementConverter {
     }
     
     private func getColumnsAttribute(from attachment: GalleryAttachment) -> Attribute? {
-        guard let value = attachment.columns  else {
-                return nil
+        guard let value = attachment.columns else {
+            return nil
         }
         
         let stringValue = String(value)
