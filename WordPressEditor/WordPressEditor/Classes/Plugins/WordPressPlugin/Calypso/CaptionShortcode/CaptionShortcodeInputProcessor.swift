@@ -16,8 +16,9 @@ class CaptionShortcodeInputProcessor: ShortcodeProcessor {
             }
 
             let payloadNode = HTMLParser().parse(payloadText)
-            guard let imageContainerNode = payloadNode.firstChild(ofType: .img) ?? payloadNode.firstChild(ofType: .a), payloadNode.children.count >= 2 else {
-                return nil
+            guard let imageContainerNode = payloadNode.firstChild(ofType: .img) ?? payloadNode.firstChild(ofType: .a),
+                payloadNode.children.count >= 2 else {
+                    return nil
             }
 
             /// Figcaption: Figure Children (minus) the image
