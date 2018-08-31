@@ -137,7 +137,6 @@
 		F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "VideoAttachment+WordPress.swift"; sourceTree = "<group>"; };
-		F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1DF4D382123C53A00EAE9F6 /* StringRegExTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringRegExTests.swift; sourceTree = "<group>"; };
 		F1FC706D213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementToTagConverterTests.swift; sourceTree = "<group>"; };
 		F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverterTests.swift; sourceTree = "<group>"; };
@@ -319,14 +318,6 @@
 			path = Renderers;
 			sourceTree = "<group>";
 		};
-		F1C9F40020AF610200205227 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		F1C9F40320AF62E800205227 /* Gutenberg */ = {
 			isa = PBXGroup;
 			children = (
@@ -354,7 +345,6 @@
 				F1D360EA2092978F00B4E7A5 /* Dependencies */,
 				F1D360AE2092947500B4E7A5 /* Products */,
 				F1D360DB2092973800B4E7A5 /* Frameworks */,
-				F1C9F40020AF610200205227 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
