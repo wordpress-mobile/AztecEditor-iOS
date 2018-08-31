@@ -4,7 +4,7 @@ import XCTest
 
 class ImageAttachmentTests: XCTestCase {
     
-    func testAlt() {
+    func testAltSetter() {
         let imageAttachment = ImageAttachment(identifier: "testing")
         let alt = "Some text"
         
@@ -17,7 +17,20 @@ class ImageAttachmentTests: XCTestCase {
         XCTAssertEqual(imageAttachment.extraAttributes["alt"], nil)
     }
     
-    func testWidth() {
+    func testAltGetter() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let alt = "Some text"
+        
+        XCTAssertEqual(imageAttachment.alt, nil)
+        
+        imageAttachment.extraAttributes["alt"] = alt
+        XCTAssertEqual(imageAttachment.alt, alt)
+        
+        imageAttachment.extraAttributes["alt"] = nil
+        XCTAssertEqual(imageAttachment.alt, nil)
+    }
+    
+    func testWidthSetter() {
         let imageAttachment = ImageAttachment(identifier: "testing")
         let width = 500
         
@@ -30,7 +43,20 @@ class ImageAttachmentTests: XCTestCase {
         XCTAssertEqual(imageAttachment.extraAttributes["width"], nil)
     }
     
-    func testHeight() {
+    func testWidthGetter() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let width = 500
+        
+        XCTAssertEqual(imageAttachment.width, nil)
+        
+        imageAttachment.extraAttributes["width"] = String(width)
+        XCTAssertEqual(imageAttachment.width, width)
+        
+        imageAttachment.extraAttributes["width"] = nil
+        XCTAssertEqual(imageAttachment.width, nil)
+    }
+    
+    func testHeightSetter() {
         let imageAttachment = ImageAttachment(identifier: "testing")
         let height = 500
         
@@ -43,6 +69,19 @@ class ImageAttachmentTests: XCTestCase {
         XCTAssertEqual(imageAttachment.extraAttributes["height"], nil)
     }
     
+    func testHeightGetter() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let height = 500
+        
+        XCTAssertEqual(imageAttachment.height, nil)
+        
+        imageAttachment.extraAttributes["height"] = String(height)
+        XCTAssertEqual(imageAttachment.height, height)
+        
+        imageAttachment.extraAttributes["height"] = nil
+        XCTAssertEqual(imageAttachment.height, nil)
+    }
+    
     func testImageIDNilWhenNotSet() {
         let imageAttachment = ImageAttachment(identifier: "testing")
         
@@ -51,6 +90,11 @@ class ImageAttachmentTests: XCTestCase {
     
     func testImageIDChangesWhenExtraAttributeChanges() {
         let imageAttachment = ImageAttachment(identifier: "testing")
+        
+        XCTAssertEqual(imageAttachment.imageID, nil)
+        
+        imageAttachment.extraAttributes["class"] = "some-class"
+        XCTAssertEqual(imageAttachment.imageID, nil)
         
         imageAttachment.extraAttributes["class"] = "wp-image-200"
         XCTAssertEqual(imageAttachment.imageID, 200)
@@ -62,7 +106,6 @@ class ImageAttachmentTests: XCTestCase {
     func testImageIDChangesExtraAttributes() {
         let imageAttachment = ImageAttachment(identifier: "testing")
         
-
         imageAttachment.extraAttributes["class"] = "some-attributes some-more-attributes"
         
         imageAttachment.imageID = 200
