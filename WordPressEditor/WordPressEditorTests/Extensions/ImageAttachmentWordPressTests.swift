@@ -1,0 +1,86 @@
+import Aztec
+import XCTest
+@testable import WordPressEditor
+
+class ImageAttachmentTests: XCTestCase {
+    
+    func testAlt() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let alt = "Some text"
+        
+        XCTAssertEqual(imageAttachment.extraAttributes["alt"], nil)
+        
+        imageAttachment.alt = alt
+        XCTAssertEqual(imageAttachment.extraAttributes["alt"], alt)
+        
+        imageAttachment.alt = nil
+        XCTAssertEqual(imageAttachment.extraAttributes["alt"], nil)
+    }
+    
+    func testWidth() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let width = 500
+        
+        XCTAssertEqual(imageAttachment.extraAttributes["width"], nil)
+        
+        imageAttachment.width = width
+        XCTAssertEqual(imageAttachment.extraAttributes["width"], String(width))
+        
+        imageAttachment.width = nil
+        XCTAssertEqual(imageAttachment.extraAttributes["width"], nil)
+    }
+    
+    func testHeight() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        let height = 500
+        
+        XCTAssertEqual(imageAttachment.extraAttributes["height"], nil)
+        
+        imageAttachment.height = height
+        XCTAssertEqual(imageAttachment.extraAttributes["height"], String(height))
+        
+        imageAttachment.height = nil
+        XCTAssertEqual(imageAttachment.extraAttributes["height"], nil)
+    }
+    
+    func testImageIDNilWhenNotSet() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        
+        XCTAssertEqual(imageAttachment.imageID, nil)
+    }
+    
+    func testImageIDChangesWhenExtraAttributeChanges() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        
+        imageAttachment.extraAttributes["class"] = "wp-image-200"
+        XCTAssertEqual(imageAttachment.imageID, 200)
+        
+        imageAttachment.extraAttributes["class"] = "otherclass wp-image-400 ignoredclass"
+        XCTAssertEqual(imageAttachment.imageID, 400)
+    }
+    
+    func testImageIDChangesExtraAttributes() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        
+
+        imageAttachment.extraAttributes["class"] = "some-attributes some-more-attributes"
+        
+        imageAttachment.imageID = 200
+        XCTAssertEqual(imageAttachment.extraAttributes["class"], "some-attributes some-more-attributes wp-image-200")
+        
+        imageAttachment.imageID = 400
+        XCTAssertEqual(imageAttachment.extraAttributes["class"], "some-attributes some-more-attributes wp-image-400")
+    }
+    
+    func testImageIDSetToNilChangesExtraAttributes() {
+        let imageAttachment = ImageAttachment(identifier: "testing")
+        
+        imageAttachment.extraAttributes["class"] = "wp-image-200"
+        imageAttachment.imageID = nil
+        XCTAssertEqual(imageAttachment.extraAttributes["class"], nil)
+        
+        imageAttachment.extraAttributes["class"] = "wp-image-200 some-other-class"
+        imageAttachment.imageID = nil
+        XCTAssertEqual(imageAttachment.extraAttributes["class"], "some-other-class")
+    }
+}

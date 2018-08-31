@@ -55,7 +55,9 @@ extension ImageAttachment {
             guard let classAttribute = extraAttributes["class"] else {
                 return nil
             }
+            
             let attributes = classAttribute.components(separatedBy: " ")
+            
             guard let imageIDAttribute = attributes.filter({ (value) -> Bool in
                 value.hasPrefix("wp-image-")
             }).first else {
@@ -64,20 +66,25 @@ extension ImageAttachment {
 
             let imagePrefix = "wp-image-"
             let imageIDString = String(imageIDAttribute.dropFirst(imagePrefix.count))
+            
             return Int(imageIDString)
         }
         set {
             var attributes = [String]()
+            
             if let classAttribute = extraAttributes["class"] {
                 attributes = classAttribute.components(separatedBy: " ")
             }
+            
             attributes = attributes.filter({ (value) -> Bool in
                 !value.hasPrefix("wp-image-")
             })
+            
             if let nonNilValue = newValue {
                 attributes.append("wp-image-\(nonNilValue)")
             }
-            if extraAttributes.isEmpty {
+            
+            if attributes.isEmpty {
                 extraAttributes.removeValue(forKey: "class")
             } else {
                 extraAttributes["class"] = attributes.joined(separator: " ")
