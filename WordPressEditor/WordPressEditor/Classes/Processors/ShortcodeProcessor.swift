@@ -90,7 +90,7 @@ private extension ShortcodeProcessor {
         
         let attributes = self.attributes(from: match, in: text)
         let elementType = self.elementType(from: match, in: text)
-        let content: String? = match.captureGroup(in:CaptureGroups.content.rawValue, text: text)
+        let content: String? = match.captureGroup(in: CaptureGroups.content.rawValue, text: text)
         
         let shortcode = Shortcode(tag: tag, attributes: attributes, type: elementType, content: content)
         
