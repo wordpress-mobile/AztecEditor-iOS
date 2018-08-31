@@ -2,7 +2,7 @@ import Aztec
 import XCTest
 @testable import WordPressEditor
 
-class MediaAttachmentTests: XCTestCase {
+class MediaAttachmentWordPressTests: XCTestCase {
     
     func testUploadIDSetter() {
         let imageAttachment = MediaAttachment(identifier: "testing")

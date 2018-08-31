@@ -2,7 +2,7 @@ import Aztec
 import XCTest
 @testable import WordPressEditor
 
-class ImageAttachmentTests: XCTestCase {
+class ImageAttachmentWordPressTests: XCTestCase {
     
     func testAltSetter() {
         let imageAttachment = ImageAttachment(identifier: "testing")

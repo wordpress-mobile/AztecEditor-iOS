@@ -52,6 +52,7 @@
 		F1FC707221398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */; };
 		F1FC707421398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */; };
 		F1FC7076213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */; };
+		F1FC70782139952C007AAFB3 /* VideoAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */; };
 		FF72508C20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */; };
 		FFC41BEA20DD04A8004DFB4D /* GutenpackConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */; };
 		FFC41BF620DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */; };
@@ -138,6 +139,7 @@
 		F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverterTests.swift; sourceTree = "<group>"; };
 		F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAttachmentWordPressTests.swift; sourceTree = "<group>"; };
 		F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAttachmentWordPressTests.swift; sourceTree = "<group>"; };
+		F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAttachmentWordPressTests.swift; sourceTree = "<group>"; };
 		FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeDecoder.swift; sourceTree = "<group>"; };
 		FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackConverter.swift; sourceTree = "<group>"; };
 		FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentToElementConverter.swift; sourceTree = "<group>"; };
@@ -435,6 +437,7 @@
 				F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */,
 				F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */,
 				F1DF4D382123C53A00EAE9F6 /* StringRegExTests.swift */,
+				F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -609,6 +612,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1FC70782139952C007AAFB3 /* VideoAttachmentWordPressTests.swift in Sources */,
 				F118745320BC41BF0079C631 /* WordPressPluginTests.swift in Sources */,
 				F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */,
 				F1FC707221398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift in Sources */,
