@@ -96,6 +96,12 @@
 		F13590E52139F8B3004A9C73 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = F13590E42139F8B3004A9C73 /* content.html */; };
 		F13590EC2139FA9A004A9C73 /* HTMLAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590E92139FA43004A9C73 /* HTMLAttachmentRender_3x.png.dat */; };
 		F13590ED2139FAE5004A9C73 /* HTMLAttachmentRender_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */; };
+		F13590EF2139FCC1004A9C73 /* UIImageResizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13590EE2139FCC1004A9C73 /* UIImageResizeTests.swift */; };
+		F13590F12139FE23004A9C73 /* aztec.png in Resources */ = {isa = PBXBuildFile; fileRef = F13590F02139FE23004A9C73 /* aztec.png */; };
+		F13590F7213A06E0004A9C73 /* UIImageResizeImage2_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590F5213A06DF004A9C73 /* UIImageResizeImage2_2x.png.dat */; };
+		F13590F8213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590F6213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat */; };
+		F13590FB213A07B4004A9C73 /* UIImageResizeImage1_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590FA213A07AF004A9C73 /* UIImageResizeImage1_2x.png.dat */; };
+		F13590FC213A07B4004A9C73 /* UIImageResizeImage1_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F13590F9213A07AF004A9C73 /* UIImageResizeImage1_3x.png.dat */; };
 		F13CE53E1F4DD05E0043368D /* PipelineProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */; };
 		F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */; };
 		F13E8AD820B71BAA007C9F8A /* PluginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8AD720B71BAA007C9F8A /* PluginManager.swift */; };
@@ -322,6 +328,12 @@
 		F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = HTMLAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
 		F13590E92139FA43004A9C73 /* HTMLAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = HTMLAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
 		F13590EA2139FA52004A9C73 /* Important.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Important.txt; sourceTree = "<group>"; };
+		F13590EE2139FCC1004A9C73 /* UIImageResizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageResizeTests.swift; sourceTree = "<group>"; };
+		F13590F02139FE23004A9C73 /* aztec.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aztec.png; sourceTree = "<group>"; };
+		F13590F5213A06DF004A9C73 /* UIImageResizeImage2_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = UIImageResizeImage2_2x.png.dat; sourceTree = "<group>"; };
+		F13590F6213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = UIImageResizeImage2_3x.png.dat; sourceTree = "<group>"; };
+		F13590F9213A07AF004A9C73 /* UIImageResizeImage1_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = UIImageResizeImage1_3x.png.dat; sourceTree = "<group>"; };
+		F13590FA213A07AF004A9C73 /* UIImageResizeImage1_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = UIImageResizeImage1_2x.png.dat; sourceTree = "<group>"; };
 		F13CE53D1F4DD05E0043368D /* PipelineProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PipelineProcessor.swift; sourceTree = "<group>"; };
 		F13CE53F1F4DD08E0043368D /* RegexProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegexProcessor.swift; sourceTree = "<group>"; };
 		F13E8AD720B71BAA007C9F8A /* PluginManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PluginManager.swift; sourceTree = "<group>"; };
@@ -831,9 +843,14 @@
 			isa = PBXGroup;
 			children = (
 				F13590EA2139FA52004A9C73 /* Important.txt */,
+				F13590F02139FE23004A9C73 /* aztec.png */,
 				F13590E42139F8B3004A9C73 /* content.html */,
 				F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */,
 				F13590E92139FA43004A9C73 /* HTMLAttachmentRender_3x.png.dat */,
+				F13590FA213A07AF004A9C73 /* UIImageResizeImage1_2x.png.dat */,
+				F13590F9213A07AF004A9C73 /* UIImageResizeImage1_3x.png.dat */,
+				F13590F5213A06DF004A9C73 /* UIImageResizeImage2_2x.png.dat */,
+				F13590F6213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1035,6 +1052,7 @@
 				F185A5A42123C0D900DDFAB1 /* StringHTMLTests.swift */,
 				F185A5AA2123C0D900DDFAB1 /* StringParagraphTests.swift */,
 				F185A5A92123C0D900DDFAB1 /* StringRangeConversionTests.swift */,
+				F13590EE2139FCC1004A9C73 /* UIImageResizeTests.swift */,
 				F185A5AD2123C0D900DDFAB1 /* UIColorHexParserTests.swift */,
 				F1FC70542138414C007AAFB3 /* UIPasteboardHelpersTests.swift */,
 				F1FC705221383F98007AAFB3 /* UIStackViewHelpersTests.swift */,
@@ -1234,8 +1252,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F13590E52139F8B3004A9C73 /* content.html in Resources */,
+				F13590FC213A07B4004A9C73 /* UIImageResizeImage1_3x.png.dat in Resources */,
 				F13590ED2139FAE5004A9C73 /* HTMLAttachmentRender_2x.png.dat in Resources */,
+				F13590F7213A06E0004A9C73 /* UIImageResizeImage2_2x.png.dat in Resources */,
 				F13590EC2139FA9A004A9C73 /* HTMLAttachmentRender_3x.png.dat in Resources */,
+				F13590F8213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat in Resources */,
+				F13590FB213A07B4004A9C73 /* UIImageResizeImage1_2x.png.dat in Resources */,
+				F13590F12139FE23004A9C73 /* aztec.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1420,6 +1443,7 @@
 				F17BC8A21F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift in Sources */,
 				F185A5BA2123C0DA00DDFAB1 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				F185A5B82123C0DA00DDFAB1 /* StringRangeConversionTests.swift in Sources */,
+				F13590EF2139FCC1004A9C73 /* UIImageResizeTests.swift in Sources */,
 				F1FC709B2139CA13007AAFB3 /* HTMLAttachmentRendererTests.swift in Sources */,
 				F185A5B32123C0DA00DDFAB1 /* StringHTMLTests.swift in Sources */,
 				F185A5B02123C0DA00DDFAB1 /* NSRangeComparisonTests.swift in Sources */,
