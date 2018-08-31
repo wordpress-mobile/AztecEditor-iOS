@@ -43,6 +43,8 @@ class LinkFormatter: StandardAttributeFormatter {
             if let target = target {
                 let targetValue = Attribute(name: HTMLLinkAttribute.target.rawValue, value: .string(target))
                 attributes.append(targetValue)
+                let norel = Attribute(name: HTMLLinkAttribute.rel.rawValue, value: .string("noopener"))
+                attributes.append(norel)
             }
 
             let linkRepresentation = HTMLElementRepresentation(name: Element.a.rawValue, attributes: attributes)

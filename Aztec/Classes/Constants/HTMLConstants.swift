@@ -7,4 +7,5 @@ public enum HTMLLinkAttribute: String {
 
     case Href = "href"
     case target = "target"
+    case rel = "rel"
 }
