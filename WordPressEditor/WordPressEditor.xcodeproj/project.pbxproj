@@ -147,7 +147,7 @@
 		F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentRendererTests.swift; sourceTree = "<group>"; };
 		F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
 		F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
-		F1FC70962139C58F007AAFB3 /* Important.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Important.txt; sourceTree = "<group>"; };
+		F1FC70962139C58F007AAFB3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeDecoder.swift; sourceTree = "<group>"; };
 		FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackConverter.swift; sourceTree = "<group>"; };
 		FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentToElementConverter.swift; sourceTree = "<group>"; };
@@ -447,7 +447,7 @@
 		F1FC70892139B1B4007AAFB3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F1FC70962139C58F007AAFB3 /* Important.txt */,
+				F1FC70962139C58F007AAFB3 /* README.md */,
 				F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */,
 				F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */,
 			);

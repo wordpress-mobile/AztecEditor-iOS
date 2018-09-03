@@ -327,7 +327,7 @@
 		F13590E42139F8B3004A9C73 /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
 		F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = HTMLAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
 		F13590E92139FA43004A9C73 /* HTMLAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = HTMLAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
-		F13590EA2139FA52004A9C73 /* Important.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Important.txt; sourceTree = "<group>"; };
+		F13590EA2139FA52004A9C73 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F13590EE2139FCC1004A9C73 /* UIImageResizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageResizeTests.swift; sourceTree = "<group>"; };
 		F13590F02139FE23004A9C73 /* aztec.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aztec.png; sourceTree = "<group>"; };
 		F13590F5213A06DF004A9C73 /* UIImageResizeImage2_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = UIImageResizeImage2_2x.png.dat; sourceTree = "<group>"; };
@@ -842,7 +842,7 @@
 		F13590E12139F870004A9C73 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F13590EA2139FA52004A9C73 /* Important.txt */,
+				F13590EA2139FA52004A9C73 /* README.md */,
 				F13590F02139FE23004A9C73 /* aztec.png */,
 				F13590E42139F8B3004A9C73 /* content.html */,
 				F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */,
