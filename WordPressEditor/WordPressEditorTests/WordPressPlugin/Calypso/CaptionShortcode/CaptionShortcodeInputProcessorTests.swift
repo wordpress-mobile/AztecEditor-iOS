@@ -4,8 +4,7 @@ import XCTest
 class CaptionShortcodeInputProcessorTests: XCTestCase {
 
     let processor = CaptionShortcodeInputProcessor()
-
-
+    
     /// Verifies that a Caption Shortcode wrapping an Image + Text is properly processed.
     ///
     func testCaptionShortcodeIsProperlyConvertedIntoFigureTag() {
@@ -19,8 +18,8 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
     /// Verifies that a caption shortcode wrapping [Image + Text + Multiple Line Breaks] is properly processed.
     ///
     func testCaptionShortcodeIsProperlyConvertedIntoFigureTagPreservingNestedTags() {
-        let input = "[caption]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
-        let expected = "<figure><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
+        let input = "[caption someattribute]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
+        let expected = "<figure someattribute><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
 
         XCTAssertEqual(processor.process(input), expected)
     }
@@ -40,12 +39,25 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
         XCTAssertEqual(processor.process(input), expected)
     }
 
+    func testBrokenCaptionIsNotProcessed() {
+        let input = "[caption]"
+        
+        XCTAssertEqual(processor.process(input), input)
+    }
 
     /// Verifies that a caption shortcode with no text doesn't get processed.
     ///
     func testCaptionShortcodeDoesNotGetProcessedIfThereIsNoTextContent() {
         let input = "[caption]<img src=\".\">[/caption]"
 
+        XCTAssertEqual(processor.process(input), input)
+    }
+    
+    /// Verifies that a caption shortcode with no text doesn't get processed.
+    ///
+    func testCaptionShortcodeDoesNotGetProcessedIfThereIsNoTextContent2() {
+        let input = "[caption]<a href=\".\">[/caption]"
+        
         XCTAssertEqual(processor.process(input), input)
     }
 

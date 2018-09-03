@@ -48,6 +48,15 @@
 		F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */; };
 		F1D3612E209352F800B4E7A5 /* VideoAttachment+WordPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */; };
 		F1DF4D392123C53A00EAE9F6 /* StringRegExTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DF4D382123C53A00EAE9F6 /* StringRegExTests.swift */; };
+		F1FC706E213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC706D213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift */; };
+		F1FC707221398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */; };
+		F1FC707421398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */; };
+		F1FC7076213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */; };
+		F1FC70782139952C007AAFB3 /* VideoAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */; };
+		F1FC708021399A3B007AAFB3 /* GutenblockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */; };
+		F1FC70862139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */; };
+		F1FC70932139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */; };
+		F1FC70972139C778007AAFB3 /* GutenpackAttachmentRender_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */; };
 		FF72508C20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */; };
 		FFC41BEA20DD04A8004DFB4D /* GutenpackConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */; };
 		FFC41BF620DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */; };
@@ -128,8 +137,17 @@
 		F1D36129209352F300B4E7A5 /* ImageAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612A209352F400B4E7A5 /* MediaAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MediaAttachment+WordPress.swift"; sourceTree = "<group>"; };
 		F1D3612D209352F800B4E7A5 /* VideoAttachment+WordPress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "VideoAttachment+WordPress.swift"; sourceTree = "<group>"; };
-		F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1DF4D382123C53A00EAE9F6 /* StringRegExTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringRegExTests.swift; sourceTree = "<group>"; };
+		F1FC706D213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryElementToTagConverterTests.swift; sourceTree = "<group>"; };
+		F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryAttachmentToElementConverterTests.swift; sourceTree = "<group>"; };
+		F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAttachmentWordPressTests.swift; sourceTree = "<group>"; };
+		F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAttachmentWordPressTests.swift; sourceTree = "<group>"; };
+		F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAttachmentWordPressTests.swift; sourceTree = "<group>"; };
+		F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockTests.swift; sourceTree = "<group>"; };
+		F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentRendererTests.swift; sourceTree = "<group>"; };
+		F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
+		F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
+		F1FC70962139C58F007AAFB3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeDecoder.swift; sourceTree = "<group>"; };
 		FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackConverter.swift; sourceTree = "<group>"; };
 		FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentToElementConverter.swift; sourceTree = "<group>"; };
@@ -228,7 +246,9 @@
 		F16A2AED20CDAB7600BF3A0A /* GalleryShortcode */ = {
 			isa = PBXGroup;
 			children = (
+				F1FC707121398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift */,
 				F16A2ACB20CB115900BF3A0A /* GalleryElementConverterTests.swift */,
+				F1FC706D213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift */,
 				F1B0012C20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift */,
 			);
 			path = GalleryShortcode;
@@ -255,7 +275,9 @@
 		F16A2AF020CDABB200BF3A0A /* Gutenberg */ = {
 			isa = PBXGroup;
 			children = (
+				F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */,
 				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
+				F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */,
 			);
 			path = Gutenberg;
 			sourceTree = "<group>";
@@ -296,14 +318,6 @@
 			path = Renderers;
 			sourceTree = "<group>";
 		};
-		F1C9F40020AF610200205227 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				F1D91E3220A5D61800E0B7F4 /* GutenbergInputHTMLTreeProcessor.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		F1C9F40320AF62E800205227 /* Gutenberg */ = {
 			isa = PBXGroup;
 			children = (
@@ -331,7 +345,6 @@
 				F1D360EA2092978F00B4E7A5 /* Dependencies */,
 				F1D360AE2092947500B4E7A5 /* Products */,
 				F1D360DB2092973800B4E7A5 /* Frameworks */,
-				F1C9F40020AF610200205227 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -359,6 +372,7 @@
 				F1DF4D352123C51900EAE9F6 /* Extensions */,
 				F16A2AF320CDABE200BF3A0A /* Processors */,
 				F16A2AF420CDABF800BF3A0A /* WordPressPlugin */,
+				F1FC70892139B1B4007AAFB3 /* Resources */,
 				F1D360BD2092947500B4E7A5 /* Info.plist */,
 			);
 			path = WordPressEditorTests;
@@ -367,8 +381,8 @@
 		F1D360C72092967E00B4E7A5 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				F1065DB720ADEC1D008C72CC /* Plugins */,
 				F1D360F920929E0700B4E7A5 /* Extensions */,
+				F1065DB720ADEC1D008C72CC /* Plugins */,
 				F1D3610C20929F3A00B4E7A5 /* Processors */,
 				F1AFD65020B45DBB00CB0279 /* Renderers */,
 			);
@@ -422,9 +436,22 @@
 		F1DF4D352123C51900EAE9F6 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F1FC707321398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift */,
+				F1FC7075213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift */,
 				F1DF4D382123C53A00EAE9F6 /* StringRegExTests.swift */,
+				F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F1FC70892139B1B4007AAFB3 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F1FC70962139C58F007AAFB3 /* README.md */,
+				F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */,
+				F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -550,6 +577,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1FC70972139C778007AAFB3 /* GutenpackAttachmentRender_2x.png.dat in Resources */,
+				F1FC70932139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,14 +628,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1FC70782139952C007AAFB3 /* VideoAttachmentWordPressTests.swift in Sources */,
+				F1FC708021399A3B007AAFB3 /* GutenblockTests.swift in Sources */,
 				F118745320BC41BF0079C631 /* WordPressPluginTests.swift in Sources */,
+				F1FC70862139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift in Sources */,
 				F1D361152092A37600B4E7A5 /* AutoPProcessorTests.swift in Sources */,
+				F1FC707221398639007AAFB3 /* GalleryAttachmentToElementConverterTests.swift in Sources */,
 				F1B0012D20C5948000612EE9 /* GalleryShortcodeInputProcessorTests.swift in Sources */,
 				F14C4D2820C0E9AB007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift in Sources */,
 				F1D36125209352A200B4E7A5 /* CaptionShortcodeOutputProcessorTests.swift in Sources */,
 				F16A2ACC20CB115900BF3A0A /* GalleryElementConverterTests.swift in Sources */,
+				F1FC707421398B0A007AAFB3 /* ImageAttachmentWordPressTests.swift in Sources */,
 				F1D36126209352A200B4E7A5 /* CaptionShortcodeInputProcessorTests.swift in Sources */,
+				F1FC7076213991FA007AAFB3 /* MediaAttachmentWordPressTests.swift in Sources */,
 				F1D361142092A37600B4E7A5 /* RemovePProcessorTests.swift in Sources */,
+				F1FC706E213983CE007AAFB3 /* GalleryElementToTagConverterTests.swift in Sources */,
 				F1DF4D392123C53A00EAE9F6 /* StringRegExTests.swift in Sources */,
 				F1D36128209352AA00B4E7A5 /* ShortcodeProcessorTests.swift in Sources */,
 			);
@@ -680,7 +716,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -739,7 +775,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

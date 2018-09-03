@@ -1,21 +1,16 @@
+import Aztec
 import XCTest
-@testable import Aztec
+@testable import WordPressEditor
 
-class CommentAttachmentRendererTests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
+class GutenpackAttachmentRendererTests: XCTestCase {
     
     func testShouldRender() {
-        let renderer = CommentAttachmentRenderer(font: .systemFont(ofSize: 12))
-        let goodAttachment = CommentAttachment()
+        let textView = TextView(
+            defaultFont: UIFont.systemFont(ofSize: 12),
+            defaultMissingImage: UIImage())
+        let goodAttachment = GutenpackAttachment(name: "name", content: "content")
         let badAttachment = NSTextAttachment(data: nil, ofType: nil)
-        let textView = TextViewStub()
+        let renderer = GutenpackAttachmentRenderer()
         
         XCTAssertTrue(renderer.textView(textView, shouldRender: goodAttachment))
         XCTAssertFalse(renderer.textView(textView, shouldRender: badAttachment))
@@ -28,38 +23,44 @@ class CommentAttachmentRendererTests: XCTestCase {
         
         textView.frame = CGRect(origin: .zero, size: CGSize(width: 100, height: 100))
         
-        let attachment = CommentAttachment()
-        attachment.text = "Some comment!"
-        
-        let renderer = CommentAttachmentRenderer(font: .systemFont(ofSize: 12))
+        let attachment = GutenpackAttachment(name: "name", content: "content")
+        let renderer = GutenpackAttachmentRenderer()
         
         let lineFragment = CGRect(x: 0, y: 0, width: 100, height: 50)
-        
-        // These bounds were extracted from an initial successful run.
+        let lineFragmentPadding = textView.textContainer.lineFragmentPadding
         let expectedBounds = CGRect(
-            x: 14.0,
-            y: -3.0,
-            width: 72.0,
-            height: 15.0)
+            x: 0,
+            y: 0,
+            width: textView.frame.width - (2 * lineFragmentPadding),
+            height: GutenpackAttachmentRenderer.Constants.defaultHeight)
         
         let bounds = renderer.textView(textView, boundsFor: attachment, with: lineFragment)
         
         XCTAssertEqual(bounds, expectedBounds)
     }
     
+    func testImageForAttachmentOfWrongTypeReturnsNil() {
+        let textView = TextView(
+            defaultFont: UIFont.systemFont(ofSize: 12),
+            defaultMissingImage: UIImage())
+        let attachment = NSTextAttachment(data: nil, ofType: nil)
+        let renderer = GutenpackAttachmentRenderer()
+        
+        XCTAssertNil(renderer.textView(textView, imageFor: attachment, with: CGSize(width: 10, height: 10)))
+    }
+    
     func testImageForAttachment() {
         let textView = TextView(
             defaultFont: UIFont.systemFont(ofSize: 12),
             defaultMissingImage: UIImage())
-        let attachment = CommentAttachment()
-        attachment.text = "Some comment!"
-        let renderer = CommentAttachmentRenderer(font: UIFont.systemFont(ofSize: 12))
+        let attachment = GutenpackAttachment(name: "name", content: "content")
+        let renderer = GutenpackAttachmentRenderer()
         
         let fileName: String = {
             if UIScreen.main.scale == 3 {
-                return "CommentAttachmentRender_3x.png"
+                return "GutenpackAttachmentRender_3x.png"
             } else if UIScreen.main.scale == 2 {
-                return "CommentAttachmentRender_2x.png"
+                return "GutenpackAttachmentRender_2x.png"
             }
             
             // We no longer support 1x
@@ -73,7 +74,7 @@ class CommentAttachmentRendererTests: XCTestCase {
                 return
         }
         
-        let desiredSize = CGSize(width: 100, height: 44.0)
+        let desiredSize = CGSize(width: 100, height: GutenpackAttachmentRenderer.Constants.defaultHeight)
         
         guard let image = renderer.textView(textView, imageFor: attachment, with: desiredSize),
             let pngRepresentation = image.pngData() else {

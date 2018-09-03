@@ -2,7 +2,6 @@ import Foundation
 import MobileCoreServices
 import UIKit
 
-
 // MARK: - Pasteboard Helpers
 //
 extension UIPasteboard {
@@ -37,16 +36,6 @@ extension UIPasteboard {
         
         return String(data: htmlData, encoding: .utf8)
     }
-    
-    func url() -> URL? {
-        guard let urlTypes = UIPasteboard.typeListURL as? [String],
-            UIPasteboard.general.contains(pasteboardTypes: urlTypes),
-            let url = UIPasteboard.general.url else {
-                return nil
-        }
-        
-        return url
-    }
 }
 
 // MARK: - Attributed String Conversion
@@ -57,7 +46,7 @@ private extension UIPasteboard {
     
     /// Attempts to unarchive the Pasteboard's Aztec-Archived String
     ///
-    func aztecAttributedString() -> NSAttributedString? {
+    private func aztecAttributedString() -> NSAttributedString? {
         guard let data = data(forPasteboardType: NSAttributedString.pastesboardUTI) else {
             return nil
         }
@@ -67,25 +56,25 @@ private extension UIPasteboard {
     
     /// Attempts to unarchive the Pasteboard's Plain Text contents into an Attributed String
     ///
-    func plainTextAttributedString() -> NSAttributedString? {
+    private func plainTextAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypePlainText, with: StringOptions.plainText)
     }
     
     /// Attempts to unarchive the Pasteboard's Text contents into an Attributed String
     ///
-    func richTextAttributedString() -> NSAttributedString? {
+    private func richTextAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeText, with: StringOptions.RTFText)
     }
     
     /// Attempts to unarchive the Pasteboard's RTF contents into an Attributed String
     ///
-    func rtfAttributedString() -> NSAttributedString? {
+    private func rtfAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeRTF, with: StringOptions.RTFText)
     }
 
     /// Attempts to unarchive the Pasteboard's RTFD contents into an Attributed String
     ///
-    func rtfdAttributedString() -> NSAttributedString? {
+    private func rtfdAttributedString() -> NSAttributedString? {
         return unarchiveAttributedString(fromPasteboardCFType: kUTTypeFlatRTFD, with: StringOptions.RTFDText)
     }
 
