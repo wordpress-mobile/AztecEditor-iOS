@@ -115,6 +115,8 @@
 		F15A8B6520BED08900C57ED2 /* ParagraphPropertyConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15A8B6420BED08900C57ED2 /* ParagraphPropertyConverter.swift */; };
 		F165D92420C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */; };
 		F165D92A20C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */; };
+		F166C4A9213DD5E8007CA18A /* CommentAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */; };
+		F166C4AB213DD62F007CA18A /* CommentAttachmentRender_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F166C4AA213DD62F007CA18A /* CommentAttachmentRender_2x.png.dat */; };
 		F168DB861F6381A00009BD0E /* CSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F168DB851F6381A00009BD0E /* CSSParserTests.swift */; };
 		F16A2AD320CC428B00BF3A0A /* AttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD220CC428B00BF3A0A /* AttachmentToElementConverter.swift */; };
 		F16A2AD520CC437E00BF3A0A /* LineAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */; };
@@ -347,6 +349,8 @@
 		F15A8B6420BED08900C57ED2 /* ParagraphPropertyConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphPropertyConverter.swift; sourceTree = "<group>"; };
 		F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializer.swift; sourceTree = "<group>"; };
 		F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ShortcodeAttribute.swift"; sourceTree = "<group>"; };
+		F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = CommentAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
+		F166C4AA213DD62F007CA18A /* CommentAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = CommentAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
 		F168DB851F6381A00009BD0E /* CSSParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSSParserTests.swift; sourceTree = "<group>"; };
 		F16A2AD220CC428B00BF3A0A /* AttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentToElementConverter.swift; sourceTree = "<group>"; };
 		F16A2AD420CC437E00BF3A0A /* LineAttachmentToElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineAttachmentToElementConverter.swift; sourceTree = "<group>"; };
@@ -844,6 +848,8 @@
 			children = (
 				F13590EA2139FA52004A9C73 /* README.md */,
 				F13590F02139FE23004A9C73 /* aztec.png */,
+				F166C4AA213DD62F007CA18A /* CommentAttachmentRender_2x.png.dat */,
+				F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */,
 				F13590E42139F8B3004A9C73 /* content.html */,
 				F13590E82139FA43004A9C73 /* HTMLAttachmentRender_2x.png.dat */,
 				F13590E92139FA43004A9C73 /* HTMLAttachmentRender_3x.png.dat */,
@@ -1252,8 +1258,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F13590E52139F8B3004A9C73 /* content.html in Resources */,
+				F166C4AB213DD62F007CA18A /* CommentAttachmentRender_2x.png.dat in Resources */,
 				F13590FC213A07B4004A9C73 /* UIImageResizeImage1_3x.png.dat in Resources */,
 				F13590ED2139FAE5004A9C73 /* HTMLAttachmentRender_2x.png.dat in Resources */,
+				F166C4A9213DD5E8007CA18A /* CommentAttachmentRender_3x.png.dat in Resources */,
 				F13590F7213A06E0004A9C73 /* UIImageResizeImage2_2x.png.dat in Resources */,
 				F13590EC2139FA9A004A9C73 /* HTMLAttachmentRender_3x.png.dat in Resources */,
 				F13590F8213A06E0004A9C73 /* UIImageResizeImage2_3x.png.dat in Resources */,
