@@ -52,6 +52,14 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
 
         XCTAssertEqual(processor.process(input), input)
     }
+    
+    /// Verifies that a caption shortcode with no text doesn't get processed.
+    ///
+    func testCaptionShortcodeDoesNotGetProcessedIfThereIsNoTextContent2() {
+        let input = "[caption]<a href=\".\">[/caption]"
+        
+        XCTAssertEqual(processor.process(input), input)
+    }
 
 
     /// Verifies that a caption shortcode with no image doesn't get processed.

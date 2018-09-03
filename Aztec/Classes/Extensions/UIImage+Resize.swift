@@ -14,18 +14,11 @@ extension UIImage {
     /// - Returns: A new UIImage that is contained within rectSize, but no larger than maxImageSize in either dimension.
     ///
     func resizedImageWithinRect(rectSize: CGSize, maxImageSize: CGSize, color: UIColor? = nil) -> UIImage {
-        let smallerWidthThanMax = rectSize.width < maxImageSize.width
-        let smallerHeightThanMax = rectSize.height < maxImageSize.height
-
-        if smallerWidthThanMax && smallerHeightThanMax {
-            return resizedImageWithinRect(rectSize: rectSize, color: color)
-        } else if smallerWidthThanMax && !smallerHeightThanMax {
-            return resizedImageWithinRect(rectSize: CGSize(width: rectSize.width, height: maxImageSize.height), color: color)
-        } else if !smallerWidthThanMax && smallerHeightThanMax {
-            return resizedImageWithinRect(rectSize: CGSize(width: maxImageSize.width, height: rectSize.height), color: color)
-        } else {
-            return resizedImageWithinRect(rectSize: CGSize(width: maxImageSize.width, height: maxImageSize.height), color: color)
-        }
+        let width = min(rectSize.width, maxImageSize.width)
+        let height = min(rectSize.height, maxImageSize.height)
+        let size = CGSize(width: width, height: height)
+        
+        return resizedImageWithinRect(rectSize: size, color: color)
     }
 
     /// Resizes an image so it fits within rectSize. The aspect ratio is maintained.
@@ -39,10 +32,7 @@ extension UIImage {
     func resizedImageWithinRect(rectSize: CGSize, color: UIColor? = nil) -> UIImage {
         let widthRatio = size.width / rectSize.width
         let heightRatio = size.height / rectSize.height
-        var resizeRatio = widthRatio
-        if size.height > size.width {
-            resizeRatio = heightRatio
-        }
+        let resizeRatio = max(widthRatio, heightRatio)
 
         let newSize = CGSize(width: size.width / resizeRatio, height: size.height / resizeRatio)
         return resizedImage(newSize: newSize, color: color)

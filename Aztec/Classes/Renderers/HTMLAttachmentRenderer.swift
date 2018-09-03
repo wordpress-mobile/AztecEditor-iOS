@@ -38,6 +38,10 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
     public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
+        guard let attachment = attachment as? HTMLAttachment else {
+            return nil
+        }
+        
         let message = messageAttributedString(with: attachment)
         let targetRect = boundingRect(for: message, size: size)
 
@@ -50,6 +54,10 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
     }
 
     public func textView(_ textView: TextView, boundsFor attachment: NSTextAttachment, with lineFragment: CGRect) -> CGRect {
+        guard let attachment = attachment as? HTMLAttachment else {
+            return .zero
+        }
+        
         let message = messageAttributedString(with: attachment)
 
         let size = CGSize(width: lineFragment.size.width, height: lineFragment.size.height)
@@ -65,21 +73,20 @@ extension HTMLAttachmentRenderer: TextViewAttachmentImageProvider {
 //
 private extension HTMLAttachmentRenderer {
 
-    func boundingRect(for message: NSAttributedString, size: CGSize) -> CGRect {
+    private func boundingRect(for message: NSAttributedString, size: CGSize) -> CGRect {
         let targetBounds = message.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
         let targetPosition = CGPoint(x: ((size.width - targetBounds.width) * 0.5), y: ((size.height - targetBounds.height) * 0.5))
 
         return CGRect(origin: targetPosition, size: targetBounds.size)
     }
 
-    func messageAttributedString(with attachment: NSTextAttachment) -> NSAttributedString {
+    private func messageAttributedString(with attachment: HTMLAttachment) -> NSAttributedString {
         let attributes: [NSAttributedStringKey: Any] = [
             .foregroundColor: textColor,
             .font: textFont
         ]
 
-        let htmlAttachment = attachment as? HTMLAttachment
-        let displayText = htmlAttachment?.rootTagName.uppercased() ?? defaultText
+        let displayText = attachment.rootTagName.count > 0 ? attachment.rootTagName.uppercased() : defaultText
 
         return NSAttributedString(string: "[\(displayText)]", attributes: attributes)
     }
