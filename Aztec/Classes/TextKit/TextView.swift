@@ -139,6 +139,17 @@ open class TextView: UITextView {
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
     
+    // MARK: - Other callbacks
+    
+    let enterKey = "\n"
+    
+    /// Callback that's executed when enter is pressed.
+    ///
+    /// - Returns: `true` if the callback handled the keypress completely.  This means the default
+    ///     handler will be skipped.  `false` is the default handler still needs to be executed.
+    ///
+    var onEnter: (() -> Bool)? = nil
+    
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
@@ -603,6 +614,13 @@ open class TextView: UITextView {
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
+        if text == enterKey {
+            let enterHandled = onEnter?() ?? false
+            
+            guard !enterHandled else {
+                return
+            }
+        }
         
         // For some reason the text view is allowing the attachment style to be set in
         // typingAttributes.  That's simply not acceptable.
