@@ -1927,4 +1927,50 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
     }
+    
+    // MARK: - Enter Override
+    
+    /// Tests that the enter override is properly called, and that returning `true` when
+    /// it's executed results in the default handler being skipped.
+    ///
+    func testEnterOverrideWorks() {
+        let inputText = "<p>Hello 🌎!</p>"
+        let expectedText = inputText
+        
+        let textView = TextViewStub(withHTML: inputText)
+        var didExecuteOverride = false
+        
+        textView.onEnter = { () -> Bool in
+            didExecuteOverride = true
+            return true
+        }
+        
+        textView.selectedRange = NSRange(location: 5, length: 0)
+        textView.insertText(textView.enterKey)
+
+        XCTAssertTrue(didExecuteOverride)
+        XCTAssertEqual(textView.getHTML(), expectedText)
+    }
+    
+    /// Tests that the enter override is properly called, and that returning `false` when
+    /// it's executed results in the default handler being executed.
+    ///
+    func testEnterOverrideWorks2() {
+        let inputText = "<p>Hello 🌎!</p>"
+        let expectedText = "<p>Hello</p><p> 🌎!</p>"
+        
+        let textView = TextViewStub(withHTML: inputText)
+        var didExecuteOverride = false
+        
+        textView.onEnter = { () -> Bool in
+            didExecuteOverride = true
+            return false
+        }
+        
+        textView.selectedRange = NSRange(location: 5, length: 0)
+        textView.insertText(textView.enterKey)
+        
+        XCTAssertTrue(didExecuteOverride)
+        XCTAssertEqual(textView.getHTML(prettify: false), expectedText)
+    }
 }
