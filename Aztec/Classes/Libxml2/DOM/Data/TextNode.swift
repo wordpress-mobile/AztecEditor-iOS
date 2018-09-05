@@ -33,16 +33,16 @@ public class TextNode: Node {
 
     /// Checks if the specified node requires a closing paragraph separator.
     ///
-    func needsClosingParagraphSeparator() -> Bool {
+    override func needsClosingParagraphSeparator() -> Bool {
         guard length() > 0 else {
             return false
         }
 
-        guard !hasRightBlockLevelSibling() else {
-            return true
-        }
-
-        return !isLastInTree() && isLastInAncestorEndingInBlockLevelSeparation()
+        return super.needsClosingParagraphSeparator()
+    }
+    
+    override public func rawText() -> String {
+        return contents
     }
 
     // MARK: - LeafNode

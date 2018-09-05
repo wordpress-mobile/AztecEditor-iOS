@@ -9,10 +9,6 @@ class TextStorageTests: XCTestCase {
     ///
     var storage: TextStorage!
 
-    /// HTML Serializer
-    ///
-    let serializer = DefaultHTMLSerializer()
-
     /// Test Attachments Delegate
     ///
     var mockDelegate: MockAttachmentsDelegate!
@@ -131,10 +127,10 @@ class TextStorageTests: XCTestCase {
         let attachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:0, length: 0), with: NSAttributedString(attachment: attachment))
 
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
 
         XCTAssertEqual(attachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
     }
 
     /// Verifies that any edition performed on ImageAttachment attributes is properly serialized back during
@@ -149,7 +145,7 @@ class TextStorageTests: XCTestCase {
         attachment.alignment = .left
         attachment.size = .medium
 
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
         XCTAssertEqual(attachment.url, url)
         XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignleft size-medium\"></p>")
     }
@@ -179,7 +175,7 @@ class TextStorageTests: XCTestCase {
         theAttachment.rawHTML = updatedHTML
 
         // Verify
-        XCTAssertEqual(storage.getHTML(serializer: serializer), finalHTML)
+        XCTAssertEqual(storage.getHTML(), finalHTML)
     }
 
     func testBlockquoteToggle1() {
@@ -188,13 +184,13 @@ class TextStorageTests: XCTestCase {
         let blockquoteFormatter = BlockquoteFormatter()
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML(serializer: serializer)
+        var html = storage.getHTML()
 
         XCTAssertEqual(html, "<blockquote>Apply a blockquote</blockquote>")
 
         storage.toggle(formatter: blockquoteFormatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML(serializer: serializer)
+        html = storage.getHTML()
 
         XCTAssertEqual(html, "<p>Apply a blockquote</p>")
     }
@@ -208,7 +204,7 @@ class TextStorageTests: XCTestCase {
 
         storage.toggle(formatter: blockquoteFormatter, at: utf16Range)
 
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
 
         XCTAssertEqual(html, "<p>Hello 🌎!</p><blockquote>Apply a blockquote!</blockquote>")
     }
@@ -219,13 +215,13 @@ class TextStorageTests: XCTestCase {
         linkFormatter.attributeValue = URL(string: "www.wordpress.com")!
         storage.toggle(formatter: linkFormatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML(serializer: serializer)
+        var html = storage.getHTML()
 
         XCTAssertEqual(html, "<p><a href=\"www.wordpress.com\">Apply a link</a></p>")
 
         storage.toggle(formatter:linkFormatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML(serializer: serializer)
+        html = storage.getHTML()
 
         XCTAssertEqual(html, "<p>Apply a link</p>")
     }
@@ -235,13 +231,13 @@ class TextStorageTests: XCTestCase {
         let formatter = HeaderFormatter(headerLevel: .h1)
         storage.toggle(formatter: formatter, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML(serializer: serializer)
+        var html = storage.getHTML()
 
         XCTAssertEqual(html, "<h1>Apply a header</h1>")
 
         storage.toggle(formatter:formatter, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML(serializer: serializer)
+        html = storage.getHTML()
 
         XCTAssertEqual(html, "<p>Apply a header</p>")
     }
@@ -269,14 +265,14 @@ class TextStorageTests: XCTestCase {
         storage.toggle(formatter: h2formatter, at: l2Range)
 
         // Verify HTML so Far
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
         XCTAssertEqual(html, "<h1>H1 Line</h1><h2>Normal Line</h2>")
 
         // Nuke the Newline Character
         storage.deleteCharacters(in: newlineRange)
 
         // Verify HTML
-        let fixedHTML = storage.getHTML(serializer: serializer)
+        let fixedHTML = storage.getHTML()
         XCTAssertEqual(fixedHTML, "<h1>H1 LineNormal Line</h1>")
 
         // Verify Font
@@ -297,13 +293,13 @@ class TextStorageTests: XCTestCase {
         let formatterH2 = HeaderFormatter(headerLevel: .h2)
         storage.toggle(formatter: formatterH1, at: storage.rangeOfEntireString)
 
-        var html = storage.getHTML(serializer: serializer)
+        var html = storage.getHTML()
 
         XCTAssertEqual(html, "<h1>Apply a header</h1>")
 
         storage.toggle(formatter:formatterH2, at: storage.rangeOfEntireString)
 
-        html = storage.getHTML(serializer: serializer)
+        html = storage.getHTML()
 
         XCTAssertEqual(html, "<h2>Apply a header</h2>")
     }
@@ -317,11 +313,11 @@ class TextStorageTests: XCTestCase {
         let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.org")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
 
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.org"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.org\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.org\"></p>")
     }
 
     /// This test check if the insertion of two images one after the other works correctly and to img tag are inserted
@@ -332,11 +328,11 @@ class TextStorageTests: XCTestCase {
 
         let secondAttachment = ImageAttachment(identifier: UUID().uuidString, url: URL(string:"https://wordpress.com")!)
         storage.replaceCharacters(in: NSRange(location:1, length: 0), with: NSAttributedString(attachment: secondAttachment))
-        let html = storage.getHTML(serializer: serializer)
+        let html = storage.getHTML()
 
         XCTAssertEqual(firstAttachment.url, URL(string: "https://wordpress.com"))
         XCTAssertEqual(secondAttachment.url, URL(string: "https://wordpress.com"))
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"><img src=\"https://wordpress.com\"></p>")
     }
 
     /// This test verifies if the `removeTextAttachements` call effectively nukes all of the TextAttachments present
@@ -385,8 +381,103 @@ class TextStorageTests: XCTestCase {
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         storage.replaceCharacters(in: NSRange(location: 0, length: 1), with: NSAttributedString(string: ""))
 
-        let resultHTML = storage.getHTML(serializer: serializer)
+        let resultHTML = storage.getHTML()
 
         XCTAssertEqual(String(), resultHTML)
+    }
+
+    func testCommentFollowedByBlockLevelElements() {
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+        
+        for element in elementsToTest {
+            let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
+            let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
+            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+            storage.setHTML(html, defaultAttributes: defaultAttributes)
+            let outputHTML = storage.getHTML()
+            
+            XCTAssertEqual(expectedHTML, outputHTML)
+        }
+    }
+
+    func testElementFollowedByComment() {
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6]
+
+        for element in elementsToTest {
+            let html = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
+            let expectedHTML = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
+            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+            storage.setHTML(html, defaultAttributes: defaultAttributes)
+            let outputHTML = storage.getHTML()
+
+            XCTAssertEqual(expectedHTML, outputHTML)
+        }
+    }
+
+    func testMultipleComments() {
+        let html = "<!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3-->"
+        let expectedHTML = "<p><!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3--></p>"
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+
+        XCTAssertEqual(expectedHTML, outputHTML)
+    }
+
+    func testCommentSurroundingBlockLevelElements() {
+        let elementsToTest: [Element] = [.p, .pre, .div, .h2, .h3, .h4, .h5, .h6, .blockquote]
+
+        for element in elementsToTest {
+            let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><!-- comment -->"
+            let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><p><!-- comment --></p>"
+            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                   .paragraphStyle: ParagraphStyle.default]
+            storage.setHTML(html, defaultAttributes: defaultAttributes)
+            let outputHTML = storage.getHTML()
+
+            XCTAssertEqual(expectedHTML, outputHTML)
+        }
+    }
+
+    func testBlockquotesWithCite() {
+        let html = """
+<blockquote class="wp-block-quote is-large"><p>Take comfort in the fact that you 'can' keep your current publishing flow... and then take some time to explore the possibilities that Gutenberg opens up to you.</p><cite>By M</cite></blockquote>
+"""
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+        
+        XCTAssertEqual(html, outputHTML)
+    }
+
+    func testSingleSpaceBetweenElements() {
+        let html = "<p><strong>WordPress</strong> <em>App</em></p>"
+
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML()
+
+        XCTAssertEqual(html, outputHTML)
+    }
+
+    func testListElemeAttributes() {
+        let html = """
+<ul class="wp-block-gallery alignnone columns-1 is-cropped">
+  <li class="blocks-gallery-item">
+    <figure><img src="https://sandbox.koke.me/wp-content/uploads/2018/05/fullsizeoutput_52f7.jpeg" class="alignnone" data-id="96" alt=""></figure>
+  </li>
+</ul>
+"""
+        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                               .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(html, defaultAttributes: defaultAttributes)
+        let outputHTML = storage.getHTML(prettify: true)
+
+        XCTAssertEqual(html, outputHTML)
     }
 }

@@ -45,4 +45,8 @@ public extension NSAttributedStringKey {
     /// Key used to store codeHTMLRepresentations, by our CodeFormatter.
     ///
     public static let codeHtmlRepresentation = NSAttributedStringKey("Code.htmlRepresentation")
+
+    /// Key used to store citeHTMLRepresentations, by our CiteFormatter.
+    ///
+    public static let citeHtmlRepresentation = NSAttributedStringKey("Cite.htmlRepresentation")
 }

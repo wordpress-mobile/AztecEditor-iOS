@@ -78,12 +78,23 @@ protocol TextStorageAttachmentsDelegate: class {
 /// Custom NSTextStorage
 ///
 open class TextStorage: NSTextStorage {
-
+    
+    // MARK: - HTML Conversion
+    
+    let htmlConverter = HTMLConverter()
+    
+    // MARK: - PluginManager
+    
+    var pluginManager: PluginManager {
+        get {
+            return htmlConverter.pluginManager
+        }
+    }
+    
     // MARK: - Storage
 
     fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
     fileprivate var textStoreString = ""
-
 
     // MARK: - Delegates
 
@@ -114,8 +125,7 @@ open class TextStorage: NSTextStorage {
 
         return attachments
     }
-
-
+    
     // MARK: - Range Methods
 
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
@@ -177,14 +187,12 @@ open class TextStorage: NSTextStorage {
                 attachment.delegate = self
             case let attachment as HTMLAttachment:
                 attachment.delegate = self
-            case let attachment as ImageAttachment:
-                attachment.delegate = self
-            case let attachment as VideoAttachment:
+            case let attachment as MediaAttachment:
                 attachment.delegate = self
             default:
                 guard let image = textAttachment.image else {
                     // We only suppot image attachments for now. All other attachment types are
-                    /// stripped for safety.
+                    // stripped for safety.
                     //
                     finalString.removeAttribute(.attachment, range: range)
                     return
@@ -193,6 +201,7 @@ open class TextStorage: NSTextStorage {
                 let replacementAttachment = ImageAttachment(identifier: NSUUID().uuidString)
                 replacementAttachment.delegate = self
                 replacementAttachment.image = image
+                replacementAttachment.size = .full
 
                 let imageURL = delegate.storage(self, urlFor: replacementAttachment)
                 replacementAttachment.updateURL(imageURL)
@@ -343,42 +352,42 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    // MARK: - HTML Interaction
-
-    open func getHTML(serializer: HTMLSerializer) -> String {
-        let parser = AttributedStringParser()
-        let rootNode = parser.parse(self)
-
-        return serializer.serialize(rootNode)
-
+    private func enumerateRenderableAttachments(in text: NSAttributedString, range: NSRange? = nil, block: ((RenderableAttachment, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
+        let range = range ?? NSMakeRange(0, length)
+        text.enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
+            if let object = object as? RenderableAttachment {
+                block(object, range, stop)
+            }
+        }
     }
 
-    func setHTML(_ html: String,
-                 defaultAttributes: [NSAttributedStringKey: Any],
-                 postProcessingHTMLWith postProcessHTML: HTMLTreeProcessor? = nil) {
+    // MARK: - HTML Interaction
 
-        let originalLength = textStore.length
+    open func getHTML(prettify: Bool = false) -> String {
+        return htmlConverter.html(from: self, prettify: prettify)
+    }
+    
+    func setHTML(_ html: String, defaultAttributes: [NSAttributedStringKey: Any]) {
+        let originalLength = length
+        let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
 
-        textStore = NSMutableAttributedString(withHTML: html,
-                                              defaultAttributes: defaultAttributes,
-                                              postProcessingHTMLWith: postProcessHTML)
-
-        textStore.enumerateAttachmentsOfType(ImageAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
-        textStore.enumerateAttachmentsOfType(VideoAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
-        textStore.enumerateAttachmentsOfType(CommentAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
-        textStore.enumerateAttachmentsOfType(HTMLAttachment.self) { [weak self] (attachment, _, _) in
-            attachment.delegate = self
-        }
-
+        textStore = NSMutableAttributedString(attributedString: attrString)
         textStoreString = textStore.string
+        
+        setupAttachmentDelegates()
 
         edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+    }
+    
+    private func setupAttachmentDelegates() {
+        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        }
+        
+        enumerateRenderableAttachments(in: textStore, block: { [weak self] (attachment, _, _) in
+            attachment.delegate = self
+        })
+                
     }
 }
 
@@ -451,40 +460,11 @@ extension TextStorage: MediaAttachmentDelegate {
     }
 }
 
-
-// MARK: - TextStorage: VideoAttachmentDelegate Methods
-//
-extension TextStorage: VideoAttachmentDelegate {
-
-    func videoAttachmentPlaceholderImageFor(attachment: VideoAttachment) -> UIImage {
-        guard let delegate = attachmentsDelegate else {
-            fatalError()
-        }
-
-        return delegate.storage(self, placeholderFor: attachment)
-    }
-
-    func videoAttachment(
-        _ videoAttachment: VideoAttachment,
-        imageForURL url: URL,
-        onSuccess success: @escaping (UIImage) -> (),
-        onFailure failure: @escaping () -> ())
-    {
-        guard let delegate = attachmentsDelegate else {
-            fatalError()
-        }
-
-        delegate.storage(self, attachment: videoAttachment, imageFor: url, onSuccess: success, onFailure: failure)
-    }
-}
-
-
-
 // MARK: - TextStorage: RenderableAttachmentDelegate Methods
 //
 extension TextStorage: RenderableAttachmentDelegate {
 
-    func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
+    public func attachment(_ attachment: NSTextAttachment, imageForSize size: CGSize) -> UIImage? {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }
@@ -492,7 +472,7 @@ extension TextStorage: RenderableAttachmentDelegate {
         return delegate.storage(self, imageFor: attachment, with: size)
     }
 
-    func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
+    public func attachment(_ attachment: NSTextAttachment, boundsForLineFragment fragment: CGRect) -> CGRect {
         guard let delegate = attachmentsDelegate else {
             fatalError()
         }

@@ -42,31 +42,31 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     var properties = [ParagraphProperty]()
 
     var blockquotes: [Blockquote] {
-        return properties.flatMap { property in
+        return properties.compactMap { property in
             return property as? Blockquote
         }
     }
 
     var htmlDiv: [HTMLDiv] {
-        return properties.flatMap { property in
+        return properties.compactMap { property in
             return property as? HTMLDiv
         }
     }
 
     var htmlParagraph: [HTMLParagraph] {
-        return properties.flatMap { property in
+        return properties.compactMap { property in
             return property as? HTMLParagraph
         }
     }
 
     var lists : [TextList] {
-        return properties.flatMap { property in
+        return properties.compactMap { property in
             return property as? TextList
         }
     }
 
     var headers: [Header] {
-        return properties.flatMap { property in
+        return properties.compactMap { property in
             return property as? Header
         }
     }
@@ -81,7 +81,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     }
 
     var htmlPre: HTMLPre? {
-        let htmlPres = properties.flatMap { property in
+        let htmlPres = properties.compactMap { property in
             return property as? HTMLPre
         }
         return htmlPres.first
@@ -375,13 +375,13 @@ extension ParagraphStyle {
 
     /// Inserts the specified ParagraphProperty at the very end of the Properties array
     ///
-    func appendProperty(_ property: ParagraphProperty) {
+    public func appendProperty(_ property: ParagraphProperty) {
         properties.append(property)
     }
 
     /// Inserts the specified ParagraphProperty at the specified index
     ///
-    func insertProperty(_ property: ParagraphProperty, at index: Int) {
+    public func insertProperty(_ property: ParagraphProperty, at index: Int) {
         properties.insert(property, at: index)
     }
 

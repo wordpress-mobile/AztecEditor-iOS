@@ -23,34 +23,6 @@ class TextViewTests: XCTestCase {
 
     // MARK: - TextView construction
 
-    func createEmptyTextView() -> TextView {
-        let richTextView = Aztec.TextView(
-            defaultFont: UIFont.systemFont(ofSize: 14),
-            defaultMissingImage: UIImage())
-        richTextView.textAttachmentDelegate = attachmentDelegate
-        richTextView.registerAttachmentImageProvider(attachmentDelegate)
-        return richTextView
-    }
-
-    func createTextView(withHTML html: String, prettyPrint: Bool = false) -> TextView {
-        let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
-        richTextView.textAttachmentDelegate = attachmentDelegate
-        richTextView.outputSerializer = DefaultHTMLSerializer(prettyPrint: false)
-        richTextView.registerAttachmentImageProvider(attachmentDelegate)
-        richTextView.setHTML(html)
-
-        return richTextView
-    }
-
-    let nonStandardSystemFont = UIFont(name:"HelveticaNeue", size: 14)!
-
-    func createEmptyTextViewWithNonStandardSystemFont() -> Aztec.TextView {
-        let richTextView = Aztec.TextView(defaultFont: nonStandardSystemFont, defaultMissingImage: UIImage())
-        richTextView.textAttachmentDelegate = attachmentDelegate
-        richTextView.registerAttachmentImageProvider(attachmentDelegate)
-        return richTextView
-    }
-
     func createTextViewWithContent() -> TextView {
         let paragraph = "Lorem ipsum dolar sit amet.\n"
         let richTextView = Aztec.TextView(defaultFont: UIFont.systemFont(ofSize: 14), defaultMissingImage: UIImage())
@@ -67,25 +39,7 @@ class TextViewTests: XCTestCase {
         return richTextView
     }
 
-    func createTextViewWithSampleHTML() -> TextView {
-        return createTextView(withHTML: loadSampleHTML())
-    }
-
-
-    // MARK: - Sample HTML Retrieval
-
-    func loadSampleHTML() -> String {
-        guard let path = Bundle(for: type(of: self)).path(forResource: "content", ofType: "html"),
-            let sample = try? String(contentsOfFile: path)
-        else {
-            fatalError()
-        }
-
-        return sample
-    }
-
-
-    // Confirm the composed textView is property configured.
+    // MARK: - Configuration
 
     func testTextViewReferencesStorage() {
 
@@ -142,29 +96,29 @@ class TextViewTests: XCTestCase {
     // MARK: - Retrieve Format Identifiers
 
     func testFormatIdentifiersSpanningRange() {
-        let textView = createTextView(withHTML: "foo<b>bar</b>baz")
+        let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
         let range = NSRange(location: 3, length: 3)
         let identifiers = textView.formatIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
     }
 
     func testFormatIdentifiersAtIndex() {
-        let textView = createTextView(withHTML: "foo<b>bar</b>baz")
+        let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
         var identifiers = textView.formatIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
         identifiers = textView.formatIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
-        XCTAssert(identifiers[0] == .bold)
+        XCTAssert(identifiers.contains(.bold))
 
 
         identifiers = textView.formatIdentifiersAtIndex(0)
@@ -181,7 +135,7 @@ class TextViewTests: XCTestCase {
     // MARK: - Toggle Attributes
 
     func testToggleBold() {
-        let textView = createTextView(withHTML: "foo<b>bar</b>baz")
+        let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.bold))
@@ -196,7 +150,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testToggleItalic() {
-        let textView = createTextView(withHTML: "foo<i>bar</i>baz")
+        let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.italic))
@@ -211,7 +165,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testToggleUnderline() {
-        let textView = createTextView(withHTML: "foo<u>bar</u>baz")
+        let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.underline))
@@ -226,7 +180,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testToggleStrike() {
-        let textView = createTextView(withHTML: "foo<strike>bar</strike>baz")
+        let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
         let range = NSRange(location: 3, length: 3)
 
         XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.strikethrough))
@@ -292,7 +246,7 @@ class TextViewTests: XCTestCase {
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/350
     ///
     func testToggleBlockquoteAndStrikethrough() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.toggleStrikethrough(range: NSRange.zero)
         textView.toggleBlockquote(range: NSRange.zero)
@@ -308,7 +262,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testBoldSpansRange() {
-        let textView = createTextView(withHTML: "foo<b>bar</b>baz")
+        let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.bold))
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.bold))
@@ -319,7 +273,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testItalicSpansRange() {
-        let textView = createTextView(withHTML: "foo<i>bar</i>baz")
+        let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
 
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.italic))
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.italic))
@@ -330,7 +284,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testUnderlineSpansRange() {
-        let textView = createTextView(withHTML: "foo<u>bar</u>baz")
+        let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
 
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.underline))
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.underline))
@@ -341,7 +295,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testStrikethroughSpansRange() {
-        let textView = createTextView(withHTML: "foo<strike>bar</strike>baz")
+        let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
 
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.strikethrough))
         XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.strikethrough))
@@ -364,7 +318,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testBoldAtIndex() {
-        let textView = createTextView(withHTML: "foo<b>bar</b>baz")
+        let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
         XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.bold))
         XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.bold))
@@ -375,7 +329,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testItalicAtIndex() {
-        let textView = createTextView(withHTML: "foo<i>bar</i>baz")
+        let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
 
         XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.italic))
         XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.italic))
@@ -386,7 +340,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testUnderlineAtIndex() {
-        let textView = createTextView(withHTML: "foo<u>bar</u>baz")
+        let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
 
         XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.underline))
         XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.underline))
@@ -397,7 +351,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testStrikethroughAtIndex() {
-        let textView = createTextView(withHTML: "foo<strike>bar</strike>baz")
+        let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
 
         XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.strikethrough))
         XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.strikethrough))
@@ -431,7 +385,7 @@ class TextViewTests: XCTestCase {
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/352
     ///
     func testAddingNewlineOnEmptyEditor() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.insertText("\n")
     }
@@ -439,7 +393,7 @@ class TextViewTests: XCTestCase {
     /// Tests that a visual newline is not added at EoF
     ///
     func testNewlineNotAddedAtEof() {
-        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>")
+        let textView = TextViewStub(withHTML: "<p>Testing <b>bold</b> newlines</p>")
 
         XCTAssertEqual(textView.text, "Testing bold newlines")
     }
@@ -450,7 +404,7 @@ class TextViewTests: XCTestCase {
     /// https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/387
     ///
     func testNewlineRenderedAtTheCorrectPosition() {
-        let textView = createTextView(withHTML: "<p>Testing <b>bold</b> newlines</p>Hey!")
+        let textView = TextViewStub(withHTML: "<p>Testing <b>bold</b> newlines</p>Hey!")
 
         XCTAssertEqual(textView.text, "Testing bold newlines\(String(.paragraphSeparator))Hey!")
     }
@@ -469,7 +423,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline() {
 
-        let textView = createTextView(withHTML: "<p>Hello</p><p>World!</p>")
+        let textView = TextViewStub(withHTML: "<p>Hello</p><p>World!</p>")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -491,7 +445,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline2() {
 
-        let textView = createTextView(withHTML: "Hello<p>World!</p>")
+        let textView = TextViewStub(withHTML: "Hello<p>World!</p>")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -513,7 +467,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline3() {
 
-        let textView = createTextView(withHTML: "<blockquote>Hello</blockquote><p>World!</p>")
+        let textView = TextViewStub(withHTML: "<blockquote>Hello</blockquote><p>World!</p>")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -535,7 +489,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline4() {
 
-        let textView = createTextView(withHTML: "<p>Hello</p>World!")
+        let textView = TextViewStub(withHTML: "<p>Hello</p>World!")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 5)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -559,15 +513,15 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline5() {
 
-        let textView = createTextView(withHTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>")
+        let textView = TextViewStub(withHTML: "List<ul><li>first</li><li>second</li><li>third</li></ul>")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 4)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
         let range = textView.textRange(from: rangeStart, to: rangeEnd)!
 
         textView.replace(range, withText: "")
-
-        XCTAssertEqual(textView.getHTML(), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
+        
+        XCTAssertEqual(textView.getHTML(prettify: false), "<p>Listfirst</p><ul><li>second</li><li>third</li></ul>")
 
         let rangeStart2 = textView.position(from: textView.beginningOfDocument, offset: 9)!
         let rangeEnd2 = textView.position(from: rangeStart2, offset: 1)!
@@ -575,7 +529,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range2, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<p>Listfirstsecond</p><ul><li>third</li></ul>")
 
         let rangeStart3 = textView.position(from: textView.beginningOfDocument, offset: 15)!
         let rangeEnd3 = textView.position(from: rangeStart3, offset: 1)!
@@ -583,7 +537,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range3, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<p>Listfirstsecondthird</p>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<p>Listfirstsecondthird</p>")
     }
 
     /// Tests that deleting a newline works by merging the component around it.
@@ -597,7 +551,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewline6() {
 
-        let textView = createTextView(withHTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!")
+        let textView = TextViewStub(withHTML: "<ol><li>First</li><li>Second</li></ol>Ahoi<br>Arr!")
 
         let rangeStart = textView.position(from: textView.beginningOfDocument, offset: 12)!
         let rangeEnd = textView.position(from: rangeStart, offset: 1)!
@@ -605,7 +559,7 @@ class TextViewTests: XCTestCase {
 
         textView.replace(range, withText: "")
 
-        XCTAssertEqual(textView.getHTML(), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<ol><li>First</li><li>SecondAhoi<br>Arr!</li></ol>")
     }
 
     /// Tests that deleting a newline works at the end of text with paragraph with header before works.
@@ -619,7 +573,7 @@ class TextViewTests: XCTestCase {
     ///
     func testDeleteNewlineAtEndOfText() {
         let html = "<h1>Header</h1><br>"
-        let textView = createTextView(withHTML: html)
+        let textView = TextViewStub(withHTML: html)
 
         let range = NSRange(location: textView.text.count, length:0)
         textView.selectedRange = range
@@ -638,7 +592,7 @@ class TextViewTests: XCTestCase {
     ///
     func testBackspaceInMiddleOfParagraph() {
         let html = "<p>Hello 🌎 there!</p>"
-        let textView = createTextView(withHTML: html)
+        let textView = TextViewStub(withHTML: html)
 
         let newSelectedRange = NSRange(location: 6, length: 1)
 
@@ -665,7 +619,7 @@ class TextViewTests: XCTestCase {
         let linkTitle = "WordPress.com"
         let insertionRange = NSRange(location: 0, length: 0)
 
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
         let url = URL(string: linkUrl)!
 
         textView.setLink(url, title: linkTitle, inRange: insertionRange)
@@ -681,7 +635,7 @@ class TextViewTests: XCTestCase {
         let linkTitle = "WordPress.com"
         let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
 
-        let textView = createTextView(withHTML: linkTitle)
+        let textView = TextViewStub(withHTML: linkTitle)
         let url = URL(string: linkUrl)!
 
         textView.setLink(url, inRange: insertionRange)
@@ -699,7 +653,7 @@ class TextViewTests: XCTestCase {
         let linkTitle = "WordPress.com"
         let insertionRange = NSRange(location: 0, length: linkTitle.utf8.count)
 
-        let textView = createTextView(withHTML: linkTitle)
+        let textView = TextViewStub(withHTML: linkTitle)
         let url = URL(string: linkUrl)!
 
         textView.setLink(url, inRange: insertionRange)
@@ -713,13 +667,23 @@ class TextViewTests: XCTestCase {
 
     func testParsingOfInvalidLink() {
         let html = "<p><a href=\"\\http:\\badlink&?\">link</a></p>"
-        let textView = createTextView(withHTML: html)
+        let textView = TextViewStub(withHTML: html)
 
         XCTAssertEqual(textView.getHTML(), html)
     }
 
+    func testParsingOfLinkWithTarget() {
+        let html = "<p><a href=\"http:\\wordpress.com?\" target=\"_blank\">link</a></p>"
+        let textView = TextViewStub(withHTML: html)
+        let insertionRange = NSRange(location: 0, length: 4)
+        let target = textView.linkTarget(forRange: insertionRange)
+        XCTAssertEqual(textView.getHTML(), html)
+
+        XCTAssertEqual(target, "_blank")
+    }
+
     func testToggleBlockquoteWriteOneCharAndDelete() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.toggleBlockquote(range: NSRange.zero)
         textView.insertText("A")
@@ -735,7 +699,7 @@ class TextViewTests: XCTestCase {
     /// Ref.: https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/404
     ///
     func testToggleHeader1DoesNotLooseTheFirstCharacter() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleHeader(.h1, range: .zero)
         textView.insertText("H")
@@ -757,7 +721,7 @@ class TextViewTests: XCTestCase {
     /// Ref. https://github.com/wordpress-mobile/WordPress-Aztec-iOS/issues/407
     ///
     func testDeletingBackwardAfterTogglingHeaderDoesNotTriggerInvalidHTML() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleHeader(.h1, range: .zero)
         textView.insertText("H")
@@ -771,7 +735,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("2")
         textView.deleteBackward()
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p>1</p>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header</h1><p>1</p>")
     }
 
     /// Tests that Newline Characters inserted at the middle of a H1 String will cause the newline to loose the style.
@@ -782,7 +746,7 @@ class TextViewTests: XCTestCase {
     /// Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/466
     ///
     func testInsertingNewlineAtTheMiddleOfHeaderDoesNotLooseHeaderStyleOnNewline() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleHeader(.h1, range: .zero)
         textView.insertText("Header Header")
@@ -793,7 +757,7 @@ class TextViewTests: XCTestCase {
         let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
-        XCTAssertEqual(textView.getHTML(), "<h1>Header</h1><p> Header</p>")
+        XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header</h1><h1> Header</h1>")
     }
 
 
@@ -805,7 +769,7 @@ class TextViewTests: XCTestCase {
     ///
     func testBoldWithUnicodeCharacter() {
         let string = "Hello 🌎!"
-        let textView = createTextView(withHTML: string)
+        let textView = TextViewStub(withHTML: string)
         let swiftRange = NSRange(location: 0, length: string.count)
         let utf16Range = string.utf16NSRange(from: swiftRange)
 
@@ -824,7 +788,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark I on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testListDoesNotGetLostAfterPressingBackspace() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
 
         textView.toggleOrderedList(range: .zero)
@@ -848,7 +812,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark II on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testEmptyListGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
         textView.selectedRange = textView.text.endOfStringNSRange()
@@ -868,7 +832,7 @@ class TextViewTests: XCTestCase {
     ///
     func testNewLinesAreInsertedAfterEmptyList() {
         let newline = String(.lineFeed)
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         // Toggle List + Move the selection to the EOD
         textView.toggleOrderedList(range: .zero)
@@ -896,7 +860,7 @@ class TextViewTests: XCTestCase {
     func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
         let newline = String(.lineFeed)
 
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
 
@@ -929,7 +893,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark V on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testTypingAttributesLooseTextListWhenSelectingAnEmptyNewlineBelowTextList() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
@@ -946,7 +910,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark IV on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testListGetsRemovedWhenTypingNewLineOnAnEmptyBullet() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
         textView.insertText(String(.lineFeed))
@@ -969,7 +933,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     func testTogglingUnorderedListsOnEmptyDocumentsInsertsNewline() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleUnorderedList(range: .zero)
         XCTAssert(textView.text.isEndOfLine())
@@ -986,7 +950,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     func testTogglingUnorderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
-        let textView = createTextView(withHTML: Constants.sampleText0)
+        let textView = TextViewStub(withHTML: Constants.sampleText0)
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleUnorderedList(range: .zero)
@@ -996,7 +960,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator) )
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed) )
     }
 
     /// Verifies that toggling an Ordered List, when editing an empty document, inserts a Newline.
@@ -1007,7 +971,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     func testTogglingOrderedListsOnEmptyDocumentsInsertsNewline() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
         XCTAssert(textView.text.isEndOfLine())
@@ -1023,7 +987,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
     ///
     func testTogglingOrderedListsOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
-        let textView = createTextView(withHTML: Constants.sampleText0)
+        let textView = TextViewStub(withHTML: Constants.sampleText0)
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleOrderedList(range: .zero)
@@ -1033,7 +997,9 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        let expected = Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed)
+        
+        XCTAssertEqual(textView.text, expected)
     }
 
     /// When deleting the newline between lines 1 and 2 in the following example:
@@ -1048,7 +1014,7 @@ class TextViewTests: XCTestCase {
     /// style in line 2.
     ///
     func testDeleteNewlineRemovesListStyleIfPreceededByAnEmptyLine() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.insertText(String(.lineFeed))
         textView.toggleUnorderedList(range: textView.selectedRange)
@@ -1064,7 +1030,7 @@ class TextViewTests: XCTestCase {
     /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/594
     ///
     func testShiftEnterAtEndOfListAndEndOfFile() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.insertText("First line")
         textView.toggleUnorderedList(range: textView.selectedRange)
@@ -1074,6 +1040,34 @@ class TextViewTests: XCTestCase {
 
         XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: 0))
         XCTAssertTrue(unorderedListFormatter.present(in: textView.storage, at: textView.selectedRange))
+    }
+    
+    /// This test makes sure that lists are ended when the user presses ENTER twice.
+    ///
+    /// Related issue:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1012
+    ///
+    func testDoubleNewlineEndsList() {
+        let textView = TextViewStub()
+        let firstLine = "First Line"
+        let secondLine = "Second Line"
+        
+        textView.insertText(firstLine)
+        textView.toggleUnorderedList(range: textView.selectedRange)
+        textView.insertText(String(.paragraphSeparator))
+        textView.insertText(String(.paragraphSeparator))
+        textView.insertText(secondLine)
+        
+        let firstLineParagraphStyle = textView.storage.attributes(at: 0, effectiveRange: nil).paragraphStyle()
+        let secondLineParagraphStyle = textView.storage.attributes(at: firstLine.count + 1, effectiveRange: nil).paragraphStyle()
+        
+        XCTAssertTrue(firstLineParagraphStyle.properties.contains(where: { (property) -> Bool in
+            return property is TextList || property is HTMLLi
+        }))
+        
+        XCTAssertFalse(secondLineParagraphStyle.properties.contains(where: { (property) -> Bool in
+            return property is TextList || property is HTMLLi
+        }))
     }
 
 
@@ -1089,7 +1083,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testBlockquoteDoesNotGetLostAfterPressingBackspace() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.insertText(Constants.sampleText0)
@@ -1111,7 +1105,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testEmptyBlockquoteGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.selectedRange = textView.text.endOfStringNSRange()
@@ -1133,7 +1127,7 @@ class TextViewTests: XCTestCase {
     ///
     func testNewLinesAreInsertedAfterEmptyBlockquote() {
         let newline = String(.lineFeed)
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
@@ -1159,7 +1153,7 @@ class TextViewTests: XCTestCase {
     func testNewLinesGetBlockquoteStyleEvenAfterDeletingEndOfDocumentNewline() {
         let newline = String(.lineFeed)
 
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.insertText(Constants.sampleText0)
@@ -1190,7 +1184,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testTypingAttributesLooseBlockquoteWhenSelectingAnEmptyNewlineBelowBlockquote() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
@@ -1207,7 +1201,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testBlockquoteGetsRemovedWhenTypingNewLineOnAnEmptyBlockquoteLine() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         textView.insertText(String(.lineFeed))
@@ -1230,7 +1224,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testTogglingBlockquoteOnEmptyDocumentsInsertsNewline() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBlockquote(range: .zero)
         XCTAssertEqual(textView.text, String(.paragraphSeparator))
@@ -1249,7 +1243,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/422
     ///
     func testTogglingBlockquoteOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
-        let textView = createTextView(withHTML: Constants.sampleText0)
+        let textView = TextViewStub(withHTML: Constants.sampleText0)
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.toggleBlockquote(range: .zero)
@@ -1259,7 +1253,7 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
 
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
 
@@ -1275,7 +1269,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testPreDoesNotGetLostAfterPressingBackspace() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.insertText(Constants.sampleText0)
@@ -1297,7 +1291,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testEmptyPreGetsNukedWheneverTheOnlyNewlineCharacterInTheDocumentIsNuked() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.selectedRange = textView.text.endOfStringNSRange()
@@ -1319,7 +1313,7 @@ class TextViewTests: XCTestCase {
     ///
     func testNewLinesAreInsertedAfterEmptyPre() {
         let newline = String(.lineFeed)
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
@@ -1345,7 +1339,7 @@ class TextViewTests: XCTestCase {
     func testNewLinesGetPreStyleEvenAfterDeletingEndOfDocumentNewline() {
         let newline = String(.lineFeed)
 
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.insertText(Constants.sampleText0)
@@ -1376,7 +1370,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testTypingAttributesLoosePreWhenSelectingAnEmptyNewlineBelowPre() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
@@ -1393,7 +1387,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testPreGetsRemovedWhenTypingNewLineOnAnEmptyPreLine() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         textView.insertText(String(.lineFeed))
@@ -1416,7 +1410,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testTogglingPreOnEmptyDocumentsInsertsNewline() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.togglePre(range: .zero)
         XCTAssertEqual(textView.text, String(.paragraphSeparator))
@@ -1435,7 +1429,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue https://github.com/wordpress-mobile/AztecEditor-iOS/issues/420
     ///
     func testTogglingPreOnNonEmptyDocumentsWhenSelectedRangeIsAtTheEndOfDocumentWillInsertNewline() {
-        let textView = createTextView(withHTML: Constants.sampleText0)
+        let textView = TextViewStub(withHTML: Constants.sampleText0)
 
         textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
         textView.togglePre(range: .zero)
@@ -1445,28 +1439,94 @@ class TextViewTests: XCTestCase {
         textView.insertText(Constants.sampleText1)
         textView.insertText(String(.lineFeed))
         
-        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.paragraphSeparator))
+        XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
+    }    
+
+    // MARK: - Media: Images
+    
+    
+    func testPasteImage() {
+        let sourceTextView = TextViewStub(withHTML: "<em>This is an image </em>")
+        let targetTextView = TextViewStub(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithImage(at: videoInsertionRange, sourceURL: URL(string: "image.jpg")!, placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.paste(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: </strong><em>This is an image <img src=\"image.jpg\"></em></p>")
     }
-
-
-    // MARK: - Media
+    
+    func testPasteImageWithoutFormatting() {
+        let sourceTextView = TextViewStub(withHTML: "<em>This is an image </em>")
+        let targetTextView = TextViewStub(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithImage(at: videoInsertionRange, sourceURL: URL(string: "image.jpg")!, placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.pasteWithoutFormatting(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: This is an image <img src=\"image.jpg\"></strong></p>")
+    }
+    
+    // MARK: - Media: Video
 
     func testInsertVideo() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
         let _ = textView.replaceWithVideo(at: NSRange(location:0, length:0), sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"video.mp4\" poster=\"video.jpg\"></video></p>")
+    }
+    
+    func testPasteVideo() {
+        let sourceTextView = TextViewStub(withHTML: "<em>This is a video </em>")
+        let targetTextView = TextViewStub(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithVideo(at: videoInsertionRange, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.paste(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: </strong><em>This is a video <video src=\"video.mp4\" poster=\"video.jpg\"></video></em></p>")
+    }
+    
+    func testPasteVideoWithoutFormatting() {
+        let sourceTextView = TextViewStub(withHTML: "<em>This is a video </em>")
+        let targetTextView = TextViewStub(withHTML: "<strong>Pasted: </strong>")
+        
+        let videoInsertionRange = NSRange(location: sourceTextView.text.count, length: 0)
+        let _ = sourceTextView.replaceWithVideo(at: videoInsertionRange, sourceURL: URL(string: "video.mp4")!, posterURL: URL(string: "video.jpg"), placeHolderImage: nil)
+        
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+        
+        targetTextView.selectedRange = NSRange(location: targetTextView.text.count, length: 0)
+        targetTextView.pasteWithoutFormatting(nil)
+        
+        XCTAssertEqual(targetTextView.getHTML(), "<p><strong>Pasted: This is a video <video src=\"video.mp4\" poster=\"video.jpg\"></video></strong></p>")
     }
 
     /// Verifies that any edition performed on VideoAttachment's srcURL attribute is properly serialized back,
     /// during the HTML generation step.
     ///
     func testEditingVideoAttachmentAttributesCausesAttributesToProperlySerializeBack() {
-        let textView = createTextView(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
+        let textView = TextViewStub(withHTML: "<video src=\"video.mp4\" poster=\"video.jpg\" alt=\"The video\"></video>")
         guard let videoAttachment = textView.storage.mediaAttachments.first! as? VideoAttachment else {
             fatalError()
         }
 
-        videoAttachment.srcURL = URL(string:"newVideo.mp4")!
+        videoAttachment.updateURL(URL(string:"newVideo.mp4")!)
         textView.refresh(videoAttachment)
 
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" alt=\"The video\"></video></p>")
@@ -1474,9 +1534,9 @@ class TextViewTests: XCTestCase {
 
     func testParseVideoWithExtraAttributes() {
         let videoHTML = "<video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video>"
-        let textView = createTextView(withHTML: videoHTML)
+        let textView = TextViewStub(withHTML: videoHTML)
 
-        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" data-wpvideopress=\"videopress\" poster=\"video.jpg\"></video></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"videopress\"></video></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
             XCTFail("An video attachment should be present")
@@ -1486,7 +1546,7 @@ class TextViewTests: XCTestCase {
 
         attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
 
-        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" data-wpvideopress=\"ABCDE\" poster=\"video.jpg\"></video></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
     }
 
 
@@ -1495,7 +1555,7 @@ class TextViewTests: XCTestCase {
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
     ///
     func testInsertComment() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.replace(.zero, withComment: "more")
         let html = textView.getHTML()
@@ -1506,7 +1566,7 @@ class TextViewTests: XCTestCase {
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
     ///
     func testInsertCommentAttachmentDoNotCrashTheEditorWhenCalledSequentially() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
         textView.replace(.zero, withComment: "more")
         textView.replace(.zero, withComment: "some other comment should go here")
 
@@ -1521,10 +1581,10 @@ class TextViewTests: XCTestCase {
     /// This test check if the insertion of an horizontal ruler works correctly and the hr tag is inserted
     ///
     func testReplaceRangeWithHorizontalRuler() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML()
+        let html = textView.getHTML(prettify: false)
 
         XCTAssertEqual(html, "<p><hr></p>")
     }
@@ -1532,11 +1592,11 @@ class TextViewTests: XCTestCase {
     /// This test check if the insertion of antwo horizontal ruler works correctly and the hr tag(s) are inserted
     ///
     func testReplaceRangeWithHorizontalRulerGeneratesExpectedHTMLWhenExecutedSequentially() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.replaceWithHorizontalRuler(at: .zero)
         textView.replaceWithHorizontalRuler(at: .zero)
-        let html = textView.getHTML()
+        let html = textView.getHTML(prettify: false)
 
         XCTAssertEqual(html, "<p><hr><hr></p>")
     }
@@ -1544,24 +1604,24 @@ class TextViewTests: XCTestCase {
     /// This test check if the insertion of an horizontal ruler over an image attachment works correctly and the hr tag is inserted
     ///
     func testReplaceRangeWithHorizontalRulerRulerOverImage() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
         textView.replaceWithHorizontalRuler(at: NSRange(location: 0, length:1))
 
-        let html = textView.getHTML()
+        let html = textView.getHTML(prettify: false)
         
         XCTAssertEqual(html, "<p><hr></p>")
     }
 
     func testReplaceRangeWithAttachmentDontDisableDefaultParagraph() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.selectedRange = NSRange(location: NSAttributedString.lengthOfTextAttachment, length: 1)
         guard let font = textView.typingAttributesSwifted[.font] as? UIFont else {
@@ -1572,23 +1632,24 @@ class TextViewTests: XCTestCase {
     }
 
     func testInsertEmojiKeepsDefaultFont() {
-        let textView = createEmptyTextViewWithNonStandardSystemFont()
+        let font = UIFont(name:"HelveticaNeue", size: 14)!
+        let textView = TextViewStub(font: font)
 
         textView.insertText("😘")
         let currentTypingFont = textView.typingAttributesSwifted[.font] as! UIFont
-        XCTAssertEqual(currentTypingFont, nonStandardSystemFont, "Font should be set to default")
+        XCTAssertEqual(currentTypingFont, font, "Font should be set to default")
     }
 
 
 
     func testRemovalOfAttachment() {
-        let textView = createEmptyTextView()
+        let textView = TextViewStub()
 
         let attachment = textView.replaceWithImage(at: .zero, sourceURL: URL(string:"https://wordpress.com")!, placeHolderImage: nil)
 
         var html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\" class=\"alignnone\"></p>")
+        XCTAssertEqual(html, "<p><img src=\"https://wordpress.com\"></p>")
 
         textView.remove(attachmentID: attachment.identifier)
 
@@ -1602,7 +1663,7 @@ class TextViewTests: XCTestCase {
     ///
     func testParseImageWithExtraAttributes() {
         let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
-        let textView = createTextView(withHTML: html)
+        let textView = TextViewStub(withHTML: html)
 
         XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" title=\"Title\" alt=\"Alt\"></p>")
 
@@ -1626,8 +1687,8 @@ class TextViewTests: XCTestCase {
     ///
     func testToggleHtmlWithTwoEmptyLineBreaksDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br><br><h1>Header</h1>"
-        let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML()
+        let textView = TextViewStub(withHTML: pristineHTML)
+        let generatedHTML = textView.getHTML(prettify: false)
 
         XCTAssertEqual(generatedHTML, "<p><br><br></p><h1>Header</h1>")
     }
@@ -1637,8 +1698,8 @@ class TextViewTests: XCTestCase {
     ///
     func testToggleHtmlWithTwoLineBreaksAndInlineHeaderDoesNotLooseHeaderStyle() {
         let pristineHTML = "<br>1<br>2<h1>Heder</h1>"
-        let textView = createTextView(withHTML: pristineHTML)
-        let generatedHTML = textView.getHTML()
+        let textView = TextViewStub(withHTML: pristineHTML)
+        let generatedHTML = textView.getHTML(prettify: false)
 
         XCTAssertEqual(generatedHTML, "<p><br>1<br>2</p><h1>Heder</h1>")
     }
@@ -1647,7 +1708,7 @@ class TextViewTests: XCTestCase {
     ///
     func testParseImageDoesntDuplicateExtraAttributes() {
         let html = "<img src=\"image.jpg\" class=\"alignnone wp-image-test\" title=\"Title\" alt=\"Alt\">"
-        let textView = createTextView(withHTML: html)
+        let textView = TextViewStub(withHTML: html)
         let generatedHTML = textView.getHTML()
 
         XCTAssertEqual(generatedHTML, "<p>\(html)</p>")
@@ -1657,7 +1718,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #626: NSKeyedArchiver Crash
     ///
     func testCopyDoesNotCauseAztecToCrash() {
-        let textView = createTextViewWithSampleHTML()
+        let textView = TextViewStub(withSampleHTML: true)
         textView.selectedRange = textView.storage.rangeOfEntireString
         textView.copy(nil)
     }
@@ -1666,7 +1727,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #626: NSKeyedArchiver Crash
     ///
     func testCutDoesNotCauseAztecToCrash() {
-        let textView = createTextViewWithSampleHTML()
+        let textView = TextViewStub(withSampleHTML: true)
         textView.selectedRange = textView.storage.rangeOfEntireString
         textView.cut(nil)
     }
@@ -1679,7 +1740,7 @@ class TextViewTests: XCTestCase {
             "ソト聞長津装げ。16北夢みは殻容ク洋意能緯ざた投記ぐだもみ学徳局みそイし済更離ラレミネ展至察畑しのわぴ。航リむは" +
             "素希ホソ元不サト国十リ産望イげ地年ニヲネ将広ぴん器学サナチ者一か新米だしず災9識じざい総台男みのちフ。"
 
-        let textView = createTextView(withHTML: pristineJapanese)
+        let textView = TextViewStub(withHTML: pristineJapanese)
         XCTAssertEqual(textView.getHTML(), "<p>\(pristineJapanese)</p>")
     }
 
@@ -1691,7 +1752,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #633: Hitting Tab causes the bullet to indent, but the blockquote is not moving
     ///
     func testNestedTextListsAreProperlyGroupedTogether() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
         textView.toggleBlockquote(range: .zero)
@@ -1713,7 +1774,7 @@ class TextViewTests: XCTestCase {
 
         // Verify!
         let expected = "<ol><li><ol><li><ol><li><blockquote>First Item</blockquote></li></ol></li></ol></li></ol>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that the `deleteBackward` call does not result in loosing the Typing Attributes.
@@ -1723,7 +1784,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #749: Loosing Style after hitting Backspace
     ///
     func testDeleteBackwardsDoesNotEndUpLoosingItalicsStyle() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleBoldface(self)
         textView.insertText("First Line")
@@ -1747,7 +1808,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #748: Format Bar: Active Style gets de-higlighted
     ///
     func testActiveStyleDoesNotGetLostWheneverOnDidChangeDelegateMethodIsCalled() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         let delegate = TextViewStubDelegate()
         textView.delegate = delegate
@@ -1774,7 +1835,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #747: Zombie H1 Style
     ///
     func testHeaderStyleDoesNotComeBackFromNonExistanceWheneverDeleteBackwardResultsInEmptyParagraph() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleHeader(.h1, range: textView.selectedRange)
         textView.insertText("Header")
@@ -1789,7 +1850,7 @@ class TextViewTests: XCTestCase {
         textView.insertText("Three")
 
         let expected = "<h1>Header</h1><p>One Two</p><p>Three</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that H1 Style doesn't turn rogue (Scenario #2), and come back after editing a line
@@ -1798,7 +1859,7 @@ class TextViewTests: XCTestCase {
     /// Ref. Issue #747: Zombie H1 Style
     ///
     func testHeaderStyleDoesNotComeBackFromNonExistanceWheneverDeleteBackwardResultsInEmptyParagraphBeforeHeaderStyle() {
-        let textView = createTextView(withHTML: "")
+        let textView = TextViewStub(withHTML: "")
 
         textView.toggleHeader(.h1, range: textView.selectedRange)
         textView.insertText("Header")
@@ -1810,14 +1871,14 @@ class TextViewTests: XCTestCase {
         textView.insertText("1")
 
         let expected = "<h1>Header</h1><p>1</p>"
-        XCTAssert(textView.getHTML() == expected)
+        XCTAssertEqual(textView.getHTML(prettify: false), expected)
     }
 
     /// This test verifies that attributes on media attachment are being removed properly.
     /// of text that never had H1 style, to begin with!.
     ///
     func testAttributesOnMediaAttachmentsAreRemoved() {
-        let textView = createTextView(withHTML: "<img src=\"http://placeholder\" data-wp_upload_id=\"ABCDE\" >")
+        let textView = TextViewStub(withHTML: "<img src=\"http://placeholder\" data-wp_upload_id=\"ABCDE\" >")
 
         guard let attachment = textView.storage.mediaAttachments.first else {
             XCTFail("There must be an attachment")
@@ -1836,16 +1897,34 @@ class TextViewTests: XCTestCase {
 
         let html = textView.getHTML()
 
-        XCTAssertEqual(html, "<p><img src=\"http://placeholder\" class=\"alignnone\"></p>" )
+        XCTAssertEqual(html, "<p><img src=\"http://placeholder\"></p>" )
     }
 
     /// This test makes sure that if an `<hr>` was in the original HTML, it will still get output after our processing.
     func testHRPeristsAfterAztec() {
-        let textView = createTextView(withHTML: "<h1>Header</h1><p>test<hr></p>")
+        let textView = TextViewStub(withHTML: "<h1>Header</h1><p>test<hr></p>")
 
-        let html = textView.getHTML()
+        let html = textView.getHTML(prettify: false)
 
         XCTAssertEqual(html, "<h1>Header</h1><p>test</p><p><hr></p>")
     }
 
+    /// This test makes sure that if an auto replacement is made with smaller text, for example an emoji, things work correctly
+    func testAutoCompletionReplacementHackWhenUsingEmoji() {
+        let textView = TextViewStub(withHTML: "Love")
+        let uiTextRange = textView.textRange(from: textView.beginningOfDocument, to: textView.endOfDocument)!
+        textView.replaceRangeWithTextWithoutClosingTyping(uiTextRange, replacementText:"😘")
+        let html = textView.getHTML()
+
+        XCTAssertEqual(html, "<p>😘</p>")
+    }
+
+    func testMultipleFigureCaptionAreProperlyParsed() {
+        let originalHTML = """
+<figure><img src=\"a.png\" class=\"alignnone\"><figcaption>caption a</figcaption></figure><figure><img src=\"b.png\" class=\"alignnone\"><figcaption>caption b</figcaption></figure>
+"""
+        let textView = TextViewStub(withHTML: originalHTML)
+
+        XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
+    }
 }

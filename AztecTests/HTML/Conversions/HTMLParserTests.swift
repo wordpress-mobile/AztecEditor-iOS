@@ -83,4 +83,15 @@ class HTMLParserTests: XCTestCase {
 
         XCTAssertEqual(textNode.text(), html)
     }
+    
+    /// Test that text contained within script tags, parsed by libxml as CData, does not trigger a crash.
+    ///
+    /// Example: <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    ///
+    func testScriptTagWithCDataDoesNotTriggerACrash() {
+        
+        let html = "<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>"
+        
+        XCTAssertNoThrow(HTMLParser().parse(html))
+    }
 }
