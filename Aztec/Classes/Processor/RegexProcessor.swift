@@ -13,7 +13,7 @@ open class RegexProcessor: Processor {
     }
 
     public func process(_ text: String) -> String {
-        let matches = regex.matches(in: text, options: [], range: text.nsRange(from: text.startIndex ..< text.endIndex))
+        let matches = regex.matches(in: text, options: [], range: text.utf16NSRange(from: text.startIndex ..< text.endIndex))
         var replacements = [(NSRange, String)]()
         for match in matches {
             if let replacement = replacer(match, text) {
