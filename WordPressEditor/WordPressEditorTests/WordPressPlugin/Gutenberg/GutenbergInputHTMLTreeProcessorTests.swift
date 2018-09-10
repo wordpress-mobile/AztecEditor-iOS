@@ -27,6 +27,7 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
     /// Verifies that a Gutenberg paragraph block is properly encoded.
     ///
     func testParagraphBlock() {
+    
         let openingCommentText = " wp:paragraph "
         let closingCommentText = " /wp:paragraph "
         let openingGutentag = htmlComment(withContent: openingCommentText)
