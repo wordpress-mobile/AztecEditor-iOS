@@ -83,7 +83,7 @@ public class ElementNode: Node {
     private func updateParentForChildren() {
         for child in children where child.parent !== self {
             if let oldParent = child.parent,
-                let childIndex = oldParent.children.index(of: child) {
+                let childIndex = oldParent.children.index(where: { child === $0 }) {
                 
                 oldParent.children.remove(at: childIndex)
             }
@@ -285,7 +285,7 @@ public class ElementNode: Node {
     /// - Returns: the index of the specified child node.
     ///
     func indexOf(childNode: Node) -> Int {
-        guard let index = children.index(of: childNode) else {
+        guard let index = children.index(where: { childNode === $0 } ) else {
             fatalError("Broken parent-child relationship found.")
         }
         
