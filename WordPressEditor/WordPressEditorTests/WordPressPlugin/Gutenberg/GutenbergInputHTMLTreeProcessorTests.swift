@@ -185,6 +185,8 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
         let input = "<!-- wp:paragraph -->a<!-- /wp:paragraph -->\n<!-- wp:image -->\n<figure class=\"wp-block-image alignright\"><img src=\"https://wordpress.org/gutenberg/files/2017/12/Dropcap.png\" height=234 alt=\"\" width=312></figure>\nThis text will be lost<!-- /wp:image -->"
         
         let rootNode = parser.parse(input)
+        XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
+        
         processor.process(rootNode)
         
         XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
