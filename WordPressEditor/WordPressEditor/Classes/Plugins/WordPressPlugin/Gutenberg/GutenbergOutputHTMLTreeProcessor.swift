@@ -57,7 +57,7 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
                 let replacementNodes = process(gutenpack: gutenpack)
                 
                 result.append(contentsOf: replacementNodes)
-                children = children.dropFirst(replacementNodes.count)
+                children = children.dropFirst()
             }
 
             let nodesToKeepInParagraph = children.prefix(upTo: index)
