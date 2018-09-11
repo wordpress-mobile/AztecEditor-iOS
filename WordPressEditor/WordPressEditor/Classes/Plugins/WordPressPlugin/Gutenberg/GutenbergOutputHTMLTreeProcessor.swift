@@ -69,7 +69,8 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
         }
 
         if children.count > 0 {
-            result.append(contentsOf: children)
+            paragraph.children = Array(children)
+            result.append(paragraph)
         }
         
         return result
