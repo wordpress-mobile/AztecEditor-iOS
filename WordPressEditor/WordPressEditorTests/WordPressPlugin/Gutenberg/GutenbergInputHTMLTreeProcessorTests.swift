@@ -27,6 +27,7 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
     /// Verifies that a Gutenberg paragraph block is properly encoded.
     ///
     func testParagraphBlock() {
+    
         let openingCommentText = " wp:paragraph "
         let closingCommentText = " /wp:paragraph "
         let openingGutentag = htmlComment(withContent: openingCommentText)
@@ -179,5 +180,20 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
             return attribute.name == GutenbergAttribute.selfCloser.rawValue
                 && attribute.value.toString() == selfClosingComment
         }))
+    }
+    
+    /// There was an issue with Gutenberg posts losing edits.  This automated test makes sure the issues we found don't regress.
+    ///
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1052
+    ///
+    func testDataLossWhenProcessing() {
+        let input = "<!-- wp:paragraph -->a<!-- /wp:paragraph -->\n<!-- wp:image -->\n<figure class=\"wp-block-image alignright\"><img src=\"https://wordpress.org/gutenberg/files/2017/12/Dropcap.png\" height=234 alt=\"\" width=312></figure>\nThis text will be lost<!-- /wp:image -->"
+        
+        let rootNode = parser.parse(input)
+        XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
+        
+        processor.process(rootNode)
+        
+        XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
     }
 }

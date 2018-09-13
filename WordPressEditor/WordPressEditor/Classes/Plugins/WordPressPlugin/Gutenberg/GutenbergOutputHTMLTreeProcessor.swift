@@ -53,26 +53,23 @@ public class GutenbergOutputHTMLTreeProcessor: HTMLTreeProcessor {
         var result = [Node]()
         
         while let (index, gutenpack) = nextGutenpack(in: children) {
-            defer {
-                let replacementNodes = process(gutenpack: gutenpack)
+            let nodesBeforeGutenpack = children.prefix(upTo: index)
+
+            if nodesBeforeGutenpack.count > 0 {
+                let newParagraph = deepCopy(paragraph, withChildren: Array(nodesBeforeGutenpack))
                 
-                result.append(contentsOf: replacementNodes)
-                children = children.dropFirst(replacementNodes.count)
+                result.append(newParagraph)
+                children = children.dropFirst(nodesBeforeGutenpack.count)
             }
-
-            let nodesToKeepInParagraph = children.prefix(upTo: index)
-
-            guard nodesToKeepInParagraph.count > 0 else {
-                continue
-            }
-
-            let newParagraph = deepCopy(paragraph, withChildren: Array(nodesToKeepInParagraph))
-
-            result.append(newParagraph)
-            children = children.dropFirst(nodesToKeepInParagraph.count)
+            
+            let replacementNodes = process(gutenpack: gutenpack)
+            
+            result.append(contentsOf: replacementNodes)
+            children = children.dropFirst()
         }
 
         if children.count > 0 {
+            paragraph.children = Array(children)
             result.append(paragraph)
         }
         

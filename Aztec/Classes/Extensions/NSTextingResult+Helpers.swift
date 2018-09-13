@@ -24,7 +24,7 @@ public extension NSTextCheckingResult {
             return nil
         }
         
-        let range = text.range(from: nsrange)
+        let range = text.range(fromUTF16NSRange: nsrange)
         
         #if swift(>=4.0)
             let captureGroup = String(text[range])
