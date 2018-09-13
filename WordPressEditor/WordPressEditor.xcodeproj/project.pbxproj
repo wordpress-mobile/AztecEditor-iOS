@@ -279,6 +279,7 @@
 			children = (
 				F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */,
 				F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */,
+				F1BA32302146E9FA00679F68 /* GutenbergOutputHTMLTreeProcessorTests.swift */,
 				F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */,
 				F1BA32302146E9FA00679F68 /* GutenbergOutputHTMLTreeProcessorTests.swift */,
 			);
