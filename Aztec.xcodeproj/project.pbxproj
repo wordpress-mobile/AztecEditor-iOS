@@ -478,17 +478,17 @@
 				40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */,
 			);
 			name = Implementations;
-			path = Aztec/Classes/ElementConverters/Input/Implementations;
+			path = Aztec/Classes/Converters/ElementsToNSAttributedString/Implementations;
 			sourceTree = SOURCE_ROOT;
 		};
-		40D513641FD6185A00A64501 /* ElementConverters */ = {
+		40D513641FD6185A00A64501 /* ElementsToNSAttributedString */ = {
 			isa = PBXGroup;
 			children = (
-				F16A2AF820CDB4EF00BF3A0A /* Input */,
-				F16A2AFA20CDB50F00BF3A0A /* Output */,
+				40D513651FD6186800A64501 /* Base */,
+				40A2986F1FD61B1C00AEDF3B /* Implementations */,
 			);
-			name = ElementConverters;
-			path = Aztec/Classes/ElementConverters;
+			name = ElementsToNSAttributedString;
+			path = Aztec/Classes/Converters/ElementsToNSAttributedString;
 			sourceTree = SOURCE_ROOT;
 		};
 		40D513651FD6186800A64501 /* Base */ = {
@@ -499,7 +499,7 @@
 				F1E2323320C18055008DA49F /* FormatterElementConverter.swift */,
 			);
 			name = Base;
-			path = Aztec/Classes/ElementConverters/Input/Base;
+			path = Aztec/Classes/Converters/ElementsToNSAttributedString/Base;
 			sourceTree = SOURCE_ROOT;
 		};
 		5951CB841D8BC93600E1866F = {
@@ -560,10 +560,9 @@
 			isa = PBXGroup;
 			children = (
 				599F251F1D8BC9A1002871D6 /* Constants */,
-				599F25031D8BC9A1002871D6 /* Converter */,
+				F109873C214FF2B900983B6A /* Converters */,
 				F1079D65208F80AE009717FA /* EditorView */,
 				599F25241D8BC9A1002871D6 /* Extensions */,
-				40D513641FD6185A00A64501 /* ElementConverters */,
 				B5B86D3A1DA41A550083DB3F /* Formatters */,
 				599F25281D8BC9A1002871D6 /* GUI */,
 				599F25071D8BC9A1002871D6 /* Libxml2 */,
@@ -577,13 +576,13 @@
 			path = Aztec/Classes;
 			sourceTree = SOURCE_ROOT;
 		};
-		599F25031D8BC9A1002871D6 /* Converter */ = {
+		599F25031D8BC9A1002871D6 /* HTMLToElements */ = {
 			isa = PBXGroup;
 			children = (
 				599F25051D8BC9A1002871D6 /* CLinkedListToArrayConverter.swift */,
 				599F25061D8BC9A1002871D6 /* Converter.swift */,
 			);
-			path = Converter;
+			path = HTMLToElements;
 			sourceTree = "<group>";
 		};
 		599F25071D8BC9A1002871D6 /* Libxml2 */ = {
@@ -778,6 +777,24 @@
 			path = EditorView;
 			sourceTree = "<group>";
 		};
+		F109873B214FF2A600983B6A /* ElementAttributesToNSAttributedStringAttributes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ElementAttributesToNSAttributedStringAttributes;
+			sourceTree = "<group>";
+		};
+		F109873C214FF2B900983B6A /* Converters */ = {
+			isa = PBXGroup;
+			children = (
+				F109873B214FF2A600983B6A /* ElementAttributesToNSAttributedStringAttributes */,
+				40D513641FD6185A00A64501 /* ElementsToNSAttributedString */,
+				599F25031D8BC9A1002871D6 /* HTMLToElements */,
+				F16A2AFA20CDB50F00BF3A0A /* NSAttributedStringToElements */,
+			);
+			path = Converters;
+			sourceTree = "<group>";
+		};
 		F10DB19F1E63390700358E7E /* TextKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -924,22 +941,13 @@
 			path = Base;
 			sourceTree = "<group>";
 		};
-		F16A2AF820CDB4EF00BF3A0A /* Input */ = {
-			isa = PBXGroup;
-			children = (
-				40D513651FD6186800A64501 /* Base */,
-				40A2986F1FD61B1C00AEDF3B /* Implementations */,
-			);
-			path = Input;
-			sourceTree = "<group>";
-		};
-		F16A2AFA20CDB50F00BF3A0A /* Output */ = {
+		F16A2AFA20CDB50F00BF3A0A /* NSAttributedStringToElements */ = {
 			isa = PBXGroup;
 			children = (
 				F16A2AFB20CDB51B00BF3A0A /* Base */,
 				F16A2AFE20CDB5BD00BF3A0A /* Implementations */,
 			);
-			path = Output;
+			path = NSAttributedStringToElements;
 			sourceTree = "<group>";
 		};
 		F16A2AFB20CDB51B00BF3A0A /* Base */ = {
