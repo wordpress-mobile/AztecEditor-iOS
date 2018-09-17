@@ -71,7 +71,7 @@
 		F1079D67208F80FE009717FA /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1079D66208F80FE009717FA /* EditorView.swift */; };
 		F109873F214FF4C400983B6A /* ElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F109873E214FF4C400983B6A /* ElementAttributeConverter.swift */; };
 		F1098741214FF55F00983B6A /* BoldElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1098740214FF55F00983B6A /* BoldElementAttributeConverter.swift */; };
-		F1098743214FF77000983B6A /* PipelineAttributesConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1098742214FF77000983B6A /* PipelineAttributesConverter.swift */; };
+		F1098743214FF77000983B6A /* MainAttributesConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1098742214FF77000983B6A /* MainAttributesConverter.swift */; };
 		F109874521501A2F00983B6A /* ItalicElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F109874421501A2F00983B6A /* ItalicElementAttributeConverter.swift */; };
 		F109874921501C8B00983B6A /* UnderlineElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F109874821501C8B00983B6A /* UnderlineElementAttributeConverter.swift */; };
 		F10BE6181EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */; };
@@ -308,7 +308,7 @@
 		F1079D66208F80FE009717FA /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		F109873E214FF4C400983B6A /* ElementAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementAttributeConverter.swift; sourceTree = "<group>"; };
 		F1098740214FF55F00983B6A /* BoldElementAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldElementAttributeConverter.swift; sourceTree = "<group>"; };
-		F1098742214FF77000983B6A /* PipelineAttributesConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineAttributesConverter.swift; sourceTree = "<group>"; };
+		F1098742214FF77000983B6A /* MainAttributesConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAttributesConverter.swift; sourceTree = "<group>"; };
 		F109874421501A2F00983B6A /* ItalicElementAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalicElementAttributeConverter.swift; sourceTree = "<group>"; };
 		F109874821501C8B00983B6A /* UnderlineElementAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineElementAttributeConverter.swift; sourceTree = "<group>"; };
 		F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceOcurrences.swift"; sourceTree = "<group>"; };
@@ -811,6 +811,7 @@
 			isa = PBXGroup;
 			children = (
 				F109873E214FF4C400983B6A /* ElementAttributeConverter.swift */,
+				F1098742214FF77000983B6A /* MainAttributesConverter.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -820,7 +821,6 @@
 			children = (
 				F1098740214FF55F00983B6A /* BoldElementAttributeConverter.swift */,
 				F109874421501A2F00983B6A /* ItalicElementAttributeConverter.swift */,
-				F1098742214FF77000983B6A /* PipelineAttributesConverter.swift */,
 				F109874821501C8B00983B6A /* UnderlineElementAttributeConverter.swift */,
 			);
 			path = Implementations;
@@ -1451,7 +1451,7 @@
 				F1E2323420C18055008DA49F /* FormatterElementConverter.swift in Sources */,
 				F12328771FB638C6001E35EF /* NSAttributedStringKey+Aztec.swift in Sources */,
 				F1CF7F9020E14E2200B24173 /* AttributedStringParser.swift in Sources */,
-				F1098743214FF77000983B6A /* PipelineAttributesConverter.swift in Sources */,
+				F1098743214FF77000983B6A /* MainAttributesConverter.swift in Sources */,
 				599F25501D8BC9A1002871D6 /* FormattingIdentifier.swift in Sources */,
 				B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */,
 				F1079D67208F80FE009717FA /* EditorView.swift in Sources */,

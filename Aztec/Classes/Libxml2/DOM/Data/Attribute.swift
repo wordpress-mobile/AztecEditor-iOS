@@ -204,6 +204,22 @@ extension Attribute {
                 return result
             }
         }
+        
+        public func cssAttribute(named name: String) -> CSSAttribute? {
+            guard let cssAttributes = cssAttributes()  else {
+                return nil
+            }
+            
+            return cssAttributes.first(where: { $0.name == name })
+        }
+        
+        public func cssAttributes() -> [CSSAttribute]? {
+            guard case let .inlineCss(cssAttributes) = self else {
+                return nil
+            }
+            
+            return cssAttributes
+        }
     }
 }
 

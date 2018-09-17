@@ -3,24 +3,15 @@ import UIKit
 
 class BoldElementAttributesConverter: ElementAttributeConverter {    
 
-    private let cssFontWeightAttributeName = "font-weight"
+    private let cssAttributeName = "font-weight"
     private let cssBoldFontWeight = 700
-
-    func convert(
-        _ attributes: [Attribute],
-        inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-
-        return attributes.reduce(inheritedAttributes, { (previous, attribute) -> [NSAttributedStringKey: Any] in
-            return convert(attribute, inheriting: previous)
-        })
-    }
-
+    
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let fontWeightAttribute = self.fontWeightAttribute(from: attribute),
-            isBold(fontWeightAttribute) else {
+        guard let cssAttribute = attribute.value.cssAttribute(named: cssAttributeName),
+            isBold(cssAttribute) else {
                 return attributes
         }
         
@@ -46,18 +37,5 @@ class BoldElementAttributesConverter: ElementAttributeConverter {
         }
         
         return weight >= cssBoldFontWeight
-    }
-    
-    private func fontWeightAttribute(from attribute: Attribute) -> CSSAttribute? {
-        guard case let .inlineCss(cssAttributes) = attribute.value,
-            let fontWeightAttribute = fontWeightAttribute(from: cssAttributes) else {
-                return nil
-        }
-        
-        return fontWeightAttribute
-    }
-    
-    private func fontWeightAttribute(from cssAttributes: [CSSAttribute]) -> CSSAttribute? {
-        return cssAttributes.first(where: { $0.name == cssFontWeightAttributeName })
     }
 }

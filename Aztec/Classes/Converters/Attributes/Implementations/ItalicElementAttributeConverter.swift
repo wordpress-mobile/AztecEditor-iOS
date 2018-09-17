@@ -3,24 +3,15 @@ import UIKit
 
 class ItalicElementAttributesConverter: ElementAttributeConverter {
     
-    private let cssFontStyleAttributeName = "font-style"
+    private let cssAttributeName = "font-style"
     private let cssFontStyleItalicValue = "italic"
-    
-    func convert(
-        _ attributes: [Attribute],
-        inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-        
-        return attributes.reduce(inheritedAttributes, { (previous, attribute) -> [NSAttributedStringKey: Any] in
-            return convert(attribute, inheriting: previous)
-        })
-    }
     
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let fontStyleAttribute = fontStyleAttribute(from: attribute),
-            isBold(fontStyleAttribute) else {
+        guard let cssAttribute = attribute.value.cssAttribute(named: cssAttributeName),
+            isItalic(cssAttribute) else {
                 return attributes
         }
         
@@ -39,24 +30,11 @@ class ItalicElementAttributesConverter: ElementAttributeConverter {
         return attributes
     }
     
-    private func isBold(_ fontStyleAttribute: CSSAttribute) -> Bool {
+    private func isItalic(_ fontStyleAttribute: CSSAttribute) -> Bool {
         guard let decoration = fontStyleAttribute.value else {
             return false
         }
         
         return decoration == cssFontStyleItalicValue
-    }
-    
-    private func fontStyleAttribute(from attribute: Attribute) -> CSSAttribute? {
-        guard case let .inlineCss(cssAttributes) = attribute.value,
-            let fontStyleAttribute = fontStyleAttribute(from: cssAttributes) else {
-                return nil
-        }
-        
-        return fontStyleAttribute
-    }
-    
-    private func fontStyleAttribute(from cssAttributes: [CSSAttribute]) -> CSSAttribute? {
-        return cssAttributes.first(where: { $0.name == cssFontStyleAttributeName })
     }
 }

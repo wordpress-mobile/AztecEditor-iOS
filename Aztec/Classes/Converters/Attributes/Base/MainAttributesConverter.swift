@@ -1,6 +1,6 @@
 import Foundation
 
-class PipelineAttributesConverter: ElementAttributeConverter {
+class MainAttributesConverter {
     
     private let converters: [ElementAttributeConverter]
     

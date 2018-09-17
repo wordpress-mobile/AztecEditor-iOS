@@ -61,7 +61,7 @@ class GenericElementConverter: ElementConverter {
     
     // MARK: - Attributes Converter
     
-    let attributesConverter = PipelineAttributesConverter([
+    let attributesConverter = MainAttributesConverter([
         BoldElementAttributesConverter(),
         ItalicElementAttributesConverter(),
         UnderlineElementAttributesConverter(),
