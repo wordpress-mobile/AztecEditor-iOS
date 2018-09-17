@@ -43,7 +43,7 @@ class AttributedStringSerializer {
         return serialize(node, inheriting: defaultAttributes)
     }
 
-    /// Recursive serialization method.  Useful for maintaining the font style of parent nodes.
+    /// Recursive serialization method.
     ///
     /// - Parameters:
     ///     - node: the node to convert to `NSAttributedString`.
