@@ -1,25 +1,26 @@
 import Foundation
 import UIKit
 
-class BoldElementAttributesConverter: ElementAttributeConverter {    
-
-    private let cssBoldWeight = 700
-
+class ItalicElementAttributesConverter: ElementAttributeConverter {
+    
+    private let cssFontStyleAttributeName = "font-style"
+    private let cssFontStyleItalicValue = "italic"
+    
     func convert(
         _ attributes: [Attribute],
         inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-
+        
         return attributes.reduce(inheritedAttributes, { (previous, attribute) -> [NSAttributedStringKey: Any] in
             return convert(attribute, inheriting: previous)
         })
     }
-
+    
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let fontWeightAttribute = self.fontWeightAttribute(from: attribute),
-            isBold(fontWeightAttribute) else {
+        guard let fontStyleAttribute = fontStyleAttribute(from: attribute),
+            isBold(fontStyleAttribute) else {
                 return attributes
         }
         
@@ -31,32 +32,31 @@ class BoldElementAttributesConverter: ElementAttributeConverter {
         // default system font of size 14 for now.
         //
         let font = attributes[.font] as? UIFont ?? UIFont.systemFont(ofSize: 14)
-        let newFont = font.modifyTraits([.traitBold], enable: true)
+        let newFont = font.modifyTraits([.traitItalic], enable: true)
         
         attributes[.font] = newFont
         
         return attributes
     }
     
-    private func isBold(_ fontWeightAttribute: CSSAttribute) -> Bool {
-        guard let weightValue = fontWeightAttribute.value,
-            let weight = Int(weightValue) else {
-                return false
+    private func isBold(_ fontStyleAttribute: CSSAttribute) -> Bool {
+        guard let decoration = fontStyleAttribute.value else {
+            return false
         }
         
-        return weight >= cssBoldWeight
+        return decoration == cssFontStyleItalicValue
     }
     
-    private func fontWeightAttribute(from attribute: Attribute) -> CSSAttribute? {
+    private func fontStyleAttribute(from attribute: Attribute) -> CSSAttribute? {
         guard case let .inlineCss(cssAttributes) = attribute.value,
-            let fontWeightAttribute = fontWeightAttribute(from: cssAttributes) else {
+            let fontStyleAttribute = fontStyleAttribute(from: cssAttributes) else {
                 return nil
         }
         
-        return fontWeightAttribute
+        return fontStyleAttribute
     }
     
-    private func fontWeightAttribute(from cssAttributes: [CSSAttribute]) -> CSSAttribute? {
-        return cssAttributes.first(where: { $0.name == "font-weight" })
+    private func fontStyleAttribute(from cssAttributes: [CSSAttribute]) -> CSSAttribute? {
+        return cssAttributes.first(where: { $0.name == cssFontStyleAttributeName })
     }
 }
