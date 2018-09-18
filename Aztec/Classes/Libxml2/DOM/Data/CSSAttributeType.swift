@@ -22,7 +22,7 @@ public struct CSSAttributeType: RawRepresentable, Hashable {
 extension CSSAttributeType {
     public static let fontStyle = CSSAttributeType("font-style")
     public static let fontWeight = CSSAttributeType("font-weight")
-    public static let fontDecoration = CSSAttributeType("text-decoration")
+    public static let textDecoration = CSSAttributeType("text-decoration")
     
 }
 
@@ -48,7 +48,7 @@ enum FontWeight: Int {
     }
 }
 
-enum FontDecoration: String {
+enum textDecoration: String {
     case overline = "overline"
     case lineThrough = "line-through"
     case underline = "underline"

@@ -121,6 +121,8 @@
 		F15BA60721514F8F00424120 /* StringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA60621514F8F00424120 /* StringAttributeConverter.swift */; };
 		F15BA6092151501300424120 /* BoldStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA6082151501300424120 /* BoldStringAttributeConverter.swift */; };
 		F15BA60B2151519C00424120 /* CSSAttributeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA60A2151519C00424120 /* CSSAttributeType.swift */; };
+		F15BA60D215159A600424120 /* ItalicStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA60C215159A600424120 /* ItalicStringAttributeConverter.swift */; };
+		F15BA60F21515C0F00424120 /* UnderlineStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */; };
 		F165D92420C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */; };
 		F165D92A20C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */; };
 		F166C4A9213DD5E8007CA18A /* CommentAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */; };
@@ -363,6 +365,8 @@
 		F15BA60621514F8F00424120 /* StringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringAttributeConverter.swift; sourceTree = "<group>"; };
 		F15BA6082151501300424120 /* BoldStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldStringAttributeConverter.swift; sourceTree = "<group>"; };
 		F15BA60A2151519C00424120 /* CSSAttributeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSSAttributeType.swift; sourceTree = "<group>"; };
+		F15BA60C215159A600424120 /* ItalicStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalicStringAttributeConverter.swift; sourceTree = "<group>"; };
+		F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineStringAttributeConverter.swift; sourceTree = "<group>"; };
 		F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializer.swift; sourceTree = "<group>"; };
 		F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ShortcodeAttribute.swift"; sourceTree = "<group>"; };
 		F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = CommentAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
@@ -972,6 +976,8 @@
 			isa = PBXGroup;
 			children = (
 				F15BA6082151501300424120 /* BoldStringAttributeConverter.swift */,
+				F15BA60C215159A600424120 /* ItalicStringAttributeConverter.swift */,
+				F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -1394,6 +1400,7 @@
 				FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */,
 				599F254F1D8BC9A1002871D6 /* FormatBarItem.swift in Sources */,
 				F17BC8931F4E4BA500398E2B /* HTMLRepresentation.swift in Sources */,
+				F15BA60F21515C0F00424120 /* UnderlineStringAttributeConverter.swift in Sources */,
 				F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */,
 				F16A2AD520CC437E00BF3A0A /* LineAttachmentToElementConverter.swift in Sources */,
 				B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */,
@@ -1419,6 +1426,7 @@
 				F1000CE71EAA44AA0000B15B /* String+EndOfLine.swift in Sources */,
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
+				F15BA60D215159A600424120 /* ItalicStringAttributeConverter.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
 				F1E1D5801FEC44B30086B339 /* AttachmentElementConverter.swift in Sources */,
 				F1BDDDE520603C18000714E1 /* FigcaptionFormatter.swift in Sources */,

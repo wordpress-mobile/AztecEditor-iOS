@@ -3,8 +3,8 @@ import UIKit
 
 class UnderlineElementAttributesConverter: ElementAttributeConverter {
 
-    private let cssAttributeType = CSSAttributeType.fontDecoration
-    private let cssAttributeValue = FontDecoration.underline
+    private let cssAttributeType = CSSAttributeType.textDecoration
+    private let cssAttributeValue = textDecoration.underline
     
     func convert(
         _ attribute: Attribute,

@@ -25,6 +25,8 @@ class AttributedStringParser {
     
     private let stringAttributeConverters: [StringAttributeConverter] = [
         BoldStringAttributeConverter(),
+        ItalicStringAttributeConverter(),
+        UnderlineStringAttributeConverter(),
     ]
     
     // MARK: - Attachment Converters
@@ -830,10 +832,6 @@ private extension AttributedStringParser {
             nodes = converter.convert(attributes: attributes, andAggregateWith: nodes)
         }
 
-        if let element = processItalic(in: attributes) {
-            nodes.append(element)
-        }
-
         if let element = processLinkStyle(in: attributes) {
             nodes.append(element)
         }
@@ -842,38 +840,11 @@ private extension AttributedStringParser {
             nodes.append(element)
         }
 
-        if let element = processUnderlineStyle(in: attributes) {
-            nodes.append(element)
-        }
-
         if let element = processCodeStyle(in: attributes) {
             nodes.append(element)
         }
 
         return nodes
-    }
-
-    private func processItalic(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
-        guard let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitItalic) else {
-                return nil
-        }
-
-        let element: ElementNode
-
-        if let representation = attributes[NSAttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else if let representation = attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .em)
-        }
-
-        return element
     }
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
@@ -918,23 +889,6 @@ private extension AttributedStringParser {
         }
 
         return ElementNode(type: .strike)
-    }
-
-
-    /// Extracts all of the Underline Elements contained within a collection of Attributes.
-    ///
-    private func processUnderlineStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
-        guard attributes[.underlineStyle] != nil else {
-            return nil
-        }
-
-        if let representation = attributes[.underlineHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            return representationElement.toElementNode()
-        }
-
-        return ElementNode(type: .u)
     }
 
     /// Extracts all of the Code Elements contained within a collection of Attributes.
