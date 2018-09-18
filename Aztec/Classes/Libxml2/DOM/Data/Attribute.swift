@@ -88,6 +88,14 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     // MARK: - CSS Support
 
+    public func containsCSSAttribute(matching matcher: CSSAttributeMatcher) -> Bool {
+        guard let cssAttributes = value.cssAttributes() else {
+            return false
+        }
+        
+        return cssAttributes.contains(where: { matcher.check($0) })
+    }
+    
     func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
         guard let cssAttributes = value.cssAttributes() else {
             return false
@@ -116,6 +124,22 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
         
         let newCSSAttributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
             guard !check(cssAttribute) else {
+                return nil
+            }
+            
+            return cssAttribute
+        }
+        
+        value = .inlineCss(newCSSAttributes)
+    }
+    
+    public func removeCSSAttributes(matching matcher: CSSAttributeMatcher) {
+        guard case let .inlineCss(cssAttributes) = value else {
+            return
+        }
+        
+        let newCSSAttributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
+            guard !matcher.check(cssAttribute) else {
                 return nil
             }
             

@@ -3,16 +3,14 @@ import UIKit
 
 class UnderlineElementAttributesConverter: ElementAttributeConverter {
 
-    private let cssAttributeType = CSSAttributeType.textDecoration
-    private let cssAttributeValue = textDecoration.underline
+    let cssAttributeMatcher = UnderlineCSSAttributeMatcher()
     
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let cssAttribute = attribute.firstCSSAttribute(ofType: cssAttributeType),
-            isUnderline(cssAttribute) else {
-                return attributes
+        guard attribute.containsCSSAttribute(matching: cssAttributeMatcher) else {
+            return attributes
         }
         
         var attributes = attributes
@@ -20,13 +18,5 @@ class UnderlineElementAttributesConverter: ElementAttributeConverter {
         attributes[.underlineStyle] = 1
         
         return attributes
-    }
-    
-    private func isUnderline(_ fontStyleAttribute: CSSAttribute) -> Bool {
-        guard let decoration = fontStyleAttribute.value  else {
-                return false
-        }
-        
-        return decoration.contains(cssAttributeValue.rawValue)
     }
 }

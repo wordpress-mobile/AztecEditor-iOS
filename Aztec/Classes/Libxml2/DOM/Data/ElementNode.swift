@@ -80,6 +80,14 @@ public class ElementNode: Node {
     
     // MARK: - CSS Attributes
     
+    public func containsCSSAttribute(matching matcher: CSSAttributeMatcher) -> Bool {
+        for attribute in attributes {
+            return attribute.containsCSSAttribute(matching: matcher)
+        }
+        
+        return false
+    }
+    
     public func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
         for attribute in attributes {
             return attribute.containsCSSAttribute(where: check)
@@ -96,6 +104,17 @@ public class ElementNode: Node {
     public func removeCSSAttributes(matching check: (CSSAttribute) -> Bool) {
         for attribute in attributes {
             attribute.removeCSSAttributes(matching: check)
+        }
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching matcher: CSSAttributeMatcher) {
+        for attribute in attributes {
+            attribute.removeCSSAttributes(matching: matcher)
         }
     }
     

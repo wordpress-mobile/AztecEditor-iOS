@@ -3,16 +3,14 @@ import UIKit
 
 class BoldElementAttributesConverter: ElementAttributeConverter {    
 
-    private let cssAttributeType = CSSAttributeType.fontWeight
-    private let cssAttributeValue = FontWeight.bold
+    let cssAttributeMatcher = BoldCSSAttributeMatcher()
     
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let cssAttribute = attribute.firstCSSAttribute(ofType: cssAttributeType),
-            isBold(cssAttribute) else {
-                return attributes
+        guard attribute.containsCSSAttribute(matching: cssAttributeMatcher) else {
+            return attributes
         }
         
         var attributes = attributes
@@ -28,14 +26,5 @@ class BoldElementAttributesConverter: ElementAttributeConverter {
         attributes[.font] = newFont
         
         return attributes
-    }
-    
-    private func isBold(_ fontWeightAttribute: CSSAttribute) -> Bool {
-        guard let weightValue = fontWeightAttribute.value,
-            let weight = Int(weightValue) else {
-                return false
-        }
-        
-        return weight >= cssAttributeValue.rawValue
     }
 }

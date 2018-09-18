@@ -6,6 +6,9 @@ import UIKit
 /// existing array of element nodes.
 ///
 class ItalicStringAttributeConverter: StringAttributeConverter {
+    
+    let cssAttributeMatcher = ItalicCSSAttributeMatcher()
+    
     func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
@@ -43,9 +46,7 @@ class ItalicStringAttributeConverter: StringAttributeConverter {
         }
         
         for elementNode in elementNodes {
-            elementNode.removeCSSAttributes(matching: { (cssAttribute) -> Bool in
-                return cssAttribute.type == .fontStyle && cssAttribute.value == FontStyle.italic.rawValue
-            })
+            elementNode.removeCSSAttributes(matching: cssAttributeMatcher)
         }
         
         return elementNodes
@@ -59,9 +60,7 @@ class ItalicStringAttributeConverter: StringAttributeConverter {
         // adding the element.
         //
         for elementNode in elementNodes {
-            if elementNode.containsCSSAttribute(where: { (cssAttribute) -> Bool in
-                return cssAttribute.type == .fontStyle && cssAttribute.value == FontStyle.italic.rawValue
-            }) {
+            if elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
                 return elementNodes
             }
         }

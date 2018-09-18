@@ -6,6 +6,9 @@ import UIKit
 /// existing array of element nodes.
 ///
 class BoldStringAttributeConverter: StringAttributeConverter {
+    
+    let cssAttributeMatcher = BoldCSSAttributeMatcher()
+    
     func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
@@ -43,14 +46,7 @@ class BoldStringAttributeConverter: StringAttributeConverter {
         }
         
         for elementNode in elementNodes {
-            elementNode.removeCSSAttributes(matching: { (cssAttribute) -> Bool in
-                guard let value = cssAttribute.value,
-                    let intValue = Int(value) else {
-                        return false
-                }
-                
-                return cssAttribute.type == .fontWeight && intValue >= FontWeight.bold.rawValue
-            })
+            elementNode.removeCSSAttributes(matching: cssAttributeMatcher)
         }
         
         return elementNodes
@@ -65,12 +61,7 @@ class BoldStringAttributeConverter: StringAttributeConverter {
         //
         for elementNode in elementNodes {
             if elementNode.containsCSSAttribute(where: { (cssAttribute) -> Bool in
-                guard let value = cssAttribute.value,
-                    let intValue = Int(value) else {
-                        return false
-                }
-                
-                return cssAttribute.type == .fontWeight && intValue >= FontWeight.bold.rawValue
+                return cssAttributeMatcher.check(cssAttribute)
             }) {
                 return elementNodes
             }

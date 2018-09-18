@@ -48,7 +48,7 @@ enum FontWeight: Int {
     }
 }
 
-enum textDecoration: String {
+enum TextDecoration: String {
     case overline = "overline"
     case lineThrough = "line-through"
     case underline = "underline"

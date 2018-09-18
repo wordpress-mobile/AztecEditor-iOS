@@ -6,6 +6,9 @@ import UIKit
 /// existing array of element nodes.
 ///
 class UnderlineStringAttributeConverter: StringAttributeConverter {
+    
+    let cssAttributeMatcher = UnderlineCSSAttributeMatcher()
+    
     func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
@@ -43,13 +46,7 @@ class UnderlineStringAttributeConverter: StringAttributeConverter {
         }
         
         for elementNode in elementNodes {
-            elementNode.removeCSSAttributes(matching: { (cssAttribute) -> Bool in
-                guard let value = cssAttribute.value else {
-                    return false
-                }
-                
-                return cssAttribute.type == .textDecoration && value.contains(textDecoration.underline.rawValue)
-            })
+            elementNode.removeCSSAttributes(matching: cssAttributeMatcher)
         }
         
         return elementNodes
@@ -63,13 +60,7 @@ class UnderlineStringAttributeConverter: StringAttributeConverter {
         // adding the element.
         //
         for elementNode in elementNodes {
-            if elementNode.containsCSSAttribute(where: { (cssAttribute) -> Bool in
-                guard let value = cssAttribute.value else {
-                    return false
-                }
-                
-                return cssAttribute.type == .textDecoration && value.contains(textDecoration.underline.rawValue)
-            }) {
+            if elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
                 return elementNodes
             }
         }
