@@ -3,14 +3,14 @@ import UIKit
 
 class ItalicElementAttributesConverter: ElementAttributeConverter {
     
-    private let cssAttributeName = "font-style"
-    private let cssFontStyleItalicValue = "italic"
+    private let cssAttributeType = CSSAttributeType.fontStyle
+    private let cssAttributeValue = FontStyle.italic
     
     func convert(
         _ attribute: Attribute,
         inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        guard let cssAttribute = attribute.value.cssAttribute(named: cssAttributeName),
+        guard let cssAttribute = attribute.firstCSSAttribute(ofType: cssAttributeType),
             isItalic(cssAttribute) else {
                 return attributes
         }
@@ -35,6 +35,6 @@ class ItalicElementAttributesConverter: ElementAttributeConverter {
             return false
         }
         
-        return decoration == cssFontStyleItalicValue
+        return decoration.contains(cssAttributeValue.rawValue)
     }
 }

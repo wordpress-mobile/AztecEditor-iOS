@@ -100,6 +100,10 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
         return value.cssAttributes()
     }
     
+    public func firstCSSAttribute(ofType type: CSSAttributeType) -> CSSAttribute? {
+        return value.firstCSSAttribute(ofType: type)
+    }
+    
     /// Removes the CSS attributes matching a specified condition.
     ///
     /// - Parameters:
@@ -242,12 +246,20 @@ extension Attribute {
         
         // MARK: - CSS
         
-        public func cssAttribute(named name: String) -> CSSAttribute? {
+        public func firstCSSAttribute(named name: String) -> CSSAttribute? {
             guard let cssAttributes = cssAttributes()  else {
                 return nil
             }
             
             return cssAttributes.first(where: { $0.name == name })
+        }
+        
+        public func firstCSSAttribute(ofType type: CSSAttributeType) -> CSSAttribute? {
+            guard let cssAttributes = cssAttributes()  else {
+                return nil
+            }
+            
+            return cssAttributes.first(where: { $0.type == type })
         }
         
         public func cssAttributes() -> [CSSAttribute]? {

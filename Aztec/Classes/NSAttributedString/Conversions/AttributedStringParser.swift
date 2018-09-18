@@ -21,6 +21,12 @@ class AttributedStringParser {
         self.customizer = customizer
     }
     
+    // MARK: - String Attribute Converters
+    
+    private let stringAttributeConverters: [StringAttributeConverter] = [
+        BoldStringAttributeConverter(),
+    ]
+    
     // MARK: - Attachment Converters
     
     private let attachmentConverters: [BaseAttachmentToElementConverter] = [
@@ -820,7 +826,9 @@ private extension AttributedStringParser {
 
         nodes += processUnsupportedHTML(in: attributes)
         
-        nodes = processBold(in: attributes, andAggregateWith: nodes)
+        for converter in stringAttributeConverters {
+            nodes = converter.convert(attributes: attributes, andAggregateWith: nodes)
+        }
 
         if let element = processItalic(in: attributes) {
             nodes.append(element)
@@ -843,67 +851,6 @@ private extension AttributedStringParser {
         }
 
         return nodes
-    }
-
-    private func processBold(in attributes: [NSAttributedStringKey: Any], andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
-        
-        var elementNodes = elementNodes
-        
-        // We add the representation right away, if it exists... as it could contain attributes beyond just this
-        // style.  The enable and disable methods below can modify this as necessary.
-        //
-        if let representation = attributes[NSAttributedStringKey.boldHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-            
-            elementNodes.append(representationElement.toElementNode())
-        }
-        
-        if let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitBold) {
-            
-            return enableBold(in: elementNodes)
-        } else {
-            return disableBold(in: elementNodes)
-        }
-    }
-    
-    private func disableBold(in elementNodes: [ElementNode]) -> [ElementNode] {
-        
-        let elementNodes = elementNodes.compactMap { (elementNode) -> ElementNode? in
-            guard elementNode.type != .strong || elementNode.attributes.count > 0 else {
-                return nil
-            }
-            
-            return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
-        }
-        
-        for elementNode in elementNodes {
-            elementNode.removeCSSAttributes(matching: { (cssAttribute) -> Bool in
-                return cssAttribute.name == "text-style" && cssAttribute.value == "bold"
-            })
-        }
-        
-        return elementNodes
-    }
-    
-    private func enableBold(in elementNodes: [ElementNode]) -> [ElementNode] {
-        
-        var elementNodes = elementNodes
-        
-        // We can now check if we have any CSS attribute representing bold.  If that's the case we can completely skip
-        // adding the element.
-        //
-        for elementNode in elementNodes {
-            if elementNode.containsCSSAttribute(where: { (cssAttribute) -> Bool in
-                return cssAttribute.name == "text-style" && cssAttribute.value == "bold"
-            }) {
-                return elementNodes
-            }
-        }
-        
-        // Nothing was found to represent bold... just add the element.
-        elementNodes.append(ElementNode(type: .strong))
-        return elementNodes
     }
 
     private func processItalic(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {

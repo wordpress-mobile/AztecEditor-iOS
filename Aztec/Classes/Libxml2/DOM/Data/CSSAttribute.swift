@@ -12,6 +12,14 @@ public class CSSAttribute: Codable {
     /// Attribute Value, if any!
     ///
     let value: String?
+    
+    /// The attribute type, if it matches an existing one.
+    ///
+    public var type: CSSAttributeType {
+        get {
+            return CSSAttributeType(name)
+        }
+    }
 
 
     // MARK: - Initializers
