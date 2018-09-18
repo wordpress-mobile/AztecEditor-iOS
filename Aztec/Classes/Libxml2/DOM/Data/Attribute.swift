@@ -85,6 +85,41 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
         return result
     }
+
+    // MARK: - CSS Support
+
+    func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
+        guard let cssAttributes = value.cssAttributes() else {
+            return false
+        }
+        
+        return cssAttributes.contains(where: { check($0) })
+    }
+    
+    public func cssAttributes() -> [CSSAttribute]? {
+        return value.cssAttributes()
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching check: (CSSAttribute) -> Bool) {
+        guard case let .inlineCss(cssAttributes) = value else {
+            return
+        }
+        
+        let newCSSAttributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
+            guard !check(cssAttribute) else {
+                return nil
+            }
+            
+            return cssAttribute
+        }
+        
+        value = .inlineCss(newCSSAttributes)
+    }
 }
 
 
@@ -204,6 +239,8 @@ extension Attribute {
                 return result
             }
         }
+        
+        // MARK: - CSS
         
         public func cssAttribute(named name: String) -> CSSAttribute? {
             guard let cssAttributes = cssAttributes()  else {

@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class UnderlineElementAttributesConverter: ElementAttributeConverter {
-    
+
     private let cssAttributeName = "text-decoration"
     private let cssAttributeValue = "underline"
     

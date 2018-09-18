@@ -78,6 +78,27 @@ public class ElementNode: Node {
         self.init(name: type.rawValue, attributes: attributes, children: children)
     }
     
+    // MARK: - CSS Attributes
+    
+    public func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
+        for attribute in attributes {
+            return attribute.containsCSSAttribute(where: check)
+        }
+        
+        return false
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching check: (CSSAttribute) -> Bool) {
+        for attribute in attributes {
+            attribute.removeCSSAttributes(matching: check)
+        }
+    }
+    
     // MARK: - Children Logic
     
     private func updateParentForChildren() {
