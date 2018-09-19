@@ -527,8 +527,13 @@ open class TextView: UITextView {
             let url = UIPasteboard.general.url else {
                 return false
         }
-        
-        setLink(url, inRange: selectedRange)
+
+        if selectedRange.length == 0 {
+            setLink(url, title:url.absoluteString, inRange: selectedRange)
+        } else {
+            setLink(url, inRange: selectedRange)
+        }
+
         return true
     }
 

@@ -1,5 +1,6 @@
 import XCTest
 @testable import Aztec
+import MobileCoreServices
 
 class TextViewTests: XCTestCase {
 
@@ -1926,5 +1927,29 @@ class TextViewTests: XCTestCase {
         let textView = TextViewStub(withHTML: originalHTML)
 
         XCTAssertEqual(textView.getHTML(prettify: false), originalHTML)
+    }
+
+    func testPasteOfURLsWithoutSelectedRange() {
+        let textView = TextViewStub(withHTML: "")
+        let pasteboard = UIPasteboard.general
+        let url = URL(string: "http://wordpress.com")!
+        pasteboard.setValue(url, forPasteboardType: String(kUTTypeURL))
+
+        textView.paste(nil)
+
+        let html = "<p><a href=\"http://wordpress.com\">http://wordpress.com</a></p>"
+        XCTAssertEqual(textView.getHTML(prettify: false), html)
+    }
+
+    func testPasteOfURLsWithSelectedRange() {
+        let textView = TextViewStub(withHTML: "WordPress")
+        let pasteboard = UIPasteboard.general
+        let url = URL(string: "http://wordpress.com")!
+        pasteboard.setValue(url, forPasteboardType: String(kUTTypeURL))
+        textView.selectedRange = NSRange(location: 0, length: 9)
+        textView.paste(nil)
+
+        let html = "<p><a href=\"http://wordpress.com\">WordPress</a></p>"
+        XCTAssertEqual(textView.getHTML(prettify: false), html)
     }
 }
