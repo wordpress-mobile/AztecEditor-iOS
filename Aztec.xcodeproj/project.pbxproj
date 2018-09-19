@@ -125,6 +125,9 @@
 		F15BA60F21515C0F00424120 /* UnderlineStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */; };
 		F15BA611215167D200424120 /* CSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA610215167D200424120 /* CSSAttributeMatcher.swift */; };
 		F15BA6172151693F00424120 /* BoldCSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BA6162151693F00424120 /* BoldCSSAttributeMatcher.swift */; };
+		F1656FDC2152A00E009C7E3A /* ConditionalStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1656FDB2152A00E009C7E3A /* ConditionalStringAttributeConverter.swift */; };
+		F1656FDE2152A6A6009C7E3A /* CiteStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1656FDD2152A6A6009C7E3A /* CiteStringAttributeConverter.swift */; };
+		F1656FE42152AB54009C7E3A /* ConditionalItalicStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1656FE32152AB54009C7E3A /* ConditionalItalicStringAttributeConverter.swift */; };
 		F165D92420C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */; };
 		F165D92A20C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */; };
 		F166C4A9213DD5E8007CA18A /* CommentAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */; };
@@ -373,6 +376,9 @@
 		F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineStringAttributeConverter.swift; sourceTree = "<group>"; };
 		F15BA610215167D200424120 /* CSSAttributeMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		F15BA6162151693F00424120 /* BoldCSSAttributeMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldCSSAttributeMatcher.swift; sourceTree = "<group>"; };
+		F1656FDB2152A00E009C7E3A /* ConditionalStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalStringAttributeConverter.swift; sourceTree = "<group>"; };
+		F1656FDD2152A6A6009C7E3A /* CiteStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CiteStringAttributeConverter.swift; sourceTree = "<group>"; };
+		F1656FE32152AB54009C7E3A /* ConditionalItalicStringAttributeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalItalicStringAttributeConverter.swift; sourceTree = "<group>"; };
 		F165D92320C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttributeSerializer.swift; sourceTree = "<group>"; };
 		F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ShortcodeAttribute.swift"; sourceTree = "<group>"; };
 		F166C4A8213DD589007CA18A /* CommentAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = CommentAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
@@ -968,6 +974,7 @@
 			isa = PBXGroup;
 			children = (
 				F15BA60421514F2B00424120 /* Base */,
+				F1656FE22152AB3E009C7E3A /* ConditionalConverters */,
 				F15BA60521514F3700424120 /* Implementations */,
 			);
 			path = NSAttributedStringToElements;
@@ -977,6 +984,7 @@
 			isa = PBXGroup;
 			children = (
 				F15BA60621514F8F00424120 /* StringAttributeConverter.swift */,
+				F1656FDB2152A00E009C7E3A /* ConditionalStringAttributeConverter.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -985,6 +993,7 @@
 			isa = PBXGroup;
 			children = (
 				F15BA6082151501300424120 /* BoldStringAttributeConverter.swift */,
+				F1656FDD2152A6A6009C7E3A /* CiteStringAttributeConverter.swift */,
 				F15BA60C215159A600424120 /* ItalicStringAttributeConverter.swift */,
 				F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */,
 			);
@@ -1015,6 +1024,14 @@
 			children = (
 			);
 			name = Descriptors;
+			sourceTree = "<group>";
+		};
+		F1656FE22152AB3E009C7E3A /* ConditionalConverters */ = {
+			isa = PBXGroup;
+			children = (
+				F1656FE32152AB54009C7E3A /* ConditionalItalicStringAttributeConverter.swift */,
+			);
+			path = ConditionalConverters;
 			sourceTree = "<group>";
 		};
 		F16A2AD020CC426400BF3A0A /* AttachmentToElementConverter */ = {
@@ -1405,6 +1422,7 @@
 				B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */,
 				F1E1D5881FEC52EE0086B339 /* GenericElementConverter.swift in Sources */,
 				F1FA0E861E6EF514009D98EE /* Node.swift in Sources */,
+				F1656FDE2152A6A6009C7E3A /* CiteStringAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
 				F1BDDDE72060403B000714E1 /* FigureFormatter.swift in Sources */,
@@ -1456,6 +1474,7 @@
 				F1FA0E831E6EF514009D98EE /* ElementNode.swift in Sources */,
 				FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */,
 				F15BA60D215159A600424120 /* ItalicStringAttributeConverter.swift in Sources */,
+				F1656FDC2152A00E009C7E3A /* ConditionalStringAttributeConverter.swift in Sources */,
 				599F25541D8BC9A1002871D6 /* TextView.swift in Sources */,
 				F1E1D5801FEC44B30086B339 /* AttachmentElementConverter.swift in Sources */,
 				F1BDDDE520603C18000714E1 /* FigcaptionFormatter.swift in Sources */,
@@ -1484,6 +1503,7 @@
 				40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */,
 				F1FF7DA1201A1D3E007B0B32 /* FigcaptionElementConverter.swift in Sources */,
 				F1FA0E821E6EF514009D98EE /* CommentNode.swift in Sources */,
+				F1656FE42152AB54009C7E3A /* ConditionalItalicStringAttributeConverter.swift in Sources */,
 				F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */,
 				F1065DB620ADD928008C72CC /* Plugin.swift in Sources */,
 				B57D1C3D1E92C38000EA4B16 /* HTMLAttachment.swift in Sources */,

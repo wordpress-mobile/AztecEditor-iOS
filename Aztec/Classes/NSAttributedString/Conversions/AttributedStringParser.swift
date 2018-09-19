@@ -25,7 +25,7 @@ class AttributedStringParser {
     
     private let stringAttributeConverters: [StringAttributeConverter] = [
         BoldStringAttributeConverter(),
-        ItalicStringAttributeConverter(),
+        ConditionalItalicStringAttributeConverter(),
         UnderlineStringAttributeConverter(),
     ]
     

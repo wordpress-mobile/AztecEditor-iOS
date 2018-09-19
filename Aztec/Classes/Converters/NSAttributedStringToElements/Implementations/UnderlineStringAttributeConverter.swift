@@ -5,11 +5,11 @@ import UIKit
 /// Converts the underline style information from string attributes and aggregates it into an
 /// existing array of element nodes.
 ///
-class UnderlineStringAttributeConverter: StringAttributeConverter {
+open class UnderlineStringAttributeConverter: StringAttributeConverter {
     
     let cssAttributeMatcher = UnderlineCSSAttributeMatcher()
     
-    func convert(
+    public func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
         
@@ -38,8 +38,12 @@ class UnderlineStringAttributeConverter: StringAttributeConverter {
     private func disableUnderline(in elementNodes: [ElementNode]) -> [ElementNode] {
         
         let elementNodes = elementNodes.compactMap { (elementNode) -> ElementNode? in
-            guard elementNode.type != .u || elementNode.attributes.count > 0 else {
-                return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
+            guard elementNode.type != .u else {
+                if elementNode.attributes.count > 0 {
+                    return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
+                } else {
+                    return nil
+                }
             }
             
             return elementNode
@@ -60,7 +64,7 @@ class UnderlineStringAttributeConverter: StringAttributeConverter {
         // adding the element.
         //
         for elementNode in elementNodes {
-            if elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
+            if elementNode.type == .u || elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
                 return elementNodes
             }
         }
