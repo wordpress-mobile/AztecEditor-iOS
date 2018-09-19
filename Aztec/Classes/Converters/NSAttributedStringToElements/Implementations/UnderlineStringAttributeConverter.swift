@@ -39,10 +39,10 @@ class UnderlineStringAttributeConverter: StringAttributeConverter {
         
         let elementNodes = elementNodes.compactMap { (elementNode) -> ElementNode? in
             guard elementNode.type != .u || elementNode.attributes.count > 0 else {
-                return nil
+                return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
             }
             
-            return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
+            return elementNode
         }
         
         for elementNode in elementNodes {
