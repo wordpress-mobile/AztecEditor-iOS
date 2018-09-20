@@ -22,6 +22,15 @@ class AttributedStringSerializer {
         .video: VideoElementConverter()
     ]
     
+    // MARK: - Attributes Converter
+    
+    let attributesConverter = MainAttributesConverter([
+        BoldElementAttributesConverter(),
+        ItalicElementAttributesConverter(),
+        UnderlineElementAttributesConverter(),
+        ]
+    )
+    
     // MARK: - Initializers
 
     required init(
@@ -121,7 +130,8 @@ class AttributedStringSerializer {
     fileprivate func serialize(_ element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
 
         let content = NSMutableAttributedString()
-
+        let attributes = attributesConverter.convert(element.attributes, inheriting: attributes)
+        
         let converter = self.converter(for: element)
         let convertedString = converter.convert(element, inheriting: attributes, childrenSerializer: childrenSerializer)
         
