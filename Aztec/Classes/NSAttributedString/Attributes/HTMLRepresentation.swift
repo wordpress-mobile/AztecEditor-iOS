@@ -66,6 +66,10 @@ public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
         self.name = name
         self.attributes = attributes
     }
+    
+    public convenience init(type: AttributeType, attributes: [Attribute]) {
+        self.init(name: type.rawValue, attributes: attributes)
+    }
 
     public convenience init(_ elementNode: ElementNode) {
         self.init(name: elementNode.name, attributes: elementNode.attributes)
@@ -101,6 +105,12 @@ public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
     func attribute(named name: String) -> Attribute? {
         return attributes.first(where: { attribute -> Bool in
             return attribute.name == name
+        })
+    }
+    
+    func attribute(ofType type: AttributeType) -> Attribute? {
+        return attributes.first(where: { attribute -> Bool in
+            return attribute.type == type
         })
     }
 

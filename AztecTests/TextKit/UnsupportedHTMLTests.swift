@@ -37,7 +37,7 @@ private extension UnsupportedHTMLTests {
         return [
             Attribute(name: "someBoolAttribute", value: .none),
             Attribute(name: "someStringAttribute", value: .string("value")),
-            Attribute(name: "style", value: .inlineCss([self.sampleCSS]))
+            Attribute(type: .style, value: .inlineCss([self.sampleCSS]))
         ]
     }
 
