@@ -9,16 +9,24 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     public let name: String
     public var value: Value
-
-    // MARK: - CSS Support
-
-    let cssAttributeName = "style"
+    
+    /// The attribute type, if it matches an existing one.
+    ///
+    public var type: AttributeType {
+        get {
+            return AttributeType(name)
+        }
+    }
 
     // MARK: - Initializers
     
     public init(name: String, value: Value = .none) {
         self.name = name
         self.value = value
+    }
+    
+    public convenience init(type: AttributeType, value: Value = .none) {
+        self.init(name: type.rawValue, value: value)
     }
 
     // MARK: - CustomReflectable

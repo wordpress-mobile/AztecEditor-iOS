@@ -151,6 +151,12 @@ public class ElementNode: Node {
             return attribute.name.lowercased() == name.lowercased()
         }
     }
+    
+    public func attribute(ofType type: AttributeType) -> Attribute? {
+        return attributes.first { (attribute) -> Bool in
+            return attribute.type == type
+        }
+    }
 
     func stringValueForAttribute(named attributeName: String) -> String? {
 
@@ -182,6 +188,11 @@ public class ElementNode: Node {
         
         attributes.append(attribute)
     }
+    
+    func updateAttribute(ofType type: AttributeType, value: Attribute.Value) {
+        updateAttribute(named: type.rawValue, value: value)
+    }
+    
     
     /// Check if the node is the first child in its parent node.
     ///

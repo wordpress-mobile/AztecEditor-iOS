@@ -674,7 +674,7 @@ class TextViewTests: XCTestCase {
     }
 
     func testParsingOfLinkWithTarget() {
-        let html = "<p><a href=\"http:\\wordpress.com?\" target=\"_blank\">link</a></p>"
+        let html = "<p><a href=\"http://wordpress.com?\" target=\"_blank\">link</a></p>"
         let textView = TextViewStub(withHTML: html)
         let insertionRange = NSRange(location: 0, length: 4)
         let target = textView.linkTarget(forRange: insertionRange)

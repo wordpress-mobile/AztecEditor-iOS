@@ -3,8 +3,6 @@ import libxml2
 
 class InAttributeConverter: SafeConverter {
 
-    let cssAttributeName = "style"
-
     let cssParser = CSSParser()
 
     /// Converts a single attribute (from libxml2) into an HTML.Attribute
@@ -17,9 +15,10 @@ class InAttributeConverter: SafeConverter {
     func convert(_ attribute: xmlAttr) -> Attribute {
 
         let attributeName = String(cString: attribute.name)
+        let attributeType = AttributeType(attributeName)
 
         guard let attributeValueRef = attribute.children else {
-            return Attribute(name: attributeName)
+            return Attribute(type: attributeType)
         }
 
         let attributeValue = String(cString: attributeValueRef.pointee.content)
@@ -32,15 +31,15 @@ class InAttributeConverter: SafeConverter {
         // So we're only loading the attribute's value if it's not equal to the attribute name.
         //
         guard attributeName != attributeValue else {
-            return Attribute(name: attributeName)
+            return Attribute(type: attributeType)
         }
-
-        guard attributeName != cssAttributeName else {
+        
+        if AttributeType.cssAttributeTypes.contains(attributeType) {
             let cssAttributes = cssParser.parse(attributeValue)
-
-            return Attribute(name: attributeName, value: .inlineCss(cssAttributes))
+            
+            return Attribute(type: attributeType, value: .inlineCss(cssAttributes))
         }
-
-        return Attribute(name: attributeName, value: .string(attributeValue))
+        
+        return Attribute(type: attributeType, value: .string(attributeValue))
     }
 }

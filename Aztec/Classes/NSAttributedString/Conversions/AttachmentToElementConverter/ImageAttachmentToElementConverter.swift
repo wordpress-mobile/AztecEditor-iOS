@@ -56,7 +56,7 @@ class ImageAttachmentToElementConverter: AttachmentToElementConverter {
             return nil
         }
         
-        return Attribute(name: "class", value: .string(style))
+        return Attribute(type: .class, value: .string(style))
     }
     
     /// Extracts the Image's Width and Height attributes, whenever the Attachment's Size is set to (anything) but .none.
@@ -83,6 +83,6 @@ class ImageAttachmentToElementConverter: AttachmentToElementConverter {
             return nil
         }
         
-        return Attribute(name: "src", value: .string(source))
+        return Attribute(type: .src, value: .string(source))
     }
 }

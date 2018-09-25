@@ -869,7 +869,7 @@ private extension AttributedStringParser {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: HTMLLinkAttribute.Href.rawValue, value: .string(urlString))
+        element.updateAttribute(ofType: .href, value: .string(urlString))
 
         return element
     }

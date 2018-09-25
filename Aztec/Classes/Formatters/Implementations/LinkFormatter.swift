@@ -17,7 +17,7 @@ class LinkFormatter: StandardAttributeFormatter {
         if let representation = representation,
             case let .element(element) = representation.kind {
 
-            if let elementURL = element.attribute(named: HTMLLinkAttribute.Href.rawValue)?.value.toString() {
+            if let elementURL = element.attribute(ofType: .href)?.value.toString() {
                if let url = NSURL(string: elementURL) {
                    attributeValue = url
                } else {
@@ -36,14 +36,14 @@ class LinkFormatter: StandardAttributeFormatter {
             var attributes = [Attribute]()
 
             if let url = attributeValue as? URL {
-                let urlValue = Attribute(name: HTMLLinkAttribute.Href.rawValue, value: .string(url.absoluteString))
+                let urlValue = Attribute(type: .href, value: .string(url.absoluteString))
                 attributes.append(urlValue)
             }
 
             if let target = target {
-                let targetValue = Attribute(name: HTMLLinkAttribute.target.rawValue, value: .string(target))
+                let targetValue = Attribute(type: .target, value: .string(target))
                 attributes.append(targetValue)
-                let norel = Attribute(name: HTMLLinkAttribute.rel.rawValue, value: .string("noopener"))
+                let norel = Attribute(type: .rel, value: .string("noopener"))
                 attributes.append(norel)
             }
 

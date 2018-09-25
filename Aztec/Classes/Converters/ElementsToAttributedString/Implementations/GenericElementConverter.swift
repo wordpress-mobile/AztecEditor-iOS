@@ -59,23 +59,12 @@ class GenericElementConverter: ElementConverter {
         ]
     }()
     
-    // MARK: - Attributes Converter
-    
-    let attributesConverter = MainAttributesConverter([
-        BoldElementAttributesConverter(),
-        ItalicElementAttributesConverter(),
-        UnderlineElementAttributesConverter(),
-        ]
-    )
-    
     // MARK: - ElementConverter
     
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
         childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
-        
-        let attributes = attributesConverter.convert(element.attributes, inheriting: attributes)
         
         guard isSupportedByEditor(element) else {
             return convert(unsupported: element, inheriting: attributes)
