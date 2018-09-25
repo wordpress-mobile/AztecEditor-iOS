@@ -4,10 +4,16 @@ open class BoldCSSAttributeMatcher: CSSAttributeMatcher {
     
     public func check(_ cssAttribute: CSSAttribute) -> Bool {
         guard let value = cssAttribute.value,
-            let intValue = Int(value) else {
+            cssAttribute.type == .fontWeight else {
                 return false
         }
         
-        return cssAttribute.type == .fontWeight && intValue >= FontWeight.bold.rawValue
+        if let weight = FontWeight(rawValue: value) {
+            return weight.isBold()
+        } else if let weight = Int(value) {
+            return FontWeightNumeric.isBold(weight)
+        }
+        
+        return false
     }
 }
