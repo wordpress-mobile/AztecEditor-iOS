@@ -190,6 +190,9 @@
 		F1E2323420C18055008DA49F /* FormatterElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2323320C18055008DA49F /* FormatterElementConverter.swift */; };
 		F1E7562A215B01A2004BC254 /* ItalicElementAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E75629215B01A2004BC254 /* ItalicElementAttributeConverterTests.swift */; };
 		F1E7562C215B01E9004BC254 /* UnderlineElementAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E7562B215B01E9004BC254 /* UnderlineElementAttributeConverterTests.swift */; };
+		F1E75632215B0CB7004BC254 /* BoldStringAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E75631215B0CB7004BC254 /* BoldStringAttributeConverterTests.swift */; };
+		F1E75634215B0FC7004BC254 /* ItalicStringAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E75633215B0FC7004BC254 /* ItalicStringAttributeConverterTests.swift */; };
+		F1E75636215B106C004BC254 /* UnderlineStringAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E75635215B106C004BC254 /* UnderlineStringAttributeConverterTests.swift */; };
 		F1F5C9DB21516E4B00F67990 /* ItalicCSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F5C9DA21516E4B00F67990 /* ItalicCSSAttributeMatcher.swift */; };
 		F1F5C9DD2151702600F67990 /* UnderlineCSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F5C9DC2151702600F67990 /* UnderlineCSSAttributeMatcher.swift */; };
 		F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FA0E791E6EF514009D98EE /* Attribute.swift */; };
@@ -445,6 +448,9 @@
 		F1E2323320C18055008DA49F /* FormatterElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterElementConverter.swift; sourceTree = "<group>"; };
 		F1E75629215B01A2004BC254 /* ItalicElementAttributeConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalicElementAttributeConverterTests.swift; sourceTree = "<group>"; };
 		F1E7562B215B01E9004BC254 /* UnderlineElementAttributeConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineElementAttributeConverterTests.swift; sourceTree = "<group>"; };
+		F1E75631215B0CB7004BC254 /* BoldStringAttributeConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldStringAttributeConverterTests.swift; sourceTree = "<group>"; };
+		F1E75633215B0FC7004BC254 /* ItalicStringAttributeConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalicStringAttributeConverterTests.swift; sourceTree = "<group>"; };
+		F1E75635215B106C004BC254 /* UnderlineStringAttributeConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineStringAttributeConverterTests.swift; sourceTree = "<group>"; };
 		F1F5C9DA21516E4B00F67990 /* ItalicCSSAttributeMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItalicCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		F1F5C9DC2151702600F67990 /* UnderlineCSSAttributeMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderlineCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		F1FA0E791E6EF514009D98EE /* Attribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
@@ -892,6 +898,7 @@
 			isa = PBXGroup;
 			children = (
 				F126ADC521553E25008F7DD1 /* AttributesToStringAttributes */,
+				F1E75630215B0C9E004BC254 /* StringAttributesToAttributes */,
 			);
 			name = Converters;
 			path = "New Group";
@@ -1220,6 +1227,16 @@
 				F1AFD65720B45E5700CB0279 /* HTMLAttachmentRenderer.swift */,
 			);
 			path = Renderers;
+			sourceTree = "<group>";
+		};
+		F1E75630215B0C9E004BC254 /* StringAttributesToAttributes */ = {
+			isa = PBXGroup;
+			children = (
+				F1E75631215B0CB7004BC254 /* BoldStringAttributeConverterTests.swift */,
+				F1E75633215B0FC7004BC254 /* ItalicStringAttributeConverterTests.swift */,
+				F1E75635215B106C004BC254 /* UnderlineStringAttributeConverterTests.swift */,
+			);
+			path = StringAttributesToAttributes;
 			sourceTree = "<group>";
 		};
 		F1FA0E781E6EF514009D98EE /* Data */ = {
@@ -1615,14 +1632,17 @@
 				F1E1B7782062BE6B004642BB /* ParagraphStyleTests.swift in Sources */,
 				E11B77601DBA14B40024E455 /* BlockquoteFormatterTests.swift in Sources */,
 				F185A5BD2123C0DA00DDFAB1 /* ArrayHelperTests.swift in Sources */,
+				F1E75634215B0FC7004BC254 /* ItalicStringAttributeConverterTests.swift in Sources */,
 				F185A5B22123C0DA00DDFAB1 /* NSMutableAttributedStringParagraphProperty.swift in Sources */,
 				F17BC8A21F4E4F5A00398E2B /* DefaultHTMLSerializerTests.swift in Sources */,
+				F1E75636215B106C004BC254 /* UnderlineStringAttributeConverterTests.swift in Sources */,
 				F185A5BA2123C0DA00DDFAB1 /* NSAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				F185A5B82123C0DA00DDFAB1 /* StringRangeConversionTests.swift in Sources */,
 				F13590EF2139FCC1004A9C73 /* UIImageResizeTests.swift in Sources */,
 				F1FC709B2139CA13007AAFB3 /* HTMLAttachmentRendererTests.swift in Sources */,
 				F185A5B32123C0DA00DDFAB1 /* StringHTMLTests.swift in Sources */,
 				F185A5B02123C0DA00DDFAB1 /* NSRangeComparisonTests.swift in Sources */,
+				F1E75632215B0CB7004BC254 /* BoldStringAttributeConverterTests.swift in Sources */,
 				F1953E251F4E544A00C717C9 /* HTMLParserTests.swift in Sources */,
 				F15415F6213446490096D18E /* CommentAttachmentRendererTests.swift in Sources */,
 				B5C16A631F4DF77300B113CF /* HeaderFormatterTests.swift in Sources */,
