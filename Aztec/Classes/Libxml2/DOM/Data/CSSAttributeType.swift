@@ -34,17 +34,34 @@ enum FontStyle: String {
     case oblique = "oblique"
 }
 
-enum FontWeight: Int {
+enum FontWeightNumeric: Int {
     case normal = 400
     case bold = 700
     
-    init(for name: String) {
-        switch name {
-        case "bold":
-            self = FontWeight.bold
-        default:
-            self = FontWeight.normal
+    func isBold() -> Bool {
+        return self.rawValue >= FontWeightNumeric.bold.rawValue
+    }
+    
+    static func isBold(_ value: Int) -> Bool {
+        return value >= FontWeightNumeric.bold.rawValue
+    }
+}
+
+enum FontWeight: String {
+    case normal = "normal"
+    case bold = "bold"
+    
+    func numeric() -> FontWeightNumeric {
+        switch self {
+        case .normal:
+            return .normal
+        case .bold:
+            return .bold
         }
+    }
+    
+    func isBold() -> Bool {
+        return numeric().isBold()
     }
 }
 

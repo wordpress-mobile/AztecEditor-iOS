@@ -20,6 +20,18 @@ public class CSSAttribute: Codable {
             return CSSAttributeType(name)
         }
     }
+    
+    static let bold: CSSAttribute = {
+        return CSSAttribute(type: .fontWeight, value: FontWeight.bold.rawValue)
+    }()
+    
+    static let italic: CSSAttribute = {
+        return CSSAttribute(type: .fontStyle, value: FontStyle.italic.rawValue)
+    }()
+    
+    static let underline: CSSAttribute = {
+       return CSSAttribute(type: .textDecoration, value: TextDecoration.underline.rawValue)
+    }()
 
 
     // MARK: - Initializers
@@ -27,6 +39,10 @@ public class CSSAttribute: Codable {
     init(name: String, value: String? = nil) {
         self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.value = value?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    convenience init(type: CSSAttributeType, value: String? = nil) {
+        self.init(name: type.rawValue, value: value)
     }
 
     convenience init?(for string: String) {
@@ -37,7 +53,6 @@ public class CSSAttribute: Codable {
 
         self.init(name: name, value: value)
     }
-
 
     // MARK: - Public Methods
 
