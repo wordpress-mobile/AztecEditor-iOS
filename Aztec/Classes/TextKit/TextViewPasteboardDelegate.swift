@@ -30,8 +30,9 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     /// - Returns: True if this method succeeds.
     ///
     open func tryPastingHTML(in textView: TextView) -> Bool {
-        guard let html = UIPasteboard.general.html() else {
-            return false
+        guard let html = UIPasteboard.general.html(),
+            textView.storage.htmlConverter.isSupported(html) else {
+                return false
         }
 
         textView.replace(textView.selectedRange, withHTML: html)
