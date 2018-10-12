@@ -58,7 +58,22 @@ public class HTMLConverter {
         
         return attributedString
     }
-    
+
+
+    /// Check if the given html string is supported to be parsed into Attributed Strings.
+    ///
+    /// In some cases, like pasting from the Notes app, the generated HTML will have a `<body>` tag, and that
+    /// is not yet supported. In those cases is preferible to abort html parsing.
+    ///
+    /// - Parameter html: The html string to check.
+    /// - Returns: A bool value indicating if the given html string can be handled correctly.
+    ///
+    func isSupported(_ html: String) -> Bool {
+        let processedHTML = pluginManager.process(html: html)
+        let rootNode = htmlToTree.parse(processedHTML)
+        return hasBodyNode(rootNode.children) == false
+    }
+
     /// Converts an attributed string string into it's HTML string representation.
     ///
     /// - Parameters:
@@ -77,4 +92,22 @@ public class HTMLConverter {
         return pluginManager.process(outputHTML: html)
     }
     
+}
+
+// MARK: - Helpers
+
+private extension HTMLConverter {
+    func hasBodyNode(_ nodes: [Node]) -> Bool {
+        if nodes.isEmpty {
+            return false
+        }
+
+        switch nodes.first {
+        case let element as ElementNode where element.name == Element.body.rawValue:
+            return true
+        default:
+            let remainingChildren = Array(nodes.dropFirst())
+            return hasBodyNode(remainingChildren)
+        }
+    }
 }
