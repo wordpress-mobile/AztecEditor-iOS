@@ -529,6 +529,12 @@ open class TextView: UITextView {
         }
 
         if selectedRange.length == 0 {
+            
+            //If this is a valid embed URL, don't turn it into an <a> tag
+            guard !EmbedURLProcessor(url: url).isValidEmbed else {
+                return false
+            }
+
             setLink(url, title:url.absoluteString, inRange: selectedRange)
         } else {
             setLink(url, inRange: selectedRange)
