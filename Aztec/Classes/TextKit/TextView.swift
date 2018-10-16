@@ -531,8 +531,14 @@ open class TextView: UITextView {
         if selectedRange.length == 0 {
             
             //If this is a valid embed URL, don't turn it into an <a> tag
-            guard !EmbedURLProcessor(url: url).isValidEmbed else {
-                return false
+            if EmbedURLProcessor(url: url).isValidEmbed {
+                let result = self.tryPastingString()
+
+                // Bump the input to the next line – we need the embed link to be the only
+                // text on this line – otherwise it can't be autoconverted.
+                insertText(String(.lineSeparator)
+
+                return result
             }
 
             setLink(url, title:url.absoluteString, inRange: selectedRange)
