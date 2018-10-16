@@ -98,6 +98,10 @@ public class HTMLConverter {
 
 private extension HTMLConverter {
     func hasBodyNode(_ nodes: [Node]) -> Bool {
+        return hasBodyNode(ArraySlice<Node>(nodes))
+    }
+
+    private func hasBodyNode(_ nodes: ArraySlice<Node>) -> Bool {
         if nodes.isEmpty {
             return false
         }
@@ -106,8 +110,7 @@ private extension HTMLConverter {
         case let element as ElementNode where element.name == Element.body.rawValue:
             return true
         default:
-            let remainingChildren = Array(nodes.dropFirst())
-            return hasBodyNode(remainingChildren)
+            return hasBodyNode(nodes.dropFirst())
         }
     }
 }
