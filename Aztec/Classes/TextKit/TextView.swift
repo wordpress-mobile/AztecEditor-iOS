@@ -474,7 +474,7 @@ open class TextView: UITextView {
     /// - Returns: True if this method succeeds.
     ///
     func tryPastingHTML() -> Bool {
-        guard let html = UIPasteboard.general.html() else {
+        guard let html = UIPasteboard.general.html(), storage.htmlConverter.isSupported(html) else {
             return false
         }
 
