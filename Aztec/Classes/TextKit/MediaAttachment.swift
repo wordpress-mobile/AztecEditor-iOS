@@ -71,6 +71,16 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
+    /// A message to display overlaid on top of the image
+    ///
+    open var badgeTitle: String? {
+        willSet {
+            if newValue != badgeTitle {
+                glyphImage = nil
+            }
+        }
+    }
+
     /// An image to display overlaid on top of the image has an action icon.
     ///
     open var overlayImage: UIImage? {
@@ -311,6 +321,8 @@ extension MediaAttachment {
         drawOverlayBackground(in: mediaBounds)
         drawOverlayBorder(in: mediaBounds)
 
+        drawOverlayBadge(in: mediaBounds)
+
         let overlayImageSize = drawOverlayImage(in: mediaBounds)
         drawOverlayMessage(in: mediaBounds, paddingY: overlayImageSize.height)
 
@@ -339,7 +351,7 @@ extension MediaAttachment {
     }
 
 
-    /// Draws a border, surroinding the image. It's width will be defined by `appearance.overlayBorderWidth`, while it's color
+    /// Draws a border, surrounding the image. It's width will be defined by `appearance.overlayBorderWidth`, while it's color
     /// will be taken from `appearance.overlayBorderColor`.
     ///
     /// Note that the `progress` is not nil, or there's an overlay message, this border will not be rendered.
@@ -356,6 +368,46 @@ extension MediaAttachment {
         path.stroke()
     }
 
+    /// Draws a small badge in the top left corner of the attachment, displaying `badgeTitle`.
+    /// There are a number of `appearance` properties to configure the appearance of the badge.
+    ///
+    private func drawOverlayBadge(in bounds: CGRect) {
+        guard let badgeTitle = badgeTitle,
+            badgeTitle.count > 0 else {
+            return
+        }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+
+        let attributedTitle = NSAttributedString(string: badgeTitle,
+                                                 attributes: [.font: appearance.badgeFont,
+                                                              .foregroundColor: appearance.badgeTextColor,
+                                                              .paragraphStyle: paragraphStyle])
+
+        let textRect = attributedTitle.boundingRect(with: bounds.size,
+                                                    options: [.usesLineFragmentOrigin, .usesFontLeading],
+                                                    context: nil)
+
+        typealias metrics = Constants.BadgeDefaults
+
+        let backgroundRect = CGRect(x: bounds.origin.x + metrics.margin,
+                              y: bounds.origin.y + metrics.margin,
+                              width: textRect.width + (metrics.internalPadding.left + metrics.internalPadding.right),
+                              height: textRect.height + (metrics.internalPadding.top + metrics.internalPadding.bottom))
+
+        // Draw background
+        let path = UIBezierPath(roundedRect: backgroundRect, cornerRadius: metrics.cornerRadius)
+        appearance.badgeBackgroundColor.setFill()
+        path.fill()
+
+        // Draw title
+        let titleRect = CGRect(x: backgroundRect.origin.x,
+                               y: backgroundRect.origin.y + (backgroundRect.height * 0.5) - (textRect.height * 0.5),
+                               width: backgroundRect.width,
+                               height: textRect.height)
+        attributedTitle.draw(in: titleRect)
+    }
 
     /// Draws the overlayImage at the precise center of the Attachment's bounds.
     ///
@@ -526,6 +578,22 @@ private extension MediaAttachment {
         /// Default color for the overlay background (dark grey with 60% alpha).
         ///
         static let defaultOverlayColor = UIColor(red: CGFloat(46.0/255.0), green: CGFloat(69.0/255.0), blue: CGFloat(83.0/255.0), alpha: 0.6)
+
+        struct BadgeDefaults {
+            static let backgroundColor = UIColor.black.withAlphaComponent(0.6)
+
+            static let font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+
+            static let textColor = UIColor.white
+
+            /// Internal padding between badge title text and the edges of the badge background
+            static let internalPadding = UIEdgeInsets(top: 3.0, left: 6.0, bottom: 3.0, right: 6.0)
+
+            /// Margin between outer edges of badge and edges of media
+            static let margin: CGFloat = 10.0
+
+            static let cornerRadius: CGFloat = 6.0
+        }
     }
 }
 
@@ -551,6 +619,18 @@ extension MediaAttachment {
         /// The color to use when drawing the background overlay border for messages, icons, and progress
         ///
         public var overlayBorderColor = Constants.defaultOverlayColor
+
+        /// The color to use when drawing the background of the badge used to display `badgeTitle`.
+        ///
+        public var badgeBackgroundColor = Constants.BadgeDefaults.backgroundColor
+
+        /// The font to use when drawing the badge used to display `badgeTitle`.
+        ///
+        public var badgeFont = Constants.BadgeDefaults.font
+
+        /// The text color to use when drawing the badge used to display `badgeTitle`.
+        ///
+        public var badgeTextColor = Constants.BadgeDefaults.textColor
 
         /// The height of the progress bar for progress indicators
         ///
