@@ -49,7 +49,7 @@ class HTMLParserTests: XCTestCase {
         let attribute2 = divNode.attributes[1]
         let attribute3 = divNode.attributes[2]
 
-        XCTAssertEqual(attribute1.name, "style")
+        XCTAssertEqual(attribute1.type, .style)
         XCTAssertEqual(attribute1.value.toString(), "a")
         XCTAssertEqual(attribute2.name, "nostyle")
         XCTAssertEqual(attribute3.name, "peace")

@@ -65,12 +65,12 @@ class CaptionShortcodeOutputProcessor: HTMLProcessor {
         let imgAttributes = imgNode.attributes
         
         for attribute in imgAttributes {
-            guard attribute.name != "src",
+            guard attribute.type != .src,
                 let attributeValue = attribute.value.toString() else {
                     continue
             }
 
-            if attribute.name == "class" {
+            if attribute.type == .class {
                 let classAttributes = attributeValue.components(separatedBy: " ")
                 for classAttribute in classAttributes {
                     if classAttribute.hasPrefix("wp-image-") {

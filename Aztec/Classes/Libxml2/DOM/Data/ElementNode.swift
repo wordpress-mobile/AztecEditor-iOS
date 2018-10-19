@@ -78,6 +78,46 @@ public class ElementNode: Node {
         self.init(name: type.rawValue, attributes: attributes, children: children)
     }
     
+    // MARK: - CSS Attributes
+    
+    public func containsCSSAttribute(matching matcher: CSSAttributeMatcher) -> Bool {
+        for attribute in attributes {
+            return attribute.containsCSSAttribute(matching: matcher)
+        }
+        
+        return false
+    }
+    
+    public func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
+        for attribute in attributes {
+            return attribute.containsCSSAttribute(where: check)
+        }
+        
+        return false
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching check: (CSSAttribute) -> Bool) {
+        for attribute in attributes {
+            attribute.removeCSSAttributes(matching: check)
+        }
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching matcher: CSSAttributeMatcher) {
+        for attribute in attributes {
+            attribute.removeCSSAttributes(matching: matcher)
+        }
+    }
+    
     // MARK: - Children Logic
     
     private func updateParentForChildren() {
@@ -111,6 +151,12 @@ public class ElementNode: Node {
             return attribute.name.lowercased() == name.lowercased()
         }
     }
+    
+    public func attribute(ofType type: AttributeType) -> Attribute? {
+        return attributes.first { (attribute) -> Bool in
+            return attribute.type == type
+        }
+    }
 
     func stringValueForAttribute(named attributeName: String) -> String? {
 
@@ -142,6 +188,11 @@ public class ElementNode: Node {
         
         attributes.append(attribute)
     }
+    
+    func updateAttribute(ofType type: AttributeType, value: Attribute.Value) {
+        updateAttribute(named: type.rawValue, value: value)
+    }
+    
     
     /// Check if the node is the first child in its parent node.
     ///

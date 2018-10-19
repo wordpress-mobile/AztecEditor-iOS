@@ -35,7 +35,7 @@ class VideoAttachmentToElementConverter: AttachmentToElementConverter {
             return nil
         }
         
-        return Attribute(name: "src", value: .string(source))
+        return Attribute(type: .src, value: .string(source))
     }
     
     

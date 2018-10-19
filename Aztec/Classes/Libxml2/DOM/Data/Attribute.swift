@@ -9,16 +9,24 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     public let name: String
     public var value: Value
-
-    // MARK: - CSS Support
-
-    let cssAttributeName = "style"
+    
+    /// The attribute type, if it matches an existing one.
+    ///
+    public var type: AttributeType {
+        get {
+            return AttributeType(name)
+        }
+    }
 
     // MARK: - Initializers
     
     public init(name: String, value: Value = .none) {
         self.name = name
         self.value = value
+    }
+    
+    public convenience init(type: AttributeType, value: Value = .none) {
+        self.init(name: type.rawValue, value: value)
     }
 
     // MARK: - CustomReflectable
@@ -84,6 +92,69 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
         }
 
         return result
+    }
+
+    // MARK: - CSS Support
+
+    public func containsCSSAttribute(matching matcher: CSSAttributeMatcher) -> Bool {
+        guard let cssAttributes = value.cssAttributes() else {
+            return false
+        }
+        
+        return cssAttributes.contains(where: { matcher.check($0) })
+    }
+    
+    func containsCSSAttribute(where check: (CSSAttribute) -> Bool) -> Bool {
+        guard let cssAttributes = value.cssAttributes() else {
+            return false
+        }
+        
+        return cssAttributes.contains(where: { check($0) })
+    }
+    
+    public func cssAttributes() -> [CSSAttribute]? {
+        return value.cssAttributes()
+    }
+    
+    public func firstCSSAttribute(ofType type: CSSAttributeType) -> CSSAttribute? {
+        return value.firstCSSAttribute(ofType: type)
+    }
+    
+    /// Removes the CSS attributes matching a specified condition.
+    ///
+    /// - Parameters:
+    ///     - check: the condition that defines what CSS attributes will be removed.
+    ///
+    public func removeCSSAttributes(matching check: (CSSAttribute) -> Bool) {
+        guard case let .inlineCss(cssAttributes) = value else {
+            return
+        }
+        
+        let newCSSAttributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
+            guard !check(cssAttribute) else {
+                return nil
+            }
+            
+            return cssAttribute
+        }
+        
+        value = .inlineCss(newCSSAttributes)
+    }
+    
+    public func removeCSSAttributes(matching matcher: CSSAttributeMatcher) {
+        guard case let .inlineCss(cssAttributes) = value else {
+            return
+        }
+        
+        let newCSSAttributes = cssAttributes.compactMap { (cssAttribute) -> CSSAttribute? in
+            guard !matcher.check(cssAttribute) else {
+                return nil
+            }
+            
+            return cssAttribute
+        }
+        
+        value = .inlineCss(newCSSAttributes)
     }
 }
 
@@ -203,6 +274,32 @@ extension Attribute {
                 
                 return result
             }
+        }
+        
+        // MARK: - CSS
+        
+        public func firstCSSAttribute(named name: String) -> CSSAttribute? {
+            guard let cssAttributes = cssAttributes()  else {
+                return nil
+            }
+            
+            return cssAttributes.first(where: { $0.name == name })
+        }
+        
+        public func firstCSSAttribute(ofType type: CSSAttributeType) -> CSSAttribute? {
+            guard let cssAttributes = cssAttributes()  else {
+                return nil
+            }
+            
+            return cssAttributes.first(where: { $0.type == type })
+        }
+        
+        public func cssAttributes() -> [CSSAttribute]? {
+            guard case let .inlineCss(cssAttributes) = self else {
+                return nil
+            }
+            
+            return cssAttributes
         }
     }
 }

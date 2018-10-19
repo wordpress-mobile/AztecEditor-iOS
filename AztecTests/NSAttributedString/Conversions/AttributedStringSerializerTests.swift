@@ -10,11 +10,11 @@ class AttributedStringSerializerTests: XCTestCase {
         let textNode = TextNode(text: "Ehlo World!")
 
         // <span class="aztec"></span>
-        let spanAttribute2 = Attribute(name: "class", value: .string("aztec"))
+        let spanAttribute2 = Attribute(type: .class, value: .string("aztec"))
         let spanNode2 = ElementNode(type: .span, attributes: [spanAttribute2], children: [textNode])
 
         // <span class="first"><span class="aztec"></span>
-        let spanAttribute1 = Attribute(name: "class", value: .string("first"))
+        let spanAttribute1 = Attribute(type: .class, value: .string("first"))
         let spanNode1 = ElementNode(type: .span, attributes: [spanAttribute1], children: [spanNode2])
 
         // <h1><span class="first"><span class="aztec"></span></span></h1>
@@ -46,7 +46,7 @@ class AttributedStringSerializerTests: XCTestCase {
         XCTAssertEqual(restoredSpanElement1?.name, "span")
 
         let restoredSpanAttribute1 = restoredSpanElement1?.attributes.first
-        XCTAssertEqual(restoredSpanAttribute1?.name, "class")
+        XCTAssertEqual(restoredSpanAttribute1?.type, .class)
         XCTAssertEqual(restoredSpanAttribute1?.value.toString(), "first")
     }
 
@@ -56,13 +56,13 @@ class AttributedStringSerializerTests: XCTestCase {
     func testHtmlDivFormatterEffectivelyAppendsNewDivProperty() {
         let textNode = TextNode(text: "Ehlo World!")
 
-        let divAttr3 = Attribute(name: "class", value: .string("third"))
+        let divAttr3 = Attribute(type: .class, value: .string("third"))
         let divNode3 = ElementNode(type: .div, attributes: [divAttr3], children: [textNode])
 
-        let divAttr2 = Attribute(name: "class", value: .string("second"))
+        let divAttr2 = Attribute(type: .class, value: .string("second"))
         let divNode2 = ElementNode(type: .div, attributes: [divAttr2], children: [divNode3])
 
-        let divAttr1 = Attribute(name: "class", value: .string("first"))
+        let divAttr1 = Attribute(type: .class, value: .string("first"))
         let divNode1 = ElementNode(type: .div, attributes: [divAttr1], children: [divNode2])
 
         // Convert

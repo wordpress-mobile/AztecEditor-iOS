@@ -474,7 +474,7 @@ open class TextView: UITextView {
     /// - Returns: True if this method succeeds.
     ///
     func tryPastingHTML() -> Bool {
-        guard let html = UIPasteboard.general.html() else {
+        guard let html = UIPasteboard.general.html(), storage.htmlConverter.isSupported(html) else {
             return false
         }
 
@@ -1672,12 +1672,11 @@ open class TextView: UITextView {
         guard index < storage.length,
             let _ = storage.attribute(.link, at: index, longestEffectiveRange: &effectiveRange, in: storage.rangeOfEntireString),        
             let representation = storage.attribute(.linkHtmlRepresentation, at: effectiveRange.location, effectiveRange: nil) as? HTMLRepresentation,
-            case .element(let element) = representation.kind
-            else {
+            case .element(let element) = representation.kind else {
                 return nil
         }
 
-        if let target = element.attribute(named: HTMLLinkAttribute.target.rawValue)?.value.toString() {
+        if let target = element.attribute(ofType: .target)?.value.toString() {
             return target
         }
 

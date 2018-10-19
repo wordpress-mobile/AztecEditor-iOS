@@ -21,6 +21,14 @@ class AttributedStringParser {
         self.customizer = customizer
     }
     
+    // MARK: - String Attribute Converters
+    
+    private let stringAttributeConverters: [StringAttributeConverter] = [
+        BoldStringAttributeConverter(),
+        ConditionalItalicStringAttributeConverter(),
+        UnderlineStringAttributeConverter(),
+    ]
+    
     // MARK: - Attachment Converters
     
     private let attachmentConverters: [BaseAttachmentToElementConverter] = [
@@ -818,12 +826,10 @@ private extension AttributedStringParser {
     func createStyleNodes(from attributes: [NSAttributedStringKey: Any]) -> [ElementNode] {
         var nodes = [ElementNode]()
 
-        if let element = processBold(in: attributes) {
-            nodes.append(element)
-        }
-
-        if let element = processItalic(in: attributes) {
-            nodes.append(element)
+        nodes += processUnsupportedHTML(in: attributes)
+        
+        for converter in stringAttributeConverters {
+            nodes = converter.convert(attributes: attributes, andAggregateWith: nodes)
         }
 
         if let element = processLinkStyle(in: attributes) {
@@ -834,60 +840,11 @@ private extension AttributedStringParser {
             nodes.append(element)
         }
 
-        if let element = processUnderlineStyle(in: attributes) {
-            nodes.append(element)
-        }
-
         if let element = processCodeStyle(in: attributes) {
             nodes.append(element)
-        }        
-
-        nodes += processUnsupportedHTML(in: attributes)
+        }
 
         return nodes
-    }
-
-    private func processBold(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
-        guard let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitBold) else {
-                return nil
-        }
-
-        let element: ElementNode
-
-        if let representation = attributes[NSAttributedStringKey.boldHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .strong)
-        }
-
-        return element
-    }
-
-
-    private func processItalic(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
-        guard let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitItalic) else {
-                return nil
-        }
-
-        let element: ElementNode
-
-        if let representation = attributes[NSAttributedStringKey.italicHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else if let representation = attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            element = representationElement.toElementNode()
-        } else {
-            element = ElementNode(type: .em)
-        }
-
-        return element
     }
 
     /// Extracts all of the Link Elements contained within a collection of Attributes.
@@ -912,7 +869,7 @@ private extension AttributedStringParser {
             element = ElementNode(type: .a)
         }
 
-        element.updateAttribute(named: HTMLLinkAttribute.Href.rawValue, value: .string(urlString))
+        element.updateAttribute(ofType: .href, value: .string(urlString))
 
         return element
     }
@@ -932,23 +889,6 @@ private extension AttributedStringParser {
         }
 
         return ElementNode(type: .strike)
-    }
-
-
-    /// Extracts all of the Underline Elements contained within a collection of Attributes.
-    ///
-    private func processUnderlineStyle(in attributes: [NSAttributedStringKey: Any]) -> ElementNode? {
-        guard attributes[.underlineStyle] != nil else {
-            return nil
-        }
-
-        if let representation = attributes[.underlineHtmlRepresentation] as? HTMLRepresentation,
-            case let .element(representationElement) = representation.kind {
-
-            return representationElement.toElementNode()
-        }
-
-        return ElementNode(type: .u)
     }
 
     /// Extracts all of the Code Elements contained within a collection of Attributes.
