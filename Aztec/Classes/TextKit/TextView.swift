@@ -158,8 +158,8 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
-    open let defaultFont: UIFont
-    open let defaultParagraphStyle: ParagraphStyle
+    public let defaultFont: UIFont
+    public let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
     fileprivate var defaultAttributes: [NSAttributedStringKey: Any] {
