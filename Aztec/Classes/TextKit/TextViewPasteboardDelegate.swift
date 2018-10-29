@@ -4,6 +4,17 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
 
     public init() {}
 
+    /// Tries to paste whatever is on the pasteboard into the editor.
+    ///
+    /// - Returns: True if the paste succeeds, false if it does not.
+    ///
+    open func tryPasting(in textView: TextView) -> Bool {
+        return tryPastingURL(in: textView)
+            || tryPastingHTML(in: textView)
+            || tryPastingAttributedString(in: textView)
+            || tryPastingString(in: textView)
+    }
+
     /// Tries to paste a URL from the clipboard as a link applied to the selected range.
     ///
     /// - Returns: True if this method succeeds.

@@ -123,6 +123,11 @@ public protocol TextViewFormattingDelegate: class {
 //
 public protocol TextViewPasteboardDelegate: class {
 
+    /// Called by the TextView when it's attempting to paste the contents of the pasteboard.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPasting(in textView: TextView) -> Bool
+
     /// Called by the TextView when it's attempting to paste a URL.
     ///
     /// - Returns: True when the paste succeeded, false if it did not.
@@ -457,13 +462,7 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-
-        let pasteHandled = pasteboardDelegate.tryPastingURL(in: self)
-            || pasteboardDelegate.tryPastingHTML(in: self)
-            || pasteboardDelegate.tryPastingAttributedString(in: self)
-            || pasteboardDelegate.tryPastingString(in: self)
-
-        guard pasteHandled else {
+        guard pasteboardDelegate.tryPasting(in: self) else {
             super.paste(sender)
             return
         }
