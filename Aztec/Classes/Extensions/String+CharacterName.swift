@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
     
     /// Initializes this instance with the specified character.
     ///
