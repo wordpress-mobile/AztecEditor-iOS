@@ -226,7 +226,7 @@ open class TextView: UITextView {
     }
     
     public func load(_ plugin: Plugin) {
-        pluginManager.load(plugin)
+        pluginManager.load(plugin, in: self)
     }
 
     // MARK: - TextKit Aztec Subclasses

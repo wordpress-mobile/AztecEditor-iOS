@@ -4,13 +4,17 @@
 import Foundation
 import XCTest
 
+fileprivate let emptyImage = UIImage(data: Data(base64Encoded: "R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")!)!
+
 class WordpressPluginTests: XCTestCase {
     
     let pluginManager: PluginManager = {
         let pluginManager = PluginManager()
+        let systemFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        let textView = TextView(defaultFont: systemFont, defaultMissingImage: emptyImage)
         
-        pluginManager.load(WordPressPlugin())
-        
+        pluginManager.load(WordPressPlugin(), in: textView)
+
         return pluginManager
     }()
     

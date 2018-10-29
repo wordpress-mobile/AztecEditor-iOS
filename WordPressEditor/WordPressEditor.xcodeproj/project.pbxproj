@@ -58,6 +58,7 @@
 		F1FC70862139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */; };
 		F1FC70932139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */; };
 		F1FC70972139C778007AAFB3 /* GutenpackAttachmentRender_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */; };
+		F9982CFB218786E8001E606B /* WordPressPasteboardDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFA218786E8001E606B /* WordPressPasteboardDelegate.swift */; };
 		F9982CFD21878789001E606B /* EmbedURLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFC21878788001E606B /* EmbedURLProcessor.swift */; };
 		F9982CFF2187879E001E606B /* EmbedURLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */; };
 		FF72508C20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */; };
@@ -152,6 +153,7 @@
 		F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
 		F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
 		F1FC70962139C58F007AAFB3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F9982CFA218786E8001E606B /* WordPressPasteboardDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressPasteboardDelegate.swift; sourceTree = "<group>"; };
 		F9982CFC21878788001E606B /* EmbedURLProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessor.swift; sourceTree = "<group>"; };
 		F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessorTests.swift; sourceTree = "<group>"; };
 		FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeDecoder.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 			children = (
 				F16A2AEA20CDA19500BF3A0A /* AutopRemovep */,
 				F16A2AE820CDA16D00BF3A0A /* CaptionShortcode */,
+				F9982CF9218786D2001E606B /* Embeds */,
 				F16A2AE720CDA15700BF3A0A /* GalleryShortcode */,
 				F16A2AE920CDA18100BF3A0A /* VideoShortcode */,
 			);
@@ -463,6 +466,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		F9982CF9218786D2001E606B /* Embeds */ = {
+			isa = PBXGroup;
+			children = (
+				F9982CFA218786E8001E606B /* WordPressPasteboardDelegate.swift */,
+			);
+			path = Embeds;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -613,6 +624,7 @@
 				F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */,
 				F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */,
 				F1065DC220ADEEF4008C72CC /* CaptionShortcodeOutputProcessor.swift in Sources */,
+				F9982CFB218786E8001E606B /* WordPressPasteboardDelegate.swift in Sources */,
 				F16A2ADF20CD9F1300BF3A0A /* GalleryAttachmentToElementConverter.swift in Sources */,
 				F11C5DB220EFA49100EDBABC /* GutenbergAttributeEncoder.swift in Sources */,
 				F13E8ADA20B71DFF007C9F8A /* GutenpackAttachment.swift in Sources */,
