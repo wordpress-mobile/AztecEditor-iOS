@@ -17,7 +17,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
 
     /// Tries to paste a URL from the clipboard as a link applied to the selected range.
     ///
-    /// - Returns: True if this method succeeds.
+    /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingURL(in textView: TextView) -> Bool {
         guard UIPasteboard.general.hasURLs,
@@ -38,7 +38,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     
     /// Tries to paste HTML from the clipboard as source, replacing the selected range.
     ///
-    /// - Returns: True if this method succeeds.
+    /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingHTML(in textView: TextView) -> Bool {
         guard let html = UIPasteboard.general.html(),
@@ -52,7 +52,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
 
     /// Tries to paste an attributed string from the clipboard as source, replacing the selected range.
     ///
-    /// - Returns: True if this method succeeds.
+    /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingAttributedString(in textView: TextView) -> Bool {
         guard let string = UIPasteboard.general.attributedString() else {
@@ -82,7 +82,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
 
     /// Tries to paste raw text from the clipboard, replacing the selected range.
     ///
-    /// - Returns: True if this method succeeds.
+    /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingString(in textView: TextView) -> Bool {
         guard let string = UIPasteboard.general.attributedString() else {

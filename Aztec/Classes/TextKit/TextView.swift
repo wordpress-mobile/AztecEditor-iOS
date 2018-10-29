@@ -130,22 +130,22 @@ public protocol TextViewPasteboardDelegate: class {
 
     /// Called by the TextView when it's attempting to paste a URL.
     ///
-    /// - Returns: True when the paste succeeded, false if it did not.
+    /// - Returns: True if the paste succeeded, false if it did not.
     func tryPastingURL(in textView: TextView) -> Bool
 
     /// Called by the TextView when it's attempting to paste HTML content.
     ///
-    /// - Returns: True when the paste succeeded, false if it did not.
+    /// - Returns: True if the paste succeeded, false if it did not.
     func tryPastingHTML(in textView: TextView) -> Bool
 
     /// Called by the TextView when it's attempting to paste an attributed string.
     ///
-    /// - Returns: True when the paste succeeded, false if it did not.
+    /// - Returns: True if the paste succeeded, false if it did not.
     func tryPastingAttributedString(in textView: TextView) -> Bool
 
     /// Called by the TextView when it's attempting to paste a string.
     ///
-    /// - Returns: True when the paste succeeded, false if it did not.
+    /// - Returns: True if the paste succeeded, false if it did not.
     func tryPastingString(in textView: TextView) -> Bool
 }
 
