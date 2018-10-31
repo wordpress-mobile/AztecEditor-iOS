@@ -457,7 +457,7 @@ private extension AttributedStringParser {
                 break
             }
 
-            guard isMergable(at: index, conversion: conversion, newProperties: newProperties) else {
+            guard isMergable(conversion, with: newProperties, at: index) else {
                 break
             }
             
@@ -494,8 +494,7 @@ private extension AttributedStringParser {
         return previousConversions.prefix(through: lastMergeableIndex)
     }
 
-    private func isMergable(at index: Int, conversion: ParagraphPropertyConversion, newProperties: [ParagraphProperty]) -> Bool {
-
+    private func isMergable(_ conversion: ParagraphPropertyConversion, with newProperties: [ParagraphProperty], at index: Int) -> Bool {
         let previousProperty = conversion.property
         let newProperty = newProperties[index]
 
