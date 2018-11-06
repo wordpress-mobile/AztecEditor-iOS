@@ -119,6 +119,35 @@ public protocol TextViewFormattingDelegate: class {
     func textViewCommandToggledAStyle()
 }
 
+// MARK: - TextViewPasteboardDelegate
+//
+public protocol TextViewPasteboardDelegate: class {
+
+    /// Called by the TextView when it's attempting to paste the contents of the pasteboard.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPasting(in textView: TextView) -> Bool
+
+    /// Called by the TextView when it's attempting to paste a URL.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPastingURL(in textView: TextView) -> Bool
+
+    /// Called by the TextView when it's attempting to paste HTML content.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPastingHTML(in textView: TextView) -> Bool
+
+    /// Called by the TextView when it's attempting to paste an attributed string.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPastingAttributedString(in textView: TextView) -> Bool
+
+    /// Called by the TextView when it's attempting to paste a string.
+    ///
+    /// - Returns: True if the paste succeeded, false if it did not.
+    func tryPastingString(in textView: TextView) -> Bool
+}
 
 // MARK: - TextView
 //
@@ -138,7 +167,12 @@ open class TextView: UITextView {
     /// Formatting Delegate: to be used by the Edition's Format Bar.
     ///
     open weak var formattingDelegate: TextViewFormattingDelegate?
-    
+
+    /// Pasteboard Delegate: Handles Cut, Copy, and Paste commands. Can be overridden
+    /// by a subclass to customize behaviour.
+    ///
+    open var pasteboardDelegate: TextViewPasteboardDelegate = AztecTextViewPasteboardDelegate()
+
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
@@ -197,7 +231,7 @@ open class TextView: UITextView {
     }
     
     public func load(_ plugin: Plugin) {
-        pluginManager.load(plugin)
+        pluginManager.load(plugin, in: self)
     }
 
     // MARK: - TextKit Aztec Subclasses
@@ -428,115 +462,19 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
-        let pasteHandled = tryPastingURL() || tryPastingHTML() || tryPastingAttributedString() || tryPastingString()
-        
-        guard pasteHandled else {
+        guard pasteboardDelegate.tryPasting(in: self) else {
             super.paste(sender)
             return
         }
     }
 
     @objc open func pasteWithoutFormatting(_ sender: Any?) {
-        guard tryPastingString() else {
+        guard pasteboardDelegate.tryPastingString(in: self) else {
             super.paste(sender)
             return
         }
     }
     
-    // MARK: - Try Pasting
-    
-    /// Tries to paste an attributed string from the clipboard as source, replacing the selected range.
-    ///
-    /// - Returns: True if this method succeeds.
-    ///
-    private func tryPastingAttributedString() -> Bool {
-        guard let string = UIPasteboard.general.attributedString() else {
-            return false
-        }
-        
-        let finalRange = NSRange(location: selectedRange.location, length: string.length)
-        let originalText = attributedText.attributedSubstring(from: selectedRange)
-        
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
-        
-        string.loadLazyAttachments()
-        
-        storage.replaceCharacters(in: selectedRange, with: string)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + string.length, length: 0)
-        return true
-    }
-
-    /// Tries to paste HTML from the clipboard as source, replacing the selected range.
-    ///
-    /// - Returns: True if this method succeeds.
-    ///
-    func tryPastingHTML() -> Bool {
-        guard let html = UIPasteboard.general.html(), storage.htmlConverter.isSupported(html) else {
-            return false
-        }
-
-        replace(selectedRange, withHTML: html)
-        return true
-    }
-
-    /// Tries to paste raw text from the clipboard, replacing the selected range.
-    ///
-    /// - Returns: True if this method succeeds.
-    ///
-    private func tryPastingString() -> Bool {
-        guard let string = UIPasteboard.general.attributedString() else {
-            return false
-        }
-
-        let finalRange = NSRange(location: selectedRange.location, length: string.length)
-        let originalText = attributedText.attributedSubstring(from: selectedRange)
-
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
-        
-        let newString = NSMutableAttributedString(attributedString: string)
-        
-        string.enumerateAttributes(in: string.rangeOfEntireString, options: []) { (attributes, range, stop) in
-            let newAttributes = attributes.filter({ (key, value) -> Bool in
-                return value is NSTextAttachment
-            })
-            
-            newString.setAttributes(newAttributes, range: range)
-        }
-        
-        newString.addAttributes(typingAttributesSwifted, range: string.rangeOfEntireString)
-        newString.loadLazyAttachments()
-
-        storage.replaceCharacters(in: selectedRange, with: newString)
-        notifyTextViewDidChange()
-        selectedRange = NSRange(location: selectedRange.location + newString.length, length: 0)
-        return true
-    }
-
-    /// Tries to paste a URL from the clipboard as a link applied to the selected range.
-    ///
-    /// - Returns: True if this method succeeds.
-    ///
-    private func tryPastingURL() -> Bool {
-        
-        guard UIPasteboard.general.hasURLs,
-            let url = UIPasteboard.general.url else {
-                return false
-        }
-
-        if selectedRange.length == 0 {
-            setLink(url, title:url.absoluteString, inRange: selectedRange)
-        } else {
-            setLink(url, inRange: selectedRange)
-        }
-
-        return true
-    }
-
     // MARK: - Intercept Keystrokes
 
     override open var keyCommands: [UIKeyCommand]? {
@@ -600,7 +538,7 @@ open class TextView: UITextView {
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
-    fileprivate func notifyTextViewDidChange() {
+    final func notifyTextViewDidChange() {
         delegate?.textViewDidChange?(self)
         NotificationCenter.default.post(name: .UITextViewTextDidChange, object: self)
     }
@@ -2168,7 +2106,7 @@ extension TextView: TextStorageAttachmentsDelegate {
 
 // MARK: - Undo implementation
 //
-private extension TextView {
+public extension TextView {
 
     /// Undoable Operation. Returns the Final Text Range, resulting from applying the undoable Operation
     /// Note that for Styling Operations, the Final Range will most likely match the Initial Range.
@@ -2184,7 +2122,7 @@ private extension TextView {
     ///     - initialRange: Initial Storage Range upon which we'll apply a transformation.
     ///     - block: Undoable Operation. Should return the resulting Substring's Range.
     ///
-    func performUndoable(at initialRange: NSRange, block: Undoable) {
+    private func performUndoable(at initialRange: NSRange, block: Undoable) {
         let originalString = storage.attributedSubstring(from: initialRange)
 
         let finalRange = block()
@@ -2196,7 +2134,7 @@ private extension TextView {
         notifyTextViewDidChange()
     }
 
-    func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
+    public func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
 
         let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)
         let redoOriginalText = storage.attributedSubstring(from: finalRange)

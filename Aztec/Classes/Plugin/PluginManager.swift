@@ -11,14 +11,14 @@ class PluginManager {
     
     /// Loads a plugins.
     ///
-    func load(_ plugin: Plugin) {
+    func load(_ plugin: Plugin, in textView: TextView) {
         guard !plugins.contains(where: { $0 == plugin }) else {
             assertionFailure()
             return
         }
         
         plugins.append(plugin)
-        plugin.loaded()
+        plugin.loaded(textView: textView)
     }
     
     // MARK: - Input Processing
