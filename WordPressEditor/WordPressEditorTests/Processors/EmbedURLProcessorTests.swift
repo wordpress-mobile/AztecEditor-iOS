@@ -18,6 +18,9 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://youtube.com/watch?v=Z1BCujX3pw8")).isYouTubeEmbed)
         //HTTP, WWW
         assert(EmbedURLProcessor(url: url("http://www.youtube.com/watch?v=Z1BCujX3pw8")).isYouTubeEmbed)
+        //With underscores!
+        assert(EmbedURLProcessor(url: url("https://www.youtube.com/watch?v=Ms5mi_xADJw")).isYouTubeEmbed)
+        assert(EmbedURLProcessor(url: url("https://youtu.be/Ms5mi_xADJw")).isYouTubeEmbed)
     }
 
     func testThatValidYouTubeEmbedURLsWork() {
