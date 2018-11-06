@@ -3,8 +3,7 @@ import Foundation
 import UIKit
 
 
-// MARK: - SpecialTagAttachmentRenderer. This render aims rendering WordPress specific tags.
-//
+/// Renders self-closing Gutenberg blocks.
 final public class GutenpackAttachmentRenderer {
     
     /// Text Color
@@ -14,9 +13,6 @@ final public class GutenpackAttachmentRenderer {
     public init() {}
 }
 
-
-// MARK: - TextViewCommentsDelegate Methods
-//
 extension GutenpackAttachmentRenderer: TextViewAttachmentImageProvider {
     
     public func textView(_ textView: TextView, shouldRender attachment: NSTextAttachment) -> Bool {
