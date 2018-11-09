@@ -174,6 +174,13 @@ class AttributedStringSerializer {
             content.append(nodeString)
         }
         
+        guard content.length > 0 else {
+            // We need to make sure something is returned even if there's nothing to serialize
+            // Otherwise the attributes are lost.
+            //
+            return NSAttributedString(string: String(.zeroWidthSpace), attributes: attributes)
+        }
+        
         return content
     }
 

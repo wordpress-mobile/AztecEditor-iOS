@@ -965,8 +965,9 @@ private extension AttributedStringParser {
         var output = [Node]()
 
         for (index, substring) in substrings.enumerated() {
-
-            output.append(TextNode(text: substring))
+            
+            let cleanString = substring.replacingOccurrences(of: String(.zeroWidthSpace), with: "")
+            output.append(TextNode(text: cleanString))
 
             if index < substrings.count - 1 {
                 output.append(ElementNode(type: .br))

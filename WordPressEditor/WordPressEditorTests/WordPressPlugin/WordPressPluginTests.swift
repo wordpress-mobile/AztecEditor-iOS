@@ -193,5 +193,21 @@ class WordpressPluginTests: XCTestCase {
 
         XCTAssertEqual(finalHTML, expected)
     }
+    
+    //  MARK: - Spacer Block
+    
+    /// This test was spawned off this issue:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1078
+    ///
+    /// Spacer blocks are not being properly parsed and are being stripped from posts.
+    ///
+    func testSpacerBlockNotRemoved() {
+        let spacerBlock = "<!-- wp:spacer --><div style=\"height: 100px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div><!-- /wp:spacer -->"
+        
+        let attributedString = htmlConverter.attributedString(from: spacerBlock)
+        let finalHTML = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(finalHTML, spacerBlock)
+    }
 }
 
