@@ -64,13 +64,13 @@ class GenericElementConverter: ElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+        contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
         guard isSupportedByEditor(element) else {
             return convert(unsupported: element, inheriting: attributes)
         }
         
-        return convert(supported: element, inheriting: attributes, childrenSerializer: serializeChildren)
+        return convert(supported: element, inheriting: attributes, contentSerializer: serialize)
     }
     
     private func isSupportedByEditor(_ element: ElementNode) -> Bool {
@@ -100,11 +100,11 @@ class GenericElementConverter: ElementConverter {
     private func convert(
         supported element: ElementNode,
         inheriting inheritedAttributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+        contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
         let childrenAttributes = attributes(for: element, inheriting: inheritedAttributes)
         
-        return serializeChildren(element.children, childrenAttributes)
+        return serialize(element, childrenAttributes)
     }
 }
 

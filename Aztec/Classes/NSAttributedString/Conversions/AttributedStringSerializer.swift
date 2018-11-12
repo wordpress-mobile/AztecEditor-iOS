@@ -133,13 +133,14 @@ class AttributedStringSerializer {
         let attributes = attributesConverter.convert(element.attributes, inheriting: attributes)
         
         let converter = self.converter(for: element)
-        let convertedString = converter.convert(element, inheriting: attributes, childrenSerializer: childrenSerializer)
+        let convertedString = converter.convert(element, inheriting: attributes, contentSerializer: contentSerializer)
         
         content.append(convertedString)
-        
+        /*
         guard !element.needsClosingParagraphSeparator() else {
             return appendParagraphSeparator(to: content, inheriting: attributes)
         }
+ */
 
         return content
     }
@@ -162,23 +163,20 @@ class AttributedStringSerializer {
     //
     private(set) lazy var genericElementConverter = GenericElementConverter()
     
-    lazy var childrenSerializer: ElementConverter.ChildrenSerializer = { [weak self] (children, attributes) in
+    lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, attributes) in
         let content = NSMutableAttributedString()
         
-        guard let `self` = self else {
-            return content
-        }
-        
-        for child in children {
+        for child in elementNode.children {
             let nodeString = self.serialize(child, inheriting: attributes)
             content.append(nodeString)
         }
         
-        guard content.length > 0 else {
-            // We need to make sure something is returned even if there's nothing to serialize
-            // Otherwise the attributes are lost.
-            //
-            return NSAttributedString(string: String(.zeroWidthSpace), attributes: attributes)
+        if elementNode.type == .br {
+            content.append(NSAttributedString(.lineSeparator, attributes: attributes))
+        }
+        
+        guard !elementNode.needsClosingParagraphSeparator() else {
+            return self.appendParagraphSeparator(to: content, inheriting: attributes)
         }
         
         return content

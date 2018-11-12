@@ -6,7 +6,7 @@ import UIKit
 ///
 public protocol ElementConverter {
     
-    typealias ChildrenSerializer = (_: [Node], _ inheriting: [NSAttributedStringKey:Any]) -> NSAttributedString
+    typealias ContentSerializer = (_ elementNode: ElementNode, _ inheriting: [NSAttributedStringKey:Any]) -> NSAttributedString
     
     /// Converts an instance of ElementNode into a NSAttributedString.
     ///
@@ -20,5 +20,5 @@ public protocol ElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting inheritedAttributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString
+        contentSerializer serialize: ContentSerializer) -> NSAttributedString
 }
