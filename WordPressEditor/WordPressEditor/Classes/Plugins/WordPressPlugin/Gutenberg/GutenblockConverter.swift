@@ -18,7 +18,7 @@ class GutenblockConverter: ElementConverter {
         
         let attributes = self.attributes(for: element, inheriting: attributes)
     
-        return serialize(element, attributes)
+        return serialize(element, nil, attributes)
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {

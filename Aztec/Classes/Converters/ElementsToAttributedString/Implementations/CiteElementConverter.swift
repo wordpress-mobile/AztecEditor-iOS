@@ -16,7 +16,7 @@ class CiteElementConverter: FormatterElementConverter {
         
         let childrenAttributes = attributes(for: element, inheriting: inheritedAttributes)
         
-        return serialize(element, childrenAttributes)
+        return serialize(element, nil, childrenAttributes)
     }
     
     // MARK: - FormatterElementConverter

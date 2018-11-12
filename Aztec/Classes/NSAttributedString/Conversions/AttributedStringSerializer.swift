@@ -136,11 +136,6 @@ class AttributedStringSerializer {
         let convertedString = converter.convert(element, inheriting: attributes, contentSerializer: contentSerializer)
         
         content.append(convertedString)
-        /*
-        guard !element.needsClosingParagraphSeparator() else {
-            return appendParagraphSeparator(to: content, inheriting: attributes)
-        }
- */
 
         return content
     }
@@ -163,7 +158,7 @@ class AttributedStringSerializer {
     //
     private(set) lazy var genericElementConverter = GenericElementConverter()
     
-    lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, attributes) in
+    lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, intrinsicRepresentation, attributes) in
         let content = NSMutableAttributedString()
         
         for child in elementNode.children {
@@ -171,8 +166,8 @@ class AttributedStringSerializer {
             content.append(nodeString)
         }
         
-        if elementNode.type == .br {
-            content.append(NSAttributedString(.lineSeparator, attributes: attributes))
+        if let intrinsicRepresentation = intrinsicRepresentation {
+            content.append(intrinsicRepresentation)
         }
         
         guard !elementNode.needsClosingParagraphSeparator() else {

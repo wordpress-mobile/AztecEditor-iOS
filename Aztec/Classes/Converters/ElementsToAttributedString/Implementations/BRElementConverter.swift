@@ -14,6 +14,8 @@ class BRElementConverter: ElementConverter {
         
         precondition(element.type == .br)
         
-        return serialize(element, attributes)
+        let intrinsicRepresentation = NSAttributedString(.lineSeparator, attributes: attributes)
+        
+        return serialize(element, intrinsicRepresentation, attributes)
     }
 }
