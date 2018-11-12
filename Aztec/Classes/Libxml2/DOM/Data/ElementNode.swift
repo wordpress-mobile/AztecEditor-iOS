@@ -136,12 +136,13 @@ public class ElementNode: Node {
 
     /// Checks if the specified node requires a closing paragraph separator.
     ///
+    /// Returns: true if the element has no children, needs an explicit representation (to avoid losing attributes),
+    ///     and if it either has a block level element to the right or is the last element in a block level separation.
+    ///
     override func needsClosingParagraphSeparator() -> Bool {
-        guard children.count == 0 else {
-            return false
-        }
-
-        return super.needsClosingParagraphSeparator()
+        return !hasChildren()
+            && (hasAttributes() || !isLastInTree())
+            && (hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
     }
 
     // MARK: - Node Queries
@@ -156,6 +157,10 @@ public class ElementNode: Node {
         return attributes.first { (attribute) -> Bool in
             return attribute.type == type
         }
+    }
+    
+    public func hasAttributes() -> Bool {
+        return attributes.count > 0
     }
 
     func stringValueForAttribute(named attributeName: String) -> String? {
@@ -268,6 +273,9 @@ public class ElementNode: Node {
         return type.equivalentNames.contains(name.lowercased())
     }
     
+    func hasChildren() -> Bool {
+        return children.count > 0
+    }
 
     /// Retrieves the last child matching a specific filtering closure.
     ///
@@ -320,7 +328,7 @@ public class ElementNode: Node {
         return elements.first { element in
             return element.isNodeType(type)
         }
-    }    
+    }
 
     // MARK: - DOM Queries
     
