@@ -20,7 +20,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Default Appearance to be applied to new MediaAttachment Instances.
     ///
-    open static var defaultAppearance = Appearance()
+    public static var defaultAppearance = Appearance()
 
     /// Appearance associated to the current TextAttachment Instance.
     ///

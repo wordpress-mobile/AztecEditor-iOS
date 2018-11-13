@@ -465,7 +465,7 @@ class TextStorageTests: XCTestCase {
         XCTAssertEqual(html, outputHTML)
     }
 
-    func testListElemeAttributes() {
+    func testListElementAttributes() {
         let html = """
 <ul class="wp-block-gallery alignnone columns-1 is-cropped">
   <li class="blocks-gallery-item">

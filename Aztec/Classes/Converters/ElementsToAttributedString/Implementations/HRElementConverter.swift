@@ -12,7 +12,7 @@ class HRElementConverter: AttachmentElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: NSTextAttachment, string: NSAttributedString) {
+        contentSerializer serialize: ContentSerializer) -> (attachment: NSTextAttachment, string: NSAttributedString) {
         
         precondition(element.type == .hr)
         

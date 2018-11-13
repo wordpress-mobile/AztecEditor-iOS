@@ -4,13 +4,17 @@
 import Foundation
 import XCTest
 
+fileprivate let emptyImage = UIImage(data: Data(base64Encoded: "R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")!)!
+
 class WordpressPluginTests: XCTestCase {
     
     let pluginManager: PluginManager = {
         let pluginManager = PluginManager()
+        let systemFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        let textView = TextView(defaultFont: systemFont, defaultMissingImage: emptyImage)
         
-        pluginManager.load(WordPressPlugin())
-        
+        pluginManager.load(WordPressPlugin(), in: textView)
+
         return pluginManager
     }()
     
@@ -188,6 +192,22 @@ class WordpressPluginTests: XCTestCase {
         let finalHTML = htmlConverter.html(from: attrString, prettify: true)
 
         XCTAssertEqual(finalHTML, expected)
+    }
+    
+    //  MARK: - Spacer Block
+    
+    /// This test was spawned off this issue:
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1078
+    ///
+    /// Spacer blocks are not being properly parsed and are being stripped from posts.
+    ///
+    func testSpacerBlockNotRemoved() {
+        let spacerBlock = "<!-- wp:spacer --><div style=\"height: 100px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div><!-- /wp:spacer -->"
+        
+        let attributedString = htmlConverter.attributedString(from: spacerBlock)
+        let finalHTML = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(finalHTML, spacerBlock)
     }
 }
 

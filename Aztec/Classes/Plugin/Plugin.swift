@@ -63,7 +63,7 @@ open class Plugin {
     
     /// Method plugins can use to execute extra code when loaded.
     ///
-    public func loaded() {}
+    open func loaded(textView: TextView) {}
 
     // MARK: - Equatable
     

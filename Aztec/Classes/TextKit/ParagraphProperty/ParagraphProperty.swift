@@ -20,7 +20,7 @@ open class ParagraphProperty: NSObject, NSCoding {
     }
 
     static func ==(lhs: ParagraphProperty, rhs: ParagraphProperty) -> Bool {
-        return lhs == rhs
+        return lhs === rhs
     }
     
     // MARK: - Dynamic Styling

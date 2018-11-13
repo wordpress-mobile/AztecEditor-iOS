@@ -456,17 +456,14 @@ private extension AttributedStringParser {
             guard newProperties.count > index else {
                 break
             }
-            
-            let previousProperty = conversion.property
-            let newProperty = newProperties[index]
-            
-            guard newProperty.isEqual(previousProperty) else {
+
+            guard isMergable(conversion, with: newProperties, at: index) else {
                 break
             }
             
             lastMergeableIndex = index
         }
-        
+
         guard lastMergeableIndex >= 0 else {
             return nil
         }
@@ -495,6 +492,19 @@ private extension AttributedStringParser {
         }
         
         return previousConversions.prefix(through: lastMergeableIndex)
+    }
+
+    private func isMergable(_ conversion: ParagraphPropertyConversion, with newProperties: [ParagraphProperty], at index: Int) -> Bool {
+        let previousProperty = conversion.property
+        let newProperty = newProperties[index]
+
+        // `li` tags as a rule will never merge, unless it has a `figure` as child. We want to keep all
+        // `figure` children merged inside a single `li` tag.
+        if newProperty is HTMLLi, newProperties.indices.contains(index + 1), newProperties[index + 1] is Figure {
+            return newProperty === previousProperty
+        } else {
+            return newProperty.isEqual(previousProperty)
+        }
     }
 }
 
@@ -955,8 +965,9 @@ private extension AttributedStringParser {
         var output = [Node]()
 
         for (index, substring) in substrings.enumerated() {
-
-            output.append(TextNode(text: substring))
+            
+            let cleanString = substring.replacingOccurrences(of: String(.zeroWidthSpace), with: "")
+            output.append(TextNode(text: cleanString))
 
             if index < substrings.count - 1 {
                 output.append(ElementNode(type: .br))

@@ -12,7 +12,7 @@ class VideoElementConverter: AttachmentElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: VideoAttachment, string: NSAttributedString) {
+        contentSerializer serialize: ContentSerializer) -> (attachment: VideoAttachment, string: NSAttributedString) {
         
         let attachment = self.attachment(for: element)
         

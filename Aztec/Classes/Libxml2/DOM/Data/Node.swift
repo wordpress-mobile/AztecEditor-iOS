@@ -137,7 +137,9 @@ public class Node: Equatable, CustomReflectable, Hashable {
             if node is ElementNode {
                 return true
             } else if let textNode = node as? TextNode {
-                return textNode.length() > 0
+                let text = textNode.sanitizedText()
+                
+                return text.count > 0
             } else if node is CommentNode {
                 return true
             }

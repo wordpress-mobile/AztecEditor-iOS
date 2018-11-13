@@ -66,3 +66,55 @@ public class TextNode: Node {
         return self.name == textNode.name && self.contents == textNode.contents
     }    
 }
+
+// MARK: - Text Sanitization
+
+extension TextNode {
+    
+    func sanitizedText() -> String {
+        guard shouldSanitizeText() else {
+            return text()
+        }
+        
+        return sanitize(text())
+    }
+    
+    private func sanitize(_ text: String) -> String {
+        guard text != String(.space) else {
+            return text
+        }
+        
+        let hasAnEndingSpace = text.hasSuffix(String(.space))
+        let hasAStartingSpace = text.hasPrefix(String(.space))
+        
+        // We cannot use CharacterSet.whitespacesAndNewlines directly, because it includes
+        // U+000A, which is non-breaking space.  We need to maintain it.
+        //
+        let whitespace = CharacterSet.whitespacesAndNewlines
+        let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace))
+        let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
+        
+        let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)
+        var singleSpaceText = trimmedText
+        let doubleSpace = "  "
+        let singleSpace = " "
+        
+        while singleSpaceText.range(of: doubleSpace) != nil {
+            singleSpaceText = singleSpaceText.replacingOccurrences(of: doubleSpace, with: singleSpace)
+        }
+        
+        let noBreaksText = singleSpaceText.replacingOccurrences(of: String(.lineFeed), with: "")
+        let endingSpace = !noBreaksText.isEmpty && hasAnEndingSpace ? String(.space) : ""
+        let startingSpace = !noBreaksText.isEmpty && hasAStartingSpace ? String(.space) : ""
+        return "\(startingSpace)\(noBreaksText)\(endingSpace)"
+    }
+    
+    /// This method check that in the current context it makes sense to clean up newlines and double spaces from text.
+    /// For example if you are inside a pre element you shoulnd't clean up the nodes.
+    ///
+    /// - Returns: true if sanitization should happen, false otherwise
+    ///
+    private func shouldSanitizeText() -> Bool {
+        return !hasAncestor(ofType: .pre)
+    }
+}

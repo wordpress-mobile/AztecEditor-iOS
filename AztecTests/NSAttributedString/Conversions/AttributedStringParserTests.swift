@@ -683,7 +683,7 @@ class AttributedStringParserTests: XCTestCase {
 
         // Convert + Verify
         let node = AttributedStringParser().parse(testingString)
-        XCTAssert(node.children.count == 1)
+        XCTAssertEqual(node.children.count, 1)
 
         guard let unorderedElementNode = node.children.first as? ElementNode,
             unorderedElementNode.name == "ul",
@@ -720,6 +720,62 @@ class AttributedStringParserTests: XCTestCase {
 
         XCTAssertEqual(firstTextNode?.contents, firstText)
         XCTAssertEqual(secondTextNode?.contents, secondText)
+    }
+
+
+    /// Verifies that a list of figures (i.e. image gallery) doesn't split its content in different `li` tags.
+    ///
+    func testFigureWillNotBreakWhenNestedWithinListItem() {
+        let html = """
+<ul class="wp-block-gallery columns-3 is-cropped">
+    <li class="blocks-gallery-item">
+        <figure>
+            <img src="https://etoledomatomicsite01.blog/wp-content/uploads/2018/05/giphy.gif" alt="" data-id="56" data-link="https://etoledomatomicsite01.blog/giphy/" class="wp-image-56" />
+            <figcaption>caption</figcaption>
+        </figure>
+    </li>
+    <li class="blocks-gallery-item">
+        <figure>
+            <img src="https://etoledomatomicsite01.blog/wp-content/uploads/2018/04/kitty-cat-kitten-pet-45201.jpg" alt="" data-id="49" data-link="https://etoledomatomicsite01.blog/kitty-cat-kitten-pet-45201/" class="wp-image-49" />
+            <figcaption>caption</figcaption>
+        </figure>
+    </li>
+</ul>
+"""
+        let cleanHTML = html.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "  ", with: "")
+        let node = HTMLParser().parse(cleanHTML)
+
+        // Convert + Verify
+        XCTAssertEqual(node.children.count, 1)
+
+        guard let unorderedElementNode = node.children.first as? ElementNode else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(unorderedElementNode.name, "ul")
+        XCTAssertEqual(unorderedElementNode.children.count, 2)
+
+        guard let firstListItem = unorderedElementNode.children[0] as? ElementNode else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(firstListItem.name, "li")
+        XCTAssertEqual(firstListItem.children.count, 1)
+
+        guard let figureNode = firstListItem.children.first as? ElementNode,
+            figureNode.name == "figure",
+            figureNode.children.count == 2
+            else {
+                XCTFail()
+                return
+        }
+
+        let imageNode = figureNode.children.first as? ElementNode
+        let captionNode = figureNode.children.last as? ElementNode
+
+        XCTAssertEqual(imageNode?.type, .img)
+        XCTAssertEqual(captionNode?.type, .figcaption)
     }
 
 
