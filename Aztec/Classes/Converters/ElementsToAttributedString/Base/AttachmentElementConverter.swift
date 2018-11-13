@@ -9,7 +9,7 @@ public protocol AttachmentElementConverter: ElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> (attachment: AttachmentType, string: NSAttributedString)
+        contentSerializer serialize: ContentSerializer) -> (attachment: AttachmentType, string: NSAttributedString)
 }
 
 public extension AttachmentElementConverter {
@@ -19,9 +19,9 @@ public extension AttachmentElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+        contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
-        let (_, output) = convert(element, inheriting: attributes, childrenSerializer: serializeChildren)
+        let (_, output) = convert(element, inheriting: attributes, contentSerializer: serialize)
         
         return output
     }

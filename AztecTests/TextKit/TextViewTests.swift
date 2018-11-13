@@ -832,7 +832,6 @@ class TextViewTests: XCTestCase {
     /// Ref. Scenario Mark III on Issue https://github.com/wordpress-mobile/AztecEditor-iOS/pull/425
     ///
     func testNewLinesAreInsertedAfterEmptyList() {
-        let newline = String(.lineFeed)
         let textView = TextViewStub(withHTML: "")
 
         // Toggle List + Move the selection to the EOD
@@ -841,8 +840,8 @@ class TextViewTests: XCTestCase {
 
         // Insert Newline
         var expectedLength = textView.text.count
-        textView.insertText(newline)
-        expectedLength += newline.count
+        textView.insertText(String(.lineFeed))
+        expectedLength += String(.lineFeed).count
 
         XCTAssertEqual(textView.text.count, expectedLength)
     }

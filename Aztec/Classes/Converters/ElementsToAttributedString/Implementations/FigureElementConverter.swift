@@ -10,13 +10,13 @@ class FigureElementConverter: ElementConverter {
     func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
-        childrenSerializer serializeChildren: ChildrenSerializer) -> NSAttributedString {
+        contentSerializer serialize: ContentSerializer) -> NSAttributedString {
        
         precondition(element.type == .figure)
        
         let attributes = self.attributes(for: element, inheriting: attributes)
         
-        return serializeChildren(element.children, attributes)
+        return serialize(element, nil, attributes)
     }
     
     private func attributes(for element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {

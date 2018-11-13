@@ -10,7 +10,7 @@ class GalleryElementConverterTests: XCTestCase {
         let attributes = [Attribute(name: "columns", value: .string("4"))]
         let element = ElementNode(type: .gallery, attributes: attributes)
         
-        let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+        let (gallery, _) = converter.convert(element, inheriting: [:]) { (elementNode, intrinsicRepresentation, attributes) -> NSAttributedString in
             return NSAttributedString()
         }
         
@@ -24,7 +24,7 @@ class GalleryElementConverterTests: XCTestCase {
         let attributes = [Attribute(name: "iDs", value: .string("4, 2, 6,8"))]
         let element = ElementNode(type: .gallery, attributes: attributes)
         
-        let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+        let (gallery, _) = converter.convert(element, inheriting: [:]) { (elementNode, intrinsicRepresentation, attributes) -> NSAttributedString in
             return NSAttributedString()
         }
         
@@ -43,7 +43,7 @@ class GalleryElementConverterTests: XCTestCase {
             let attributes = [Attribute(name: "orderby", value: .string(orderValue))]
             let element = ElementNode(type: .gallery, attributes: attributes)
             
-            let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+            let (gallery, _) = converter.convert(element, inheriting: [:]) { (elementNode, intrinsicRepresentation, attributes) -> NSAttributedString in
                 return NSAttributedString()
             }
             
@@ -63,7 +63,7 @@ class GalleryElementConverterTests: XCTestCase {
             let attributes = [Attribute(name: "orderby", value: .string(orderByValue))]
             let element = ElementNode(type: .gallery, attributes: attributes)
             
-            let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+            let (gallery, _) = converter.convert(element, inheriting: [:]) { (elementNode, intrinsicRepresentation, attributes) -> NSAttributedString in
                 return NSAttributedString()
             }
             
@@ -92,7 +92,7 @@ class GalleryElementConverterTests: XCTestCase {
                 let attributes = [columnsAttribute, idsAttribute, orderAttribute, orderByAttribute]
                 let element = ElementNode(type: .gallery, attributes: attributes)
                 
-                let (gallery, _) = converter.convert(element, inheriting: [:]) { (node, attributes) -> NSAttributedString in
+                let (gallery, _) = converter.convert(element, inheriting: [:]) { (elementNode, intrinsicRepresentation, attributes) -> NSAttributedString in
                     return NSAttributedString()
                 }
                 
