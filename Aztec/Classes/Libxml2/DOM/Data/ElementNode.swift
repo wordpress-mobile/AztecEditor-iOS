@@ -136,7 +136,12 @@ public class ElementNode: Node {
 
     /// Checks if the specified node requires a closing paragraph separator.
     ///
-    /// Returns: true if the element has no children, needs an explicit representation (to avoid losing attributes),
+    /// - Parameters:
+    ///     - ignoreChildren: Usually only the lowest node will have a paragraph separator, but this parameter
+    ///         allows the caller to check if this element requires a closing paragraph separator regardless of
+    ///         if it has children or not.
+    ///
+    /// - Returns: true if the element has no children, needs an explicit representation (to avoid losing attributes),
     ///     and if it either has a block level element to the right or is the last element in a block level separation.
     ///
     func needsClosingParagraphSeparator(ignoreChildren: Bool = false) -> Bool {
