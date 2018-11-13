@@ -99,7 +99,7 @@ class GenericElementConverter: ElementConverter {
         
         let content = NSMutableAttributedString(attachment: attachment, attributes: attributes)
         
-        if element.needsClosingParagraphSeparator(ignoreChildren: true) {
+        if element.needsClosingParagraphSeparatorIncludingDescendants() {
             content.append(NSAttributedString(.paragraphSeparator, attributes: attributes))
         }
         

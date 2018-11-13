@@ -133,20 +133,20 @@ public class ElementNode: Node {
     }
     
     // MARK: - Node Overrides
+    
+    override func needsClosingParagraphSeparator() -> Bool {
+        return (!hasChildren())
+            && (hasAttributes() || !isLastInTree())
+            && (hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
+    }
 
-    /// Checks if the specified node requires a closing paragraph separator.
+    /// Checks if the specified node requires a closing paragraph separator in itself, or in the any of its descendants.
     ///
-    /// - Parameters:
-    ///     - ignoreChildren: Usually only the lowest node will have a paragraph separator, but this parameter
-    ///         allows the caller to check if this element requires a closing paragraph separator regardless of
-    ///         if it has children or not.
-    ///
-    /// - Returns: true if the element has no children, needs an explicit representation (to avoid losing attributes),
+    /// - Returns: true if the element needs an explicit representation (to avoid losing attributes),
     ///     and if it either has a block level element to the right or is the last element in a block level separation.
     ///
-    func needsClosingParagraphSeparator(ignoreChildren: Bool = false) -> Bool {
-        return (ignoreChildren || !hasChildren())
-            && (hasAttributes() || !isLastInTree())
+    func needsClosingParagraphSeparatorIncludingDescendants() -> Bool {
+        return (hasAttributes() || !isLastInTree())
             && (hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
     }
 
