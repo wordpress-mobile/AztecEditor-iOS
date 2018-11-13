@@ -87,14 +87,23 @@ class GenericElementConverter: ElementConverter {
     ///
     /// - Returns: the converted node as an `NSAttributedString`.
     ///
-    private func convert(unsupported element: ElementNode, inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
+    private func convert(
+        unsupported element: ElementNode,
+        inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
+        
         let serializer = HTMLSerializer()
         let attachment = HTMLAttachment()
         
         attachment.rootTagName = element.name
         attachment.rawHTML = serializer.serialize(element)
         
-        return NSAttributedString(attachment: attachment, attributes: attributes)
+        let content = NSMutableAttributedString(attachment: attachment, attributes: attributes)
+        
+        if element.needsClosingParagraphSeparator(ignoreChildren: true) {
+            content.append(NSAttributedString(.paragraphSeparator, attributes: attributes))
+        }
+        
+        return content
     }
     
     private func convert(

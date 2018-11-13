@@ -139,8 +139,8 @@ public class ElementNode: Node {
     /// Returns: true if the element has no children, needs an explicit representation (to avoid losing attributes),
     ///     and if it either has a block level element to the right or is the last element in a block level separation.
     ///
-    override func needsClosingParagraphSeparator() -> Bool {
-        return !hasChildren()
+    func needsClosingParagraphSeparator(ignoreChildren: Bool = false) -> Bool {
+        return (ignoreChildren || !hasChildren())
             && (hasAttributes() || !isLastInTree())
             && (hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
     }
