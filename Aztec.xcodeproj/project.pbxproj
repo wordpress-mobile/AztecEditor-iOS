@@ -176,6 +176,7 @@
 		F197340E1FA14B85007018A8 /* HTMLTreeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */; };
 		F1AFD65820B45E5700CB0279 /* CommentAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65620B45E5700CB0279 /* CommentAttachmentRenderer.swift */; };
 		F1AFD65920B45E5700CB0279 /* HTMLAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AFD65720B45E5700CB0279 /* HTMLAttachmentRenderer.swift */; };
+		F1B7525E219CBAB100E5CC31 /* Array+Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B7525D219CBAB100E5CC31 /* Array+Attribute.swift */; };
 		F1BDDDE520603C18000714E1 /* FigcaptionFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BDDDE420603C18000714E1 /* FigcaptionFormatter.swift */; };
 		F1BDDDE72060403B000714E1 /* FigureFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BDDDE62060403B000714E1 /* FigureFormatter.swift */; };
 		F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C05B981E37F99D007510EA /* Character+Name.swift */; };
@@ -436,6 +437,7 @@
 		F197340D1FA14B85007018A8 /* HTMLTreeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLTreeProcessor.swift; sourceTree = "<group>"; };
 		F1AFD65620B45E5700CB0279 /* CommentAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F1AFD65720B45E5700CB0279 /* HTMLAttachmentRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLAttachmentRenderer.swift; sourceTree = "<group>"; };
+		F1B7525D219CBAB100E5CC31 /* Array+Attribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Attribute.swift"; sourceTree = "<group>"; };
 		F1BDDDE420603C18000714E1 /* FigcaptionFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FigcaptionFormatter.swift; sourceTree = "<group>"; };
 		F1BDDDE62060403B000714E1 /* FigureFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FigureFormatter.swift; sourceTree = "<group>"; };
 		F1C05B981E37F99D007510EA /* Character+Name.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Character+Name.swift"; sourceTree = "<group>"; };
@@ -696,6 +698,7 @@
 		599F25241D8BC9A1002871D6 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F1B7525D219CBAB100E5CC31 /* Array+Attribute.swift */,
 				B575344F1F267D0B009D4904 /* Array+Helpers.swift */,
 				F165D92920C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift */,
 				F1C05B981E37F99D007510EA /* Character+Name.swift */,
@@ -1587,6 +1590,7 @@
 				FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */,
 				F12F586A1EF20394008AE298 /* HeaderFormatter.swift in Sources */,
 				F193AD6720C5A40A00BBA8F4 /* ShortcodeAttributeParser.swift in Sources */,
+				F1B7525E219CBAB100E5CC31 /* Array+Attribute.swift in Sources */,
 				F14C4D2620C076EA007CBC57 /* HTMLConverter.swift in Sources */,
 				F13CE5401F4DD08E0043368D /* RegexProcessor.swift in Sources */,
 				40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */,

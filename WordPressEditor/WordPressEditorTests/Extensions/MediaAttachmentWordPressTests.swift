@@ -11,7 +11,7 @@ class MediaAttachmentWordPressTests: XCTestCase {
         XCTAssertEqual(imageAttachment.extraAttributes[MediaAttachment.uploadKey], nil)
         
         imageAttachment.uploadID = uploadID
-        XCTAssertEqual(imageAttachment.extraAttributes[MediaAttachment.uploadKey], uploadID)
+        XCTAssertEqual(imageAttachment.extraAttributes[MediaAttachment.uploadKey], .string(uploadID))
         
         imageAttachment.uploadID = nil
         XCTAssertEqual(imageAttachment.extraAttributes[MediaAttachment.uploadKey], nil)
@@ -23,7 +23,7 @@ class MediaAttachmentWordPressTests: XCTestCase {
         
         XCTAssertEqual(imageAttachment.uploadID, nil)
         
-        imageAttachment.extraAttributes[MediaAttachment.uploadKey] = uploadID
+        imageAttachment.extraAttributes[MediaAttachment.uploadKey] = .string(uploadID)
         XCTAssertEqual(imageAttachment.uploadID, uploadID)
         
         imageAttachment.extraAttributes[MediaAttachment.uploadKey] = nil

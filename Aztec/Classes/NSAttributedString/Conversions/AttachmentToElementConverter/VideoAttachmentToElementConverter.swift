@@ -21,8 +21,8 @@ class VideoAttachmentToElementConverter: AttachmentToElementConverter {
             element.updateAttribute(named: attribute.name, value: attribute.value)
         }
         
-        for (key,value) in attachment.extraAttributes {
-            element.updateAttribute(named: key, value: .string(value))
+        for attribute in attachment.extraAttributes {
+            element.updateAttribute(named: attribute.name, value: attribute.value)
         }
         
         return [element]

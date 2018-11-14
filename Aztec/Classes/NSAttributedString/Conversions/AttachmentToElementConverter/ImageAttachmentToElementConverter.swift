@@ -25,12 +25,26 @@ class ImageAttachmentToElementConverter: AttachmentToElementConverter {
             imageElement.updateAttribute(named: attribute.name, value: attribute.value)
         }
         
-        for (key,value) in attachment.extraAttributes {
+        for attribute in attachment.extraAttributes {
+            
+            let key = attribute.name
+            
+            guard let value = attribute.value.toString() else {
+                continue
+            }
+            
             var finalValue = value
-            if key == "class", let baseValue = imageElement.stringValueForAttribute(named: "class"){
-                let baseComponents = Set(baseValue.components(separatedBy: " "))
-                let extraComponents = Set(value.components(separatedBy: " "))
-                finalValue = baseComponents.union(extraComponents).joined(separator: " ")
+            
+            if key == "class",
+                let baseValue = imageElement.stringValueForAttribute(named: "class") {
+                
+                // Apple, we really need a Swift-native ordered set.  Thank you!
+                let baseComponents = NSMutableOrderedSet(array: baseValue.components(separatedBy: " "))
+                let extraComponents = NSOrderedSet(array: value.components(separatedBy: " "))
+                
+                baseComponents.union(extraComponents)
+                
+                finalValue = (baseComponents.array as! [String]).joined(separator: " ")
             }
             imageElement.updateAttribute(named: key, value: .string(finalValue))
         }
