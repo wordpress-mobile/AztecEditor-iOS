@@ -1951,4 +1951,18 @@ class TextViewTests: XCTestCase {
         let html = "<p><a href=\"http://wordpress.com\">WordPress</a></p>"
         XCTAssertEqual(textView.getHTML(prettify: false), html)
     }
+    
+    // MARK: - Non-breaking spaces.
+    
+    func testNonBreakingSpacesAreProperlyEncoded() {
+        let textView = TextViewStub(withHTML: "WordPress")
+        
+        let html = "<p>&nbsp;&nbsp;</p><p>&nbsp;<br>&nbsp;</p>"
+        let expected = "<p>&nbsp;&nbsp;</p><p>&nbsp;<br>&nbsp;</p>"
+        
+        textView.setHTML(html)
+        let output = textView.getHTML(prettify: false)
+        
+        XCTAssertEqual(output, expected)
+    }
 }

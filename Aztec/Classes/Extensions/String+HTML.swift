@@ -33,8 +33,9 @@ extension String {
     ///
     private var entities: [Entity] {
         return [
-            ("&", "&amp;"),
+            ("&", "&amp;"), // IMPORTANT: keep this first to avoid replacing the ampersand from other escaped entities.
             ("<", "&lt;"),
+            (String(.nonBreakingSpace), "&nbsp;"),
             (">", "&gt;")
         ]
     }

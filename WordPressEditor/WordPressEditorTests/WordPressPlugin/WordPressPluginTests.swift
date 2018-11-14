@@ -209,5 +209,17 @@ class WordpressPluginTests: XCTestCase {
         
         XCTAssertEqual(finalHTML, spacerBlock)
     }
+    
+    // MARK: - Non-breaking spaces.
+    
+    func testNonBreakingSpacesAreProperlyEncoded() {
+        let html = "<p>&nbsp;&nbsp;</p><p>&nbsp;<br>&nbsp;</p>"
+        let expected = "&nbsp;&nbsp;\n\n&nbsp;\n&nbsp;"
+        
+        let attributedString = htmlConverter.attributedString(from: html)
+        let finalHTML = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(finalHTML, expected)
+    }
 }
 
