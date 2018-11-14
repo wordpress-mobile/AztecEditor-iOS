@@ -21,7 +21,7 @@ class GalleryAttachmentToElementConverterTests: XCTestCase {
         attachment.columns = 2
         attachment.order = .asc
         attachment.orderBy = .menu
-        attachment.extraAttributes[extraAttributeName] = extraAttributeValue
+        attachment.extraAttributes[extraAttributeName] = .string(extraAttributeValue)
         
         guard let element = converter.convert(attachment, attributes: [:]).first as? ElementNode else {
             XCTFail()

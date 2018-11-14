@@ -1542,9 +1542,9 @@ class TextViewTests: XCTestCase {
             XCTFail("An video attachment should be present")
             return
         }
-        XCTAssertEqual(attachment.extraAttributes["data-wpvideopress"], "videopress", "Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["data-wpvideopress"], .string("videopress"), "Property should be available")
 
-        attachment.extraAttributes["data-wpvideopress"] = "ABCDE"
+        attachment.extraAttributes["data-wpvideopress"] = .string("ABCDE")
 
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
     }
@@ -1665,19 +1665,19 @@ class TextViewTests: XCTestCase {
         let html = "<img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\">"
         let textView = TextViewStub(withHTML: html)
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" title=\"Title\" alt=\"Alt\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone\" alt=\"Alt\" title=\"Title\"></p>")
 
         guard let attachment = textView.storage.mediaAttachments.first as? ImageAttachment else {
             XCTFail("An video attachment should be present")
             return
         }
-        XCTAssertEqual(attachment.extraAttributes["alt"], "Alt", "Alt Property should be available")
-        XCTAssertEqual(attachment.extraAttributes["title"], "Title", "Title Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["alt"], .string("Alt"), "Alt Property should be available")
+        XCTAssertEqual(attachment.extraAttributes["title"], .string("Title"), "Title Property should be available")
 
-        attachment.extraAttributes["alt"] = "Changed Alt"
-        attachment.extraAttributes["class"] = "wp-image-169"
+        attachment.extraAttributes["alt"] = .string("Changed Alt")
+        attachment.extraAttributes["class"] = .string("wp-image-169")
 
-        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" title=\"Title\" alt=\"Changed Alt\"></p>")
+        XCTAssertEqual(textView.getHTML(), "<p><img src=\"image.jpg\" class=\"alignnone wp-image-169\" alt=\"Changed Alt\" title=\"Title\"></p>")
     }
 
 
@@ -1890,7 +1890,7 @@ class TextViewTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(attributedValue, "ABCDE")
+        XCTAssertEqual(attributedValue, .string("ABCDE"))
 
         // Remove attribute
         attachment.extraAttributes["data-wp_upload_id"] = nil

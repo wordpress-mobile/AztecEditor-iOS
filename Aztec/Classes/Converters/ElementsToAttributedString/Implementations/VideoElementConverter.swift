@@ -22,11 +22,11 @@ class VideoElementConverter: AttachmentElementConverter {
     // MARK: - Attachment Creation
     
     func attachment(for element: ElementNode) -> VideoAttachment {
-        var extraAttributes = [String:String]()
+        var extraAttributes = [Attribute]()
 
         for attribute in element.attributes {
             if let value = attribute.value.toString() {
-                extraAttributes[attribute.name] = value
+                extraAttributes[attribute.name] = .string(value)
             }
         }
 
@@ -35,7 +35,7 @@ class VideoElementConverter: AttachmentElementConverter {
         
         if let urlString = srcAttribute?.value.toString() {
             srcURL = URL(string: urlString)
-            extraAttributes.removeValue(forKey: "src")
+            extraAttributes.remove(named: "src")
         } else {
             srcURL = nil
         }
@@ -45,7 +45,7 @@ class VideoElementConverter: AttachmentElementConverter {
         
         if let urlString = posterAttribute?.value.toString() {
             posterURL = URL(string: urlString)
-            extraAttributes.removeValue(forKey: "poster")
+            extraAttributes.remove(named: "poster")
         } else {
             posterURL = nil
         }

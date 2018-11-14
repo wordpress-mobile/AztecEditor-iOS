@@ -11,7 +11,7 @@ class VideoAttachmentWordPressTests: XCTestCase {
         XCTAssertEqual(videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute], nil)
         
         videoAttachment.videoPressID = videoPressID
-        XCTAssertEqual(videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute], videoPressID)
+        XCTAssertEqual(videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute], .string(videoPressID))
         
         videoAttachment.videoPressID = nil
         XCTAssertEqual(videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute], nil)
@@ -23,7 +23,7 @@ class VideoAttachmentWordPressTests: XCTestCase {
         
         XCTAssertEqual(videoAttachment.videoPressID, nil)
         
-        videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute] = videoPressID
+        videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute] = .string(videoPressID)
         XCTAssertEqual(videoAttachment.videoPressID, videoPressID)
         
         videoAttachment.extraAttributes[VideoShortcodeProcessor.videoPressHTMLAttribute] = nil
