@@ -46,42 +46,4 @@ class CommentAttachmentRendererTests: XCTestCase {
         
         XCTAssertEqual(bounds, expectedBounds)
     }
-    
-    func testImageForAttachment() {
-        let textView = TextView(
-            defaultFont: UIFont.systemFont(ofSize: 12),
-            defaultMissingImage: UIImage())
-        let attachment = CommentAttachment()
-        attachment.text = "Some comment!"
-        let renderer = CommentAttachmentRenderer(font: UIFont.systemFont(ofSize: 12))
-        
-        let fileName: String = {
-            if UIScreen.main.scale == 3 {
-                return "CommentAttachmentRender_3x.png"
-            } else if UIScreen.main.scale == 2 {
-                return "CommentAttachmentRender_2x.png"
-            }
-            
-            // We no longer support 1x
-            fatalError()
-        }()
-        
-        let bundle = Bundle(for: type(of: self))
-        guard let url = bundle.url(forResource: fileName, withExtension: "dat", subdirectory: nil),
-            let expectedPNGRepresentation = try? Data(contentsOf: url, options: []) else {
-                XCTFail()
-                return
-        }
-        
-        let desiredSize = CGSize(width: 100, height: 44.0)
-        
-        guard let image = renderer.textView(textView, imageFor: attachment, with: desiredSize),
-            let pngRepresentation = UIImagePNGRepresentation(image) else {
-                XCTFail()
-                return
-        }
-        
-        XCTAssertNotNil(pngRepresentation)
-        XCTAssertEqual(pngRepresentation, expectedPNGRepresentation)
-    }
 }
