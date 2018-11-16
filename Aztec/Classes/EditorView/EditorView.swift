@@ -132,11 +132,21 @@ public class EditorView: UIView {
     // MARK: - HTML
     
     public func getHTML() -> String {
-        return richTextView.getHTML()
+        switch editingMode {
+        case .html:
+            return htmlTextView.text
+        case .richText:
+            return richTextView.getHTML()
+        }
     }
     
     public func setHTML(_ html: String) {
-        richTextView.setHTML(html)
+        switch editingMode {
+        case .html:
+            htmlTextView.text = html
+        case .richText:
+            richTextView.setHTML(html)
+        }
     }
 
     public var activeView: UITextView {
