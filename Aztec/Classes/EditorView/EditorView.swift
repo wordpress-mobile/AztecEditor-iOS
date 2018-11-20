@@ -69,10 +69,17 @@ public class EditorView: UIView {
             
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                let newText = richTextView.getHTML()
+                
+                if newText != htmlTextView.text {
+                    let originalRange = htmlTextView.textRange(from: htmlTextView.beginningOfDocument, to: htmlTextView.endOfDocument)!
+                    
+                    htmlTextView.replace(originalRange, withText: newText)
+                }
+                
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                richTextView.setHTML(htmlTextView.text)
+                richTextView.setHTMLUndoable(htmlTextView.text)
                 richTextView.becomeFirstResponder()
             }
             

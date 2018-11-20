@@ -683,6 +683,16 @@ open class TextView: UITextView {
     public func getHTML(prettify: Bool = true) -> String {
         return storage.getHTML(prettify: prettify)
     }
+    
+    /// Loads the specified HTML into the editor, and records a new undo step,
+    /// making sure the undo stack isn't reset
+    ///
+    /// - Parameters:
+    ///     - html: the HTML to load into the editor.
+    ///
+    public func setHTMLUndoable(_ html: String) {
+        replace(storage.rangeOfEntireString, withHTML: html)
+    }
 
     /// Loads the specified HTML into the editor.
     ///
