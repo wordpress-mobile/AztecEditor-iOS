@@ -79,7 +79,7 @@ public class EditorView: UIView {
                 
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                richTextView.setHTMLUndoable(htmlTextView.text)
+                richTextView.setHTMLUndoable(htmlTextView.text)                
                 richTextView.becomeFirstResponder()
             }
             
@@ -148,12 +148,8 @@ public class EditorView: UIView {
     }
     
     public func setHTML(_ html: String) {
-        switch editingMode {
-        case .html:
-            htmlTextView.text = html
-        case .richText:
-            richTextView.setHTML(html)
-        }
+        htmlTextView.text = html
+        richTextView.setHTML(html)
     }
 
     public var activeView: UITextView {
