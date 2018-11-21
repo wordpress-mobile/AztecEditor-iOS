@@ -21,6 +21,11 @@ class EmbedURLProcessorTests: XCTestCase {
         //With underscores!
         assert(EmbedURLProcessor(url: url("https://www.youtube.com/watch?v=Ms5mi_xADJw")).isYouTubeEmbed)
         assert(EmbedURLProcessor(url: url("https://youtu.be/Ms5mi_xADJw")).isYouTubeEmbed)
+        //With dashes!
+        assert(EmbedURLProcessor(url: url("https://www.youtube.com/watch?v=WVbQ-oro7FQ")).isYouTubeEmbed)
+        assert(EmbedURLProcessor(url: url("https://youtu.be/WVbQ-oro7FQ")).isYouTubeEmbed)
+        //The mobile version!
+        assert(EmbedURLProcessor(url: url("https://m.youtube.com/watch?v=gqEtq34dSUo")).isYouTubeEmbed)
     }
 
     func testThatValidYouTubeEmbedURLsWork() {
