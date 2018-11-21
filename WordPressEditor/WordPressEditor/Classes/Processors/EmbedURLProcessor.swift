@@ -20,10 +20,10 @@ public struct EmbedURLProcessor{
     ///  - Short URL
     ///
     public var isYouTubeEmbed: Bool {
-        let longPattern = "^https?://(www.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_]+$"
+        let longPattern = "^https?://(www.|m.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_|-]+$"
         let long = try! NSRegularExpression(pattern: longPattern, options: [.caseInsensitive])
 
-        let shortPattern = "^https?://youtu.be/[0-9|a-z|A-Z|_]+$"
+        let shortPattern = "^https?://youtu.be/[0-9|a-z|A-Z|_|-]+$"
         let short = try! NSRegularExpression(pattern: shortPattern, options: [.caseInsensitive])
 
         return matches(long) || matches(short)
