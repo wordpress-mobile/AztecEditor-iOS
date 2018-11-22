@@ -1161,32 +1161,6 @@ open class TextView: UITextView {
         typingAttributesSwifted.removeValue(forKey: .link)
     }
 
-    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
-    ///
-    /// - Parameter range: the range where the new text will be inserted
-    ///
-    private func ensureCopyOfCodeCustomTypingAttributes(at range: NSRange) {
-        guard typingAttributesSwifted[.codeHtmlRepresentation] == nil,
-            storage.isLocation(range.location, preceededBy: .codeHtmlRepresentation) else {
-            return
-        }
-
-        typingAttributesSwifted[.codeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "code", attributes: [])))
-    }
-
-    /// This method makes sure that the Custom Code HTML attribute is copy across to the next character that is typed on the textview.
-    ///
-    /// - Parameter range: the range where the new text will be inserted
-    ///
-    private func ensureCopyOfCiteCustomTypingAttributes(at range: NSRange) {
-        guard typingAttributesSwifted[.citeHtmlRepresentation] == nil,
-            storage.isLocation(range.location, preceededBy: .citeHtmlRepresentation) else {
-                return
-        }
-
-        typingAttributesSwifted[.citeHtmlRepresentation] = HTMLRepresentation(for: .element(HTMLElementRepresentation.init(name: "cite", attributes: [])))
-    }
-
 
     /// Force the SDK to Redraw the cursor, asynchronously, if the edited text (inserted / deleted) requires it.
     /// This method was meant as a workaround for Issue #144.
