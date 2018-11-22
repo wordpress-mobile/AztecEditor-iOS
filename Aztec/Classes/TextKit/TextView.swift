@@ -1257,13 +1257,19 @@ open class TextView: UITextView {
     /// by the user to turn a style off).
     ///
     private func recalculateTypingAttributes() {
-        guard storage.length > 1 else {
+        
+        let mustRecalculate = storage.length > 1
+            && !storage.string.isEmptyLineAtEndOfFile(at: selectedRange.location)
+        
+        guard mustRecalculate else {
             return
         }
         
-        let location = min(selectedRange.location, attributedText.length - 1)
+        let location = min(selectedRange.location, storage.length - 1)
         
         typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
+        
+        
     }
     
     // MARK: - iOS 11 Workarounds
