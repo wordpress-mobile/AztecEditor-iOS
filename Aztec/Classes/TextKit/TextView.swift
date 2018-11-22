@@ -580,10 +580,6 @@ open class TextView: UITextView {
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
-        ensureCopyOfCodeCustomTypingAttributes(at: selectedRange)
-
-        ensureCopyOfCiteCustomTypingAttributes(at: selectedRange)
-
         // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
         // attributes under certain circumstances.  The attributes are lost exactly after the call
         // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
@@ -692,6 +688,7 @@ open class TextView: UITextView {
     ///
     public func setHTMLUndoable(_ html: String) {
         replace(storage.rangeOfEntireString, withHTML: html)
+        recalculateTypingAttributes()
     }
 
     /// Loads the specified HTML into the editor.
@@ -708,10 +705,7 @@ open class TextView: UITextView {
         font = defaultFont
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
-
-        if storage.length > 0 && selectedRange.location < storage.length {
-            typingAttributesSwifted = storage.attributes(at: selectedRange.location, effectiveRange: nil)
-        }
+        recalculateTypingAttributes()
 
         notifyTextViewDidChange()
         formattingDelegate?.textViewCommandToggledAStyle()
@@ -1239,6 +1233,37 @@ open class TextView: UITextView {
                 self.selectedRange = pristine
             }
         }
+    }
+    
+    // MARK: - UITextView workarounds
+    
+    /// When the selected text range is set, by default, any custom attributes are removed from typingAttributes.
+    /// We override this property to fix that behavior.
+    ///
+    open override var selectedTextRange: UITextRange? {
+        get {
+            return super.selectedTextRange
+        }
+        
+        set {
+            super.selectedTextRange = newValue
+            
+            recalculateTypingAttributes()
+        }
+    }
+    
+    /// Only call this method when sure that the typingAttributes need to be recalculated.  Keep in mind that
+    /// recalculating the typingAttributes in the wrong moment can cause trouble (for example reverting a decision
+    /// by the user to turn a style off).
+    ///
+    private func recalculateTypingAttributes() {
+        guard storage.length > 1 else {
+            return
+        }
+        
+        let location = min(selectedRange.location, attributedText.length - 1)
+        
+        typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
     }
     
     // MARK: - iOS 11 Workarounds
