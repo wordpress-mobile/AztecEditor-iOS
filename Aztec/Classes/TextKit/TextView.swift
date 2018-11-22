@@ -982,6 +982,16 @@ open class TextView: UITextView {
 
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributesSwifted)
         toggle(formatter: formatter, atRange: range)
+        
+        let citeFormatter = CiteFormatter()
+        
+        if citeFormatter.present(in: storage, at: selectedRange.location) {
+            let applicationRange = citeFormatter.applicationRange(for: selectedRange, in: attributedText)
+            
+            performUndoable(at: applicationRange) {
+                citeFormatter.removeAttributes(from: storage, at: applicationRange)
+            }
+        }
 
         forceRedrawCursorAfterDelay()
     }
