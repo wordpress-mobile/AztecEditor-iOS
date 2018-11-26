@@ -760,7 +760,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> Set<FormattingIdentifier> {
+    open func formattingIdentifiersSpanningRange(_ range: NSRange) -> Set<FormattingIdentifier> {
         guard storage.length != 0 else {
             return formattingIdentifiersForTypingAttributes()
         }
