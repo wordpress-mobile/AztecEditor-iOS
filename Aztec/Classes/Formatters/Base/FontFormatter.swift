@@ -39,15 +39,15 @@ class FontFormatter: AttributeFormatter {
 
     func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
+        
+        resultingAttributes.removeValue(forKey: htmlRepresentationKey)
+        
         guard let font = attributes[.font] as? UIFont else {
-            return attributes
+            return resultingAttributes
         }
 
         let newFont = font.modifyTraits(traits, enable: false)
         resultingAttributes[.font] = newFont
-        
-        resultingAttributes.removeValue(forKey: htmlRepresentationKey)
-
         return resultingAttributes
     }
 

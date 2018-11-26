@@ -1864,25 +1864,7 @@ private extension TextView {
         }
         
         removeSingleLineParagraphAttributes()
-        
-        // Blockquote + cite removal
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributesSwifted)
-        let applicationRange = formatter.applicationRange(for: selectedRange, in: storage)
-        
-        performUndoable(at: applicationRange) {
-            formatter.removeAttributes(from: storage, at: selectedRange)
-            typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
-        }
-        
-        let citeFormatter = CiteFormatter()
-        
-        if citeFormatter.present(in: storage, at: selectedRange.location) {
-            let applicationRange = citeFormatter.applicationRange(for: selectedRange, in: attributedText)
-            
-            performUndoable(at: applicationRange) {
-                citeFormatter.removeAttributes(from: storage, at: applicationRange)
-            }
-        }
+        removeBlockquoteAndCite()
     }
 
     /// Removes single-line paragraph attributes.
@@ -1893,6 +1875,30 @@ private extension TextView {
             
             removeAttributes(managedBy: formatter, from: range)
             removeTypingAttributes(managedBy: formatter)
+        }
+    }
+    
+    /// Removes blockquote + cite after pressing ENTER in a line that has both styles.
+    ///
+    private func removeBlockquoteAndCite() {
+        // Blockquote + cite removal
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributesSwifted)
+        let citeFormatter = CiteFormatter()
+        
+        if formatter.present(in: typingAttributesSwifted)
+            && citeFormatter.present(in: typingAttributesSwifted) {
+            
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: storage)
+            
+            typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
+            typingAttributesSwifted = citeFormatter.remove(from: typingAttributesSwifted)
+            
+            performUndoable(at: applicationRange) {
+                formatter.removeAttributes(from: storage, at: applicationRange)
+                citeFormatter.removeAttributes(from: storage, at: applicationRange)
+                
+                return applicationRange
+            }
         }
     }
     
