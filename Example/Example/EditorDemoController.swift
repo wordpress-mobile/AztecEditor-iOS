@@ -398,9 +398,9 @@ class EditorDemoController: UIViewController {
 
         let identifiers: Set<FormattingIdentifier>
         if richTextView.selectedRange.length > 0 {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
 
         toolbar.selectItemsMatchingIdentifiers(identifiers.map({ $0.rawValue }))
@@ -572,6 +572,8 @@ extension EditorDemoController {
             insertHorizontalRuler()
         case .code:
             toggleCode()
+        default:
+            break
         }
 
         updateFormatBar()
@@ -751,9 +753,9 @@ extension EditorDemoController {
     func headerLevelForSelectedText() -> Header.HeaderType {
         var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
         let mapping: [FormattingIdentifier: Header.HeaderType] = [
             .header1 : .h1,
@@ -774,9 +776,9 @@ extension EditorDemoController {
     func listTypeForSelectedText() -> TextList.Style? {
         var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
         let mapping: [FormattingIdentifier: TextList.Style] = [
             .orderedlist : .ordered,
@@ -1559,6 +1561,8 @@ extension FormattingIdentifier {
             return gridicon(.headingH6)
         case .code:
             return gridicon(.posts)
+        default:
+            return gridicon(.help)
         }
     }
 
@@ -1609,6 +1613,8 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH6"
         case .code:
             return "formatToolbarCode"
+        default:
+            return ""
         }
     }
 
@@ -1654,6 +1660,8 @@ extension FormattingIdentifier {
             return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
         case .code:
             return NSLocalizedString("Code", comment: "Accessibility label for selecting code style button on the formatting toolbar.")
+        default:
+            return ""
         }
 
     }
