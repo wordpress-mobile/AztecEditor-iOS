@@ -37,10 +37,9 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        let paragraphStyle = attributes.paragraphStyle()
-        
-        guard let figcaption = paragraphStyle.property(where: { $0 is Figcaption }) as? Figcaption else {
-            return attributes
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
+            let figcaption = paragraphStyle.property(where: { $0 is Figcaption }) as? Figcaption else {
+                return attributes
         }
         
         paragraphStyle.removeProperty(ofType: Figcaption.self)

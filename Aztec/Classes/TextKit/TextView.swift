@@ -1864,6 +1864,25 @@ private extension TextView {
         }
         
         removeSingleLineParagraphAttributes()
+        
+        // Blockquote + cite removal
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributesSwifted)
+        let applicationRange = formatter.applicationRange(for: selectedRange, in: storage)
+        
+        performUndoable(at: applicationRange) {
+            formatter.removeAttributes(from: storage, at: selectedRange)
+            typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
+        }
+        
+        let citeFormatter = CiteFormatter()
+        
+        if citeFormatter.present(in: storage, at: selectedRange.location) {
+            let applicationRange = citeFormatter.applicationRange(for: selectedRange, in: attributedText)
+            
+            performUndoable(at: applicationRange) {
+                citeFormatter.removeAttributes(from: storage, at: applicationRange)
+            }
+        }
     }
 
     /// Removes single-line paragraph attributes.
