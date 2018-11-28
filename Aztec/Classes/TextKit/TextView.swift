@@ -735,7 +735,7 @@ open class TextView: UITextView {
 
     // MARK: - Getting format identifiers
 
-    private static let formatterIdentifiersMap: [FormattingIdentifier: AttributeFormatter] = [
+    private static let formatterMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
         .underline: UnderlineFormatter(),
@@ -760,18 +760,18 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersSpanningRange(_ range: NSRange) -> Set<FormattingIdentifier> {
+    open func formattingIdentifiersSpanningRange(_ range: NSRange) -> Set<FormattingIdentifier> {
         guard storage.length != 0 else {
-            return formatIdentifiersForTypingAttributes()
+            return formattingIdentifiersForTypingAttributes()
         }
 
         if range.length == 0 {
-            return formatIdentifiersAtIndex(range.location)
+            return formattingIdentifiersAtIndex(range.location)
         }
 
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterIdentifiersMap {
+        for (key, formatter) in type(of: self).formatterMap {
             if formatter.present(in: storage, at: range) {
                 identifiers.insert(key)
             }
@@ -787,7 +787,7 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of identifiers.
     ///
-    open func formatIdentifiersAtIndex(_ index: Int) -> Set<FormattingIdentifier> {
+    open func formattingIdentifiersAtIndex(_ index: Int) -> Set<FormattingIdentifier> {
         guard storage.length != 0 else {
             return []
         }
@@ -795,7 +795,7 @@ open class TextView: UITextView {
         let index = adjustedIndex(index)
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterIdentifiersMap {
+        for (key, formatter) in type(of: self).formatterMap {
             if formatter.present(in: storage, at: index) {
                 identifiers.insert(key)
             }
@@ -809,11 +809,11 @@ open class TextView: UITextView {
     ///
     /// - Returns: A list of Formatting Identifiers.
     ///
-    open func formatIdentifiersForTypingAttributes() -> Set<FormattingIdentifier> {
+    open func formattingIdentifiersForTypingAttributes() -> Set<FormattingIdentifier> {
         let activeAttributes = typingAttributesSwifted
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterIdentifiersMap where formatter.present(in: activeAttributes) {
+        for (key, formatter) in type(of: self).formatterMap where formatter.present(in: activeAttributes) {
             identifiers.insert(key)
         }
 

@@ -96,39 +96,39 @@ class TextViewTests: XCTestCase {
 
     // MARK: - Retrieve Format Identifiers
 
-    func testFormatIdentifiersSpanningRange() {
+    func testFormattingIdentifiersSpanningRange() {
         let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
         let range = NSRange(location: 3, length: 3)
-        let identifiers = textView.formatIdentifiersSpanningRange(range)
+        let identifiers = textView.formattingIdentifiersSpanningRange(range)
 
         XCTAssert(identifiers.count == 1)
         XCTAssert(identifiers.contains(.bold))
     }
 
-    func testFormatIdentifiersAtIndex() {
+    func testFormattingIdentifiersAtIndex() {
         let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
-        var identifiers = textView.formatIdentifiersAtIndex(4)
+        var identifiers = textView.formattingIdentifiersAtIndex(4)
         XCTAssert(identifiers.count == 1)
         XCTAssert(identifiers.contains(.bold))
 
-        identifiers = textView.formatIdentifiersAtIndex(5)
+        identifiers = textView.formattingIdentifiersAtIndex(5)
         XCTAssert(identifiers.count == 1)
         XCTAssert(identifiers.contains(.bold))
 
-        identifiers = textView.formatIdentifiersAtIndex(6)
+        identifiers = textView.formattingIdentifiersAtIndex(6)
         XCTAssert(identifiers.count == 1)
         XCTAssert(identifiers.contains(.bold))
 
 
-        identifiers = textView.formatIdentifiersAtIndex(0)
+        identifiers = textView.formattingIdentifiersAtIndex(0)
         XCTAssert(identifiers.count == 0)
 
-        identifiers = textView.formatIdentifiersAtIndex(3)
+        identifiers = textView.formattingIdentifiersAtIndex(3)
         XCTAssert(identifiers.count == 0)
 
-        identifiers = textView.formatIdentifiersAtIndex(7)
+        identifiers = textView.formattingIdentifiersAtIndex(7)
         XCTAssert(identifiers.count == 0)
     }
 
@@ -139,60 +139,60 @@ class TextViewTests: XCTestCase {
         let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.bold))
 
         textView.toggleBold(range: range)
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.bold))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.bold))
 
         textView.toggleBold(range: range)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.bold))
     }
 
     func testToggleItalic() {
         let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.italic))
 
         textView.toggleItalic(range: range)
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.italic))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.italic))
 
         textView.toggleItalic(range: range)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.italic))
     }
 
     func testToggleUnderline() {
         let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.underline))
 
         textView.toggleUnderline(range: range)
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.underline))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.underline))
 
         textView.toggleUnderline(range: range)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.underline))
     }
 
     func testToggleStrike() {
         let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
         let range = NSRange(location: 3, length: 3)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.strikethrough))
 
         textView.toggleStrikethrough(range: range)
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.strikethrough))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.strikethrough))
 
         textView.toggleStrikethrough(range: range)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.strikethrough))
     }
 
     func testToggleBlockquote() {
@@ -202,13 +202,13 @@ class TextViewTests: XCTestCase {
 
         textView.toggleBlockquote(range: range)
 
-        XCTAssert(textView.formatIdentifiersAtIndex(1).contains(.blockquote))
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.blockquote))
+        XCTAssert(textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.blockquote))
 
         textView.toggleBlockquote(range: range)
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.blockquote))
     }
 
     func testToggleOrderedList() {
@@ -218,13 +218,13 @@ class TextViewTests: XCTestCase {
 
         textView.toggleOrderedList(range: range)
 
-        XCTAssert(textView.formatIdentifiersAtIndex(0).contains(.orderedlist))
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.orderedlist))
+        XCTAssert(textView.formattingIdentifiersAtIndex(0).contains(.orderedlist))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.orderedlist))
 
         textView.toggleOrderedList(range: range)
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(0).contains(.orderedlist))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.orderedlist))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(0).contains(.orderedlist))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.orderedlist))
     }
 
     func testToggleUnorderedList() {
@@ -234,13 +234,13 @@ class TextViewTests: XCTestCase {
 
         textView.toggleUnorderedList(range: range)
 
-        XCTAssert(textView.formatIdentifiersAtIndex(0).contains(.unorderedlist))
-        XCTAssert(textView.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
+        XCTAssert(textView.formattingIdentifiersAtIndex(0).contains(.unorderedlist))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(range).contains(.unorderedlist))
 
         textView.toggleOrderedList(range: range)
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(0).contains(.unorderedlist))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(range).contains(.unorderedlist))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(0).contains(.unorderedlist))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(range).contains(.unorderedlist))
     }
 
     /// This test was created to prevent regressions related to this issue:
@@ -259,51 +259,51 @@ class TextViewTests: XCTestCase {
     // MARK: - Test Attributes Exist
 
     func check(textView: TextView, range:NSRange, forIndentifier identifier: FormattingIdentifier) -> Bool {
-        return textView.formatIdentifiersSpanningRange(range).contains(identifier)
+        return textView.formattingIdentifiersSpanningRange(range).contains(identifier)
     }
 
     func testBoldSpansRange() {
         let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.bold))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.bold))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.bold))
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.bold))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.bold))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.bold))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.bold))
     }
 
     func testItalicSpansRange() {
         let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.italic))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.italic))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.italic))
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.italic))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.italic))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.italic))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.italic))
     }
 
     func testUnderlineSpansRange() {
         let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.underline))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.underline))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.underline))
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.underline))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.underline))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.underline))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.underline))
     }
 
     func testStrikethroughSpansRange() {
         let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.strikethrough))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.strikethrough))
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 3)).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 2)).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 3, length: 1)).contains(.strikethrough))
 
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.strikethrough))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.strikethrough))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 2, length: 3)).contains(.strikethrough))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 4, length: 3)).contains(.strikethrough))
     }
 
     func testBlockquoteSpansRange() {
@@ -313,68 +313,68 @@ class TextViewTests: XCTestCase {
 
         textView.toggleBlockquote(range: range)
 
-        XCTAssert(textView.formatIdentifiersSpanningRange(NSRange(location: 0, length: length)).contains(.blockquote))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 0, length: length + 1)).contains(.blockquote))
-        XCTAssert(!textView.formatIdentifiersSpanningRange(NSRange(location: 1, length: length)).contains(.blockquote))
+        XCTAssert(textView.formattingIdentifiersSpanningRange(NSRange(location: 0, length: length)).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 0, length: length + 1)).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersSpanningRange(NSRange(location: 1, length: length)).contains(.blockquote))
     }
 
     func testBoldAtIndex() {
         let textView = TextViewStub(withHTML: "foo<b>bar</b>baz")
 
-        XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.bold))
-        XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.bold))
-        XCTAssert(textView.formatIdentifiersAtIndex(6).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersAtIndex(4).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersAtIndex(5).contains(.bold))
+        XCTAssert(textView.formattingIdentifiersAtIndex(6).contains(.bold))
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(2).contains(.bold))
-        XCTAssert(!textView.formatIdentifiersAtIndex(7).contains(.bold))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(2).contains(.bold))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(7).contains(.bold))
     }
 
     func testItalicAtIndex() {
         let textView = TextViewStub(withHTML: "foo<i>bar</i>baz")
 
-        XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.italic))
-        XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.italic))
-        XCTAssert(textView.formatIdentifiersAtIndex(6).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersAtIndex(4).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersAtIndex(5).contains(.italic))
+        XCTAssert(textView.formattingIdentifiersAtIndex(6).contains(.italic))
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(2).contains(.italic))
-        XCTAssert(!textView.formatIdentifiersAtIndex(7).contains(.italic))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(2).contains(.italic))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(7).contains(.italic))
     }
 
     func testUnderlineAtIndex() {
         let textView = TextViewStub(withHTML: "foo<u>bar</u>baz")
 
-        XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.underline))
-        XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.underline))
-        XCTAssert(textView.formatIdentifiersAtIndex(6).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersAtIndex(4).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersAtIndex(5).contains(.underline))
+        XCTAssert(textView.formattingIdentifiersAtIndex(6).contains(.underline))
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(2).contains(.underline))
-        XCTAssert(!textView.formatIdentifiersAtIndex(7).contains(.underline))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(2).contains(.underline))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(7).contains(.underline))
     }
 
     func testStrikethroughAtIndex() {
         let textView = TextViewStub(withHTML: "foo<strike>bar</strike>baz")
 
-        XCTAssert(textView.formatIdentifiersAtIndex(4).contains(.strikethrough))
-        XCTAssert(textView.formatIdentifiersAtIndex(5).contains(.strikethrough))
-        XCTAssert(textView.formatIdentifiersAtIndex(6).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersAtIndex(4).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersAtIndex(5).contains(.strikethrough))
+        XCTAssert(textView.formattingIdentifiersAtIndex(6).contains(.strikethrough))
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(2).contains(.strikethrough))
-        XCTAssert(!textView.formatIdentifiersAtIndex(7).contains(.strikethrough))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(2).contains(.strikethrough))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(7).contains(.strikethrough))
     }
 
     func testBlockquoteAtIndex() {
         let textView = createTextViewWithContent()
         let range = NSRange(location: 0, length: 1)
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
 
         textView.toggleBlockquote(range: range)
 
-        XCTAssert(textView.formatIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
 
         textView.toggleBlockquote(range: range)
 
-        XCTAssert(!textView.formatIdentifiersAtIndex(1).contains(.blockquote))
+        XCTAssert(!textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
     }
 
 
@@ -755,7 +755,7 @@ class TextViewTests: XCTestCase {
         textView.selectedRange = NSMakeRange("Header".count, 0)
         textView.insertText("\n")
 
-        let identifiers = textView.formatIdentifiersAtIndex(textView.selectedRange.location)
+        let identifiers = textView.formattingIdentifiersAtIndex(textView.selectedRange.location)
         XCTAssert(identifiers.contains(.header1))
 
         XCTAssertEqual(textView.getHTML(prettify: false), "<h1>Header</h1><h1> Header</h1>")
@@ -1820,7 +1820,7 @@ class TextViewTests: XCTestCase {
         textView.toggleItalics(self)
 
         delegate.onDidChange = {
-            let identifiers = textView.formatIdentifiersForTypingAttributes()
+            let identifiers = textView.formattingIdentifiersForTypingAttributes()
 
             XCTAssert(identifiers.contains(.bold))
             XCTAssert(identifiers.contains(.italic))
