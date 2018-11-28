@@ -9,10 +9,6 @@ import UIKit
 ///
 protocol AttributeFormatter {
 
-    /// Attributes to be used the Content Placeholder, when / if needed.
-    ///
-    var placeholderAttributes: [NSAttributedStringKey: Any]? { get }
-
     /// Toggles an attribute in the specified range of a text storage, and returns the new 
     /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
     /// just to get the style to render properly.

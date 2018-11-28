@@ -5,14 +5,6 @@ import UIKit
 // MARK: - Figure Formatter
 //
 open class FigureFormatter: ParagraphAttributeFormatter {
-    var placeholderAttributes: [NSAttributedStringKey : Any]?
-
-    /// Designated Initializer
-    ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
-        self.placeholderAttributes = placeholderAttributes
-    }
-
 
     // MARK: - Overwriten Methods
 

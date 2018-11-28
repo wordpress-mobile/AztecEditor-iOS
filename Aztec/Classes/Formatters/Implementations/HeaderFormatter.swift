@@ -10,16 +10,10 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
     ///
     let headerLevel: Header.HeaderType
 
-    /// Attributes to be added by default
-    ///
-    let placeholderAttributes: [NSAttributedStringKey: Any]?
-
-
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1, placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
+    init(headerLevel: Header.HeaderType = .h1) {
         self.headerLevel = headerLevel
-        self.placeholderAttributes = placeholderAttributes
     }
 
 

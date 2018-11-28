@@ -5,7 +5,7 @@ import UIKit
 ///
 class FigcaptionElementConverter: ElementConverter {
     
-    let figcaptionFormatter = FigcaptionFormatter(placeholderAttributes: nil)
+    let figcaptionFormatter = FigcaptionFormatter()
 
     // MARK: - ElementConverter
 
