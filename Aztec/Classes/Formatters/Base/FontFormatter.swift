@@ -2,8 +2,6 @@ import Foundation
 import UIKit
 
 class FontFormatter: AttributeFormatter {
-
-    var placeholderAttributes: [NSAttributedStringKey: Any]? { return nil }
     
     let htmlRepresentationKey: NSAttributedStringKey
     let traits: UIFontDescriptorSymbolicTraits

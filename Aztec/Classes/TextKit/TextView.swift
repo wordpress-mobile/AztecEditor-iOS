@@ -176,14 +176,14 @@ open class TextView: UITextView {
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
-        HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:]),
-        HeaderFormatter(headerLevel: .h2, placeholderAttributes: [:]),
-        HeaderFormatter(headerLevel: .h3, placeholderAttributes: [:]),
-        HeaderFormatter(headerLevel: .h4, placeholderAttributes: [:]),
-        HeaderFormatter(headerLevel: .h5, placeholderAttributes: [:]),
-        HeaderFormatter(headerLevel: .h6, placeholderAttributes: [:]),
-        FigureFormatter(placeholderAttributes: [:]),
-        FigcaptionFormatter(placeholderAttributes: [:]),
+        HeaderFormatter(headerLevel: .h1),
+        HeaderFormatter(headerLevel: .h2),
+        HeaderFormatter(headerLevel: .h3),
+        HeaderFormatter(headerLevel: .h4),
+        HeaderFormatter(headerLevel: .h5),
+        HeaderFormatter(headerLevel: .h6),
+        FigureFormatter(),
+        FigcaptionFormatter(),
     ]
 
     // MARK: - Properties: Text Lists
@@ -744,12 +744,12 @@ open class TextView: UITextView {
         .orderedlist: TextListFormatter(style: .ordered),
         .unorderedlist: TextListFormatter(style: .unordered),
         .blockquote: BlockquoteFormatter(),
-        .header1: HeaderFormatter(headerLevel: .h1, placeholderAttributes: nil),
-        .header2: HeaderFormatter(headerLevel: .h2, placeholderAttributes: nil),
-        .header3: HeaderFormatter(headerLevel: .h3, placeholderAttributes: nil),
-        .header4: HeaderFormatter(headerLevel: .h4, placeholderAttributes: nil),
-        .header5: HeaderFormatter(headerLevel: .h5, placeholderAttributes: nil),
-        .header6: HeaderFormatter(headerLevel: .h6, placeholderAttributes: nil),
+        .header1: HeaderFormatter(headerLevel: .h1),
+        .header2: HeaderFormatter(headerLevel: .h2),
+        .header3: HeaderFormatter(headerLevel: .h3),
+        .header4: HeaderFormatter(headerLevel: .h4),
+        .header5: HeaderFormatter(headerLevel: .h5),
+        .header6: HeaderFormatter(headerLevel: .h6),
         .p: HTMLParagraphFormatter(),
         .code: CodeFormatter()
     ]
@@ -1029,7 +1029,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleHeader(_ headerType: Header.HeaderType, range: NSRange) {
-        let formatter = HeaderFormatter(headerLevel: headerType, placeholderAttributes: typingAttributesSwifted)
+        let formatter = HeaderFormatter(headerLevel: headerType)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
     }

@@ -196,7 +196,7 @@ class AttributedStringSerializerTests: XCTestCase {
             return
         }
 
-        let formatter = HeaderFormatter(headerLevel: .h1, placeholderAttributes: [:])
+        let formatter = HeaderFormatter(headerLevel: .h1)
         XCTAssertTrue(formatter.present(in: caption, at: 0))
     }
 }

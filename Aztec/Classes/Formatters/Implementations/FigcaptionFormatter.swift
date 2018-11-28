@@ -6,13 +6,6 @@ import UIKit
 /// instance.
 ///
 open class FigcaptionFormatter: ParagraphAttributeFormatter {
-    var placeholderAttributes: [NSAttributedStringKey : Any]?
-
-    /// Designated Initializer
-    ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
-        self.placeholderAttributes = placeholderAttributes
-    }
 
     // MARK: - Overwriten Methods
 
