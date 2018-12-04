@@ -384,7 +384,7 @@ class EditorDemoController: UIViewController {
         // keyboardInset is basically the distance between the top of the keyboard
         // and the bottom of the text view.
         let localKeyboardOrigin = view.convert(keyboardFrame.origin, from: nil)
-        let keyboardInset = view.frame.height - localKeyboardOrigin.y
+        let keyboardInset = max(view.frame.height - localKeyboardOrigin.y, 0)
         
         let contentInset = UIEdgeInsets(
             top: editorView.contentInset.top,
