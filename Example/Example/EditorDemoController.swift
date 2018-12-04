@@ -377,10 +377,13 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
+        let localKeyboardOrigin = view.convert(keyboardFrame.origin, from: nil)
+        let keyboardInset = view.frame.height - localKeyboardOrigin.y
+        
         let contentInset = UIEdgeInsets(
             top: editorView.contentInset.top,
             left: 0,
-            bottom: keyboardFrame.height,
+            bottom: keyboardInset,
             right: 0)
 
         editorView.contentInset = contentInset
