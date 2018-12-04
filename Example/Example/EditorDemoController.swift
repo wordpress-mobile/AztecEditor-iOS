@@ -377,6 +377,12 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
+        
+        // The reason why we're converting the keyboard coordinates instead of just using
+        // keyboardFrame.height, is that we need to make sure the insets take into account the
+        // possibility that there could be other views on top or below the text view.
+        // keyboardInset is basically the distance between the top of the keyboard
+        // and the bottom of the text view.
         let localKeyboardOrigin = view.convert(keyboardFrame.origin, from: nil)
         let keyboardInset = view.frame.height - localKeyboardOrigin.y
         
