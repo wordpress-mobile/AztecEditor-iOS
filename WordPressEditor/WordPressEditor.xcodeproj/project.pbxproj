@@ -18,6 +18,7 @@
 		F118745320BC41BF0079C631 /* WordPressPluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F118745220BC41BF0079C631 /* WordPressPluginTests.swift */; };
 		F11C5DB220EFA49100EDBABC /* GutenbergAttributeEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11C5DB120EFA49100EDBABC /* GutenbergAttributeEncoder.swift */; };
 		F12226E221B6A76300F256EC /* OptionsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12226E121B6A76300F256EC /* OptionsTableViewController.swift */; };
+		F12226E721B6ABEB00F256EC /* OptionsTablePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12226E621B6ABEB00F256EC /* OptionsTablePresenter.swift */; };
 		F13E8ADA20B71DFF007C9F8A /* GutenpackAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8AD920B71DFF007C9F8A /* GutenpackAttachment.swift */; };
 		F13E8ADE20B7214B007C9F8A /* GutenpackAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13E8ADD20B7214B007C9F8A /* GutenpackAttachmentRenderer.swift */; };
 		F14C4D2820C0E9AB007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */; };
@@ -110,6 +111,7 @@
 		F118745220BC41BF0079C631 /* WordPressPluginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressPluginTests.swift; sourceTree = "<group>"; };
 		F11C5DB120EFA49100EDBABC /* GutenbergAttributeEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeEncoder.swift; sourceTree = "<group>"; };
 		F12226E121B6A76300F256EC /* OptionsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableViewController.swift; sourceTree = "<group>"; };
+		F12226E621B6ABEB00F256EC /* OptionsTablePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsTablePresenter.swift; sourceTree = "<group>"; };
 		F13E8AD920B71DFF007C9F8A /* GutenpackAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenpackAttachment.swift; sourceTree = "<group>"; };
 		F13E8ADD20B7214B007C9F8A /* GutenpackAttachmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentRenderer.swift; sourceTree = "<group>"; };
 		F14C4D2720C0E9AA007CBC57 /* GutenbergInputHTMLTreeProcessorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenbergInputHTMLTreeProcessorTests.swift; sourceTree = "<group>"; };
@@ -218,9 +220,18 @@
 		F12226DE21B6A73000F256EC /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				F12226E121B6A76300F256EC /* OptionsTableViewController.swift */,
+				F12226E821B6BBA400F256EC /* OptionsTableViewController */,
 			);
 			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		F12226E821B6BBA400F256EC /* OptionsTableViewController */ = {
+			isa = PBXGroup;
+			children = (
+				F12226E621B6ABEB00F256EC /* OptionsTablePresenter.swift */,
+				F12226E121B6A76300F256EC /* OptionsTableViewController.swift */,
+			);
+			path = OptionsTableViewController;
 			sourceTree = "<group>";
 		};
 		F16A2AE720CDA15700BF3A0A /* GalleryShortcode */ = {
@@ -653,6 +664,7 @@
 				F16A2AEC20CDA20300BF3A0A /* GallerySupportedAttribute.swift in Sources */,
 				F1AFD65420B45DBB00CB0279 /* SpecialTagAttachmentRenderer.swift in Sources */,
 				F1D3612C209352F400B4E7A5 /* MediaAttachment+WordPress.swift in Sources */,
+				F12226E721B6ABEB00F256EC /* OptionsTablePresenter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

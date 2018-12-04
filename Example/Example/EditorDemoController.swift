@@ -140,8 +140,7 @@ class EditorDemoController: UIViewController {
     let sampleHTML: String?
     let wordPressMode: Bool
 
-    fileprivate var optionsViewController: OptionsTableViewController!
-
+    private lazy var optionsTablePresenter = OptionsTablePresenter(presentingViewController: self, presentingTextView: richTextView)
 
     // MARK: - Lifecycle Methods
 
@@ -227,7 +226,7 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        dismissOptionsViewController()
+        optionsTablePresenter.dismiss()
     }
 
     // MARK: - Title and Title placeholder position methods
@@ -356,21 +355,6 @@ class EditorDemoController: UIViewController {
         return formattingIdentifiersWithOptions.contains(formattingIdentifier)
     }
 
-    private func dismissOptionsViewController() {
-        guard let optionsViewController = optionsViewController else {
-            return
-        }
-        
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            optionsViewController.dismiss(animated: true, completion: nil)
-        } else {
-            richTextView.inputViewController = nil
-            richTextView.reloadInputViews()
-        }
-        
-        self.optionsViewController = nil
-    }
-
     // MARK: - Keyboard Handling
 
     @objc func keyboardWillShow(_ notification: Notification) {
@@ -393,7 +377,7 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
-        dismissOptionsViewController()
+        optionsTablePresenter.dismiss()
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -559,7 +543,7 @@ extension EditorDemoController {
         }
         
         if !formattingIdentifierHasOptions(formattingIdentifier) {
-            dismissOptionsViewController()
+            optionsTablePresenter.dismiss()
         }
 
         switch formattingIdentifier {
@@ -628,6 +612,11 @@ extension EditorDemoController {
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {
+        guard !optionsTablePresenter.isOnScreen() else {
+            optionsTablePresenter.dismiss()
+            return
+        }
+        
         let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes: [NSAttributedStringKey: Any] = [
                 .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
@@ -639,8 +628,8 @@ extension EditorDemoController {
 
         let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
 
-        showOptionsTableViewControllerWithOptions(
-            headerOptions,
+        optionsTablePresenter.present(
+            with: headerOptions,
             fromBarItem: item,
             selectedRowIndex: selectedIndex,
             onSelect: { [weak self] selected in
@@ -649,11 +638,16 @@ extension EditorDemoController {
                 }
 
                 self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
-                self?.dismissOptionsViewController()
+                self?.optionsTablePresenter.dismiss()
         })
     }
 
     func toggleList(fromItem item: FormatBarItem) {
+        guard !optionsTablePresenter.isOnScreen() else {
+            optionsTablePresenter.dismiss()
+            return
+        }
+        
         let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
@@ -663,8 +657,8 @@ extension EditorDemoController {
             index = Constants.lists.index(of: listType)
         }
 
-        showOptionsTableViewControllerWithOptions(
-            listOptions,
+        optionsTablePresenter.present(
+            with: listOptions,
             fromBarItem: item,
             selectedRowIndex: index,
             onSelect: { [weak self] selected in
@@ -678,7 +672,7 @@ extension EditorDemoController {
                     self?.richTextView.toggleOrderedList(range: range)
                 }
                 
-                self?.dismissOptionsViewController()
+                self?.optionsTablePresenter.dismiss()
         })
     }
 
@@ -688,91 +682,6 @@ extension EditorDemoController {
 
     @objc func toggleOrderedList() {
         richTextView.toggleOrderedList(range: richTextView.selectedRange)
-    }
-
-    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption],
-                                                   fromBarItem barItem: FormatBarItem,
-                                                   selectedRowIndex index: Int?,
-                                                   onSelect: OptionsTableViewController.OnSelectHandler?) {
-        // Hide the input view if we're already showing these options
-        if let optionsViewController = optionsViewController,
-            optionsViewController.options == options {
-            
-            dismissOptionsViewController()
-            return
-        }
-
-        optionsViewController = OptionsTableViewController(options: options)
-        optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = { [weak self] selected in
-            if self?.presentedViewController != nil {
-                self?.dismiss(animated: true, completion: nil)
-            }
-
-            onSelect?(selected)
-        }
-
-        let selectRow = {
-            if let index = index {
-                self.optionsViewController.selectRow(at: index)
-            }
-        }
-
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            presentOptionsViewController(optionsViewController, asPopoverFromBarItem: barItem, completion: selectRow)
-        } else {
-            presentOptionsViewControllerAsInputView(optionsViewController)
-            selectRow()
-        }
-    }
-
-    private func presentOptionsViewController(_ optionsViewController: OptionsTableViewController,
-                                              asPopoverFromBarItem barItem: FormatBarItem,
-                                              completion: (() -> Void)? = nil) {
-        optionsViewController.modalPresentationStyle = .popover
-        optionsViewController.popoverPresentationController?.permittedArrowDirections = [.down]
-        optionsViewController.popoverPresentationController?.sourceView = view
-
-        let frame = barItem.superview?.convert(barItem.frame, to: UIScreen.main.coordinateSpace)
-
-        optionsViewController.popoverPresentationController?.sourceRect = view.convert(frame!, from: UIScreen.main.coordinateSpace)
-        optionsViewController.popoverPresentationController?.backgroundColor = .white
-        optionsViewController.popoverPresentationController?.delegate = self
-
-        if presentedViewController != nil {
-            dismiss(animated: true, completion: {
-                self.present(self.optionsViewController, animated: true, completion: completion)
-            })
-        } else {
-            present(optionsViewController, animated: true, completion: completion)
-        }
-        
-        self.optionsViewController = optionsViewController
-    }
-    
-    private func calculateOptionsInputViewControllerFrame() -> CGRect {
-        if UIDevice.current.orientation.isPortrait {
-            return CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 260)
-        } else {
-            return CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 200)
-        }
-    }
-
-    private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
-        
-        let inputViewController = UIInputViewController(nibName: nil, bundle: nil)
-        
-        inputViewController.addChildViewController(optionsViewController)
-        inputViewController.view.addSubview(optionsViewController.view)
-        
-        let frame = calculateOptionsInputViewControllerFrame()
-        inputViewController.view.frame = frame
-        optionsViewController.view.frame = frame
-        
-        richTextView.inputViewController = inputViewController
-        richTextView.reloadInputViews()
-        
-        self.optionsViewController = optionsViewController
     }
 
     func changeRichTextInputView(to: UIView?) {
@@ -1287,9 +1196,6 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
     }
 
     func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-        if optionsViewController != nil {
-            optionsViewController = nil
-        }
     }
 }
 
