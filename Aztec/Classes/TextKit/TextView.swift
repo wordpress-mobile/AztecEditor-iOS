@@ -173,6 +173,20 @@ open class TextView: UITextView {
     ///
     open var pasteboardDelegate: TextViewPasteboardDelegate = AztecTextViewPasteboardDelegate()
 
+    // MARK: - Customizable Input VC
+    
+    private var customInputViewController: UIInputViewController?
+    
+    open override var inputViewController: UIInputViewController? {
+        get {
+            return customInputViewController
+        }
+        
+        set {
+            customInputViewController = newValue
+        }
+    }
+    
     // MARK: - Behavior configuration
     
     private static let singleLineParagraphFormatters: [AttributeFormatter] = [
