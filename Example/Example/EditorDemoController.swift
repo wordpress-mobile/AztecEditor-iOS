@@ -358,10 +358,8 @@ class EditorDemoController: UIViewController {
     // MARK: - Keyboard Handling
 
     @objc func keyboardWillShow(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-            else {
+        guard let userInfo = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
@@ -369,10 +367,8 @@ class EditorDemoController: UIViewController {
     }
 
     @objc func keyboardWillHide(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-            else {
+        guard let userInfo = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
@@ -381,8 +377,11 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
-        let contentInset = UIEdgeInsets(top: editorView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
+        let contentInset = UIEdgeInsets(
+            top: editorView.contentInset.top,
+            left: 0,
+            bottom: keyboardFrame.height,
+            right: 0)
 
         editorView.contentInset = contentInset
         updateScrollInsets()
