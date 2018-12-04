@@ -227,7 +227,7 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        dismissOptionsViewControllerIfNecessary()
+        dismissOptionsViewController()
     }
 
     // MARK: - Title and Title placeholder position methods
@@ -347,14 +347,28 @@ class EditorDemoController: UIViewController {
         formatBar.overflowToolbar(expand: true)
         editorView.toggleEditingMode()
     }
+    
+    // MARK: - Options VC
+    
+    private let formattingIdentifiersWithOptions: [FormattingIdentifier] = [.orderedlist, .unorderedlist, .p, .header1, .header2, .header3, .header4, .header5, .header6]
+    
+    private func formattingIdentifierHasOptions(_ formattingIdentifier: FormattingIdentifier) -> Bool {
+        return formattingIdentifiersWithOptions.contains(formattingIdentifier)
+    }
 
-    fileprivate func dismissOptionsViewControllerIfNecessary() {
-        if let optionsViewController = optionsViewController,
-            presentedViewController == optionsViewController {
-            dismiss(animated: true, completion: nil)
-
-            self.optionsViewController = nil
+    private func dismissOptionsViewController() {
+        guard let optionsViewController = optionsViewController else {
+            return
         }
+        
+        if UIDevice.current.userInterfaceIdiom == .pad  {
+            optionsViewController.dismiss(animated: true, completion: nil)
+        } else {
+            richTextView.inputViewController = nil
+            richTextView.reloadInputViews()
+        }
+        
+        self.optionsViewController = nil
     }
 
     // MARK: - Keyboard Handling
@@ -379,7 +393,7 @@ class EditorDemoController: UIViewController {
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
-        dismissOptionsViewControllerIfNecessary()
+        dismissOptionsViewController()
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
@@ -524,7 +538,6 @@ extension EditorDemoController {
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
     func formatBarTouchesBegan(_ formatBar: FormatBar) {
-        dismissOptionsViewControllerIfNecessary()
     }
 
     func formatBar(_ formatBar: FormatBar, didChangeOverflowState state: FormatBarOverflowState) {
@@ -543,6 +556,10 @@ extension EditorDemoController {
         guard let identifier = barItem.identifier,
             let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else {
                 return
+        }
+        
+        if !formattingIdentifierHasOptions(formattingIdentifier) {
+            dismissOptionsViewController()
         }
 
         switch formattingIdentifier {
@@ -622,18 +639,17 @@ extension EditorDemoController {
 
         let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
 
-        showOptionsTableViewControllerWithOptions(headerOptions,
-                                                  fromBarItem: item,
-                                                  selectedRowIndex: selectedIndex,
-                                                  onSelect: { [weak self] selected in
-                                                    
-            guard let range = self?.richTextView.selectedRange else {
-                return
-            }
+        showOptionsTableViewControllerWithOptions(
+            headerOptions,
+            fromBarItem: item,
+            selectedRowIndex: selectedIndex,
+            onSelect: { [weak self] selected in
+                guard let range = self?.richTextView.selectedRange else {
+                    return
+                }
 
-            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
-            self?.optionsViewController = nil
-            self?.changeRichTextInputView(to: nil)
+                self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
+                self?.dismissOptionsViewController()
         })
     }
 
@@ -647,21 +663,22 @@ extension EditorDemoController {
             index = Constants.lists.index(of: listType)
         }
 
-        showOptionsTableViewControllerWithOptions(listOptions,
-                                                  fromBarItem: item,
-                                                  selectedRowIndex: index,
-                                                  onSelect: { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
+        showOptionsTableViewControllerWithOptions(
+            listOptions,
+            fromBarItem: item,
+            selectedRowIndex: index,
+            onSelect: { [weak self] selected in
+                guard let range = self?.richTextView.selectedRange else { return }
 
-            let listType = Constants.lists[selected]
-            switch listType {
-            case .unordered:
-                self?.richTextView.toggleUnorderedList(range: range)
-            case .ordered:
-                self?.richTextView.toggleOrderedList(range: range)
-            }
-
-            self?.optionsViewController = nil
+                let listType = Constants.lists[selected]
+                switch listType {
+                case .unordered:
+                    self?.richTextView.toggleUnorderedList(range: range)
+                case .ordered:
+                    self?.richTextView.toggleOrderedList(range: range)
+                }
+                
+                self?.dismissOptionsViewController()
         })
     }
 
@@ -680,12 +697,8 @@ extension EditorDemoController {
         // Hide the input view if we're already showing these options
         if let optionsViewController = optionsViewController,
             optionsViewController.options == options {
-            if presentedViewController != nil {
-              dismiss(animated: true, completion: nil)
-            }
-
-            self.optionsViewController = nil
-            changeRichTextInputView(to: nil)
+            
+            dismissOptionsViewController()
             return
         }
 
@@ -733,12 +746,33 @@ extension EditorDemoController {
         } else {
             present(optionsViewController, animated: true, completion: completion)
         }
+        
+        self.optionsViewController = optionsViewController
+    }
+    
+    private func calculateOptionsInputViewControllerFrame() -> CGRect {
+        if UIDevice.current.orientation.isPortrait {
+            return CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 260)
+        } else {
+            return CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 200)
+        }
     }
 
     private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
-        addChildViewController(optionsViewController)
-        changeRichTextInputView(to: optionsViewController.view)
-        optionsViewController.didMove(toParentViewController: self)
+        
+        let inputViewController = UIInputViewController(nibName: nil, bundle: nil)
+        
+        inputViewController.addChildViewController(optionsViewController)
+        inputViewController.view.addSubview(optionsViewController.view)
+        
+        let frame = calculateOptionsInputViewControllerFrame()
+        inputViewController.view.frame = frame
+        optionsViewController.view.frame = frame
+        
+        richTextView.inputViewController = inputViewController
+        richTextView.reloadInputViews()
+        
+        self.optionsViewController = optionsViewController
     }
 
     func changeRichTextInputView(to: UIView?) {

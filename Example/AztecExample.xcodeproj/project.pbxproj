@@ -39,7 +39,6 @@
 		F1D3610B20929F0200B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D3610420929E6D00B4E7A5 /* WordPressEditor.framework */; };
 		FF149F4A20E3C49A0070FECB /* imagesOverlays.html in Resources */ = {isa = PBXBuildFile; fileRef = FF149F4920E3C49A0070FECB /* imagesOverlays.html */; };
 		FF1FD05C20932EDE00186384 /* gutenberg.html in Resources */ = {isa = PBXBuildFile; fileRef = FF1FD05B20932EDE00186384 /* gutenberg.html */; };
-		FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFC41BDE20DBC7BA004DFB4D /* video.html in Resources */ = {isa = PBXBuildFile; fileRef = FFC41BDD20DBC7BA004DFB4D /* video.html */; };
 /* End PBXBuildFile section */
@@ -155,7 +154,6 @@
 		F1D360FC20929E6D00B4E7A5 /* WordPressEditor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WordPressEditor.xcodeproj; path = ../WordPressEditor/WordPressEditor.xcodeproj; sourceTree = "<group>"; };
 		FF149F4920E3C49A0070FECB /* imagesOverlays.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = imagesOverlays.html; sourceTree = "<group>"; };
 		FF1FD05B20932EDE00186384 /* gutenberg.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = gutenberg.html; sourceTree = "<group>"; };
-		FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsTableView.swift; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFC41BDD20DBC7BA004DFB4D /* video.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = video.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -257,7 +255,6 @@
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				59280F271D47CAF40083FB59 /* SampleContent */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
-				FF6691C11E76CF9200C6A703 /* OptionsTableView.swift */,
 			);
 			name = "Example for WordPress-Aztec-iOS";
 			path = Example;
@@ -469,7 +466,6 @@
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
-				FF6691C21E76CF9200C6A703 /* OptionsTableView.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 			);
