@@ -26,11 +26,11 @@ public struct OptionsTableViewOption: Equatable {
 public class OptionsTableViewController: UITableViewController {
     private static let rowHeight: CGFloat = 44.0
     
-    public typealias OnSelectHandler = (_ selected: Int) -> Void
+    typealias OnSelectHandler = (_ selected: Int) -> Void
     
     public var options = [OptionsTableViewOption]()
     
-    public var onSelect: OnSelectHandler?
+    var onSelect: OnSelectHandler?
     
     public var cellBackgroundColor: UIColor = .white {
         didSet {

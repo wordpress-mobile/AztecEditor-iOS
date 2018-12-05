@@ -625,7 +625,7 @@ extension EditorDemoController {
             return
         }
         
-        let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
+        let options = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes: [NSAttributedStringKey: Any] = [
                 .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
@@ -635,9 +635,11 @@ extension EditorDemoController {
         }
 
         let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
-
+        let optionsTableViewController = OptionsTableViewController(options: options)
+        optionsTableViewController.cellDeselectedTintColor = .gray
+        
         optionsTablePresenter.present(
-            with: headerOptions,
+            optionsTableViewController,
             fromBarItem: item,
             selectedRowIndex: selectedIndex,
             onSelect: { [weak self] selected in
@@ -656,7 +658,7 @@ extension EditorDemoController {
             return
         }
         
-        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
+        let options = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
 
@@ -664,9 +666,12 @@ extension EditorDemoController {
         if let listType = listTypeForSelectedText() {
             index = Constants.lists.index(of: listType)
         }
+        
+        let optionsTableViewController = OptionsTableViewController(options: options)
+        optionsTableViewController.cellDeselectedTintColor = .gray
 
         optionsTablePresenter.present(
-            with: listOptions,
+            optionsTableViewController,
             fromBarItem: item,
             selectedRowIndex: index,
             onSelect: { [weak self] selected in
