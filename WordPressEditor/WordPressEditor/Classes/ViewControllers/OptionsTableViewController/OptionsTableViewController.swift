@@ -67,7 +67,7 @@ public class OptionsTableViewController: UITableViewController {
         super.init(coder: aDecoder)
     }
     
-    func selectRow(at index: Int) {
+    public func selectRow(at index: Int) {
         let indexPath = IndexPath(row: index, section: 0)
         
         tableView.selectRow(at: indexPath, animated: false, scrollPosition: .middle)
