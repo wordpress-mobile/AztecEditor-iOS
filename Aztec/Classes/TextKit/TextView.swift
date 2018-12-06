@@ -1092,10 +1092,7 @@ open class TextView: UITextView {
     ///
     private func ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange range: NSRange) {
 
-        guard let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: range) else {
-            assertionFailure("This should never happen.  Review the logic!")
-            return
-        }
+        let selectedRangeForSwift = textStorage.string.nsRange(fromUTF16NSRange: range)
 
         if selectedRangeForSwift.location == textStorage.length
             && textStorage.string.isEmptyLine(at: selectedRangeForSwift.location) {

@@ -20,7 +20,7 @@ public extension String {
     ///
     /// - Returns: the requested `Swift String NSRange`
     ///
-    func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange? {
+    func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange {
 
         let utf16Range = utf16.range(from: nsRange)
         let range = self.range(from: utf16Range)
