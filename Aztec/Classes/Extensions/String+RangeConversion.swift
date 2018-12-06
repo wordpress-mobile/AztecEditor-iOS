@@ -23,10 +23,7 @@ public extension String {
     func nsRange(fromUTF16NSRange nsRange: NSRange) -> NSRange? {
 
         let utf16Range = utf16.range(from: nsRange)
-
-        guard let range = range(from: utf16Range) else {
-            return nil
-        }
+        let range = self.range(from: utf16Range)
 
         let location = distance(from: startIndex, to: range.lowerBound)
         let length = distance(from: range.lowerBound, to: range.upperBound)
@@ -63,31 +60,87 @@ public extension String {
     }
 
     func range(fromUTF16NSRange utf16NSRange: NSRange) -> Range<String.Index> {
-
         let swiftUTF16Range = utf16.range(from: utf16NSRange)
-
-        guard let swiftRange = range(from: swiftUTF16Range) else {
-            fatalError("Out of bounds!")
-        }
-
-        return swiftRange
+        return range(from: swiftUTF16Range)
     }
 
-    /// Converts a UTF16 NSRange into a `Range<String.Index>` for this string.
+    /// Converts a `Range<String.UTF16View.Index>` into a `Range<String.Index>` for this string.
     ///
     /// - Parameters:
     ///     - nsRange: the UTF16 NSRange to convert.
     ///
     /// - Returns: the requested `Range<String.Index>`
     ///
-    func range(from utf16Range: Range<String.UTF16View.Index>) -> Range<String.Index>? {
-        guard let start = utf16Range.lowerBound.samePosition(in: self),
-            let end = utf16Range.upperBound.samePosition(in: self) else {
-                return nil
-        }
+    func range(from utf16Range: Range<String.UTF16View.Index>) -> Range<String.Index> {
+
+        let start = self.findValidUTF8LowerBound(for: utf16Range)
+        let end = self.findValidUTF8UpperBound(for: utf16Range)
 
         return start ..< end
     }
+
+    /// Converts the lower bound of a `Range<String.UTF16View.Index>` into a valid `String.Index` for this string.
+    /// Won't allow out-of-range errors.
+    ///
+    /// - Parameters:
+    ///     - for: the UTF16 range to convert.
+    ///
+    /// - Returns: A valid lower bound represented as a `String.Index`
+    ///
+    private func findValidUTF8LowerBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
+
+        guard self.utf16.count >= utf16Range.lowerBound.encodedOffset else {
+            return String.UTF16View.Index(encodedOffset: 0)
+        }
+
+        return findValidUTF8Bound(for: utf16Range.lowerBound, using: -)
+    }
+
+    /// Converts the upper bound of a `Range<String.UTF16View.Index>` into a valid `String.Index` for this string.
+    /// Won't allow out-of-range errors.
+    ///
+    /// - Parameters:
+    ///     - for: the UTF16 range to convert.
+    ///
+    /// - Returns: A valid upper bound represented as a `String.Index`
+    ///
+    private func findValidUTF8UpperBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
+
+        guard self.utf16.count >= utf16Range.upperBound.encodedOffset else {
+            return String.Index(encodedOffset: self.utf16.count)
+        }
+
+        return findValidUTF8Bound(for: utf16Range.upperBound, using: +)
+    }
+
+    /// Finds a valid UTF-8 `String.Index` matching the bound of a `String.UTF16View.Index`
+    /// by adjusting the bound in a particular direction until it becomes valid.
+    ///
+    /// This is needed because some `String.UTF16View.Index` point to the middle of a UTF8
+    /// grapheme cluster, which results in an invalid index, causing undefined behaviour.
+    ///
+    /// - Parameters:
+    ///     - utf16Range: the UTF16View.Index to convert. Must be a valid index within the string.
+    ///     - method: The method to use to move the bound – `+` or `-`
+    ///
+    /// - Returns: A corresponding `String.Index`
+    ///
+    private func findValidUTF8Bound(for bound: String.UTF16View.Index, using method: (Int, Int) -> Int) -> String.Index {
+
+        var newBound = bound.samePosition(in: self) // nil if we're inside a grapheme cluster
+        var i = 1
+
+        while(newBound == nil) {
+            let newOffset = method(bound.encodedOffset, i)
+            let newIndex = String.UTF16View.Index(encodedOffset: newOffset)
+            newBound = newIndex.samePosition(in: self)
+            i += 1
+        }
+
+        // We've verified aboe that this is a valid bound, so force upwrapping it is ok
+        return newBound!
+    }
+
 
     func nsRange(of string: String) -> NSRange? {
         guard let range = self.range(of: string) else {
