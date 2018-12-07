@@ -73,8 +73,8 @@ public extension String {
     ///
     func range(from utf16Range: Range<String.UTF16View.Index>) -> Range<String.Index> {
 
-        let start = self.findValidUTF8LowerBound(for: utf16Range)
-        let end = self.findValidUTF8UpperBound(for: utf16Range)
+        let start = self.findValidLowerBound(for: utf16Range)
+        let end = self.findValidUpperBound(for: utf16Range)
 
         return start ..< end
     }
@@ -87,13 +87,13 @@ public extension String {
     ///
     /// - Returns: A valid lower bound represented as a `String.Index`
     ///
-    private func findValidUTF8LowerBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
+    private func findValidLowerBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
 
         guard self.utf16.count >= utf16Range.lowerBound.encodedOffset else {
             return String.UTF16View.Index(encodedOffset: 0)
         }
 
-        return findValidUTF8Bound(for: utf16Range.lowerBound, using: -)
+        return findValidBound(for: utf16Range.lowerBound, using: -)
     }
 
     /// Converts the upper bound of a `Range<String.UTF16View.Index>` into a valid `String.Index` for this string.
@@ -104,13 +104,13 @@ public extension String {
     ///
     /// - Returns: A valid upper bound represented as a `String.Index`
     ///
-    private func findValidUTF8UpperBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
+    private func findValidUpperBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
 
         guard self.utf16.count >= utf16Range.upperBound.encodedOffset else {
             return String.Index(encodedOffset: self.utf16.count)
         }
 
-        return findValidUTF8Bound(for: utf16Range.upperBound, using: +)
+        return findValidBound(for: utf16Range.upperBound, using: +)
     }
 
     /// Finds a valid UTF-8 `String.Index` matching the bound of a `String.UTF16View.Index`
@@ -125,7 +125,7 @@ public extension String {
     ///
     /// - Returns: A corresponding `String.Index`
     ///
-    private func findValidUTF8Bound(for bound: String.UTF16View.Index, using method: (Int, Int) -> Int) -> String.Index {
+    private func findValidBound(for bound: String.UTF16View.Index, using method: (Int, Int) -> Int) -> String.Index {
 
         var newBound = bound.samePosition(in: self) // nil if we're inside a grapheme cluster
         var i = 1
