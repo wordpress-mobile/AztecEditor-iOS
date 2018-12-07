@@ -34,7 +34,7 @@ class StringRangeConversionTests: XCTestCase {
         let wordToCapture = "🌍"
 
         let utf16NSRange = (string as NSString).range(of: wordToCapture)
-        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
         let range = string.range(from: nsRange)
 
         let wordCaptured = String(string[range])
@@ -47,7 +47,7 @@ class StringRangeConversionTests: XCTestCase {
         let wordToCapture = "🌎"
 
         let utf16NSRange = (string as NSString).range(of: wordToCapture)
-        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
         let range = string.range(from: nsRange)
 
         let wordCaptured = String(string[range])
@@ -60,7 +60,7 @@ class StringRangeConversionTests: XCTestCase {
         let wordToCapture = "🌍"
 
         let utf16NSRange = (string as NSString).range(of: wordToCapture)
-        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)!
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
         let range = string.range(from: nsRange)
 
         let wordCaptured = String(string[range])
@@ -177,10 +177,7 @@ class StringRangeConversionTests: XCTestCase {
         let string = "Hello world!"
         let utf16NSRange = (string as NSString).range(of: "Hello")
 
-        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
-            XCTFail("Range conversion failed!")
-            return
-        }
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
 
         let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
@@ -202,10 +199,7 @@ class StringRangeConversionTests: XCTestCase {
         let string = "Hello world!"
         let utf16NSRange = (string as NSString).range(of: "world")
 
-        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
-            XCTFail("Range conversion failed!")
-            return
-        }
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
 
         let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
@@ -227,10 +221,7 @@ class StringRangeConversionTests: XCTestCase {
         let string = "Hello 🌎!"
         let utf16NSRange = (string as NSString).range(of: "🌎")
 
-        guard let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)  else {
-            XCTFail("Range conversion failed!")
-            return
-        }
+        let nsRange = string.nsRange(fromUTF16NSRange: utf16NSRange)
 
         let range = string.range(from: nsRange)
         let finalNSRange = string.nsRange(from: range)
