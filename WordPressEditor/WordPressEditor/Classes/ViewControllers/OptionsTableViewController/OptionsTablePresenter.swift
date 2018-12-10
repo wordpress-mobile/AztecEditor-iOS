@@ -6,7 +6,9 @@ import UIKit
 ///
 public class OptionsTablePresenter: NSObject {
     
-    private var optionsViewController: OptionsTableViewController!
+    public typealias OnSelectHandler = (_ selected: Int) -> Void
+    
+    private var optionsTableViewController: OptionsTableViewController?
     private unowned let presentingTextView: TextView
     private unowned let presentingViewController: UIViewController
     
@@ -20,14 +22,14 @@ public class OptionsTablePresenter: NSObject {
     // MARK: - Presentation
     
     public func present(
-        with options: [OptionsTableViewOption],
+        _ optionsTableViewController: OptionsTableViewController,
         fromBarItem barItem: FormatBarItem,
         selectedRowIndex index: Int?,
-        onSelect: OptionsTableViewController.OnSelectHandler?) {
+        onSelect: OnSelectHandler?) {
         
-        optionsViewController = OptionsTableViewController(options: options)
-        optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = { [weak self] selected in
+        self.optionsTableViewController = optionsTableViewController
+
+        optionsTableViewController.onSelect = { [weak self] selected in
             self?.dismiss() {
                 onSelect?(selected)
             }
@@ -35,14 +37,14 @@ public class OptionsTablePresenter: NSObject {
         
         let selectRow = {
             if let index = index {
-                self.optionsViewController.selectRow(at: index)
+                optionsTableViewController.selectRow(at: index)
             }
         }
         
         if UIDevice.current.userInterfaceIdiom == .pad  {
-            present(optionsViewController, asPopoverFromBarItem: barItem, completion: selectRow)
+            present(optionsTableViewController, asPopoverFromBarItem: barItem, completion: selectRow)
         } else {
-            presentAsInputView(optionsViewController)
+            presentAsInputView(optionsTableViewController)
             selectRow()
         }
     }
@@ -61,7 +63,7 @@ public class OptionsTablePresenter: NSObject {
         
         presentingViewController.present(optionsViewController, animated: true, completion: completion)
         
-        self.optionsViewController = optionsViewController
+        self.optionsTableViewController = optionsViewController
     }
     
     private func presentAsInputView(_ optionsViewController: OptionsTableViewController) {
@@ -78,13 +80,13 @@ public class OptionsTablePresenter: NSObject {
         presentingTextView.inputViewController = inputViewController
         presentingTextView.reloadInputViews()
         
-        self.optionsViewController = optionsViewController
+        self.optionsTableViewController = optionsViewController
     }
     
     // MARK: - Dismissal
     
     public func dismiss(completion: (() -> ())? = nil) {
-        guard let optionsViewController = optionsViewController else {
+        guard let optionsViewController = optionsTableViewController else {
             return
         }
         
@@ -96,13 +98,13 @@ public class OptionsTablePresenter: NSObject {
             completion?()
         }
         
-        self.optionsViewController = nil
+        self.optionsTableViewController = nil
     }
     
     // MARK: - Presentation Status
     
     public func isOnScreen() -> Bool {
-        return optionsViewController != nil        
+        return optionsTableViewController != nil        
     }
     
     // MARK: - Dimensions Calculation
@@ -125,8 +127,8 @@ extension OptionsTablePresenter: UIPopoverPresentationControllerDelegate {
     }
     
     private func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-        if optionsViewController != nil {
-            optionsViewController = nil
+        if optionsTableViewController != nil {
+            optionsTableViewController = nil
         }
     }
 }
