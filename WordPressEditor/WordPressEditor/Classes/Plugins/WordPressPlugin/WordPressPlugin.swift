@@ -14,6 +14,7 @@ open class WordPressPlugin: Plugin {
         
         super.init(
             inputCustomizer: WordPressInputCustomizer(gutenbergContentVerifier: isGutenbergContent),
+            editingCustomizer: WordPressEditingCustomizer(),
             outputCustomizer: WordPressOutputCustomizer(gutenbergContentVerifier: isGutenbergContent))
     }
 

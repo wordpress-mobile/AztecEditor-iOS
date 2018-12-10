@@ -1,6 +1,22 @@
 import Foundation
 import UIKit
 
+public protocol EditingCustomizer {
+    
+    /// Whenever a new & empty paragraph is created, this method allows customization of the typing attributes.
+    ///
+    func typingAttributesForNewParagraph(previous previousAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
+}
+
+extension EditingCustomizer {
+    
+    public func typingAttributesForNewParagraph(
+        previous previousAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        
+        return previousAttributes
+    }
+}
+
 /// Plugin base class.  You can implement a subclass to customize some of the behavior in Aztec.
 ///
 open class Plugin {
@@ -51,13 +67,19 @@ open class Plugin {
     
     // MARK: - Customizers
     
+    public let editingCustomizer: EditingCustomizer?
     public let inputCustomizer: InputCustomizer?
     public let outputCustomizer: OutputCustomizer?
     
     // MARK: - Initializers
     
-    public init(inputCustomizer: InputCustomizer? = nil, outputCustomizer: OutputCustomizer? = nil) {
+    public init(
+        inputCustomizer: InputCustomizer? = nil,
+        editingCustomizer: EditingCustomizer? = nil,
+        outputCustomizer: OutputCustomizer? = nil) {
+        
         self.inputCustomizer = inputCustomizer
+        self.editingCustomizer = editingCustomizer
         self.outputCustomizer = outputCustomizer
     }
     

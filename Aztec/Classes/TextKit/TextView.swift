@@ -1876,6 +1876,8 @@ private extension TextView {
         
         removeSingleLineParagraphAttributes()
         removeBlockquoteAndCite()
+        
+        typingAttributesSwifted = pluginManager.typingAttributesForNewParagraph(previous: typingAttributesSwifted)
     }
 
     /// Removes single-line paragraph attributes.
