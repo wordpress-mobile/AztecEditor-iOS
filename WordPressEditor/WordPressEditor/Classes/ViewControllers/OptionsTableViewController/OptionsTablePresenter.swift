@@ -8,7 +8,7 @@ public class OptionsTablePresenter: NSObject {
     
     public typealias OnSelectHandler = (_ selected: Int) -> Void
     
-    private var optionsTableViewController: OptionsTableViewController!
+    private var optionsTableViewController: OptionsTableViewController?
     private unowned let presentingTextView: TextView
     private unowned let presentingViewController: UIViewController
     
@@ -37,7 +37,7 @@ public class OptionsTablePresenter: NSObject {
         
         let selectRow = {
             if let index = index {
-                self.optionsTableViewController.selectRow(at: index)
+                optionsTableViewController.selectRow(at: index)
             }
         }
         
