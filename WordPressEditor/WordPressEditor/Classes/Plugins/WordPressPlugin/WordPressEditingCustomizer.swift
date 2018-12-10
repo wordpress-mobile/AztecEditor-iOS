@@ -1,6 +1,8 @@
 import Aztec
 import Foundation
 
+/// Editing customizer for the WordPress plugin.
+///
 class WordPressEditingCustomizer: EditingCustomizer {
     
     func typingAttributesForNewParagraph(previous previousAttributes: [NSAttributedStringKey : Any]) -> [NSAttributedStringKey : Any] {
