@@ -1,82 +1,22 @@
 import Foundation
 import UIKit
 
-public protocol EditingCustomizer {
-    
-    /// Whenever a new & empty paragraph is created, this method allows customization of the typing attributes.
-    ///
-    func typingAttributesForNewParagraph(previous previousAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
-}
-
-extension EditingCustomizer {
-    
-    public func typingAttributesForNewParagraph(
-        previous previousAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-        
-        return previousAttributes
-    }
-}
-
 /// Plugin base class.  You can implement a subclass to customize some of the behavior in Aztec.
 ///
 open class Plugin {
     
-    open class InputCustomizer {
-        
-        public init() {}
-        
-        /// Processes an HTML string right before parsing it to convert it into a nodes tree in
-        /// the input conversion process.
-        ///
-        open func process(html: String) -> String { return html }
-        
-        /// Processes a nodes tree right after it's been parsed from a string, and before finalizing
-        /// the input conversion process.
-        ///
-        open func process(htmlTree: RootNode) { return }
-        
-        open func converter(for elementNode: ElementNode) -> ElementConverter? { return nil }
-    }
-    
-    open class OutputCustomizer {
-        
-        public init() {}
-        
-        /// Processes an HTML string right after converting it from a nodes tree in the output
-        /// conversion process.
-        ///
-        open func process(html: String) -> String { return html }
-        
-        /// Processes a nodes tree right before it'll bee converted to a string, and before finalizing
-        /// the output conversion process.
-        ///
-        open func process(htmlTree: RootNode) { return }
-        
-        /// Converts a paragraph property into the ElementNode that represents it.
-        /// When a conversion is not implemented, just return nil.
-        ///
-        open func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
-        
-        /// Converts an attachment into the `[Node]`s that represent it.
-        /// When a conversion is not implemented, just return nil.
-        ///
-        open func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? { return nil }
-        
-        open func converter(for elementNode: ElementNode) -> ElementToTagConverter? { return nil }
-    }
-    
     // MARK: - Customizers
     
-    public let editingCustomizer: EditingCustomizer?
-    public let inputCustomizer: InputCustomizer?
-    public let outputCustomizer: OutputCustomizer?
+    public let editingCustomizer: PluginEditingCustomizer?
+    public let inputCustomizer: PluginInputCustomizer?
+    public let outputCustomizer: PluginOutputCustomizer?
     
     // MARK: - Initializers
     
     public init(
-        inputCustomizer: InputCustomizer? = nil,
-        editingCustomizer: EditingCustomizer? = nil,
-        outputCustomizer: OutputCustomizer? = nil) {
+        inputCustomizer: PluginInputCustomizer? = nil,
+        editingCustomizer: PluginEditingCustomizer? = nil,
+        outputCustomizer: PluginOutputCustomizer? = nil) {
         
         self.inputCustomizer = inputCustomizer
         self.editingCustomizer = editingCustomizer

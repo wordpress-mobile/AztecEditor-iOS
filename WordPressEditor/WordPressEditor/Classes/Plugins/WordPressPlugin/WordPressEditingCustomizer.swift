@@ -3,7 +3,7 @@ import Foundation
 
 /// Editing customizer for the WordPress plugin.
 ///
-class WordPressEditingCustomizer: EditingCustomizer {
+class WordPressEditingCustomizer: PluginEditingCustomizer {
     
     func typingAttributesForNewParagraph(previous previousAttributes: [NSAttributedStringKey : Any]) -> [NSAttributedStringKey : Any] {
         guard let paragraphStyle = previousAttributes[.paragraphStyle] as? ParagraphStyle else {
