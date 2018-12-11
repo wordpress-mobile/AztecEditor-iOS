@@ -7,7 +7,6 @@ open class Plugin {
     
     // MARK: - Customizers
     
-    public let editingCustomizer: PluginEditingCustomizer?
     public let inputCustomizer: PluginInputCustomizer?
     public let outputCustomizer: PluginOutputCustomizer?
     
@@ -15,11 +14,9 @@ open class Plugin {
     
     public init(
         inputCustomizer: PluginInputCustomizer? = nil,
-        editingCustomizer: PluginEditingCustomizer? = nil,
         outputCustomizer: PluginOutputCustomizer? = nil) {
         
         self.inputCustomizer = inputCustomizer
-        self.editingCustomizer = editingCustomizer
         self.outputCustomizer = outputCustomizer
     }
     

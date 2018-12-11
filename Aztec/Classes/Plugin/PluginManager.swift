@@ -72,18 +72,6 @@ class PluginManager {
             }
         }
     }
-    
-    // MARK: - Typing Attributes Customization
-    
-    func typingAttributesForNewParagraph(previous attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
-        return plugins.reduce(attributes) { (previous, plugin) -> [NSAttributedStringKey: Any] in
-            guard let customizer = plugin.editingCustomizer else {
-                return previous
-            }
-            
-            return customizer.typingAttributesForNewParagraph(previous: previous)
-        }
-    }
 }
 
 // MARK: - AttributedStringSerializerCustomizer

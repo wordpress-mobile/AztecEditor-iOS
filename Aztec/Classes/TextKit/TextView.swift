@@ -309,17 +309,21 @@ open class TextView: UITextView {
 
     // MARK: - Overwritten Properties
     
-    /// Overwrites Typing Attributes:
-    /// This is the (only) valid hook we've found, in order to (selectively) remove the [Blockquote, List, Pre] attributes.
-    /// For details, see: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/414
+    /// The reason why we need to use this, instead of `super.typingAttributes`, is that iOS seems to sometimes
+    /// modify `super.typingAttributes` without us having any mechanism to intercept those changes.
     ///
-    override open var typingAttributes: [String: Any] {
+    private var myTypingAttributes = [String: Any]()
+    
+    override open var typingAttributes: [String : Any] {
         get {
-            ensureRemovalOfParagraphAttributesAfterSelectionChange()
-            return super.typingAttributes
+            return myTypingAttributes
         }
+        
         set {
+            // We're still setting the typing the paren't typing attributes in case it's used directly
+            // by any iOS feature.
             super.typingAttributes = newValue
+            myTypingAttributes = newValue
         }
     }
 
@@ -328,10 +332,15 @@ open class TextView: UITextView {
     ///
     open var typingAttributesSwifted: [NSAttributedStringKey: Any] {
         get {
-            return NSAttributedStringKey.convertFromRaw(typingAttributes)
+            return NSAttributedStringKey.convertFromRaw(myTypingAttributes)
         }
         set {
-            typingAttributes = NSAttributedStringKey.convertToRaw(newValue)
+            let newValueSwifted = NSAttributedStringKey.convertToRaw(newValue)
+            
+            // We're still setting the typing the paren't typing attributes in case it's used directly
+            // by any iOS feature.
+            super.typingAttributes = newValueSwifted
+            myTypingAttributes = newValueSwifted
         }
     }
     
@@ -1243,18 +1252,17 @@ open class TextView: UITextView {
     ///
     private func recalculateTypingAttributes() {
         
-        let mustRecalculate = storage.length > 1
-            && !storage.string.isEmptyLineAtEndOfFile(at: selectedRange.location)
-        
-        guard mustRecalculate else {
+        guard storage.length > 0 else {
             return
         }
         
-        let location = min(selectedRange.location, storage.length - 1)
-        
-        typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
-        
-        
+        if storage.string.isEmptyLineAtEndOfFile(at: selectedRange.location) {
+            removeParagraphPropertiesFromTypingAttributes()
+        } else {
+            let location = min(selectedRange.location, storage.length - 1)
+            
+            typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
+        }
     }
     
     // MARK: - iOS 11 Workarounds
@@ -1853,7 +1861,8 @@ private extension TextView {
             return
         }
 
-        removeParagraphAttributes(at: range)
+        removeParagraphPropertiesFromTypingAttributes()
+        removeParagraphProperties(from: range)
     }
 
     /// Analyzes whether the attributes should be removed from the specified location, *before* removing a 
@@ -1876,8 +1885,6 @@ private extension TextView {
         
         removeSingleLineParagraphAttributes()
         removeBlockquoteAndCite()
-        
-        typingAttributesSwifted = pluginManager.typingAttributesForNewParagraph(previous: typingAttributesSwifted)
     }
 
     /// Removes single-line paragraph attributes.
@@ -1937,7 +1944,8 @@ private extension TextView {
             return false
         }
 
-        removeParagraphAttributes(at: selectedRange)
+        removeParagraphPropertiesFromTypingAttributes()
+        removeParagraphProperties(from: selectedRange)
 
         return true
     }
@@ -1948,13 +1956,23 @@ private extension TextView {
     /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
     ///
     private func mustRemoveParagraphAttributesWhenPressingEnterInAnEmptyParagraph(input: String) -> Bool {
-        let activeTypingAttributes = typingAttributesSwifted
-
-        return input.isEndOfLine()
+        return selectedRange.length == 0
+            && input.isEndOfLine()
             && storage.string.isEmptyLine(at: selectedRange.location)
-            && (BlockquoteFormatter().present(in: activeTypingAttributes)
-                || TextListFormatter.listsOfAnyKindPresent(in: activeTypingAttributes)
-                || PreFormatter().present(in: activeTypingAttributes))
+            && typingAttributesHaveRemovableParagraphStyles()
+    }
+    
+    /// This method lets the caller know if the typing attributes have removable paragraph styles.
+    /// These styles are simply anything besides <p>, which should be removed when pressing enter twice.
+    ///
+    /// - Returns: `true` if there are styles that can be removed
+    ///
+    private func typingAttributesHaveRemovableParagraphStyles() -> Bool {
+        guard let paragraphStyle = typingAttributesSwifted[.paragraphStyle] as? ParagraphStyle else {
+            return false
+        }
+        
+        return paragraphStyle.hasProperty(where: { type(of: $0) != HTMLParagraph.self })
     }
 
 
@@ -1967,7 +1985,8 @@ private extension TextView {
             return
         }
 
-        removeParagraphAttributes(at: selectedRange)
+        removeParagraphPropertiesFromTypingAttributes()
+        removeParagraphProperties(from: selectedRange)
     }
 
     /// Analyzes whether paragraph attributes should be removed from the specified
@@ -1981,50 +2000,53 @@ private extension TextView {
 
     // MARK: - WORKAROUND: Removing styles at EOF due to selection change
 
-    /// Removes paragraph attributes after a selection change.
-    ///
-    func ensureRemovalOfParagraphAttributesAfterSelectionChange() {
-        guard mustRemoveParagraphAttributesAfterSelectionChange() else {
-            return
-        }
-
-        removeParagraphAttributes(at: selectedRange)
-    }
-
-    /// Analyzes whether paragraph attributes should be removed from the specified
-    /// location, or not, after the selection range is changed.
-    ///
-    /// - Returns: `true` if we should remove paragraph attributes, otherwise it returns `false`.
-    ///
-    private func mustRemoveParagraphAttributesAfterSelectionChange() -> Bool {
-        return selectedRange.location == storage.length
-            && storage.string.isEmptyParagraph(at: selectedRange.location)
-            && markedTextRange == nil
-    }
-
     /// Removes the Paragraph Attributes [Blockquote, Pre, Lists] at the specified range. If the range
     /// is beyond the storage's contents, the typingAttributes will be modified.
     ///
-    private func removeParagraphAttributes(at range: NSRange) {
-        let formatters: [AttributeFormatter] = [
-            BlockquoteFormatter(),
-            PreFormatter(placeholderAttributes: defaultAttributes),
-            TextListFormatter(style: .ordered),
-            TextListFormatter(style: .unordered)
-        ]
-
-        for formatter in formatters {
-            let activeTypingAttributes = NSAttributedStringKey.convertFromRaw(super.typingAttributes)
-            guard formatter.present(in: activeTypingAttributes) else {
-                continue
-            }
-
-            let updatedTypingAttributes = formatter.remove(from: activeTypingAttributes)
-            super.typingAttributes = NSAttributedStringKey.convertToRaw(updatedTypingAttributes)
-
-            let applicationRange = formatter.applicationRange(for: selectedRange, in: textStorage)
-            formatter.removeAttributes(from: textStorage, at: applicationRange)
+    private func removeParagraphProperties(from range: NSRange) {
+        
+        let paragraphRanges = storage.paragraphRanges(spanning: range, includeParagraphSeparator: true)
+        
+        for paragraphRange in paragraphRanges {
+            removeParagraphPropertiesFromParagraph(spanning: paragraphRange)
         }
+    }
+    
+    private func removeParagraphPropertiesFromTypingAttributes() {
+        guard let paragraphStyle = typingAttributesSwifted[.paragraphStyle] as? ParagraphStyle else {
+            return
+        }
+        
+        typingAttributesSwifted[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
+    }
+    
+    private func removeParagraphPropertiesFromParagraph(spanning range: NSRange) {
+        
+        var attributes = storage.attributes(at: range.location, effectiveRange: nil)
+        
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
+            return
+        }
+        
+        attributes[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
+        
+        storage.setAttributes(attributes, range: range)
+    }
+    
+    private func paragraphStyleWithoutProperties(from paragraphStyle: ParagraphStyle) -> ParagraphStyle {
+        let newParagraphStyle = ParagraphStyle(with: paragraphStyle)
+        
+        // If the topmost property is a paragraph, we can keep it.  Otherwise just
+        // create a new one.
+        if let firstProperty = newParagraphStyle.properties.first,
+            type(of: firstProperty) == HTMLParagraph.self {
+            
+            newParagraphStyle.properties = [firstProperty]
+        } else {
+            newParagraphStyle.properties = [HTMLParagraph()]
+        }
+        
+        return newParagraphStyle
     }
 }
 
