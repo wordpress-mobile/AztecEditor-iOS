@@ -3,7 +3,10 @@ import XCTest
 
 class NSAttributedStringParagraphRangeTests: XCTestCase {
     
-    func testParagraphRangesWithoutSeparator() {
+    /// Tests that `paragraphRanges(intersecting:includeParagraphSeparator:)` with a zero-length
+    /// input paragraph range returns the correct substring paragraph range.
+    ///
+    func testParagraphRangesWithoutSeparatorWorksWithAZeroLengthInputRange() {
         let attributedString = NSAttributedString(string: "Paragraph 1\nParagraph 2\n")
         let range = NSRange(location: 0, length: 0)
         let expectedRange = NSRange(location: 0, length: 11)
@@ -14,7 +17,10 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         XCTAssertEqual(ranges.first, expectedRange)
     }
     
-    func testParagraphRangesWithSeparator() {
+    /// Tests that `paragraphRanges(intersecting:includeParagraphSeparator:)` with a zero-length
+    /// input paragraph range returns the correct enclosing paragraph range.
+    ///
+    func testParagraphRangesWithSeparatorWorksWithAZeroLengthInputRange() {
         let attributedString = NSAttributedString(string: "Paragraph 1\nParagraph 2\n")
         let range = NSRange(location: 0, length: 0)
         let expectedRange = NSRange(location: 0, length: 12)
@@ -25,7 +31,10 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         XCTAssertEqual(ranges.first, expectedRange)
     }
     
-    func testParagraphRanges() {
+    /// Tests that `paragraphRanges(intersecting:)` with a zero-length input paragraph range
+    /// returns the correct `ParagraphRange`.
+    ///
+    func testParagraphRangesWorksWithAZeroLengthInputRange() {
         let attributedString = NSAttributedString(string: "Paragraph 1\nParagraph 2\n")
         let range = NSRange(location: 0, length: 0)
         let expectedRangeWithoutSeparator = NSRange(location: 0, length: 11)
