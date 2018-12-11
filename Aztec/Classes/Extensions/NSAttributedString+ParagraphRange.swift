@@ -5,11 +5,9 @@ import UIKit
 ///
 extension NSAttributedString {
     
-    /// A pair of ranges describing the range of a paragraph.  The first range is the range of the paragraph's
-    /// text, while the second range is the range of the paragraph's text plus it's closing delimiter (refered to
-    /// as "enclosing" range).
+    /// The range of a paragraph with and without its closing separator.
     ///
-    typealias ParagraphRanges = (range: NSRange, enclosingRange: NSRange)
+    typealias ParagraphRange = (rangeExcludingParagraphSeparator: NSRange, rangeIncludingParagraphSeparator: NSRange)
     
     /// Given a range within the receiver, this method returns an array of ranges for each
     /// paragraph that intercects the provided range.
@@ -44,8 +42,8 @@ extension NSAttributedString {
     /// - Returns: An array of `ParagraphRange` objects describing the range and the enclosing range
     ///     of each paragraph that intersects the input range.
     ///
-    func paragraphRanges(intersecting range: NSRange) -> ([ParagraphRanges]) {
-        var paragraphRanges = [ParagraphRanges]()
+    func paragraphRanges(intersecting range: NSRange) -> ([ParagraphRange]) {
+        var paragraphRanges = [ParagraphRange]()
         let swiftRange = string.range(fromUTF16NSRange: range)
         let paragraphsRange = string.paragraphRange(for: swiftRange)
         

@@ -34,7 +34,7 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         let ranges = attributedString.paragraphRanges(intersecting: range)
         
         XCTAssertEqual(ranges.count, 1)
-        XCTAssertEqual(ranges.first?.range, expectedRangeWithoutSeparator)
-        XCTAssertEqual(ranges.first?.enclosingRange, expectedRangeWithSeparator)
+        XCTAssertEqual(ranges.first?.rangeExcludingParagraphSeparator, expectedRangeWithoutSeparator)
+        XCTAssertEqual(ranges.first?.rangeIncludingParagraphSeparator, expectedRangeWithSeparator)
     }
 }
