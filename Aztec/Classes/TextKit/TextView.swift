@@ -2005,7 +2005,7 @@ private extension TextView {
     ///
     private func removeParagraphProperties(from range: NSRange) {
         
-        let paragraphRanges = storage.paragraphRanges(spanning: range, includeParagraphSeparator: true)
+        let paragraphRanges = storage.paragraphRanges(intersecting: range, includeParagraphSeparator: true)
         
         for paragraphRange in paragraphRanges {
             removeParagraphPropertiesFromParagraph(spanning: paragraphRange)
