@@ -4,14 +4,25 @@ import UIKit
 /// Functions for paragraph enumeration and identification.
 ///
 extension NSAttributedString {
-       
-    /// Finds the paragraph ranges in the specified string intersecting the specified range.
+    
+    /// A pair of ranges describing the range of a paragraph.  The first range is the range of the paragraph's
+    /// text, while the second range is the range of the paragraph's text plus it's closing delimiter (refered to
+    /// as "enclosing" range).
     ///
-    /// - Parameters range: The range within the specified string to find paragraphs.
+    typealias ParagraphRanges = (range: NSRange, enclosingRange: NSRange)
+    
+    /// Given a range within the receiver, this method returns an array of ranges for each
+    /// paragraph that intercects the provided range.
     ///
-    /// - Returns: An array containing an NSRange for each paragraph intersected by the specified range.
+    /// - Parameters:
+    ///     - range: The initial range that paragraphs must intersect to qualify as valid results.
+    ///     - includeParagraphSeparator: If `true` the resulting range will also include the closing
+    ///             delimiter of intersecting paragraphs.
     ///
-    func paragraphRanges(spanning range: NSRange, includeParagraphSeparator: Bool = true) -> [NSRange] {
+    /// - Returns: An array of `NSRange` objects describing the ranges of each paragraph
+    ///         that intersects the input range.
+    ///
+    func paragraphRanges(intersecting range: NSRange, includeParagraphSeparator: Bool = true) -> [NSRange] {
         var paragraphRanges = [NSRange]()
         let swiftRange = string.range(fromUTF16NSRange: range)
         let paragraphsRange = string.paragraphRange(for: swiftRange)
@@ -24,14 +35,17 @@ extension NSAttributedString {
         return paragraphRanges
     }
     
-    /// Finds the paragraph ranges in the specified string intersecting the specified range.
+    /// Given a range within the receiver, this method returns an array of ranges for each
+    /// paragraph that intercects the provided range.
     ///
-    /// - Parameters range: The range within the specified string to find paragraphs.
+    /// - Parameters:
+    ///     - range: The initial range that paragraphs must intersect to qualify as valid results.
     ///
-    /// - Returns: An array containing an NSRange for each paragraph intersected by the specified range.
+    /// - Returns: An array of `ParagraphRange` objects describing the range and the enclosing range
+    ///     of each paragraph that intersects the input range.
     ///
-    func paragraphRanges(spanning range: NSRange) -> ([(NSRange, NSRange)]) {
-        var paragraphRanges = [(NSRange, NSRange)]()
+    func paragraphRanges(intersecting range: NSRange) -> ([ParagraphRanges]) {
+        var paragraphRanges = [ParagraphRanges]()
         let swiftRange = string.range(fromUTF16NSRange: range)
         let paragraphsRange = string.paragraphRange(for: swiftRange)
         
@@ -172,7 +186,7 @@ extension NSAttributedString {
     ///     - block: Closure to be executed for each paragraph
     ///
     func enumerateParagraphRanges(spanning range: NSRange, reverseOrder: Bool = false, using block: ((NSRange, NSRange) -> Void)) {
-        var ranges = paragraphRanges(spanning: range)
+        var ranges = paragraphRanges(intersecting: range)
         if reverseOrder {
             ranges.reverse()
         }

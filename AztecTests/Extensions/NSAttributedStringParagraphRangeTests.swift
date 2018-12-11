@@ -8,7 +8,7 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         let range = NSRange(location: 0, length: 0)
         let expectedRange = NSRange(location: 0, length: 11)
         
-        let ranges = attributedString.paragraphRanges(spanning: range, includeParagraphSeparator: false)
+        let ranges = attributedString.paragraphRanges(intersecting: range, includeParagraphSeparator: false)
         
         XCTAssertEqual(ranges.count, 1)
         XCTAssertEqual(ranges.first, expectedRange)
@@ -19,7 +19,7 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         let range = NSRange(location: 0, length: 0)
         let expectedRange = NSRange(location: 0, length: 12)
         
-        let ranges = attributedString.paragraphRanges(spanning: range, includeParagraphSeparator: true)
+        let ranges = attributedString.paragraphRanges(intersecting: range, includeParagraphSeparator: true)
         
         XCTAssertEqual(ranges.count, 1)
         XCTAssertEqual(ranges.first, expectedRange)
@@ -31,10 +31,10 @@ class NSAttributedStringParagraphRangeTests: XCTestCase {
         let expectedRangeWithoutSeparator = NSRange(location: 0, length: 11)
         let expectedRangeWithSeparator = NSRange(location: 0, length: 12)
         
-        let ranges = attributedString.paragraphRanges(spanning: range)
+        let ranges = attributedString.paragraphRanges(intersecting: range)
         
         XCTAssertEqual(ranges.count, 1)
-        XCTAssertEqual(ranges.first?.0, expectedRangeWithoutSeparator)
-        XCTAssertEqual(ranges.first?.1, expectedRangeWithSeparator)
+        XCTAssertEqual(ranges.first?.range, expectedRangeWithoutSeparator)
+        XCTAssertEqual(ranges.first?.enclosingRange, expectedRangeWithSeparator)
     }
 }

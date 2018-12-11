@@ -87,7 +87,7 @@ extension NSAttributedString {
             return NSNotFound
         }
         var numberInList = 1
-        let paragraphRanges = self.paragraphRanges(spanning: rangeOfList)
+        let paragraphRanges = self.paragraphRanges(intersecting: rangeOfList)
 
         for (_, enclosingRange) in paragraphRanges {
             if NSLocationInRange(location, enclosingRange) {
