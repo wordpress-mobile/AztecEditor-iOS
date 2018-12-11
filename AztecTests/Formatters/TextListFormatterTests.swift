@@ -499,7 +499,7 @@ private extension TextListFormatterTests
     }
 
     func paragraphRanges(inString string: NSAttributedString) -> [NSRange] {
-        return string.paragraphRanges(spanning: string.rangeOfEntireString)
+        return string.paragraphRanges(intersecting: string.rangeOfEntireString)
     }
 
     func textListAttributes(inString string: NSAttributedString, atRanges ranges: [NSRange]) -> [TextList] {
