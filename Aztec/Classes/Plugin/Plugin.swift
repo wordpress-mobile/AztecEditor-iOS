@@ -12,10 +12,7 @@ open class Plugin {
     
     // MARK: - Initializers
     
-    public init(
-        inputCustomizer: PluginInputCustomizer? = nil,
-        outputCustomizer: PluginOutputCustomizer? = nil) {
-        
+    public init(inputCustomizer: PluginInputCustomizer? = nil, outputCustomizer: PluginOutputCustomizer? = nil) {
         self.inputCustomizer = inputCustomizer
         self.outputCustomizer = outputCustomizer
     }
