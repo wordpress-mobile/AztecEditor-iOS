@@ -9,7 +9,7 @@ public struct EmbedURLProcessor{
     }
 
     public var isValidEmbed: Bool{
-        return isYouTubeEmbed || isVimeoEmbed
+        return isYouTubeEmbed || isVimeoEmbed || isTwitterEmbed
     }
 
     /// Tests the url to see if it's a valid YouTube URL.
@@ -47,6 +47,34 @@ public struct EmbedURLProcessor{
         let player = try! NSRegularExpression(pattern: playerPattern, options: [.caseInsensitive])
 
         return matches(regex) || matches(channel) || matches(player)
+    }
+
+    /// Tests the url to see if it's a valid Twitter URL.
+    ///
+    /// Supports these formats:
+    ///  - Tweet
+    ///  - Profile
+    ///  - Likes
+    ///  - List
+    ///  - Moment
+
+    public var isTwitterEmbed: Bool {
+
+        return matchesAnyOf([
+            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/status(es)?/[\\S]+$"),   // Status
+            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}$"),                      // Profile
+            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/likes$"),                // Likes
+            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/lists/[\\S]+$"),         // List
+            pattern("https?://(www\\.)?twitter\\.com/i/moments/[\\S]+$"),               // Moments
+        ])
+    }
+
+    private func pattern(_ pattern: String) -> NSRegularExpression {
+        return try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+    }
+
+    private func matchesAnyOf(_ regexes: [NSRegularExpression]) -> Bool{
+        return regexes.first{ matches($0) } != nil
     }
 
     private func matches(_ regex: NSRegularExpression) -> Bool {

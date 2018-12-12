@@ -61,6 +61,18 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://player.vimeo.com/video/291598893")).isVimeoEmbed)
     }
 
+    func testThatValidTwitterURLsWork() {
+        assert(EmbedURLProcessor(url: url("https://twitter.com/WordPressiOS")).isTwitterEmbed)
+        assert(EmbedURLProcessor(url: url("https://twitter.com/WordPressiOS/likes")).isTwitterEmbed)
+
+        assert(EmbedURLProcessor(url: url("https://twitter.com/WordPressiOS/status/999307616936394755")).isTwitterEmbed)
+        assert(EmbedURLProcessor(url: url("https://twitter.com/WordPressiOS/statuses/999307616936394755")).isTwitterEmbed)
+        assert(EmbedURLProcessor(url: url("https://twitter.com/WordPressiOS/status/999307616936394755?s=19")).isTwitterEmbed)
+
+        assert(EmbedURLProcessor(url: url("https://twitter.com/CNN/lists/inauguration-2017")).isTwitterEmbed)
+        assert(EmbedURLProcessor(url: url("https://twitter.com/i/moments/823549915695611904")).isTwitterEmbed)
+    }
+
     private func url(_ string: String) -> URL{
         return URL(string: string)!
     }
