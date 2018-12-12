@@ -26,6 +26,8 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://youtu.be/WVbQ-oro7FQ")).isYouTubeEmbed)
         //The mobile version!
         assert(EmbedURLProcessor(url: url("https://m.youtube.com/watch?v=gqEtq34dSUo")).isYouTubeEmbed)
+        //A playlist!
+        assert(EmbedURLProcessor(url: url("https://www.youtube.com/playlist?list=PLQFhxUeNFfdJsoUnGQ8ucK_TIJsosmSXm")).isYouTubeEmbed)
     }
 
     func testThatValidYouTubeEmbedURLsWork() {
