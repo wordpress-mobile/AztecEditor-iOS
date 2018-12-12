@@ -9,7 +9,14 @@ public struct EmbedURLProcessor{
     }
 
     public var isValidEmbed: Bool{
-        return isYouTubeEmbed || isVimeoEmbed || isTwitterEmbed || isFlickrEmbed
+
+        return [
+            isYouTubeEmbed,
+            isVimeoEmbed,
+            isTwitterEmbed,
+            isFlickrEmbed,
+            isIssuuEmbed,
+        ].first != nil
     }
 
     /// Tests the url to see if it's a valid YouTube URL.
@@ -78,6 +85,11 @@ public struct EmbedURLProcessor{
     public var isFlickrEmbed: Bool {
         let regex = pattern("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$")
         return matches(regex)
+    }
+
+    /// Tests the url to see if it's a valid Issuu URL.
+    public var isIssuuEmbed: Bool {
+        return matches(pattern("^https?://(www\\.)?issuu\\.com/.+/docs/[\\S]+$"))
     }
 
     private func pattern(_ pattern: String) -> NSRegularExpression {
