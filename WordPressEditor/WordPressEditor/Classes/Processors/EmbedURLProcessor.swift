@@ -16,6 +16,7 @@ public struct EmbedURLProcessor{
             isTwitterEmbed,
             isFlickrEmbed,
             isIssuuEmbed,
+            isInstagramEmbed,
         ].first != nil
     }
 
@@ -90,6 +91,11 @@ public struct EmbedURLProcessor{
     /// Tests the url to see if it's a valid Issuu URL.
     public var isIssuuEmbed: Bool {
         return matches(pattern("^https?://(www\\.)?issuu\\.com/.+/docs/[\\S]+$"))
+    }
+
+    /// Tests the url to see if it's a valid Instagram URL.
+    public var isInstagramEmbed: Bool {
+        return matches(pattern("^https?://(www\\.)?instagr(\\.am|am\\.com)/p/[\\S]+$"))
     }
 
     private func pattern(_ pattern: String) -> NSRegularExpression {

@@ -95,6 +95,10 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://issuu.com/magazineemma/docs/emma_fall_issue/52")).isIssuuEmbed)
     }
 
+    func testThatValidInstagramURLsWork() {
+        assert(EmbedURLProcessor(url: url("https://www.instagram.com/p/Bc3Ex6nFoKo/")).isInstagramEmbed)
+    }
+
     private func url(_ string: String) -> URL{
         return URL(string: string)!
     }
