@@ -73,6 +73,22 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://twitter.com/i/moments/823549915695611904")).isTwitterEmbed)
     }
 
+    func testThatValidFlickrPhotoURLsWork() {
+        assert(EmbedURLProcessor(url: url("https://www.flickr.com/photos/pware/32732270066")).isFlickrEmbed)
+        assert(EmbedURLProcessor(url: url("https://www.flickr.com/photos/rafaberlanga/45345306675/in/explore-2018-12-10/")).isFlickrEmbed)
+
+        //Short URLs
+        assert(EmbedURLProcessor(url: url("http://flic.kr/p/23MvrtD")).isFlickrEmbed)
+    }
+
+    func testThatValidFlickrAlbumURLsWork() {
+        assert(EmbedURLProcessor(url: url("https://www.flickr.com/photos/22020982@N05/albums/72157690359747511")).isFlickrEmbed)
+        assert(EmbedURLProcessor(url: url("https://www.flickr.com/photos/22020982@N05/albums/72157690359747511")).isFlickrEmbed)
+
+        //Short URLs
+        assert(EmbedURLProcessor(url: url("http://flic.kr/s/aHsmaJFWKa")).isFlickrEmbed)
+    }
+
     private func url(_ string: String) -> URL{
         return URL(string: string)!
     }

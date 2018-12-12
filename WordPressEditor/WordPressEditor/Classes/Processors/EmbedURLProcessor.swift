@@ -9,7 +9,7 @@ public struct EmbedURLProcessor{
     }
 
     public var isValidEmbed: Bool{
-        return isYouTubeEmbed || isVimeoEmbed || isTwitterEmbed
+        return isYouTubeEmbed || isVimeoEmbed || isTwitterEmbed || isFlickrEmbed
     }
 
     /// Tests the url to see if it's a valid YouTube URL.
@@ -67,6 +67,18 @@ public struct EmbedURLProcessor{
             pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/lists/[\\S]+$"),         // List
             pattern("https?://(www\\.)?twitter\\.com/i/moments/[\\S]+$"),               // Moments
         ])
+    }
+
+    /// Tests the url to see if it's a valid Flickr URL.
+    ///
+    /// Supports these formats:
+    ///  - Photo URL
+    ///  - Gallery URL
+    ///  - Flic.kr short URLs (photos and galleries)
+    ///
+    public var isFlickrEmbed: Bool {
+        let regex = pattern("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$")
+        return matches(regex)
     }
 
     private func pattern(_ pattern: String) -> NSRegularExpression {
