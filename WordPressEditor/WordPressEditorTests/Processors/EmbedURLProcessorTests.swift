@@ -99,6 +99,13 @@ class EmbedURLProcessorTests: XCTestCase {
         assert(EmbedURLProcessor(url: url("https://www.instagram.com/p/Bc3Ex6nFoKo/")).isInstagramEmbed)
     }
 
+    func testThatValidFacebookURLsWork() {
+        assert(EmbedURLProcessor(url: url("https://www.facebook.com/WordPress/posts/10156605256927911")).isFacebookEmbed)
+        assert(EmbedURLProcessor(url: url("https://www.facebook.com/WordPress/photos/a.111006762910/111008012910/?type=3&theater")).isFacebookEmbed)
+        assert(EmbedURLProcessor(url: url("https://www.facebook.com/notes/mark-zuckerberg/a-letter-to-our-daughter/10153375081581634/")).isFacebookEmbed)
+        assert(EmbedURLProcessor(url: url("https://www.facebook.com/WordPress/videos/10154702401472911/")).isFacebookEmbed)
+    }
+
     private func url(_ string: String) -> URL{
         return URL(string: string)!
     }

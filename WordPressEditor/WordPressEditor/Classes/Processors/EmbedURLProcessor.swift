@@ -17,6 +17,7 @@ public struct EmbedURLProcessor{
             isFlickrEmbed,
             isIssuuEmbed,
             isInstagramEmbed,
+            isFacebookEmbed,
         ].first != nil
     }
 
@@ -96,6 +97,24 @@ public struct EmbedURLProcessor{
     /// Tests the url to see if it's a valid Instagram URL.
     public var isInstagramEmbed: Bool {
         return matches(pattern("^https?://(www\\.)?instagr(\\.am|am\\.com)/p/[\\S]+$"))
+    }
+
+
+    /// Tests the url to see if it's a valid Facebook URL.
+    ///
+    /// Supports these formats:
+    ///  - Post URL
+    ///  - Photo URL
+    ///  - Note URL
+    ///  - Video URL
+    ///
+    public var isFacebookEmbed: Bool {
+        return matchesAnyOf([
+            pattern("https?://www\\.facebook\\.com/.*/posts/[\\S]+$"),                    // Post
+            pattern("https?://www\\.facebook\\.com/.*/photos/[\\S]+$"),                   // Photo
+            pattern("https?://www\\.facebook\\.com/notes/[\\S]+$"),                       // Note
+            pattern("https?://www\\.facebook\\.com/.*/videos/[\\S]+$"),                   // Video
+        ])
     }
 
     private func pattern(_ pattern: String) -> NSRegularExpression {
