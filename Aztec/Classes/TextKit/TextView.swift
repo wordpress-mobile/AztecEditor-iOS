@@ -199,6 +199,21 @@ open class TextView: UITextView {
         FigureFormatter(),
         FigcaptionFormatter(),
     ]
+    
+    /// At some point moving ahead, this could be dynamically generated from the full list of registered formatters
+    ///
+    private lazy var paragraphFormatters: [ParagraphAttributeFormatter] = [
+        BlockquoteFormatter(),
+        HeaderFormatter(headerLevel:.h1),
+        HeaderFormatter(headerLevel:.h2),
+        HeaderFormatter(headerLevel:.h3),
+        HeaderFormatter(headerLevel:.h4),
+        HeaderFormatter(headerLevel:.h5),
+        HeaderFormatter(headerLevel:.h6),
+        PreFormatter(placeholderAttributes: self.defaultAttributes),
+        TextListFormatter(style: .ordered),
+        TextListFormatter(style: .unordered),
+    ]
 
     // MARK: - Properties: Text Lists
 
@@ -1065,17 +1080,6 @@ open class TextView: UITextView {
         let line = LineAttachment()
         replace(at: range, with: line)
     }
-
-    private lazy var paragraphFormatters: [AttributeFormatter] = [
-        BlockquoteFormatter(),
-        HeaderFormatter(headerLevel:.h1),
-        HeaderFormatter(headerLevel:.h2),
-        HeaderFormatter(headerLevel:.h3),
-        HeaderFormatter(headerLevel:.h4),
-        HeaderFormatter(headerLevel:.h5),
-        HeaderFormatter(headerLevel:.h6),
-        PreFormatter(placeholderAttributes: self.defaultAttributes)
-    ]
 
     /// Verifies if the Active Font's Family Name matches with our Default Font, or not. If the family diverges,
     /// this helper will proceed to restore the defaultFont's Typing Attributes
@@ -1944,10 +1948,23 @@ private extension TextView {
             return false
         }
 
+        removeParagraphFormatting()
+        
+        // If there's any paragraph property that's not removed by a formatter, we'll still
+        // make sure it's forcefully removed by the following calls.
         removeParagraphPropertiesFromTypingAttributes()
         removeParagraphProperties(from: selectedRange)
 
         return true
+    }
+    
+    /// Removes all paragraph formatting from the typingAttributes and from the selected range.
+    ///
+    private func removeParagraphFormatting() {
+        for formatter in paragraphFormatters {
+            typingAttributesSwifted = formatter.remove(from: typingAttributesSwifted)
+            formatter.removeAttributes(from: storage, at: selectedRange)
+        }
     }
 
     /// Analyzes whether paragraph attributes should be removed after pressing enter in an empty
