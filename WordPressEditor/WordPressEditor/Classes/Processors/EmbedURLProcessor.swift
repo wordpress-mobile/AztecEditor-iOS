@@ -28,9 +28,10 @@ public struct EmbedURLProcessor{
     ///
     public var isYouTubeEmbed: Bool {
 
-        return matchesAnyOf([
+        return matches(anyOf: [
             pattern("^https?://(www.|m.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_|-]+$"),  // Full URL
             pattern("^https?://youtu.be/[0-9|a-z|A-Z|_|-]+$"),                                  // Short URL
+            pattern("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
             pattern("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
         ])
     }
@@ -66,12 +67,12 @@ public struct EmbedURLProcessor{
 
     public var isTwitterEmbed: Bool {
 
-        return matchesAnyOf([
-            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/status(es)?/[\\S]+$"),   // Status
-            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}$"),                      // Profile
-            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/likes$"),                // Likes
-            pattern("https?://(www\\.)?twitter\\.com/\\w{1,15}/lists/[\\S]+$"),         // List
-            pattern("https?://(www\\.)?twitter\\.com/i/moments/[\\S]+$"),               // Moments
+        return matches(anyOf: [
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/status(es)?/[\\S]+$"),   // Status
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}$"),                      // Profile
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/likes$"),                // Likes
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/lists/[\\S]+$"),         // List
+            regex("https?://(www\\.)?twitter\\.com/i/moments/[\\S]+$"),               // Moments
         ])
     }
 
@@ -83,18 +84,18 @@ public struct EmbedURLProcessor{
     ///  - Flic.kr short URLs (photos and galleries)
     ///
     public var isFlickrEmbed: Bool {
-        let regex = pattern("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$")
-        return matches(regex)
+        let pattern = regex("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$")
+        return matches(pattern)
     }
 
     /// Tests the url to see if it's a valid Issuu URL.
     public var isIssuuEmbed: Bool {
-        return matches(pattern("^https?://(www\\.)?issuu\\.com/.+/docs/[\\S]+$"))
+        return matches(regex("^https?://(www\\.)?issuu\\.com/.+/docs/[\\S]+$"))
     }
 
     /// Tests the url to see if it's a valid Instagram URL.
     public var isInstagramEmbed: Bool {
-        return matches(pattern("^https?://(www\\.)?instagr(\\.am|am\\.com)/p/[\\S]+$"))
+        return matches(regex("^https?://(www\\.)?instagr(\\.am|am\\.com)/p/[\\S]+$"))
     }
 
 
@@ -107,19 +108,19 @@ public struct EmbedURLProcessor{
     ///  - Video URL
     ///
     public var isFacebookEmbed: Bool {
-        return matchesAnyOf([
-            pattern("https?://www\\.facebook\\.com/.*/posts/[\\S]+$"),                    // Post
-            pattern("https?://www\\.facebook\\.com/.*/photos/[\\S]+$"),                   // Photo
-            pattern("https?://www\\.facebook\\.com/notes/[\\S]+$"),                       // Note
-            pattern("https?://www\\.facebook\\.com/.*/videos/[\\S]+$"),                   // Video
+        return matches(anyOf: [
+            regex("https?://www\\.facebook\\.com/.*/posts/[\\S]+$"),                    // Post
+            regex("https?://www\\.facebook\\.com/.*/photos/[\\S]+$"),                   // Photo
+            regex("https?://www\\.facebook\\.com/notes/[\\S]+$"),                       // Note
+            regex("https?://www\\.facebook\\.com/.*/videos/[\\S]+$"),                   // Video
         ])
     }
 
-    private func pattern(_ pattern: String) -> NSRegularExpression {
+    private func regex(_ pattern: String) -> NSRegularExpression {
         return try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
     }
 
-    private func matchesAnyOf(_ regexes: [NSRegularExpression]) -> Bool{
+    private func matches(anyOf regexes: [NSRegularExpression]) -> Bool{
         return regexes.first{ matches($0) } != nil
     }
 
