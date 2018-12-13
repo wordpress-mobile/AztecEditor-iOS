@@ -576,11 +576,6 @@ open class TextView: UITextView {
         pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
     }
 
-    final func notifyTextViewDidChange() {
-        delegate?.textViewDidChange?(self)
-        NotificationCenter.default.post(name: .UITextViewTextDidChange, object: self)
-    }
-
     // MARK: - Intercept keyboard operations
 
     open override func insertText(_ text: String) {
@@ -2235,7 +2230,7 @@ public extension TextView {
 
         notifyTextViewDidChange()
     }
-
+/*
     public func undoTextReplacement(of originalText: NSAttributedString, finalRange: NSRange) {
 
         let redoFinalRange = NSRange(location: finalRange.location, length: originalText.length)
@@ -2249,5 +2244,5 @@ public extension TextView {
         })
 
         notifyTextViewDidChange()
-    }
+    }*/
 }

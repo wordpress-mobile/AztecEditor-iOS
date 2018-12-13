@@ -72,9 +72,9 @@ public class EditorView: UIView {
                 let newText = richTextView.getHTML()
                 
                 if newText != htmlTextView.text {
-                    let originalRange = htmlTextView.textRange(from: htmlTextView.beginningOfDocument, to: htmlTextView.endOfDocument)!
+                    let range = NSRange(location: 0, length: htmlTextView.text.utf16.count)
                     
-                    htmlTextView.replace(originalRange, withText: newText)
+                    htmlTextView.replace(range, with: newText)
                 }
                 
                 htmlTextView.becomeFirstResponder()
@@ -103,6 +103,7 @@ public class EditorView: UIView {
         self.richTextView = richTextView
         
         if #available(iOS 11, *) {
+            htmlTextView.smartInsertDeleteType = .no
             htmlTextView.smartDashesType = .no
             htmlTextView.smartQuotesType = .no
         }
@@ -122,6 +123,12 @@ public class EditorView: UIView {
         
         self.htmlTextView = UITextView(frame: .zero, textContainer: container)
         self.richTextView = TextView(defaultFont: defaultFont, defaultParagraphStyle: defaultParagraphStyle, defaultMissingImage: defaultMissingImage)
+        
+        if #available(iOS 11, *) {
+            htmlTextView.smartInsertDeleteType = .no
+            htmlTextView.smartDashesType = .no
+            htmlTextView.smartQuotesType = .no
+        }
         
         super.init(frame: .zero)
         
