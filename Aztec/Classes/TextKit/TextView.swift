@@ -320,7 +320,7 @@ open class TextView: UITextView {
         }
         
         set {
-            // We're still setting the typing the paren't typing attributes in case it's used directly
+            // We're still setting the parent's typing attributes in case they're used directly
             // by any iOS feature.
             super.typingAttributes = newValue
             myTypingAttributes = newValue
@@ -337,7 +337,7 @@ open class TextView: UITextView {
         set {
             let newValueSwifted = NSAttributedStringKey.convertToRaw(newValue)
             
-            // We're still setting the typing the paren't typing attributes in case it's used directly
+            // We're still setting the parent's typing attributes in case they're used directly
             // by any iOS feature.
             super.typingAttributes = newValueSwifted
             myTypingAttributes = newValueSwifted
