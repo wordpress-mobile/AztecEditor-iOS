@@ -102,6 +102,11 @@ public class EditorView: UIView {
         self.htmlTextView = htmlTextView
         self.richTextView = richTextView
         
+        if #available(iOS 11, *) {
+            htmlTextView.smartDashesType = .no
+            htmlTextView.smartQuotesType = .no
+        }
+        
         super.init(coder: aDecoder)
         
         initialSetup()
