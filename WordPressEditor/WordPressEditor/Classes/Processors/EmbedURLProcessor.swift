@@ -10,15 +10,13 @@ public struct EmbedURLProcessor{
 
     public var isValidEmbed: Bool{
 
-        return [
-            isYouTubeEmbed,
-            isVimeoEmbed,
-            isTwitterEmbed,
-            isFlickrEmbed,
-            isIssuuEmbed,
-            isInstagramEmbed,
-            isFacebookEmbed,
-        ].first != nil
+        return isYouTubeEmbed
+            || isVimeoEmbed
+            || isTwitterEmbed
+            || isFlickrEmbed
+            || isIssuuEmbed
+            || isInstagramEmbed
+            || isFacebookEmbed
     }
 
     /// Tests the url to see if it's a valid YouTube URL.
