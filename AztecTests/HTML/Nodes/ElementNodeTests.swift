@@ -89,4 +89,13 @@ class ElementNodeTests: XCTestCase {
 
         XCTAssertEqual(parent.firstChild(ofType: .em), bold)
     }
+    
+    func testNeedsClosingParagraphSeparator() {
+        let header = ElementNode(type: .h1)
+        let textNode = TextNode(text: "Some text")
+        let parent = RootNode(children: [header, textNode])
+        _ = parent // silence warnings
+        
+        XCTAssertEqual(header.needsClosingParagraphSeparator(), true)
+    }
 }

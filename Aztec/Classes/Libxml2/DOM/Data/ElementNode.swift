@@ -137,7 +137,7 @@ public class ElementNode: Node {
     override func needsClosingParagraphSeparator() -> Bool {
         return (!hasChildren())
             && (hasAttributes() || !isLastInTree())
-            && (hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
+            && (isBlockLevel() || hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
     }
 
     /// Checks if the specified node requires a closing paragraph separator in itself, or in the any of its descendants.
