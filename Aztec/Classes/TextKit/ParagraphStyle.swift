@@ -15,13 +15,13 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     
     // MARK: - Initializers
     
-    override init() {
+    public override init() {
         ParagraphStyle.initializeClass
         
         super.init()
     }
     
-    convenience init(with paragraphStyle: NSParagraphStyle) {
+    public convenience init(with paragraphStyle: NSParagraphStyle) {
         self.init()
         
         setParagraphStyle(paragraphStyle)
@@ -400,17 +400,21 @@ extension ParagraphStyle {
         properties.insert(property, at: targetIndex + 1)
     }
     
-    func hasProperty(where match: (ParagraphProperty) -> Bool) -> Bool {
+    public func hasProperty(where match: (ParagraphProperty) -> Bool) -> Bool {
         return property { match($0) } != nil
     }
     
-    func property(where match: (ParagraphProperty) -> Bool) -> ParagraphProperty? {
+    public func property(where match: (ParagraphProperty) -> Bool) -> ParagraphProperty? {
         return properties.first { match($0) }
+    }
+    
+    public func removeProperties(ofType propType: ParagraphProperty.Type) {
+        properties = properties.filter({ type(of: $0) != propType })
     }
 
     /// Removes the first ParagraphProperty present in the Properties collection that matches the specified kind.
     ///
-    func removeProperty(ofType type: AnyClass) {
+    public func removeProperty(ofType type: AnyClass) {
         for index in (0..<properties.count).reversed() {
             if Swift.type(of: properties[index]) == type {
                 properties.remove(at: index)
@@ -421,7 +425,7 @@ extension ParagraphStyle {
 
     /// Replaces the first ParagraphProperty present in the Properties collection with a given instance
     ///
-    func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
+    public func replaceProperty(ofType type: AnyClass, with newProperty: ParagraphProperty) {
         for index in (0..<properties.count).reversed() {
             if Swift.type(of: properties[index]) == type {
                 properties[index] = newProperty
