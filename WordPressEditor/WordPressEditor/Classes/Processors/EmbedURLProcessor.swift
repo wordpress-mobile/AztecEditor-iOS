@@ -29,10 +29,10 @@ public struct EmbedURLProcessor{
     public var isYouTubeEmbed: Bool {
 
         return matches(anyOf: [
-            pattern("^https?://(www.|m.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_|-]+$"),  // Full URL
-            pattern("^https?://youtu.be/[0-9|a-z|A-Z|_|-]+$"),                                  // Short URL
-            pattern("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
-            pattern("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
+            regex("^https?://(www.|m.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_|-]+$"),  // Full URL
+            regex("^https?://youtu.be/[0-9|a-z|A-Z|_|-]+$"),                                  // Short URL
+            regex("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
+            regex("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
         ])
     }
 
@@ -44,16 +44,12 @@ public struct EmbedURLProcessor{
     ///  - Embedded Player URL
     ///
     public var isVimeoEmbed: Bool {
-        let pattern = "^https?://vimeo.com/[0-9]+$"
-        let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
 
-        let channelPattern = "^https?://vimeo.com/channels/[0-9|a-z|A-Z]+/[0-9]+$"
-        let channel = try! NSRegularExpression(pattern: channelPattern, options: [.caseInsensitive])
-
-        let playerPattern = "^https://player.vimeo.com/video/[0-9]+$"
-        let player = try! NSRegularExpression(pattern: playerPattern, options: [.caseInsensitive])
-
-        return matches(regex) || matches(channel) || matches(player)
+        return matches(anyOf: [
+            regex("^https?://vimeo.com/[0-9]+") ,                            // Watch
+            regex("^https?://vimeo.com/channels/[0-9|a-z|A-Z]+/[0-9]+$"),    // Channel
+            regex("^https://player.vimeo.com/video/[0-9]+$"),                // Player
+        ])
     }
 
     /// Tests the url to see if it's a valid Twitter URL.
@@ -84,8 +80,7 @@ public struct EmbedURLProcessor{
     ///  - Flic.kr short URLs (photos and galleries)
     ///
     public var isFlickrEmbed: Bool {
-        let pattern = regex("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$")
-        return matches(pattern)
+        return matches(regex("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$"))
     }
 
     /// Tests the url to see if it's a valid Issuu URL.
