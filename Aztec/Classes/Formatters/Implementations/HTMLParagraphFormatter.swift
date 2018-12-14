@@ -13,7 +13,7 @@ public class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
+    public init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
         self.placeholderAttributes = placeholderAttributes
     }
 
