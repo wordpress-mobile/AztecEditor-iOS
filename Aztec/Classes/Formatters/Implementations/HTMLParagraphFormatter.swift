@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - HTMLParagraph Formatter
 //
-class HTMLParagraphFormatter: ParagraphAttributeFormatter {
+public class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
     /// Attributes to be added by default
     ///
@@ -34,7 +34,7 @@ class HTMLParagraphFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes:[NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    public func remove(from attributes:[NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             !paragraphStyle.htmlParagraph.isEmpty
             else {
