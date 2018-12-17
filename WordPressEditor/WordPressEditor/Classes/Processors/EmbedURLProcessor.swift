@@ -9,7 +9,14 @@ public struct EmbedURLProcessor{
     }
 
     public var isValidEmbed: Bool{
-        return isYouTubeEmbed || isVimeoEmbed
+
+        return isYouTubeEmbed
+            || isVimeoEmbed
+            || isTwitterEmbed
+            || isFlickrEmbed
+            || isIssuuEmbed
+            || isInstagramEmbed
+            || isFacebookEmbed
     }
 
     /// Tests the url to see if it's a valid YouTube URL.
@@ -20,13 +27,13 @@ public struct EmbedURLProcessor{
     ///  - Short URL
     ///
     public var isYouTubeEmbed: Bool {
-        let longPattern = "^https?://(www.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_]+$"
-        let long = try! NSRegularExpression(pattern: longPattern, options: [.caseInsensitive])
 
-        let shortPattern = "^https?://youtu.be/[0-9|a-z|A-Z|_]+$"
-        let short = try! NSRegularExpression(pattern: shortPattern, options: [.caseInsensitive])
-
-        return matches(long) || matches(short)
+        return matches(anyOf: [
+            regex("^https?://(www.|m.)?youtube.com/(watch\\?v=|embed/)[0-9|a-z|A-Z|_|-]+$"),  // Full URL
+            regex("^https?://youtu.be/[0-9|a-z|A-Z|_|-]+$"),                                  // Short URL
+            regex("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
+            regex("^https?://((m|www)\\.)?youtube\\.com/playlist[\\S]+$"),                    // Playlist URL
+        ])
     }
 
     /// Tests the url to see if it's a valid Vimeo URL.
@@ -37,16 +44,79 @@ public struct EmbedURLProcessor{
     ///  - Embedded Player URL
     ///
     public var isVimeoEmbed: Bool {
-        let pattern = "^https?://vimeo.com/[0-9]+$"
-        let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
 
-        let channelPattern = "^https?://vimeo.com/channels/[0-9|a-z|A-Z]+/[0-9]+$"
-        let channel = try! NSRegularExpression(pattern: channelPattern, options: [.caseInsensitive])
+        return matches(anyOf: [
+            regex("^https?://vimeo.com/[0-9]+") ,                            // Watch
+            regex("^https?://vimeo.com/channels/[0-9|a-z|A-Z]+/[0-9]+$"),    // Channel
+            regex("^https://player.vimeo.com/video/[0-9]+$"),                // Player
+        ])
+    }
 
-        let playerPattern = "^https://player.vimeo.com/video/[0-9]+$"
-        let player = try! NSRegularExpression(pattern: playerPattern, options: [.caseInsensitive])
+    /// Tests the url to see if it's a valid Twitter URL.
+    ///
+    /// Supports these formats:
+    ///  - Tweet
+    ///  - Profile
+    ///  - Likes
+    ///  - List
+    ///  - Moment
 
-        return matches(regex) || matches(channel) || matches(player)
+    public var isTwitterEmbed: Bool {
+
+        return matches(anyOf: [
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/status(es)?/[\\S]+$"),   // Status
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}$"),                      // Profile
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/likes$"),                // Likes
+            regex("https?://(www\\.)?twitter\\.com/\\w{1,15}/lists/[\\S]+$"),         // List
+            regex("https?://(www\\.)?twitter\\.com/i/moments/[\\S]+$"),               // Moments
+        ])
+    }
+
+    /// Tests the url to see if it's a valid Flickr URL.
+    ///
+    /// Supports these formats:
+    ///  - Photo URL
+    ///  - Gallery URL
+    ///  - Flic.kr short URLs (photos and galleries)
+    ///
+    public var isFlickrEmbed: Bool {
+        return matches(regex("^https?://(www.)?(flickr.com|flic\\.kr)/(photos|p|s)/[\\S]+$"))
+    }
+
+    /// Tests the url to see if it's a valid Issuu URL.
+    public var isIssuuEmbed: Bool {
+        return matches(regex("^https?://(www\\.)?issuu\\.com/.+/docs/[\\S]+$"))
+    }
+
+    /// Tests the url to see if it's a valid Instagram URL.
+    public var isInstagramEmbed: Bool {
+        return matches(regex("^https?://(www\\.)?instagr(\\.am|am\\.com)/p/[\\S]+$"))
+    }
+
+
+    /// Tests the url to see if it's a valid Facebook URL.
+    ///
+    /// Supports these formats:
+    ///  - Post URL
+    ///  - Photo URL
+    ///  - Note URL
+    ///  - Video URL
+    ///
+    public var isFacebookEmbed: Bool {
+        return matches(anyOf: [
+            regex("https?://www\\.facebook\\.com/.*/posts/[\\S]+$"),                    // Post
+            regex("https?://www\\.facebook\\.com/.*/photos/[\\S]+$"),                   // Photo
+            regex("https?://www\\.facebook\\.com/notes/[\\S]+$"),                       // Note
+            regex("https?://www\\.facebook\\.com/.*/videos/[\\S]+$"),                   // Video
+        ])
+    }
+
+    private func regex(_ pattern: String) -> NSRegularExpression {
+        return try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+    }
+
+    private func matches(anyOf regexes: [NSRegularExpression]) -> Bool{
+        return regexes.first{ matches($0) } != nil
     }
 
     private func matches(_ regex: NSRegularExpression) -> Bool {

@@ -28,7 +28,7 @@ open class MediaAttachment: NSTextAttachment {
 
     /// Attributes accessible by the user, for general purposes.
     ///
-    open var extraAttributes = [String: String]()
+    open var extraAttributes = [Attribute]()
 
     /// Identifier used to match this attachment with a custom UIView subclass
     ///

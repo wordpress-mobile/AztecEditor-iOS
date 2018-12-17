@@ -51,41 +51,4 @@ class HTMLAttachmentRendererTests: XCTestCase {
         
         XCTAssertNil(renderer.textView(textView, imageFor: attachment, with: CGSize(width: 10, height: 10)))
     }
-    
-    func testImageForAttachment() {
-        let textView = TextView(
-            defaultFont: UIFont.systemFont(ofSize: 12),
-            defaultMissingImage: UIImage())
-        let attachment = HTMLAttachment()
-        let renderer = HTMLAttachmentRenderer(font: UIFont.systemFont(ofSize: 12))
-        
-        let fileName: String = {
-            if UIScreen.main.scale == 3 {
-                return "HTMLAttachmentRender_3x.png"
-            } else if UIScreen.main.scale == 2 {
-                return "HTMLAttachmentRender_2x.png"
-            }
-            
-            // We no longer support 1x
-            fatalError()
-        }()
- 
-        let bundle = Bundle(for: type(of: self))
-        guard let url = bundle.url(forResource: fileName, withExtension: "dat", subdirectory: nil),
-            let expectedPNGRepresentation = try? Data(contentsOf: url, options: []) else {
-                XCTFail()
-                return
-        }
-        
-        let desiredSize = CGSize(width: 100, height: 44.0)
-        
-        guard let image = renderer.textView(textView, imageFor: attachment, with: desiredSize),
-            let pngRepresentation = UIImagePNGRepresentation(image) else {
-                XCTFail()
-                return
-        }
-        
-        XCTAssertNotNil(pngRepresentation)
-        XCTAssertEqual(pngRepresentation, expectedPNGRepresentation)
-    }
 }

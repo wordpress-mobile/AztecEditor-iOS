@@ -5,14 +5,6 @@ import UIKit
 // MARK: - Figure Formatter
 //
 open class FigureFormatter: ParagraphAttributeFormatter {
-    var placeholderAttributes: [NSAttributedStringKey : Any]?
-
-    /// Designated Initializer
-    ///
-    init(placeholderAttributes: [NSAttributedStringKey: Any]? = nil) {
-        self.placeholderAttributes = placeholderAttributes
-    }
-
 
     // MARK: - Overwriten Methods
 
@@ -31,10 +23,9 @@ open class FigureFormatter: ParagraphAttributeFormatter {
 
     func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
-        let paragraphStyle = attributes.paragraphStyle()
-        
-        guard paragraphStyle.hasProperty(where: { $0 is Figure }) else {
-            return attributes
+        guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
+            paragraphStyle.hasProperty(where: { $0 is Figure }) else {
+                return attributes
         }
         
         paragraphStyle.removeProperty(ofType: Figure.self)

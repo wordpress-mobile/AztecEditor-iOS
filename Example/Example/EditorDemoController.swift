@@ -140,8 +140,7 @@ class EditorDemoController: UIViewController {
     let sampleHTML: String?
     let wordPressMode: Bool
 
-    fileprivate var optionsViewController: OptionsTableViewController!
-
+    private lazy var optionsTablePresenter = OptionsTablePresenter(presentingViewController: self, presentingTextView: richTextView)
 
     // MARK: - Lifecycle Methods
 
@@ -227,7 +226,7 @@ class EditorDemoController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        dismissOptionsViewControllerIfNecessary()
+        optionsTablePresenter.dismiss()
     }
 
     // MARK: - Title and Title placeholder position methods
@@ -347,23 +346,20 @@ class EditorDemoController: UIViewController {
         formatBar.overflowToolbar(expand: true)
         editorView.toggleEditingMode()
     }
-
-    fileprivate func dismissOptionsViewControllerIfNecessary() {
-        if let optionsViewController = optionsViewController,
-            presentedViewController == optionsViewController {
-            dismiss(animated: true, completion: nil)
-
-            self.optionsViewController = nil
-        }
+    
+    // MARK: - Options VC
+    
+    private let formattingIdentifiersWithOptions: [FormattingIdentifier] = [.orderedlist, .unorderedlist, .p, .header1, .header2, .header3, .header4, .header5, .header6]
+    
+    private func formattingIdentifierHasOptions(_ formattingIdentifier: FormattingIdentifier) -> Bool {
+        return formattingIdentifiersWithOptions.contains(formattingIdentifier)
     }
 
     // MARK: - Keyboard Handling
 
     @objc func keyboardWillShow(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-            else {
+        guard let userInfo = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
@@ -371,20 +367,30 @@ class EditorDemoController: UIViewController {
     }
 
     @objc func keyboardWillHide(_ notification: Notification) {
-        guard
-            let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-            else {
+        guard let userInfo = notification.userInfo as? [String: AnyObject],
+            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
         refreshInsets(forKeyboardFrame: keyboardFrame)
-        dismissOptionsViewControllerIfNecessary()
+        optionsTablePresenter.dismiss()
     }
 
     fileprivate func refreshInsets(forKeyboardFrame keyboardFrame: CGRect) {
-        let keyboardHeight = view.frame.maxY - (keyboardFrame.minY + view.layoutMargins.bottom)
-        let contentInset = UIEdgeInsets(top: editorView.contentInset.top, left: 0, bottom: keyboardHeight, right: 0)
+        
+        // The reason why we're converting the keyboard coordinates instead of just using
+        // keyboardFrame.height, is that we need to make sure the insets take into account the
+        // possibility that there could be other views on top or below the text view.
+        // keyboardInset is basically the distance between the top of the keyboard
+        // and the bottom of the text view.
+        let localKeyboardOrigin = view.convert(keyboardFrame.origin, from: nil)
+        let keyboardInset = max(view.frame.height - localKeyboardOrigin.y, 0)
+        
+        let contentInset = UIEdgeInsets(
+            top: editorView.contentInset.top,
+            left: 0,
+            bottom: keyboardInset,
+            right: 0)
 
         editorView.contentInset = contentInset
         updateScrollInsets()
@@ -398,9 +404,9 @@ class EditorDemoController: UIViewController {
 
         let identifiers: Set<FormattingIdentifier>
         if richTextView.selectedRange.length > 0 {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
 
         toolbar.selectItemsMatchingIdentifiers(identifiers.map({ $0.rawValue }))
@@ -524,7 +530,6 @@ extension EditorDemoController {
 
 extension EditorDemoController : Aztec.FormatBarDelegate {
     func formatBarTouchesBegan(_ formatBar: FormatBar) {
-        dismissOptionsViewControllerIfNecessary()
     }
 
     func formatBar(_ formatBar: FormatBar, didChangeOverflowState state: FormatBarOverflowState) {
@@ -543,6 +548,10 @@ extension EditorDemoController {
         guard let identifier = barItem.identifier,
             let formattingIdentifier = FormattingIdentifier(rawValue: identifier) else {
                 return
+        }
+        
+        if !formattingIdentifierHasOptions(formattingIdentifier) {
+            optionsTablePresenter.dismiss()
         }
 
         switch formattingIdentifier {
@@ -572,6 +581,8 @@ extension EditorDemoController {
             insertHorizontalRuler()
         case .code:
             toggleCode()
+        default:
+            break
         }
 
         updateFormatBar()
@@ -609,7 +620,12 @@ extension EditorDemoController {
     }
 
     func toggleHeader(fromItem item: FormatBarItem) {
-        let headerOptions = Constants.headers.map { headerType -> OptionsTableViewOption in
+        guard !optionsTablePresenter.isOnScreen() else {
+            optionsTablePresenter.dismiss()
+            return
+        }
+        
+        let options = Constants.headers.map { headerType -> OptionsTableViewOption in
             let attributes: [NSAttributedStringKey: Any] = [
                 .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
@@ -619,24 +635,30 @@ extension EditorDemoController {
         }
 
         let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
+        let optionsTableViewController = OptionsTableViewController(options: options)
+        optionsTableViewController.cellDeselectedTintColor = .gray
+        
+        optionsTablePresenter.present(
+            optionsTableViewController,
+            fromBarItem: item,
+            selectedRowIndex: selectedIndex,
+            onSelect: { [weak self] selected in
+                guard let range = self?.richTextView.selectedRange else {
+                    return
+                }
 
-        showOptionsTableViewControllerWithOptions(headerOptions,
-                                                  fromBarItem: item,
-                                                  selectedRowIndex: selectedIndex,
-                                                  onSelect: { [weak self] selected in
-                                                    
-            guard let range = self?.richTextView.selectedRange else {
-                return
-            }
-
-            self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
-            self?.optionsViewController = nil
-            self?.changeRichTextInputView(to: nil)
+                self?.richTextView.toggleHeader(Constants.headers[selected], range: range)
+                self?.optionsTablePresenter.dismiss()
         })
     }
 
     func toggleList(fromItem item: FormatBarItem) {
-        let listOptions = Constants.lists.map { (listType) -> OptionsTableViewOption in
+        guard !optionsTablePresenter.isOnScreen() else {
+            optionsTablePresenter.dismiss()
+            return
+        }
+        
+        let options = Constants.lists.map { (listType) -> OptionsTableViewOption in
             return OptionsTableViewOption(image: listType.iconImage, title: NSAttributedString(string: listType.description, attributes: [:]))
         }
 
@@ -644,22 +666,26 @@ extension EditorDemoController {
         if let listType = listTypeForSelectedText() {
             index = Constants.lists.index(of: listType)
         }
+        
+        let optionsTableViewController = OptionsTableViewController(options: options)
+        optionsTableViewController.cellDeselectedTintColor = .gray
 
-        showOptionsTableViewControllerWithOptions(listOptions,
-                                                  fromBarItem: item,
-                                                  selectedRowIndex: index,
-                                                  onSelect: { [weak self] selected in
-            guard let range = self?.richTextView.selectedRange else { return }
+        optionsTablePresenter.present(
+            optionsTableViewController,
+            fromBarItem: item,
+            selectedRowIndex: index,
+            onSelect: { [weak self] selected in
+                guard let range = self?.richTextView.selectedRange else { return }
 
-            let listType = Constants.lists[selected]
-            switch listType {
-            case .unordered:
-                self?.richTextView.toggleUnorderedList(range: range)
-            case .ordered:
-                self?.richTextView.toggleOrderedList(range: range)
-            }
-
-            self?.optionsViewController = nil
+                let listType = Constants.lists[selected]
+                switch listType {
+                case .unordered:
+                    self?.richTextView.toggleUnorderedList(range: range)
+                case .ordered:
+                    self?.richTextView.toggleOrderedList(range: range)
+                }
+                
+                self?.optionsTablePresenter.dismiss()
         })
     }
 
@@ -669,74 +695,6 @@ extension EditorDemoController {
 
     @objc func toggleOrderedList() {
         richTextView.toggleOrderedList(range: richTextView.selectedRange)
-    }
-
-    func showOptionsTableViewControllerWithOptions(_ options: [OptionsTableViewOption],
-                                                   fromBarItem barItem: FormatBarItem,
-                                                   selectedRowIndex index: Int?,
-                                                   onSelect: OptionsTableViewController.OnSelectHandler?) {
-        // Hide the input view if we're already showing these options
-        if let optionsViewController = optionsViewController,
-            optionsViewController.options == options {
-            if presentedViewController != nil {
-              dismiss(animated: true, completion: nil)
-            }
-
-            self.optionsViewController = nil
-            changeRichTextInputView(to: nil)
-            return
-        }
-
-        optionsViewController = OptionsTableViewController(options: options)
-        optionsViewController.cellDeselectedTintColor = .gray
-        optionsViewController.onSelect = { [weak self] selected in
-            if self?.presentedViewController != nil {
-                self?.dismiss(animated: true, completion: nil)
-            }
-
-            onSelect?(selected)
-        }
-
-        let selectRow = {
-            if let index = index {
-                self.optionsViewController.selectRow(at: index)
-            }
-        }
-
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            presentOptionsViewController(optionsViewController, asPopoverFromBarItem: barItem, completion: selectRow)
-        } else {
-            presentOptionsViewControllerAsInputView(optionsViewController)
-            selectRow()
-        }
-    }
-
-    private func presentOptionsViewController(_ optionsViewController: OptionsTableViewController,
-                                              asPopoverFromBarItem barItem: FormatBarItem,
-                                              completion: (() -> Void)? = nil) {
-        optionsViewController.modalPresentationStyle = .popover
-        optionsViewController.popoverPresentationController?.permittedArrowDirections = [.down]
-        optionsViewController.popoverPresentationController?.sourceView = view
-
-        let frame = barItem.superview?.convert(barItem.frame, to: UIScreen.main.coordinateSpace)
-
-        optionsViewController.popoverPresentationController?.sourceRect = view.convert(frame!, from: UIScreen.main.coordinateSpace)
-        optionsViewController.popoverPresentationController?.backgroundColor = .white
-        optionsViewController.popoverPresentationController?.delegate = self
-
-        if presentedViewController != nil {
-            dismiss(animated: true, completion: {
-                self.present(self.optionsViewController, animated: true, completion: completion)
-            })
-        } else {
-            present(optionsViewController, animated: true, completion: completion)
-        }
-    }
-
-    private func presentOptionsViewControllerAsInputView(_ optionsViewController: OptionsTableViewController) {
-        addChildViewController(optionsViewController)
-        changeRichTextInputView(to: optionsViewController.view)
-        optionsViewController.didMove(toParentViewController: self)
     }
 
     func changeRichTextInputView(to: UIView?) {
@@ -751,9 +709,9 @@ extension EditorDemoController {
     func headerLevelForSelectedText() -> Header.HeaderType {
         var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
         let mapping: [FormattingIdentifier: Header.HeaderType] = [
             .header1 : .h1,
@@ -774,9 +732,9 @@ extension EditorDemoController {
     func listTypeForSelectedText() -> TextList.Style? {
         var identifiers = Set<FormattingIdentifier>()
         if (richTextView.selectedRange.length > 0) {
-            identifiers = richTextView.formatIdentifiersSpanningRange(richTextView.selectedRange)
+            identifiers = richTextView.formattingIdentifiersSpanningRange(richTextView.selectedRange)
         } else {
-            identifiers = richTextView.formatIdentifiersForTypingAttributes()
+            identifiers = richTextView.formattingIdentifiersForTypingAttributes()
         }
         let mapping: [FormattingIdentifier: TextList.Style] = [
             .orderedlist : .ordered,
@@ -1251,9 +1209,6 @@ extension EditorDemoController: UIPopoverPresentationControllerDelegate {
     }
 
     func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-        if optionsViewController != nil {
-            optionsViewController = nil
-        }
     }
 }
 
@@ -1461,7 +1416,7 @@ private extension EditorDemoController
 
             let attachment = self.richTextView.edit(attachment) { attachment in
                 if let alt = alt {
-                    attachment.extraAttributes["alt"] = alt
+                    attachment.extraAttributes["alt"] = .string(alt)
                 }
 
                 attachment.alignment = alignment
@@ -1559,6 +1514,8 @@ extension FormattingIdentifier {
             return gridicon(.headingH6)
         case .code:
             return gridicon(.posts)
+        default:
+            return gridicon(.help)
         }
     }
 
@@ -1609,6 +1566,8 @@ extension FormattingIdentifier {
             return "formatToolbarToggleH6"
         case .code:
             return "formatToolbarCode"
+        default:
+            return ""
         }
     }
 
@@ -1654,6 +1613,8 @@ extension FormattingIdentifier {
             return NSLocalizedString("Heading 6", comment: "Accessibility label for selecting h6 paragraph style button on the formatting toolbar.")
         case .code:
             return NSLocalizedString("Code", comment: "Accessibility label for selecting code style button on the formatting toolbar.")
+        default:
+            return ""
         }
 
     }

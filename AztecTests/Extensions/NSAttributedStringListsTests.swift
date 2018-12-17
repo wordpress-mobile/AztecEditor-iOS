@@ -141,7 +141,7 @@ class NSAttributedStringListsTests: XCTestCase {
     ///
     func testParagraphRangesReturnEmptyArrayForEmptyStrings() {
         let string = NSAttributedString()
-        let paragraphRanges = string.paragraphRanges(spanning: NSRange(location: 0, length: 0))
+        let paragraphRanges = string.paragraphRanges(intersecting: NSRange(location: 0, length: 0))
 
         XCTAssert(paragraphRanges.isEmpty)
     }
@@ -184,7 +184,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let expected = [first, second, third]
         let text = NSAttributedString(string: first + second + third)
 
-        let ranges = text.paragraphRanges(spanning: text.rangeOfEntireString)
+        let ranges = text.paragraphRanges(intersecting: text.rangeOfEntireString)
         XCTAssert(ranges.count == 3)
 
         let paragraphs = ranges.map { (_, enclosingRange) in
@@ -213,7 +213,7 @@ class NSAttributedStringListsTests: XCTestCase {
         let text = NSAttributedString(string: first + second)
         let rangeExpected = (text.string as NSString).range(of: first)
 
-        let rangesForParagraphs = text.paragraphRanges(spanning: rangeExpected)
+        let rangesForParagraphs = text.paragraphRanges(intersecting: rangeExpected)
         XCTAssert(rangesForParagraphs.count == 1)
 
         guard let (_, encapsulatedRange) = rangesForParagraphs.first else {

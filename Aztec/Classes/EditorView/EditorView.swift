@@ -69,10 +69,17 @@ public class EditorView: UIView {
             
             switch editingMode {
             case .html:
-                htmlTextView.text = richTextView.getHTML()
+                let newText = richTextView.getHTML()
+                
+                if newText != htmlTextView.text {
+                    let range = NSRange(location: 0, length: htmlTextView.text.utf16.count)
+                    
+                    htmlTextView.replace(range, with: newText)
+                }
+                
                 htmlTextView.becomeFirstResponder()
             case .richText:
-                richTextView.setHTML(htmlTextView.text)
+                richTextView.setHTMLUndoable(htmlTextView.text)                
                 richTextView.becomeFirstResponder()
             }
             
@@ -95,6 +102,12 @@ public class EditorView: UIView {
         self.htmlTextView = htmlTextView
         self.richTextView = richTextView
         
+        if #available(iOS 11, *) {
+            htmlTextView.smartInsertDeleteType = .no
+            htmlTextView.smartDashesType = .no
+            htmlTextView.smartQuotesType = .no
+        }
+        
         super.init(coder: aDecoder)
         
         initialSetup()
@@ -110,6 +123,12 @@ public class EditorView: UIView {
         
         self.htmlTextView = UITextView(frame: .zero, textContainer: container)
         self.richTextView = TextView(defaultFont: defaultFont, defaultParagraphStyle: defaultParagraphStyle, defaultMissingImage: defaultMissingImage)
+        
+        if #available(iOS 11, *) {
+            htmlTextView.smartInsertDeleteType = .no
+            htmlTextView.smartDashesType = .no
+            htmlTextView.smartQuotesType = .no
+        }
         
         super.init(frame: .zero)
         
@@ -132,10 +151,16 @@ public class EditorView: UIView {
     // MARK: - HTML
     
     public func getHTML() -> String {
-        return richTextView.getHTML()
+        switch editingMode {
+        case .html:
+            return htmlTextView.text
+        case .richText:
+            return richTextView.getHTML()
+        }
     }
     
     public func setHTML(_ html: String) {
+        htmlTextView.text = html
         richTextView.setHTML(html)
     }
 
