@@ -12,14 +12,14 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1) {
+    public init(headerLevel: Header.HeaderType = .h1) {
         self.headerLevel = headerLevel
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    public func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         guard let font = attributes[.font] as? UIFont else {
             return attributes
         }
