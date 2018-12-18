@@ -15,10 +15,6 @@ class FontFormatter: AttributeFormatter {
         return range
     }
 
-    func worksInEmptyRange() -> Bool {
-        return false
-    }
-
     func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
 
         guard let font = attributes[.font] as? UIFont else {
