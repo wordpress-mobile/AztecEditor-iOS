@@ -36,11 +36,13 @@ class GutenbergOutputHTMLTreeProcessorTests: XCTestCase {
     ///
     func testNoCrashWhenTestingTwoGutenpacksInSequence() {
         
-        let commentNode = CommentNode(text: "wp:latestposts /")
+        let commentText = "wp:latestposts /"
+        let commentNode = CommentNode(text: commentText)
         let gutenpackAttribute = encoder.selfClosingAttribute(for: commentNode)
         let gutenpack = ElementNode(type: .gutenpack, attributes: [gutenpackAttribute], children: [])
         
-        let commentNode2 = CommentNode(text: "wp:latestposts /")
+        let commentText2 = "wp:latestposts /"
+        let commentNode2 = CommentNode(text: commentText2)
         let gutenpackAttribute2 = encoder.selfClosingAttribute(for: commentNode2)
         let gutenpack2 = ElementNode(type: .gutenpack, attributes: [gutenpackAttribute2], children: [])
         
@@ -48,6 +50,17 @@ class GutenbergOutputHTMLTreeProcessorTests: XCTestCase {
         let rootNode = RootNode(children: [paragraph])
         
         outputProcessor.process(rootNode)
-        XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
+        
+        let childComments = rootNode.children.compactMap { node -> CommentNode? in
+            guard let commentNode = node as? CommentNode else {
+                return nil
+            }
+            
+            return commentNode
+        }
+        
+        XCTAssertEqual(childComments.count, 2)
+        XCTAssertEqual(childComments[0].comment, commentText)
+        XCTAssertEqual(childComments[1].comment, commentText2)
     }
 }
