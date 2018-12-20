@@ -194,7 +194,30 @@ class WordpressPluginTests: XCTestCase {
         XCTAssertEqual(finalHTML, expected)
     }
     
-    //  MARK: - Spacer Block
+    // MARK: - Gutenpack + Gutenblock
+    
+    /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449056392
+    ///
+    func testGutenpackAddsNewlineInVisualModeIfNeeded() {
+        let html = """
+<!-- wp:latestposts /-->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator">
+<!-- /wp:separator -->
+"""
+        let expectedOutput = """
+<!-- wp:latestposts /-->
+<!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
+"""
+        
+        let attributedString = htmlConverter.attributedString(from: html)
+        let outputHtml = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(outputHtml, expectedOutput)
+    }
+    
+    // MARK: - Spacer Block
     
     /// This test was spawned off this issue:
     /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1078
