@@ -217,6 +217,29 @@ class WordpressPluginTests: XCTestCase {
         XCTAssertEqual(outputHtml, expectedOutput)
     }
     
+    /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449064390
+    ///
+    func testGutenpackAddsNewlineInVisualModeIfNeeded2() {
+        let html = """
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:video -->
+<figure class="wp-block-video"><video controls src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure>
+<!-- /wp:video -->
+"""
+        let expectedOutput = """
+<!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
+<!-- wp:video --><figure class="wp-block-video"><video src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure><!-- /wp:video -->
+"""
+        
+        let attributedString = htmlConverter.attributedString(from: html)
+        let outputHtml = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(outputHtml, expectedOutput)
+    }
+    
     // MARK: - Spacer Block
     
     /// This test was spawned off this issue:
