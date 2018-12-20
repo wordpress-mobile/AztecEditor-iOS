@@ -183,11 +183,9 @@ open class TextStorage: NSTextStorage {
             switch textAttachment {
             case _ as LineAttachment:
                 break
-            case let attachment as CommentAttachment:
-                attachment.delegate = self
-            case let attachment as HTMLAttachment:
-                attachment.delegate = self
             case let attachment as MediaAttachment:
+                attachment.delegate = self
+            case let attachment as RenderableAttachment:
                 attachment.delegate = self
             default:
                 guard let image = textAttachment.image else {
