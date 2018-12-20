@@ -127,7 +127,7 @@ class GutenbergInputHTMLTreeProcessorTests: XCTestCase {
     
     /// Verifies that a self closing block is properly processed
     ///
-    func testSelfClosedBlock() {
+    func testSelfClosingBlockInsideAnotherBlock() {
         let selfClosingCommentText = " wp:latest-posts /"
         let openingCommentText = " wp:paragraph {\"fontColor\": red, \"fontSize\": 12} "
         let closingCommentText = " /wp:paragraph "
