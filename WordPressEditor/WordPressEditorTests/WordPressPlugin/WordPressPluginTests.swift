@@ -30,6 +30,13 @@ class WordpressPluginTests: XCTestCase {
         return AttributedStringParser(customizer: pluginManager)
     }()
     
+    func testThatRoundConversion(fromInputHTML inputHTML: String, resultsInOutputHTML expectedHTML: String) {
+        let attributedString = htmlConverter.attributedString(from: inputHTML)
+        let outputHtml = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(outputHtml, expectedHTML)
+    }
+    
     // MARK: - Full Conversion
     
     func testFullConversionOfParagraphBlock() {
@@ -199,6 +206,7 @@ class WordpressPluginTests: XCTestCase {
     /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449056392
     ///
     func testGutenpackAddsNewlineInVisualModeIfNeeded() {
+        
         let html = """
 <!-- wp:latestposts /-->
 
@@ -211,10 +219,7 @@ class WordpressPluginTests: XCTestCase {
 <!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
 """
         
-        let attributedString = htmlConverter.attributedString(from: html)
-        let outputHtml = htmlConverter.html(from: attributedString)
-        
-        XCTAssertEqual(outputHtml, expectedOutput)
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
     }
     
     /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449064390
@@ -234,10 +239,7 @@ class WordpressPluginTests: XCTestCase {
 <!-- wp:video --><figure class="wp-block-video"><video src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure><!-- /wp:video -->
 """
         
-        let attributedString = htmlConverter.attributedString(from: html)
-        let outputHtml = htmlConverter.html(from: attributedString)
-        
-        XCTAssertEqual(outputHtml, expectedOutput)
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
     }
     
 
@@ -258,10 +260,7 @@ class WordpressPluginTests: XCTestCase {
 <!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
 """
         
-        let attributedString = htmlConverter.attributedString(from: html)
-        let outputHtml = htmlConverter.html(from: attributedString)
-        
-        XCTAssertEqual(outputHtml, expectedOutput)
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
     }
     
     // MARK: - Spacer Block
