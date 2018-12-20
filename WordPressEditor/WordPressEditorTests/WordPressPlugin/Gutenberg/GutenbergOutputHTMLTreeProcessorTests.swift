@@ -30,9 +30,9 @@ class GutenbergOutputHTMLTreeProcessorTests: XCTestCase {
         XCTAssertTrue(rootNode.rawText().contains("This text will be lost"))
     }
     
-    /// There was an issue with Gutenberg posts losing edits.  This automated test makes sure the issues we found don't regress.
+    /// There was an issue with Gutenberg posts crashing GutenbergOutputHTMLTreeProcessor.
     ///
-    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1052
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1111
     ///
     func testNoCrashWhenTestingTwoGutenpacksInSequence() {
         
