@@ -30,6 +30,13 @@ class WordpressPluginTests: XCTestCase {
         return AttributedStringParser(customizer: pluginManager)
     }()
     
+    func testThatRoundConversion(fromInputHTML inputHTML: String, resultsInOutputHTML expectedHTML: String) {
+        let attributedString = htmlConverter.attributedString(from: inputHTML)
+        let outputHtml = htmlConverter.html(from: attributedString)
+        
+        XCTAssertEqual(outputHtml, expectedHTML)
+    }
+    
     // MARK: - Full Conversion
     
     func testFullConversionOfParagraphBlock() {
@@ -194,7 +201,69 @@ class WordpressPluginTests: XCTestCase {
         XCTAssertEqual(finalHTML, expected)
     }
     
-    //  MARK: - Spacer Block
+    // MARK: - Gutenpack + Gutenblock
+    
+    /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449056392
+    ///
+    func testGutenpackAddsNewlineInVisualModeIfNeeded() {
+        
+        let html = """
+<!-- wp:latestposts /-->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator">
+<!-- /wp:separator -->
+"""
+        let expectedOutput = """
+<!-- wp:latestposts /-->
+<!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
+"""
+        
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
+    }
+    
+    /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449064390
+    ///
+    func testGutenpackAddsNewlineInVisualModeIfNeeded2() {
+        let html = """
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:video -->
+<figure class="wp-block-video"><video controls src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure>
+<!-- /wp:video -->
+"""
+        let expectedOutput = """
+<!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
+<!-- wp:video --><figure class="wp-block-video"><video src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure><!-- /wp:video -->
+"""
+        
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
+    }
+    
+
+    /// Spawned from: https://github.com/wordpress-mobile/AztecEditor-iOS/pull/1116#issuecomment-449064390
+    ///
+    func testGutenpackAddsNewlineInVisualModeIfNeeded3() {
+        let html = """
+<!-- wp:video -->
+<figure class="wp-block-video"><video src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure>
+<!-- /wp:video -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+"""
+        let expectedOutput = """
+<!-- wp:video --><figure class="wp-block-video"><video src="https://videos.files.wordpress.com/AvC6H2JI/video-de223da1f6.mp4"></video></figure><!-- /wp:video -->
+<!-- wp:separator --><hr class="wp-block-separator"><!-- /wp:separator -->
+"""
+        
+        testThatRoundConversion(fromInputHTML: html, resultsInOutputHTML: expectedOutput)
+    }
+    
+    // MARK: - Spacer Block
     
     /// This test was spawned off this issue:
     /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1078

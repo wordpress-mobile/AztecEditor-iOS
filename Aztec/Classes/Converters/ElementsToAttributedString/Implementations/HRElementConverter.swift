@@ -22,7 +22,10 @@ class HRElementConverter: AttachmentElementConverter {
         let attributes = combine(attributes, with: representation)
         let attachment = self.attachment(for: element)
         
-        return (attachment, NSAttributedString(attachment: attachment, attributes: attributes))
+        let intrinsicRepresentation = NSAttributedString(attachment: attachment, attributes: attributes)
+        let serialization = serialize(element, intrinsicRepresentation, attributes)
+        
+        return (attachment, serialization)
     }
     
     // MARK: - Attachment Creation
