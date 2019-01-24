@@ -19,7 +19,7 @@ open class Header: ParagraphProperty {
         case h5 = 5
         case h6 = 6
 
-        public static var fontSizeMap: [HeaderType: Float] = {
+        public static var defaultFontSizeMap: [HeaderType: Float] = {
             return [
                 .h1: 36,
                 .h2: 24,
@@ -30,9 +30,13 @@ open class Header: ParagraphProperty {
                 .none: Constants.defaultFontSize
                 ]
         }()
-
-        public var fontSize: Float {
-            let fontSize = HeaderType.fontSizeMap[self] ?? Constants.defaultFontSize
+        
+        public func fontSize(for fontSizeMap: [HeaderType: Float]?) -> Float {
+            var effectiveFontSizeMap: [HeaderType: Float] = HeaderType.defaultFontSizeMap
+            if let fontSizeMap = fontSizeMap {
+                effectiveFontSizeMap = fontSizeMap
+            }
+            let fontSize = effectiveFontSizeMap[self] ?? Constants.defaultFontSize
 
             if #available(iOS 11.0, *) {
                 return Float(UIFontMetrics.default.scaledValue(for: CGFloat(fontSize)))
@@ -52,12 +56,20 @@ open class Header: ParagraphProperty {
     ///
     let defaultFontSize: Float
 
+    /// HeaderType and font size map
+    //
+    let fontSizeMap: [Header.HeaderType: Float]?
 
     // MARK: - Initializers
 
-    init(level: HeaderType, with representation: HTMLRepresentation? = nil, defaultFontSize: Float? = nil) {
+    init(level: HeaderType,
+         with representation: HTMLRepresentation? = nil,
+         defaultFontSize: Float? = nil,
+         fontSizeMap: [Header.HeaderType: Float]? = nil)
+    {
         self.defaultFontSize = defaultFontSize ?? Constants.defaultFontSize
         self.level = level
+        self.fontSizeMap = fontSizeMap
         super.init(with: representation)
     }
     
@@ -75,11 +87,18 @@ open class Header: ParagraphProperty {
         } else {
             defaultFontSize = Constants.defaultFontSize
         }
-
+        fontSizeMap = nil
         super.init(coder: aDecoder)
     }
 
-
+    func fontSize() -> Float {
+        guard level == .none else {
+            return level.fontSize(for: fontSizeMap)
+        }
+        
+        return defaultFontSize
+    }
+    
     // MARK: - NSCoder
 
     public override func encode(with aCoder: NSCoder) {

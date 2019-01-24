@@ -8,12 +8,17 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Heading Level of this formatter
     ///
-    let headerLevel: Header.HeaderType
+    public let headerLevel: Header.HeaderType
 
+    /// HeaderType and font size map of this formatter
+    //
+    let fontSizeMap: [Header.HeaderType: Float]?
+    
     /// Designated Initializer
     ///
-    public init(headerLevel: Header.HeaderType = .h1) {
+    public init(headerLevel: Header.HeaderType = .h1, fontSizeMap: [Header.HeaderType: Float]? = nil) {
         self.headerLevel = headerLevel
+        self.fontSizeMap = fontSizeMap
     }
 
 
@@ -30,14 +35,14 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         }
 
         let defaultSize = defaultFontSize(from: attributes)
-        let header = Header(level: headerLevel, with: representation, defaultFontSize: defaultSize)
+        let header = Header(level: headerLevel, with: representation, defaultFontSize: defaultSize, fontSizeMap: fontSizeMap)
         if newParagraphStyle.headers.isEmpty {
             newParagraphStyle.appendProperty(header)
         } else {
             newParagraphStyle.replaceProperty(ofType: Header.self, with: header)
         }
  
-        let targetFontSize = CGFloat(headerFontSize(for: headerLevel, defaultSize: defaultSize))
+        let targetFontSize = CGFloat(header.fontSize())
         var resultingAttributes = attributes
         
         let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
@@ -98,11 +103,4 @@ private extension HeaderFormatter {
         return nil
     }
 
-    func headerFontSize(for type: Header.HeaderType, defaultSize: Float?) -> Float {
-        guard type == .none, let defaultSize = defaultSize else {
-            return type.fontSize
-        }
-
-        return defaultSize
-    }
 }
