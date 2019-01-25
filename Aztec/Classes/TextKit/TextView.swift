@@ -920,6 +920,13 @@ open class TextView: UITextView {
         notifyTextViewDidChange()
     }
 
+    public func apply(formattingIdentifier: FormattingIdentifier, atRange range: NSRange, remove: Bool) {
+        guard let formatter = TextView.formatterMap[formattingIdentifier] else {
+            return
+        }
+        apply(formatter: formatter, atRange: range, remove: remove)
+    }
+    
     func apply(formatter: AttributeFormatter, atRange range: NSRange, remove: Bool) {
 
         let applicationRange = formatter.applicationRange(for: range, in: textStorage)
