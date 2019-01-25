@@ -221,7 +221,20 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
-    public let defaultFont: UIFont
+    public var defaultFont: UIFont {
+        set {
+            if #available(iOS 11.0, *) {
+                _defaultFont = UIFontMetrics.default.scaledFont(for: newValue)
+            } else {
+                _defaultFont = newValue
+            }
+        }
+        get {
+            return _defaultFont
+        }
+    }
+    private var _defaultFont: UIFont
+    
     public let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
@@ -399,9 +412,9 @@ open class TextView: UITextView {
         defaultMissingImage: UIImage) {
 
         if #available(iOS 11.0, *) {
-            self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
+            self._defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
         } else {
-            self.defaultFont = defaultFont
+            self._defaultFont = defaultFont
         }
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
@@ -421,9 +434,9 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
         let font = UIFont.systemFont(ofSize: 14)
         if #available(iOS 11.0, *) {
-            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
+            self._defaultFont = UIFontMetrics.default.scaledFont(for: font)
         } else {
-            self.defaultFont = font
+            self._defaultFont = font
         }
 
         defaultParagraphStyle = ParagraphStyle.default
