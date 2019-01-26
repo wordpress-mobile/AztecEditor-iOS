@@ -3,11 +3,11 @@ import Foundation
 /// This is the main converter class in Aztec.
 /// It takes care of converting HTML text to NSAttributedString and vice-versa.
 ///
-public class HTMLConverter {
+open class HTMLConverter {
     
     // MARK: - Plugins & Parsing
     
-    let pluginManager: PluginManager
+    public let pluginManager: PluginManager
     
     // MARK: - Initializers
     
@@ -23,15 +23,23 @@ public class HTMLConverter {
     
     let htmlToTree = HTMLParser()
     
-    private(set) lazy var treeToAttributedString: AttributedStringSerializer = {
+    private(set) lazy var _treeToAttributedString: AttributedStringSerializer = {
         return AttributedStringSerializer(customizer: pluginManager)
     }()
     
+    open var treeToAttributedString: AttributedStringSerializer {
+        return _treeToAttributedString
+    }
+    
     // MARK: - Converters: AttributedString -> HTML
     
-    private(set) lazy var attributedStringToTree: AttributedStringParser = {
+    private(set) lazy var _attributedStringToTree: AttributedStringParser = {
         return AttributedStringParser(customizer: pluginManager)
     }()
+    
+    open var attributedStringToTree: AttributedStringParser {
+        return _attributedStringToTree
+    }
     
     private(set) lazy var treeToHTML: HTMLSerializer = {
         return HTMLSerializer(customizer: pluginManager)

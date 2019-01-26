@@ -9,6 +9,8 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
     
     let cssAttributeMatcher = BoldCSSAttributeMatcher()
     
+    public init() {}
+    
     public func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
@@ -24,13 +26,19 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
             elementNodes.append(representationElement.toElementNode())
         }
         
-        if let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitBold) {
-            
+        if shouldEnableBold(for: attributes) {
             return enableBold(in: elementNodes)
         } else {
             return disableBold(in: elementNodes)
         }
+    }
+    
+    open func shouldEnableBold(for attributes: [NSAttributedStringKey: Any]) -> Bool {
+        if let font = attributes[.font] as? UIFont,
+            font.containsTraits(.traitBold) {
+            return true
+        }
+        return false
     }
     
     // MARK: - Enabling and Disabling Bold

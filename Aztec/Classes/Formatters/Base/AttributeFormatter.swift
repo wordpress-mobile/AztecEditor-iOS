@@ -7,7 +7,7 @@ import UIKit
 /// attribute, it is useful to have a virtual attribute. 
 /// Toggling this attribute would also toggle the attributes for its defined style.
 ///
-protocol AttributeFormatter {
+public protocol AttributeFormatter {
 
     /// Toggles an attribute in the specified range of a text storage, and returns the new 
     /// Selected Range. This is required because, in several scenarios, we may need to add a "Zero Width Space",
@@ -74,7 +74,7 @@ protocol AttributeFormatter {
 
 // MARK: - Default Implementations
 //
-extension AttributeFormatter {
+public extension AttributeFormatter {
 
     /// The default implementation forwards the call.  This is probably good enough for all
     /// classes that implement this protocol.

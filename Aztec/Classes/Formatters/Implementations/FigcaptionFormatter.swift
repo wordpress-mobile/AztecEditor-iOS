@@ -9,7 +9,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    public func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         
         let defaultFont = self.defaultFont(from: attributes)
         
@@ -28,7 +28,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    public func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
         
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let figcaption = paragraphStyle.property(where: { $0 is Figcaption }) as? Figcaption else {
@@ -46,7 +46,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    public func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }

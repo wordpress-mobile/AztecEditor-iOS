@@ -1,13 +1,13 @@
 import Foundation
 import UIKit
 
-protocol AttributedStringSerializerCustomizer {
+public protocol AttributedStringSerializerCustomizer {
     func converter(for: ElementNode) -> ElementConverter?
 }
 
 /// Composes an attributed string from an HTML tree.
 ///
-class AttributedStringSerializer {
+open class AttributedStringSerializer {
     private let customizer: AttributedStringSerializerCustomizer?
     
     // MARK: - Element Converters
@@ -33,7 +33,7 @@ class AttributedStringSerializer {
     
     // MARK: - Initializers
 
-    required init(
+    public required init(
         customizer: AttributedStringSerializerCustomizer? = nil) {
         
         self.customizer = customizer
@@ -156,8 +156,12 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter()
+    open var genericElementConverter: GenericElementConverter {
+        return _genericElementConverter
+    }
     
+    lazy var _genericElementConverter = GenericElementConverter()
+
     lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, intrinsicRepresentation, attributes) in
         let content = NSMutableAttributedString()
         

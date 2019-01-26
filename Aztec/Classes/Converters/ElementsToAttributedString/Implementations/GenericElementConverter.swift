@@ -3,7 +3,7 @@ import UIKit
 
 /// Converts a generic element to `NSAttributedString`.  Should only be used if a specific converter is not found.
 ///
-class GenericElementConverter: ElementConverter {
+open class GenericElementConverter: ElementConverter {
     
     // MARK: - Element Support
     
@@ -35,7 +35,7 @@ class GenericElementConverter: ElementConverter {
     lazy var codeFormatter = CodeFormatter()
     lazy var liFormatter = LiFormatter()
     
-    public lazy var elementFormattersMap: [Element: AttributeFormatter] = {
+    private lazy var _elementFormattersMap: [Element: AttributeFormatter] = {
         return [
             .blockquote: self.blockquoteFormatter,
             .div: self.divFormatter,
@@ -59,9 +59,16 @@ class GenericElementConverter: ElementConverter {
         ]
     }()
     
+    open var elementFormattersMap: [Element: AttributeFormatter] {
+        return _elementFormattersMap
+    }
+    
+    // Public init to be able to initialize from other modules
+    public init() {}
+    
     // MARK: - ElementConverter
     
-    func convert(
+    public func convert(
         _ element: ElementNode,
         inheriting attributes: [NSAttributedStringKey: Any],
         contentSerializer serialize: ContentSerializer) -> NSAttributedString {

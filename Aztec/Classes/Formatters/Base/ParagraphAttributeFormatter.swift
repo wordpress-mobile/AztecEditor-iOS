@@ -1,9 +1,9 @@
 import UIKit
 
-protocol ParagraphAttributeFormatter: AttributeFormatter {
+public protocol ParagraphAttributeFormatter: AttributeFormatter {
 }
 
-extension ParagraphAttributeFormatter {
+public extension ParagraphAttributeFormatter {
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return text.paragraphRange(for: range)

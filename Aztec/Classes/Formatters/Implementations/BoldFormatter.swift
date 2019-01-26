@@ -1,6 +1,6 @@
 import UIKit
 
-class BoldFormatter: FontFormatter {
+open class BoldFormatter: FontFormatter {
     init() {
         super.init(traits: .traitBold, htmlRepresentationKey: .boldHtmlRepresentation)
     }

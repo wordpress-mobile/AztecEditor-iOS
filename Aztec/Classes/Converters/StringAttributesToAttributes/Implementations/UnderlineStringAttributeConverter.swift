@@ -9,6 +9,8 @@ open class UnderlineStringAttributeConverter: StringAttributeConverter {
     
     let cssAttributeMatcher = UnderlineCSSAttributeMatcher()
     
+    public init() {}
+    
     public func convert(
         attributes: [NSAttributedStringKey: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {

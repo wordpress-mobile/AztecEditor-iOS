@@ -221,20 +221,7 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
-    public var defaultFont: UIFont {
-        set {
-            if #available(iOS 11.0, *) {
-                _defaultFont = UIFontMetrics.default.scaledFont(for: newValue)
-            } else {
-                _defaultFont = newValue
-            }
-        }
-        get {
-            return _defaultFont
-        }
-    }
-    private var _defaultFont: UIFont
-    
+    public let defaultFont: UIFont
     public let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
@@ -409,17 +396,18 @@ open class TextView: UITextView {
     @objc public init(
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
-        defaultMissingImage: UIImage) {
+        defaultMissingImage: UIImage,
+        storage: TextStorage = TextStorage()) {
 
         if #available(iOS 11.0, *) {
-            self._defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
         } else {
-            self._defaultFont = defaultFont
+            self.defaultFont = defaultFont
         }
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
-        let storage = TextStorage()
+        let storage = storage
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 
@@ -434,9 +422,9 @@ open class TextView: UITextView {
     required public init?(coder aDecoder: NSCoder) {
         let font = UIFont.systemFont(ofSize: 14)
         if #available(iOS 11.0, *) {
-            self._defaultFont = UIFontMetrics.default.scaledFont(for: font)
+            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
         } else {
-            self._defaultFont = font
+            self.defaultFont = font
         }
 
         defaultParagraphStyle = ParagraphStyle.default
@@ -781,7 +769,7 @@ open class TextView: UITextView {
 
     // MARK: - Getting format identifiers
 
-    private static let formatterMap: [FormattingIdentifier: AttributeFormatter] = [
+    private static let _formatterMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
         .underline: UnderlineFormatter(),
@@ -800,6 +788,10 @@ open class TextView: UITextView {
         .code: CodeFormatter()
     ]
 
+    open var formatterMap: [FormattingIdentifier: AttributeFormatter] {
+        return TextView._formatterMap
+    }
+    
     /// Get a list of format identifiers spanning the specified range as a String array.
     ///
     /// - Parameter range: An NSRange to inspect.
@@ -817,7 +809,7 @@ open class TextView: UITextView {
 
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterMap {
+        for (key, formatter) in formatterMap {
             if formatter.present(in: storage, at: range) {
                 identifiers.insert(key)
             }
@@ -841,7 +833,7 @@ open class TextView: UITextView {
         let index = adjustedIndex(index)
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterMap {
+        for (key, formatter) in formatterMap {
             if formatter.present(in: storage, at: index) {
                 identifiers.insert(key)
             }
@@ -859,7 +851,7 @@ open class TextView: UITextView {
         let activeAttributes = typingAttributesSwifted
         var identifiers = Set<FormattingIdentifier>()
 
-        for (key, formatter) in type(of: self).formatterMap where formatter.present(in: activeAttributes) {
+        for (key, formatter) in formatterMap where formatter.present(in: activeAttributes) {
             identifiers.insert(key)
         }
 
@@ -897,7 +889,7 @@ open class TextView: UITextView {
 
     // MARK: - Formatting
 
-    func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
+    public func toggle(formatter: AttributeFormatter, atRange range: NSRange) {
 
         let applicationRange = formatter.applicationRange(for: range, in: textStorage)
         let originalString = storage.attributedSubstring(from: applicationRange)
@@ -921,7 +913,7 @@ open class TextView: UITextView {
     }
 
     public func apply(formattingIdentifier: FormattingIdentifier, atRange range: NSRange, remove: Bool) {
-        guard let formatter = TextView.formatterMap[formattingIdentifier] else {
+        guard let formatter = formatterMap[formattingIdentifier] else {
             return
         }
         apply(formatter: formatter, atRange: range, remove: remove)

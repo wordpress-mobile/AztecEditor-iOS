@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - UIFont Traits Helpers
 //
-extension UIFont {
+public extension UIFont {
 
     /// Returns a new instance of the current font with its SymbolicTraits Updated.
     ///
@@ -14,7 +14,7 @@ extension UIFont {
     ///
     /// - Returns: A new UIFont with the same descriptors as the current instance, but with its traits updated, as specified.
     ///
-    func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, enable: Bool) -> UIFont {
+    public func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, enable: Bool) -> UIFont {
         let descriptor = fontDescriptor
         var newTraits = descriptor.symbolicTraits
 

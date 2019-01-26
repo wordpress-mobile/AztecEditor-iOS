@@ -3,7 +3,7 @@ import UIKit
 
 /// This class managed the loading and provides an execution interface for plugins.
 ///
-class PluginManager {
+public class PluginManager {
     
     // MARK: - Plugin Loading
     
@@ -77,7 +77,7 @@ class PluginManager {
 // MARK: - AttributedStringSerializerCustomizer
 
 extension PluginManager: AttributedStringSerializerCustomizer {
-    func converter(for element: ElementNode) -> ElementConverter? {
+    public func converter(for element: ElementNode) -> ElementConverter? {
         for plugin in plugins {
             if let customizer = plugin.inputCustomizer,
                 let converter = customizer.converter(for: element) as ElementConverter? {
@@ -92,7 +92,7 @@ extension PluginManager: AttributedStringSerializerCustomizer {
 // MARK: - AttributedStringParserCustomizer
 
 extension PluginManager: AttributedStringParserCustomizer {
-    func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
+    public func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? {
         for plugin in plugins {
             if let customizer = plugin.outputCustomizer,
                 let element = customizer.convert(paragraphProperty) {
@@ -104,7 +104,7 @@ extension PluginManager: AttributedStringParserCustomizer {
         return nil
     }
     
-    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+    public func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
         for plugin in plugins {
             if let customizer = plugin.outputCustomizer,
                 let elements = customizer.convert(attachment, attributes: attributes) {

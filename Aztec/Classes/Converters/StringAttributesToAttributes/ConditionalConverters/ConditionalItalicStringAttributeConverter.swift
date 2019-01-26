@@ -1,9 +1,9 @@
 import Foundation
 
 
-class ConditionalItalicStringAttributeConverter: ConditionalStringAttributeConverter {
+open class ConditionalItalicStringAttributeConverter: ConditionalStringAttributeConverter {
     
-    init() {
+    public init() {
         let citeBranch: Branch = {
             let predicate: ConditionalStringAttributeConverter.Predicate = { attributes -> Bool in
                 

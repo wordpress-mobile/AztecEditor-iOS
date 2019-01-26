@@ -5,11 +5,11 @@ import libxml2
 /// This protocol can be implemented by an object that wants to modify the behavior
 /// of the AttributedStringParser.
 ///
-protocol AttributedStringParserCustomizer: ParagraphPropertyConverter, BaseAttachmentToElementConverter {}
+public protocol AttributedStringParserCustomizer: ParagraphPropertyConverter, BaseAttachmentToElementConverter {}
 
 /// Parses an attributed string into an HTML tree.
 ///
-class AttributedStringParser {
+open class AttributedStringParser {
     
     // MARK: - Plugin Manager
     
@@ -17,17 +17,23 @@ class AttributedStringParser {
     
     // MARK: - Initializers
     
-    init(customizer: AttributedStringParserCustomizer? = nil) {
+    public init(customizer: AttributedStringParserCustomizer? = nil) {
         self.customizer = customizer
     }
     
     // MARK: - String Attribute Converters
     
-    private let stringAttributeConverters: [StringAttributeConverter] = [
+    private let _stringAttributeConverters: [StringAttributeConverter] = [
         BoldStringAttributeConverter(),
         ConditionalItalicStringAttributeConverter(),
         UnderlineStringAttributeConverter(),
     ]
+    
+    /// List of StringAttributeConverter implementations that can convert
+    /// NSAttributedString attributes into either ElementNodes or Attributes
+    open var stringAttributeConverters: [StringAttributeConverter] {
+        return _stringAttributeConverters
+    }
     
     // MARK: - Attachment Converters
     
