@@ -911,13 +911,6 @@ open class TextView: UITextView {
         }
         notifyTextViewDidChange()
     }
-
-    public func apply(formattingIdentifier: FormattingIdentifier, atRange range: NSRange, remove: Bool) {
-        guard let formatter = formatterMap[formattingIdentifier] else {
-            return
-        }
-        apply(formatter: formatter, atRange: range, remove: remove)
-    }
     
     func apply(formatter: AttributeFormatter, atRange range: NSRange, remove: Bool) {
 
