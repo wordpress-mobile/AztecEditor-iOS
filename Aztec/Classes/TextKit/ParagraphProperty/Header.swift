@@ -31,6 +31,10 @@ open class Header: ParagraphProperty {
                 ]
         }()
         
+        public var fontSize: Float {
+            return fontSize(for: nil)
+        }
+        
         public func fontSize(for fontSizeMap: [HeaderType: Float]?) -> Float {
             var effectiveFontSizeMap: [HeaderType: Float] = HeaderType.defaultFontSizeMap
             if let fontSizeMap = fontSizeMap {
