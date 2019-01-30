@@ -2,6 +2,10 @@ import UIKit
 
 public extension NSAttributedStringKey {
 
+    /// Key used to store Header tags Metadata, by our HeaderFormatter.
+    ///
+    public static let headingRepresentation: NSAttributedString.Key = NSAttributedString.Key("headingRepresentation")
+
     /// Key used to store Bold Tag Metadata, by our BoldFormatter.
     ///
     public static let boldHtmlRepresentation = NSAttributedStringKey("Bold.htmlRepresentation")
