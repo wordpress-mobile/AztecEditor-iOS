@@ -35,6 +35,7 @@
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		74EEC71B1FAB6EC900B989E3 /* UIImage+Resize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */; };
 		914CD9E72200B2D200DDD5C9 /* ShadowBoldFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914CD9E62200B2D200DDD5C9 /* ShadowBoldFormatter.swift */; };
+		917E22132201D2A5008AC826 /* ShadowBoldFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917E22122201D2A5008AC826 /* ShadowBoldFormatterTests.swift */; };
 		B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */; };
 		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
 		B524228F1F30C098002E7C6C /* HTMLDivFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */; };
@@ -301,6 +302,7 @@
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Resize.swift"; sourceTree = "<group>"; };
 		914CD9E62200B2D200DDD5C9 /* ShadowBoldFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowBoldFormatter.swift; sourceTree = "<group>"; };
+		917E22122201D2A5008AC826 /* ShadowBoldFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowBoldFormatterTests.swift; sourceTree = "<group>"; };
 		B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewStubDelegate.swift; sourceTree = "<group>"; };
 		B524228C1F30C039002E7C6C /* HTMLDiv.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDiv.swift; sourceTree = "<group>"; };
 		B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDivFormatter.swift; sourceTree = "<group>"; };
@@ -830,6 +832,7 @@
 				FFD436971E3180A500A0E26F /* FontFormatterTests.swift */,
 				B542D6411E9EB122009D12D3 /* PreFormaterTests.swift */,
 				B5C16A621F4DF77300B113CF /* HeaderFormatterTests.swift */,
+				917E22122201D2A5008AC826 /* ShadowBoldFormatterTests.swift */,
 			);
 			path = Formatters;
 			sourceTree = "<group>";
@@ -1704,6 +1707,7 @@
 				B542D6421E9EB122009D12D3 /* PreFormaterTests.swift in Sources */,
 				B5D575811F226FF4003A62F6 /* UnsupportedHTMLTests.swift in Sources */,
 				F17BC8A51F4E4F5A00398E2B /* TextNodeTests.swift in Sources */,
+				917E22132201D2A5008AC826 /* ShadowBoldFormatterTests.swift in Sources */,
 				F185A5B12123C0DA00DDFAB1 /* NSAttributedStringAttachmentsTests.swift in Sources */,
 				F1FC705321383F98007AAFB3 /* UIStackViewHelpersTests.swift in Sources */,
 				F126ADC721553E3C008F7DD1 /* BoldElementAttributeConverterTests.swift in Sources */,
