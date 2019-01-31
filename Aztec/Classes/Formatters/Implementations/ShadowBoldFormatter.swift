@@ -12,11 +12,12 @@ class ShadowBoldFormatter: AttributeFormatter {
         }
         
         static let blurRadiusNoBlur: CGFloat = 0.0
+        static let defaultColor: UIColor = .black
         
         // Creates a no blur NSShadow instance with given offset values
         static func shadow(width: CGFloat = DefaultOffset.width,
                            height: CGFloat = DefaultOffset.height,
-                           color: UIColor = UIColor.black) -> NSShadow {
+                           color: UIColor) -> NSShadow {
             let shadow = NSShadow()
             shadow.shadowBlurRadius = Shadow.blurRadiusNoBlur
             shadow.shadowOffset = CGSize(width: width, height: height)
@@ -49,13 +50,13 @@ class ShadowBoldFormatter: AttributeFormatter {
         }
         var resultingAttributes = attributes
         guard let font = resultingAttributes[.font] as? UIFont else {
-            resultingAttributes[.shadow] = Shadow.shadow()
+            resultingAttributes[.shadow] = Shadow.shadow(color: shadowColor(from: attributes))
             resultingAttributes[.kern] =  Shadow.DefaultOffset.width
             return resultingAttributes
         }
         //Calculate letter spacing and shadow offset with respect to the font size
         let shadowOffsetWidth = Shadow.offset(with: font.pointSize)
-        resultingAttributes[.shadow] = Shadow.shadow(width: shadowOffsetWidth)
+        resultingAttributes[.shadow] = Shadow.shadow(width: shadowOffsetWidth, color: shadowColor(from: attributes))
         resultingAttributes[.kern] = shadowOffsetWidth
         resultingAttributes[.boldHtmlRepresentation] = representation
         
@@ -86,5 +87,12 @@ class ShadowBoldFormatter: AttributeFormatter {
     
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return range
+    }
+    
+    private func shadowColor(from attributes: [NSAttributedString.Key: Any]) -> UIColor {
+        if let color = attributes[.foregroundColor] as? UIColor {
+            return color
+        }
+        return Shadow.defaultColor
     }
 }
