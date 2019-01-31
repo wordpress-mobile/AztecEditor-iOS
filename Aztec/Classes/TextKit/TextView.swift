@@ -769,7 +769,7 @@ open class TextView: UITextView {
     // MARK: - Getting format identifiers
 
     private static let formatterMap: [FormattingIdentifier: AttributeFormatter] = [
-        .bold: ShadowBoldFormatter(),
+        .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
         .underline: UnderlineFormatter(),
         .strikethrough: StrikethroughFormatter(),
@@ -939,7 +939,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleBold(range: NSRange) {
-        let formatter = ShadowBoldFormatter()
+        let formatter = BoldFormatter()
         toggle(formatter: formatter, atRange: range)
     }
 
