@@ -24,9 +24,7 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
             elementNodes.append(representationElement.toElementNode())
         }
         
-        if let font = attributes[.font] as? UIFont,
-            font.containsTraits(.traitBold) {
-            
+        if shouldEnableBoldElement(for: attributes) {
             return enableBold(in: elementNodes)
         } else {
             return disableBold(in: elementNodes)
@@ -72,6 +70,31 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
         // Nothing was found to represent bold... just add the element.
         elementNodes.append(ElementNode(type: .strong))
         return elementNodes
+    }
+    
+    func shouldEnableBoldElement(for attributes: [NSAttributedString.Key : Any]) -> Bool {
+        if isHeading(for: attributes) {
+            // If this is a heading then shadow represents <strong> element since
+            // headings are bold by default
+            return hasShadowTrait(for: attributes)
+        }
+        return hasBoldTrait(for: attributes)
+    }
+    
+    func isHeading(for attributes: [NSAttributedString.Key : Any]) -> Bool {
+        return attributes[.headingRepresentation] != nil
+    }
+    
+    func hasShadowTrait(for attributes: [NSAttributedString.Key : Any]) -> Bool {
+        return attributes[.shadow] != nil
+    }
+    
+    func hasBoldTrait(for attributes: [NSAttributedString.Key : Any]) -> Bool {
+        if let font = attributes[.font] as? UIFont,
+            font.containsTraits(.traitBold) {
+            return true
+        }
+        return false
     }
 }
 

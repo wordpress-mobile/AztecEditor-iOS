@@ -41,10 +41,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         var resultingAttributes = attributes
         
         let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
-        
+        var newFont = UIFont(descriptor: newDescriptor, size: targetFontSize)
+        newFont = newFont.modifyTraits(.traitBold, enable: true)
+
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.font] = UIFont(descriptor: newDescriptor, size: targetFontSize)
-        
+        resultingAttributes[.font] = newFont
+        resultingAttributes[.headingRepresentation] = headerLevel.rawValue
         return resultingAttributes
     }
 
