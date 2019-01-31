@@ -1,15 +1,15 @@
 import XCTest
 @testable import Aztec
 
-class ShadowBoldFormatterTests: XCTestCase {
+class BoldFormatterTests: XCTestCase {
 
-    private let shadowBoldFormatter = ShadowBoldFormatter()
+    private let boldFormatter = BoldFormatter()
     
     func testApplyAttributesOnHeading() {
         var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
-        attributes = shadowBoldFormatter.apply(to: attributes)
+        attributes = boldFormatter.apply(to: attributes)
         font = attributes[.font] as? UIFont
         XCTAssertNotNil(font)
         XCTAssertNotNil(attributes[.shadow])
@@ -19,7 +19,7 @@ class ShadowBoldFormatterTests: XCTestCase {
     func testApplyAttributesOnNonHeading() {
         var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
-        attributes = shadowBoldFormatter.apply(to: attributes)
+        attributes = boldFormatter.apply(to: attributes)
         font = attributes[.font] as? UIFont
         XCTAssertNotNil(font)
         XCTAssertTrue(font!.containsTraits(.traitBold))
@@ -33,7 +33,7 @@ class ShadowBoldFormatterTests: XCTestCase {
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
 
         //test removing a existent attribute
-        attributes = shadowBoldFormatter.remove(from: attributes)
+        attributes = boldFormatter.remove(from: attributes)
         font = attributes[.font] as? UIFont
         XCTAssertNotNil(font)
         XCTAssertTrue(font!.containsTraits(.traitBold)) //we should keep bold trait for hedings
@@ -44,7 +44,7 @@ class ShadowBoldFormatterTests: XCTestCase {
     func testRemoveAttributesOnNonHeading() {
         var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
-        attributes = shadowBoldFormatter.remove(from: attributes)
+        attributes = boldFormatter.remove(from: attributes)
         font = attributes[.font] as? UIFont
         XCTAssertNotNil(font)
         XCTAssertFalse(font!.containsTraits(.traitBold))
@@ -55,15 +55,15 @@ class ShadowBoldFormatterTests: XCTestCase {
     func testPresentAttributesOnHeading() {
         var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
-        XCTAssertFalse(shadowBoldFormatter.present(in: attributes))
+        XCTAssertFalse(boldFormatter.present(in: attributes))
         attributes[.shadow] = NSShadow()
-        XCTAssertTrue(shadowBoldFormatter.present(in: attributes))
+        XCTAssertTrue(boldFormatter.present(in: attributes))
     }
     
     func testPresentAttributesOnNonHeading() {
         var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
-        XCTAssertTrue(shadowBoldFormatter.present(in: attributes))
+        XCTAssertTrue(boldFormatter.present(in: attributes))
         attributes = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
-        XCTAssertFalse(shadowBoldFormatter.present(in: attributes))
+        XCTAssertFalse(boldFormatter.present(in: attributes))
     }
 }
