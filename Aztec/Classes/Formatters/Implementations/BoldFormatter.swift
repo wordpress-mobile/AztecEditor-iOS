@@ -7,7 +7,7 @@ class BoldFormatter: AttributeFormatter {
     
     private enum Shadow {
         enum DefaultOffset {
-            static let width: CGFloat = 0.75
+            static let width: CGFloat = 0.65
             static let height: CGFloat = 0.0
         }
         
@@ -28,15 +28,15 @@ class BoldFormatter: AttributeFormatter {
         // Calculate Shadow offset due to font size
         static func offset(with fontSize: CGFloat) -> CGFloat {
             if fontSize >= 22 {
-                return 0.82
-            } else if fontSize >= 20 && fontSize < 22 {
-                return 0.78
-            } else if fontSize >= 18 && fontSize < 20 {
-                return 0.75
-            } else if fontSize >= 16 && fontSize < 18 {
                 return 0.72
+            } else if fontSize >= 20 && fontSize < 22 {
+                return 0.68
+            } else if fontSize >= 18 && fontSize < 20 {
+                return 0.65
+            } else if fontSize >= 16 && fontSize < 18 {
+                return 0.62
             } else {
-                return 0.7
+                return 0.6
             }
         }
     }
