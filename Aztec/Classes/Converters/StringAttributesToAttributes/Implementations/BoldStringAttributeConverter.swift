@@ -7,7 +7,8 @@ import UIKit
 ///
 open class BoldStringAttributeConverter: StringAttributeConverter {
     
-    let cssAttributeMatcher = BoldCSSAttributeMatcher()
+    private let cssAttributeMatcher = BoldCSSAttributeMatcher()
+    private let defaultBoldElement = Element.strong
     
     public func convert(
         attributes: [NSAttributedStringKey: Any],
@@ -36,15 +37,17 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
     private func disableBold(in elementNodes: [ElementNode]) -> [ElementNode] {
         
         let elementNodes = elementNodes.compactMap { (elementNode) -> ElementNode? in
-            guard elementNode.type != .strong else {
-                if elementNode.attributes.count > 0 {
-                    return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
-                } else {
-                    return nil
-                }
+            let elementIsBold = Element.b.equivalentNames.contains(elementNode.type)
+            
+            guard elementIsBold else {
+                return elementNode
             }
             
-            return elementNode
+            if elementNode.attributes.count > 0 {
+                return ElementNode(type: .span, attributes: elementNode.attributes, children: elementNode.children)
+            } else {
+                return nil
+            }
         }
         
         for elementNode in elementNodes {
@@ -62,19 +65,21 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
         // adding the element.
         //
         for elementNode in elementNodes {
-            if elementNode.type == .strong || elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
+            let elementIsBold = Element.b.equivalentNames.contains(elementNode.type)
+            
+            if elementIsBold || elementNode.containsCSSAttribute(matching: cssAttributeMatcher) {
                 return elementNodes
             }
         }
         
         // Nothing was found to represent bold... just add the element.
-        elementNodes.append(ElementNode(type: .strong))
+        elementNodes.append(ElementNode(type: defaultBoldElement))
         return elementNodes
     }
     
     func shouldEnableBoldElement(for attributes: [NSAttributedString.Key : Any]) -> Bool {
         if isHeading(for: attributes) {
-            // If this is a heading then shadow represents <strong> element since
+            // If this is a heading then shadow represents bold elements since
             // headings are bold by default
             return hasShadowTrait(for: attributes)
         }

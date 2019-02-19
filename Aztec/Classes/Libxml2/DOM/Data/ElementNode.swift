@@ -275,7 +275,7 @@ public class ElementNode: Node {
     }
 
     public func isNodeType(_ type: Element) -> Bool {
-        return type.equivalentNames.contains(name.lowercased())
+        return type.equivalentNames.contains(Element(name))
     }
     
     func hasChildren() -> Bool {
