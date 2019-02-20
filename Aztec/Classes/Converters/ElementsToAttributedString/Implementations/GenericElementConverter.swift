@@ -233,7 +233,7 @@ private extension GenericElementConverter {
         let equivalentNames = element.type.equivalentNames
         
         for (key, formatter) in elementFormattersMap {
-            if equivalentNames.contains(key.rawValue) {
+            if equivalentNames.contains(key) {
                 return formatter
             }
         }
