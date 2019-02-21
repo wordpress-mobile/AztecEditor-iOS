@@ -36,4 +36,21 @@ extension Dictionary where Key == NSAttributedStringKey, Value == Any {
         
         return finalAttributes
     }
+    
+    /// Use this method to retrieve an `ElementNode` obtained from the specified key.
+    ///
+    /// - Parameters:
+    ///     - key: the key to retrieve the element representation from the attributed string.
+    ///
+    /// - Returns: the requested element, or `nil` if there's no stored representation for it.
+    ///
+    func storedElement(for key: NSAttributedStringKey) -> ElementNode? {
+        if let representation = self[key] as? HTMLRepresentation,
+            case let .element(representationElement) = representation.kind {
+            
+            return representationElement.toElementNode()
+        }
+        
+        return nil
+    }
 }
