@@ -43,7 +43,7 @@ open class HTMLStyleToggler {
     open func enable(in elementNodes: [ElementNode]) -> [ElementNode] {
         var elementNodes = elementNodes
         
-        // We can now check if we have any CSS attribute representing bold.  If that's the case we can completely skip
+        // We can now check if we have any CSS attribute that triggers the matcher.  If that's the case we can completely skip
         // adding the element.
         //
         for elementNode in elementNodes {
@@ -54,7 +54,7 @@ open class HTMLStyleToggler {
             }
         }
         
-        // Nothing was found to represent bold... just add the element.
+        // Since there's no existing representation of the style, we will add the default one.
         elementNodes.append(ElementNode(type: defaultElement))
         return elementNodes
     }
