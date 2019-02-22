@@ -64,6 +64,7 @@
 		F9982CFD21878789001E606B /* EmbedURLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFC21878788001E606B /* EmbedURLProcessor.swift */; };
 		F9982CFF2187879E001E606B /* EmbedURLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */; };
 		FF72508C20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */; };
+		FF78E0992220429C00FD6D48 /* WordPress-Editor-iOS.podspec in Resources */ = {isa = PBXBuildFile; fileRef = FF78E0962220429C00FD6D48 /* WordPress-Editor-iOS.podspec */; };
 		FFC41BEA20DD04A8004DFB4D /* GutenpackConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */; };
 		FFC41BF620DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */; };
 /* End PBXBuildFile section */
@@ -161,6 +162,7 @@
 		F9982CFC21878788001E606B /* EmbedURLProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessor.swift; sourceTree = "<group>"; };
 		F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessorTests.swift; sourceTree = "<group>"; };
 		FF72508B20E14E7D00A4C9D0 /* GutenbergAttributeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenbergAttributeDecoder.swift; sourceTree = "<group>"; };
+		FF78E0962220429C00FD6D48 /* WordPress-Editor-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "WordPress-Editor-iOS.podspec"; path = "../WordPress-Editor-iOS.podspec"; sourceTree = "<group>"; };
 		FFC41BE920DD04A8004DFB4D /* GutenpackConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackConverter.swift; sourceTree = "<group>"; };
 		FFC41BF520DD5EEB004DFB4D /* GutenpackAttachmentToElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentToElementConverter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -372,6 +374,7 @@
 		F1D360A32092947500B4E7A5 = {
 			isa = PBXGroup;
 			children = (
+				FF78E0962220429C00FD6D48 /* WordPress-Editor-iOS.podspec */,
 				F1D360AF2092947500B4E7A5 /* WordPressEditor */,
 				F1D360BA2092947500B4E7A5 /* WordPressEditorTests */,
 				F1D360EA2092978F00B4E7A5 /* Dependencies */,
@@ -610,6 +613,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF78E0992220429C00FD6D48 /* WordPress-Editor-iOS.podspec in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
