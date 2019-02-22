@@ -77,6 +77,24 @@ class BoldStringAttributeConverterTests: XCTestCase {
         XCTAssertEqual(strongElement.attributes[0], exampleAttribute)
     }
     
+    func testBoldConversionWithEquivalentElementRepresentation() {
+        let exampleAttribute = Attribute(type: .style, value: .string("someStyle"))
+        let element = ElementNode(type: .b, attributes: [exampleAttribute], children: [])
+        let elementRepresentation = HTMLElementRepresentation(element)
+        var attributes = [NSAttributedStringKey: Any]()
+        
+        attributes[.font] = UIFont.boldSystemFont(ofSize: 14)
+        attributes[.boldHtmlRepresentation] = HTMLRepresentation(for: .element(elementRepresentation))
+        
+        let elementNodes = converter.convert(attributes: attributes, andAggregateWith: [])
+        
+        XCTAssertEqual(elementNodes.count, 1)
+        
+        let strongElement = elementNodes[0]
+        XCTAssertEqual(strongElement.type, .b)
+        XCTAssertEqual(strongElement.attributes.count, 1)
+        XCTAssertEqual(strongElement.attributes[0], exampleAttribute)
+    }
 
     func testBoldConversionWithElementRepresentation2() {
         let cssAttribute = CSSAttribute.italic

@@ -17,12 +17,17 @@ public class GutenpackConverter: ElementConverter {
         precondition(element.type == .gutenpack)
 
         let decoder = GutenbergAttributeDecoder()
+        
         guard let content = decoder.attribute(.selfCloser, from: element) else {
             let serializer = HTMLSerializer()
             let attachment = HTMLAttachment()
+            
             attachment.rootTagName = element.name
             attachment.rawHTML = serializer.serialize(element)
-            return NSAttributedString(attachment: attachment, attributes: attributes)
+            
+            let representation = NSAttributedString(attachment: attachment, attributes: attributes)
+            
+            return serialize(element, representation, attributes)
         }
 
         let blockContent = String(content[content.startIndex ..< content.index(before: content.endIndex)])
@@ -30,7 +35,9 @@ public class GutenpackConverter: ElementConverter {
             char != " "
         }))
         let attachment = GutenpackAttachment(name: blockName, content: blockContent)
-        return NSAttributedString(attachment: attachment, attributes: attributes)
+        let representation = NSAttributedString(attachment: attachment, attributes: attributes)
+        
+        return serialize(element, representation, attributes)
     }
         
 }

@@ -23,10 +23,6 @@ class StandardAttributeFormatter: AttributeFormatter {
         return range
     }
 
-    func worksInEmptyRange() -> Bool {
-        return false
-    }
-
     func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         var resultingAttributes = attributes
         

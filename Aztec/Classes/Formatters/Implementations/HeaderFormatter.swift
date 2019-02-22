@@ -12,14 +12,14 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     /// Designated Initializer
     ///
-    init(headerLevel: Header.HeaderType = .h1) {
+    public init(headerLevel: Header.HeaderType = .h1) {
         self.headerLevel = headerLevel
     }
 
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    public func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
         guard let font = attributes[.font] as? UIFont else {
             return attributes
         }
@@ -41,10 +41,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         var resultingAttributes = attributes
         
         let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
-        
+        var newFont = UIFont(descriptor: newDescriptor, size: targetFontSize)
+        newFont = newFont.modifyTraits(.traitBold, enable: true)
+
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.font] = UIFont(descriptor: newDescriptor, size: targetFontSize)
-        
+        resultingAttributes[.font] = newFont
+        resultingAttributes[.headingRepresentation] = headerLevel.rawValue
         return resultingAttributes
     }
 
@@ -64,9 +66,10 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         resultingAttributes[.paragraphStyle] = newParagraphStyle
 
         if let font = attributes[.font] as? UIFont {
-            resultingAttributes[.font] = font.withSize(CGFloat(header.defaultFontSize))
+            let newFont = font.withSize(CGFloat(header.defaultFontSize))
+            resultingAttributes[.font] = newFont.modifyTraits(.traitBold, enable: false)
         }
-
+        resultingAttributes[.headingRepresentation] = nil
         return resultingAttributes
     }
 

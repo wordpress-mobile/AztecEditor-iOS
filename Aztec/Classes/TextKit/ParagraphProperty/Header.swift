@@ -21,12 +21,12 @@ open class Header: ParagraphProperty {
 
         public static var fontSizeMap: [HeaderType: Float] = {
             return [
-                .h1: 36,
-                .h2: 24,
-                .h3: 21,
-                .h4: 16,
-                .h5: 14,
-                .h6: 11,
+                .h1: 24,
+                .h2: 22,
+                .h3: 20,
+                .h4: 18,
+                .h5: 16,
+                .h6: 14,
                 .none: Constants.defaultFontSize
                 ]
         }()
@@ -98,7 +98,7 @@ open class Header: ParagraphProperty {
 //
 private extension Header {
     struct Constants {
-        static let defaultFontSize = Float(14)
+        static let defaultFontSize = Float(16)
     }
 
     struct Keys {

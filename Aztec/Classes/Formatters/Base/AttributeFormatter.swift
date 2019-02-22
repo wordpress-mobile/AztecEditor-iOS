@@ -69,8 +69,6 @@ protocol AttributeFormatter {
     func present(in attributes: [NSAttributedStringKey: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
-
-    func worksInEmptyRange() -> Bool
 }
 
 

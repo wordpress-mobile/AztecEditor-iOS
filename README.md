@@ -4,7 +4,7 @@
 <img width=200px height=200px src="RepoAssets/aztec.png" alt="Aztec's Logo'"/>
 </p>
 
-[![Travis](https://travis-ci.org/wordpress-mobile/AztecEditor-iOS.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/AztecEditor-iOS)
+[![CircleCI](https://circleci.com/gh/wordpress-mobile/AztecEditor-iOS.svg?style=svg)](https://circleci.com/gh/wordpress-mobile/AztecEditor-iOS)
 [![Version](https://img.shields.io/cocoapods/v/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![License](https://img.shields.io/cocoapods/l/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
 [![Platform](https://img.shields.io/cocoapods/p/WordPress-Aztec-iOS.svg?style=flat)](http://cocoapods.org/pods/WordPress-Aztec-iOS)
