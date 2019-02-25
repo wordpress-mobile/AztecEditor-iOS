@@ -859,11 +859,9 @@ class TextViewTests: XCTestCase {
     ///
     func testNewLinesGetBulletStyleEvenAfterDeletingEndOfDocumentNewline() {
         let newline = String(.lineFeed)
-
         let textView = TextViewStub(withHTML: "")
 
         textView.toggleOrderedList(range: .zero)
-
         textView.insertText(Constants.sampleText0)
 
         // Select the end of the document
@@ -1913,7 +1911,9 @@ class TextViewTests: XCTestCase {
     func testAutoCompletionReplacementHackWhenUsingEmoji() {
         let textView = TextViewStub(withHTML: "Love")
         let uiTextRange = textView.textRange(from: textView.beginningOfDocument, to: textView.endOfDocument)!
-        textView.replaceRangeWithTextWithoutClosingTyping(uiTextRange, replacementText:"😘")
+        
+        textView.replace(uiTextRange, withText: "😘")
+        
         let html = textView.getHTML()
 
         XCTAssertEqual(html, "<p>😘</p>")
