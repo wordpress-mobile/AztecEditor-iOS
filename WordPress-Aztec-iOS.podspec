@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   s.social_media_url = "http://twitter.com/WordPressiOS"
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   s.ios.deployment_target = '10.0'
-  s.swift_version = '4.0'
+  s.swift_version = '4.2'
 
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
