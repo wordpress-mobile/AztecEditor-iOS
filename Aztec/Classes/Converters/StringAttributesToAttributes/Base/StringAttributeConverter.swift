@@ -7,6 +7,6 @@ import Foundation
 public protocol StringAttributeConverter {
     
     func convert(
-        attributes: [NSAttributedStringKey: Any],
+        attributes: [NSAttributedString.Key: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode]
 }

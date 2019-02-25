@@ -19,7 +19,7 @@ public protocol PluginOutputCustomizer {
     
     /// Converts an attachment into the `[Node]`s that represent it.
     ///
-    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]?
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) -> [Node]?
     
     func converter(for elementNode: ElementNode) -> ElementToTagConverter?
 }
@@ -29,6 +29,6 @@ extension PluginOutputCustomizer {
     func process(html: String) -> String { return html }
     func process(htmlTree: RootNode) { return }
     func convert(_ paragraphProperty: ParagraphProperty) -> ElementNode? { return nil }
-    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) -> [Node]? { return nil }
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) -> [Node]? { return nil }
     func converter(for elementNode: ElementNode) -> ElementToTagConverter? { return nil }
 }

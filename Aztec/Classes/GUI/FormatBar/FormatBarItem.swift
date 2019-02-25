@@ -115,7 +115,7 @@ open class FormatBarItem: UIButton {
         self.originalIcon = image
 
         super.init(frame: frame)
-        self.setImage(image, for: UIControlState())
+        self.setImage(image, for: UIControl.State())
         self.adjustsImageWhenDisabled = false
         self.adjustsImageWhenHighlighted = false
     }
@@ -162,7 +162,7 @@ class FormatBarDividerItem: UIView {
     /// You can modify the divider item's layout margins to
     override var layoutMargins: UIEdgeInsets {
         didSet {
-            if !UIEdgeInsetsEqualToEdgeInsets(layoutMargins, oldValue) {
+            if layoutMargins != oldValue {
                 invalidateIntrinsicContentSize()
                 setNeedsLayout()
             }

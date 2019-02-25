@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 class LineAttachmentToElementConverter: AttachmentToElementConverter {
-    func convert(_ attachment: LineAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: LineAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         let element: ElementNode
         
         if let representation = attributes[.hrHtmlRepresentation] as? HTMLRepresentation,

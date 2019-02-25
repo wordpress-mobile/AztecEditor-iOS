@@ -25,7 +25,7 @@ protocol AttributeFormatter {
     ///
     /// - Parameter attributes: attributes to be checked.
     /// - Returns: the new attribute dictionary with the toggle applied.
-    @discardableResult func toggle(in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
+    @discardableResult func toggle(in attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any]
 
     /// Checks if the attribute is present in a given Attributed String at the specified index.
     ///
@@ -36,7 +36,7 @@ protocol AttributeFormatter {
     /// - Parameter attributes: the original attributes to apply to
     /// - Returns: the resulting attributes dictionary
     ///
-    func apply(to attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
+    func apply(to attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any]
 
     /// Apply the compound attributes to the provided attributes dictionary.
     ///
@@ -47,14 +47,14 @@ protocol AttributeFormatter {
     /// - Returns:
     ///     - the resulting attributes dictionary
     ///
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any]
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any]
 
     /// Remove the compound attributes from the provided list.
     ///
     /// - Parameter attributes: the original attributes to remove from
     /// - Returns: the resulting attributes dictionary
     ///
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any]
 
     /// Applies the Formatter's Attributes into a given string, at the specified range.
     ///
@@ -66,7 +66,7 @@ protocol AttributeFormatter {
 
     /// Checks if the attribute is present in a dictionary of attributes.
     ///
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange
 }
@@ -79,7 +79,7 @@ extension AttributeFormatter {
     /// The default implementation forwards the call.  This is probably good enough for all
     /// classes that implement this protocol.
     ///
-    func apply(to attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         return apply(to: attributes, andStore: nil)
     }
 
@@ -116,7 +116,7 @@ extension AttributeFormatter {
     }
 
     @discardableResult
-    func toggle(in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func toggle(in attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         if present(in: attributes) {
             return remove(from: attributes)
         } else {

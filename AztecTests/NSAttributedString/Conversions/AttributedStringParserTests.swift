@@ -1106,7 +1106,7 @@ private extension AttributedStringParserTests {
     /// Constants
     ///
     struct Constants {
-        static let sampleAttributes: [NSAttributedStringKey : Any] = [
+        static let sampleAttributes: [NSAttributedString.Key : Any] = [
             .font: UIFont.systemFont(ofSize: UIFont.systemFontSize),
             .paragraphStyle: NSParagraphStyle()
         ]

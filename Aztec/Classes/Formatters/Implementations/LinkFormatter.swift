@@ -11,7 +11,7 @@ class LinkFormatter: StandardAttributeFormatter {
                    htmlRepresentationKey: .linkHtmlRepresentation)
     }
 
-    override func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    override func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         var finalRepresentation: HTMLRepresentation?
 
         if let representation = representation,

@@ -18,7 +18,7 @@ class UnderlineStringAttributeConverterTests: XCTestCase {
     }
     
     func testUnderlineConversion() {
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.underlineStyle] = NSNumber(value: 1)
         
@@ -37,7 +37,7 @@ class UnderlineStringAttributeConverterTests: XCTestCase {
             ElementNode(type: .u, attributes: [exampleAttribute], children: []),
             ElementNode(type: .strong),
             ]
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.underlineStyle] = NSNumber(value: 1)
         
@@ -60,7 +60,7 @@ class UnderlineStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .string("someStyle"))
         let element = ElementNode(type: .u, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.underlineStyle] = NSNumber(value: 1)
         attributes[.underlineHtmlRepresentation] = HTMLRepresentation(for: .element(elementRepresentation))
@@ -81,7 +81,7 @@ class UnderlineStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .inlineCss([cssAttribute]))
         let element = ElementNode(type: .span, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.underlineStyle] = NSNumber(value: 1)
         attributes[.underlineHtmlRepresentation] = HTMLRepresentation(for: .element(elementRepresentation))

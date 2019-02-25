@@ -123,7 +123,7 @@ extension OptionsTableViewController {
         
         let isSelected = indexPath.row == tableView.indexPathForSelectedRow?.row
         reuseCell.isSelected = isSelected
-        
+
         return reuseCell
     }
 }

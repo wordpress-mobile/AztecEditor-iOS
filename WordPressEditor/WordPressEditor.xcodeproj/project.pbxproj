@@ -561,9 +561,11 @@
 				TargetAttributes = {
 					F1D360AC2092947500B4E7A5 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1010;
 					};
 					F1D360B52092947500B4E7A5 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -858,6 +860,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -882,6 +885,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -900,6 +904,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -918,6 +923,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

@@ -18,7 +18,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
     }
     
     func testItalicConversion() {
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.font] = UIFont.italicSystemFont(ofSize: 14)
         
@@ -39,7 +39,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
             ElementNode(type: .em, attributes: [exampleAttribute], children: []),
             ElementNode(type: .strong),
             ]
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.font] = UIFont.italicSystemFont(ofSize: 14)
         
@@ -62,7 +62,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .string("someStyle"))
         let element = ElementNode(type: .em, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.font] = UIFont.italicSystemFont(ofSize: 14)
         attributes[.italicHtmlRepresentation] = HTMLRepresentation(for: .element(elementRepresentation))
@@ -83,7 +83,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .inlineCss([cssAttribute]))
         let element = ElementNode(type: .span, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         attributes[.font] = UIFont.italicSystemFont(ofSize: 14)
         attributes[.italicHtmlRepresentation] = HTMLRepresentation(for: .element(elementRepresentation))
@@ -102,7 +102,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .string("someStyle"))
         let element = ElementNode(type: .i, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         var font = UIFont.systemFont(ofSize: 14)
         font = font.modifyTraits([.traitItalic], enable: true)
@@ -124,7 +124,7 @@ class ItalicStringAttributeConverterTests: XCTestCase {
         let exampleAttribute = Attribute(type: .style, value: .string("someStyle"))
         let element = ElementNode(type: .em, attributes: [exampleAttribute], children: [])
         let elementRepresentation = HTMLElementRepresentation(element)
-        var attributes = [NSAttributedStringKey: Any]()
+        var attributes = [NSAttributedString.Key: Any]()
         
         var font = UIFont.systemFont(ofSize: 14)
         font = font.modifyTraits([.traitItalic], enable: true)

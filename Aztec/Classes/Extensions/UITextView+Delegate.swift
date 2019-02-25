@@ -7,6 +7,6 @@ extension UITextView {
     ///
     final func notifyTextViewDidChange() {
         delegate?.textViewDidChange?(self)
-        NotificationCenter.default.post(name: .UITextViewTextDidChange, object: self)
+        NotificationCenter.default.post(name: UITextView.textDidChangeNotification, object: self)
     }
 }
