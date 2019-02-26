@@ -692,7 +692,7 @@ open class TextView: UITextView {
     ///
     public func setHTMLUndoable(_ html: String) {
         replace(storage.rangeOfEntireString, withHTML: html)
-        recalculateTypingAttributes()
+        recalculateTypingAttributes(at: selectedRange.location)
     }
 
     /// Loads the specified HTML into the editor.
@@ -709,7 +709,7 @@ open class TextView: UITextView {
         font = defaultFont
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
-        recalculateTypingAttributes()
+        recalculateTypingAttributes(at: selectedRange.location)
 
         notifyTextViewDidChange()
         formattingDelegate?.textViewCommandToggledAStyle()
@@ -1204,9 +1204,13 @@ open class TextView: UITextView {
         }
         
         set {
+            if let start = newValue?.start {
+                // we need to calculate the new typing attributes before we change the selected text range.
+                // because when we change it it trigger an onChange(textView) callback that may try to retrieve the attributes that are wrong.
+                let position = self.offset(from: self.beginningOfDocument, to: start)
+                recalculateTypingAttributes(at: position)
+            }
             super.selectedTextRange = newValue
-            
-            recalculateTypingAttributes()
         }
     }
     
@@ -1214,16 +1218,16 @@ open class TextView: UITextView {
     /// recalculating the typingAttributes in the wrong moment can cause trouble (for example reverting a decision
     /// by the user to turn a style off).
     ///
-    private func recalculateTypingAttributes() {
+    private func recalculateTypingAttributes(at location: Int) {
         
         guard storage.length > 0 else {
             return
         }
         
-        if storage.string.isEmptyLineAtEndOfFile(at: selectedRange.location) {
+        if storage.string.isEmptyLineAtEndOfFile(at: location) {
             removeParagraphPropertiesFromTypingAttributes()
         } else {
-            let location = min(selectedRange.location, storage.length - 1)
+            let location = min(location, storage.length - 1)
             
             typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
         }
