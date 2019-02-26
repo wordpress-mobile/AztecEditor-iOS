@@ -613,20 +613,7 @@ open class TextView: UITextView {
 
         ensureRemovalOfLinkTypingAttribute(at: selectedRange)
 
-        // WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
-        // attributes under certain circumstances.  The attributes are lost exactly after the call
-        // to `super.insertText(text)`.  Our workaround is to simply save the typing attributes
-        // and restore them after that call.
-        //
-        // Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/725
-        //
-        // Diego: I reproduced this issue in a very simple project (completely unrelated to Aztec)
-        //      as a demonstration that this is an SDK issue.  I also reported this issue to
-        //      Apple (34546954), but this workaround should do until the problem is resolved.
-        //
-        preserveTypingAttributesForInsertion {
-            super.insertText(text)
-        }
+        super.insertText(text)
 
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
 
@@ -645,12 +632,10 @@ open class TextView: UITextView {
         if storage.length > 0 {
             deletedString = storage.attributedSubstring(from: deletionRange)
         }
-
+        
         ensureRemovalOfParagraphStylesBeforeRemovingCharacter(at: selectedRange)
 
-        preserveTypingAttributesForDeletion {
-            super.deleteBackward()
-        }
+        super.deleteBackward()
 
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
@@ -687,20 +672,6 @@ open class TextView: UITextView {
         caretRect.size.height = usedLineFragment.size.height
 
         return caretRect
-    }
-    
-    /// When typing with the Chinese keyboard, the text is automatically marked in the editor.
-    /// You have to press ENTER once to confirm your chosen input.  The problem is that in iOS 11
-    /// the typing attributes are lost when the text is unmarked, causing the font to be lost.
-    /// Since localized characters need specific fonts to be rendered, this causes some characters
-    /// to stop rendering completely.
-    ///
-    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/811
-    ///
-    override open func unmarkText() {
-        preserveTypingAttributesForInsertion {
-            super.unmarkText()
-        }
     }
 
     // MARK: - HTML Interaction
@@ -1212,19 +1183,13 @@ open class TextView: UITextView {
             let delta = pristine.location == maxLength ? -1 : 1
             let location = min(max(pristine.location + delta, 0), maxLength)
 
-            // Yes. This is a Workaround on top of another workaround.
-            // WARNING: The universe may fade out of existance.
+            // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
             //
-            self.preserveTypingAttributesForInsertion {
+            self.selectedRange = NSMakeRange(location, 0)
 
-                // Shift the SelectedRange to a nearby position: *FORCE* cursor redraw
-                //
-                self.selectedRange = NSMakeRange(location, 0)
-
-                // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
-                //
-                self.selectedRange = pristine
-            }
+            // Finally, restore the original SelectedRange and the typingAttributes we had before beginning
+            //
+            self.selectedRange = pristine
         }
     }
     
@@ -1263,111 +1228,6 @@ open class TextView: UITextView {
             typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
         }
     }
-    
-    // MARK: - iOS 11 Workarounds
-    
-    /// This method fixes an issue that was introduced in iOS 11.  Styles were lost when you selected an autocomplete
-    /// suggestion.
-    ///
-    ///
-    ///
-    /// How to remove: if you disable this method and notice that autocomplete suggestions are not losing styles when
-    /// selected, feel free to remove it.
-    ///
-    /// This bug affected at least the range of iOS versions fromS 11.0 to 11.0.3 (both included).
-    ///
-    @objc func replaceRangeWithTextWithoutClosingTyping(_ range: UITextRange, replacementText: String) {
-        
-        // We're only wrapping the call to super in `preserveTypingAttributesForInsertion` to make sure
-        // that the style is not lost due to an iOS 11 issue.
-        //
-        preserveTypingAttributesForInsertion{ [weak self] in
-            guard let `self` = self else {
-                return
-            }
-
-            // From here on, it's just calling the same method in `super`.
-            //
-            let selector = #selector(TextView.replaceRangeWithTextWithoutClosingTyping(_:replacementText:))
-            let imp = class_getMethodImplementation(TextView.superclass(), selector)
-
-            typealias ClosureType = @convention(c) (AnyObject, Selector, UITextRange, String) -> Void
-            let superMethod: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            let currentAttributes = self.typingAttributesSwifted
-            superMethod(self, selector, range, replacementText)
-            // apply all attributes that where set before the call to the new text
-            self.textStorage.setAttributes(currentAttributes, range: adjustedRangeFrom(uiTextRange: range, replacedBy: replacementText))
-        }
-    }
-
-    func adjustedRangeFrom(uiTextRange range: UITextRange, replacedBy text: String) -> NSRange {
-        let location = offset(from: beginningOfDocument, to: range.start)
-        let length = (text as NSString).length
-
-        return NSRange(location: location, length: length)
-    }
-
-    /// Workaround: This method preserves the Typing Attributes, and prevents the UITextView's delegate from beign
-    /// called during the `block` execution.
-    ///
-    /// We're implementing this because of a bug in iOS 11, in which Typing Attributes are being lost by methods such as:
-    ///
-    ///     -   `deleteBackwards`
-    ///     -   `insertText`
-    ///     -   Autocompletion!
-    ///
-    /// Reference: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/748
-    ///
-    private func preserveTypingAttributesForInsertion(block: () -> Void) {
-        
-        // We really don't want this code running below iOS 10.
-        guard #available(iOS 11, *) else {
-            block()
-            return
-        }
-        
-        let beforeTypingAttributes = typingAttributes
-        let beforeDelegate = delegate
-
-        delegate = nil
-        block()
-
-        typingAttributes = beforeTypingAttributes
-        delegate = beforeDelegate
-
-        // Manually notify the delegates: We're avoiding overwork!
-        delegate?.textViewDidChangeSelection?(self)
-        notifyTextViewDidChange()
-    }
-
-    /// WORKAROUND: iOS 11 introduced an issue that's causing UITextView to lose it's typing
-    /// attributes under certain circumstances. This method will determine the Typing Attributes based on
-    /// the TextStorage attributes, whenever possible.
-    ///
-    /// Issue: https://github.com/wordpress-mobile/AztecEditor-iOS/issues/749
-    ///
-    private func preserveTypingAttributesForDeletion(block: () -> Void) {
-        
-        // We really don't want this code running below iOS 10.
-        guard #available(iOS 11, *) else {
-            block()
-            return
-        }
-        
-        let document = textStorage.string
-        guard selectedRange.location == document.count, document.count > 0 else {
-            block()
-            return
-        }
-
-        let previousLocation = max(selectedRange.location - 1, 0)
-        let previousAttributes = textStorage.attributes(at: previousLocation, effectiveRange: nil)
-
-        block()
-
-        typingAttributesSwifted = previousAttributes
-    }
-
 
     // MARK: - Links
 
@@ -1864,15 +1724,29 @@ private extension TextView {
         removeParagraphProperties(from: range)
     }
 
-    /// Analyzes whether the attributes should be removed from the specified location, *before* removing a 
-    /// character at the specified location.
+    /// When deleting the newline between lines 1 and 2 in the following example:
+    ///     Line 1: <empty>
+    ///     Line 2: <empty> (with list style)
+    ///     Line 3: <empty>
+    ///
+    /// Aztec tends to naturally maintain the list style alive, due to the newline between line 2 and
+    /// 3, since line 1 has no paragraph style once its closing newline is removed (because it's empty).
+    ///
+    /// This method makes sure that in such a scenario (when line 1 is empty and we merge line 1 and 2),
+    /// the paragraph styles from line 2 are removed too.
     ///
     /// - Parameter range: Range at which we'll remove a character
     ///
     /// - Returns: `true` if we should nuke the paragraph attributes.
     ///
     private func mustRemoveParagraphStylesBeforeRemovingCharacter(at range: NSRange) -> Bool {
-        return storage.string.isEmptyParagraph(at: range.location)
+        guard let previousParagraphRange = attributedText.paragraphRange(before: selectedRange)  else {
+            return false
+        }
+        
+        let currentParagraphRange = attributedText.paragraphRange(for: selectedRange)
+        
+        return previousParagraphRange != currentParagraphRange && storage.string.isEmptyParagraph(at: previousParagraphRange.location)
     }
 
     // MARK: - Single-line attributes logic.
