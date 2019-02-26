@@ -50,6 +50,10 @@ extension NSAttributedString
                 return
             }
 
+            if let mediaAttachment = attachment as? MediaAttachment {
+                mediaAttachment.refreshIdentifier()
+            }
+
             let scale = UIScreen.main.scale
             let image = UIImage(data: data, scale: scale)
             attachment.fileWrapper = nil
