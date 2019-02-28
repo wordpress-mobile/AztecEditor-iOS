@@ -1204,26 +1204,49 @@ open class TextView: UITextView {
         }
         
         set {
+            if let start = newValue?.start {
+                // We need to calculate the new typing attributes before we change the selected text range.
+                // This is because as soon as we change the selected text range bellow, a call to
+                // `textViewDidChangeSelection(_:)` will be triggered and we want the typing attributes to
+                // be updated by then.
+                let position = self.offset(from: self.beginningOfDocument, to: start)
+                recalculateTypingAttributes(at: position)
+            }
             super.selectedTextRange = newValue
-            
-            recalculateTypingAttributes()
         }
     }
     
+    /// Convenience method to recalculate the typing attributes for the current `selectedRange`.
+    ///
+    private func recalculateTypingAttributes() {
+        let location = selectedRange.location
+        
+        recalculateTypingAttributes(at: location)
+    }
+    
+    /// Recalculate the typing attributes as if the caret was at the provided location.  This method is useful
+    /// when the caret is about to be moved to the specified location, but we want the `typingAttributes` to be
+    /// recalculated before the text view's `textViewDidChangeSelection(_:)` is called.
+    ///
     /// Only call this method when sure that the typingAttributes need to be recalculated.  Keep in mind that
     /// recalculating the typingAttributes in the wrong moment can cause trouble (for example reverting a decision
     /// by the user to turn a style off).
     ///
-    private func recalculateTypingAttributes() {
+    /// https://github.com/wordpress-mobile/AztecEditor-iOS/issues/1140
+    ///
+    /// - Parameters:
+    ///     - location: the new caret location.
+    ///
+    private func recalculateTypingAttributes(at location: Int) {
         
         guard storage.length > 0 else {
             return
         }
         
-        if storage.string.isEmptyLineAtEndOfFile(at: selectedRange.location) {
+        if storage.string.isEmptyLineAtEndOfFile(at: location) {
             removeParagraphPropertiesFromTypingAttributes()
         } else {
-            let location = min(selectedRange.location, storage.length - 1)
+            let location = min(location, storage.length - 1)
             
             typingAttributesSwifted = attributedText.attributes(at: location, effectiveRange: nil)
         }
