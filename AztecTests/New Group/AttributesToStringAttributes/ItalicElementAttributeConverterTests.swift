@@ -21,7 +21,7 @@ class ItalicElementToAttributeConverterTests: XCTestCase {
         
         let cssAttribute = CSSAttribute.italic
         let attribute = Attribute(type: .style, value: .inlineCss([cssAttribute]))
-        let stringAttributes: [NSAttributedStringKey: Any] = [:]
+        let stringAttributes: [NSAttributedString.Key: Any] = [:]
         
         let finalAttributes = converter.convert(attribute, inheriting: stringAttributes)
         
@@ -37,7 +37,7 @@ class ItalicElementToAttributeConverterTests: XCTestCase {
         
         let cssAttribute = CSSAttribute.bold
         let attribute = Attribute(type: .style, value: .inlineCss([cssAttribute]))
-        let stringAttributes: [NSAttributedStringKey: Any] = [:]
+        let stringAttributes: [NSAttributedString.Key: Any] = [:]
         
         let finalAttributes = converter.convert(attribute, inheriting: stringAttributes)
         let font = finalAttributes[.font] as? UIFont

@@ -9,7 +9,7 @@ class CiteElementConverter: FormatterElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting inheritedAttributes: [NSAttributedStringKey: Any],
+        inheriting inheritedAttributes: [NSAttributedString.Key: Any],
         contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
         precondition(element.type == .cite)

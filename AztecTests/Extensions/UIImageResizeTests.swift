@@ -26,7 +26,7 @@ class UIImageResizeTests: XCTestCase {
         
         let resizedImage = image.resizedImageWithinRect(rectSize: rectSize, maxImageSize: maxImageSize, color: UIColor.blue)
         
-        guard let resizedPNGRepresentation = UIImagePNGRepresentation(resizedImage) else {
+        guard let resizedPNGRepresentation = resizedImage.pngData() else {
             XCTFail()
             return
         }
@@ -64,7 +64,7 @@ class UIImageResizeTests: XCTestCase {
         
         let resizedImage = image.resizedImageWithinRect(rectSize: rectSize, maxImageSize: maxImageSize, color: UIColor.blue)
         
-        guard let resizedPNGRepresentation = UIImagePNGRepresentation(resizedImage) else {
+        guard let resizedPNGRepresentation = resizedImage.pngData() else {
             XCTFail()
             return
         }

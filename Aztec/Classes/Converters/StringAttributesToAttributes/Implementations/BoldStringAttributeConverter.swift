@@ -10,7 +10,7 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
     private let toggler = HTMLStyleToggler(defaultElement: .strong, cssAttributeMatcher: BoldCSSAttributeMatcher())
     
     public func convert(
-        attributes: [NSAttributedStringKey: Any],
+        attributes: [NSAttributedString.Key: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
      
         var elementNodes = elementNodes
@@ -18,7 +18,7 @@ open class BoldStringAttributeConverter: StringAttributeConverter {
         // We add the representation right away, if it exists... as it could contain attributes beyond just this
         // style.  The enable and disable methods below can modify this as necessary.
         //
-        if let elementNode = attributes.storedElement(for: NSAttributedStringKey.boldHtmlRepresentation) {
+        if let elementNode = attributes.storedElement(for: NSAttributedString.Key.boldHtmlRepresentation) {
             elementNodes.append(elementNode)
         }
         

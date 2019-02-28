@@ -10,9 +10,9 @@ class MainAttributesConverter {
     
     func convert(
         _ attributes: [Attribute],
-        inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
-        return converters.reduce(inheritedAttributes) { (previous, converter) -> [NSAttributedStringKey: Any] in
+        return converters.reduce(inheritedAttributes) { (previous, converter) -> [NSAttributedString.Key: Any] in
             return converter.convert(attributes, inheriting: previous)
         }
     }

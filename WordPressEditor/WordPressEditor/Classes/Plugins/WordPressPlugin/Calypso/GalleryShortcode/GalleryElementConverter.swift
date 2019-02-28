@@ -15,7 +15,7 @@ class GalleryElementConverter: AttachmentElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         contentSerializer serialize: ContentSerializer) -> (attachment: GalleryAttachment, string: NSAttributedString) {
         
         precondition(element.type == .gallery)

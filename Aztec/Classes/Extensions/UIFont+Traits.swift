@@ -14,7 +14,7 @@ extension UIFont {
     ///
     /// - Returns: A new UIFont with the same descriptors as the current instance, but with its traits updated, as specified.
     ///
-    func modifyTraits(_ traits: UIFontDescriptorSymbolicTraits, enable: Bool) -> UIFont {
+    func modifyTraits(_ traits: UIFontDescriptor.SymbolicTraits, enable: Bool) -> UIFont {
         let descriptor = fontDescriptor
         var newTraits = descriptor.symbolicTraits
 
@@ -43,7 +43,7 @@ extension UIFont {
     ///
     /// - Returns: True if the specified trait was found.
     ///
-    func containsTraits(_ traits: UIFontDescriptorSymbolicTraits) -> Bool {
+    func containsTraits(_ traits: UIFontDescriptor.SymbolicTraits) -> Bool {
         return fontDescriptor.symbolicTraits.contains(traits)
     }
 }

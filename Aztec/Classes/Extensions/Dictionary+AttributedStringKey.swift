@@ -1,6 +1,6 @@
 import UIKit
 
-extension Dictionary where Key == NSAttributedStringKey, Value == Any {
+extension Dictionary where Key == NSAttributedString.Key, Value == Any {
     
     // MARK: - ParagraphStyle interactions
     
@@ -27,7 +27,7 @@ extension Dictionary where Key == NSAttributedStringKey, Value == Any {
     ///
     /// - Returns: the final string attributes.
     ///
-    func appending(_ property: ParagraphProperty) -> [NSAttributedStringKey:Any] {
+    func appending(_ property: ParagraphProperty) -> [NSAttributedString.Key:Any] {
         let finalParagraphStyle = paragraphStyle()
         finalParagraphStyle.appendProperty(property)
         
@@ -44,7 +44,7 @@ extension Dictionary where Key == NSAttributedStringKey, Value == Any {
     ///
     /// - Returns: the requested element, or `nil` if there's no stored representation for it.
     ///
-    func storedElement(for key: NSAttributedStringKey) -> ElementNode? {
+    func storedElement(for key: NSAttributedString.Key) -> ElementNode? {
         if let representation = self[key] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
             

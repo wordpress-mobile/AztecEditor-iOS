@@ -7,7 +7,7 @@ class ItalicElementAttributesConverter: ElementAttributeConverter {
     
     func convert(
         _ attribute: Attribute,
-        inheriting attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+        inheriting attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         guard attribute.containsCSSAttribute(matching: cssAttributeMatcher) else {
             return attributes

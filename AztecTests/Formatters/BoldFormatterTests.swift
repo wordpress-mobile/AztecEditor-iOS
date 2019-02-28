@@ -6,7 +6,7 @@ class BoldFormatterTests: XCTestCase {
     private let boldFormatter = BoldFormatter()
     
     func testApplyAttributesOnHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
         attributes = boldFormatter.apply(to: attributes)
@@ -17,7 +17,7 @@ class BoldFormatterTests: XCTestCase {
     }
     
     func testApplyAttributesOnNonHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         attributes = boldFormatter.apply(to: attributes)
         font = attributes[.font] as? UIFont
@@ -28,7 +28,7 @@ class BoldFormatterTests: XCTestCase {
     }
 
     func testRemoveAttributesOnHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
 
@@ -42,7 +42,7 @@ class BoldFormatterTests: XCTestCase {
     }
 
     func testRemoveAttributesOnNonHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         var font: UIFont?
         attributes = boldFormatter.remove(from: attributes)
         font = attributes[.font] as? UIFont
@@ -53,7 +53,7 @@ class BoldFormatterTests: XCTestCase {
     }
     
     func testPresentAttributesOnHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         attributes[.headingRepresentation] = Header.HeaderType.h1.rawValue
         XCTAssertFalse(boldFormatter.present(in: attributes))
         attributes[.shadow] = NSShadow()
@@ -61,7 +61,7 @@ class BoldFormatterTests: XCTestCase {
     }
     
     func testPresentAttributesOnNonHeading() {
-        var attributes: [NSAttributedStringKey : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
+        var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
         XCTAssertTrue(boldFormatter.present(in: attributes))
         attributes = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
         XCTAssertFalse(boldFormatter.present(in: attributes))

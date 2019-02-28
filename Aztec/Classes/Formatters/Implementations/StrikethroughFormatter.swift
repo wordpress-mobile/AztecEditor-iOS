@@ -4,7 +4,7 @@ class StrikethroughFormatter: StandardAttributeFormatter {
 
     init() {
         super.init(attributeKey: .strikethroughStyle,
-                   attributeValue: NSUnderlineStyle.styleSingle.rawValue,
+                   attributeValue: NSUnderlineStyle.single.rawValue,
                    htmlRepresentationKey: .strikethroughHtmlRepresentation)
     }
 }

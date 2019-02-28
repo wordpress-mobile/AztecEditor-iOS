@@ -8,7 +8,7 @@ open class FigureFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         let figure = Figure(with: representation)
         let paragraphStyle = attributes.paragraphStyle()
         
@@ -21,7 +21,7 @@ open class FigureFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             paragraphStyle.hasProperty(where: { $0 is Figure }) else {
@@ -38,7 +38,7 @@ open class FigureFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }

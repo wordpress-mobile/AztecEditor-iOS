@@ -94,7 +94,7 @@ class EditorDemoController: UIViewController {
         
         textView.accessibilityLabel = NSLocalizedString("Title", comment: "Post title")
         textView.delegate = self
-        textView.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+        textView.font = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.headline)
         textView.returnKeyType = .next
         textView.textColor = .darkText
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ class EditorDemoController: UIViewController {
         let placeholderText = NSLocalizedString("Enter title here", comment: "Post title placeholder")
         let titlePlaceholderLabel = UILabel()
 
-        let attributes: [NSAttributedStringKey: Any] = [.foregroundColor: UIColor.lightGray, .font: UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)]
+        let attributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor.lightGray, .font: UIFont.preferredFont(forTextStyle: UIFont.TextStyle.headline)]
 
         titlePlaceholderLabel.attributedText = NSAttributedString(string: placeholderText, attributes: attributes)
         titlePlaceholderLabel.sizeToFit()
@@ -204,8 +204,8 @@ class EditorDemoController: UIViewController {
         super.viewWillAppear(animated)
 
         let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        nc.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        nc.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -219,8 +219,8 @@ class EditorDemoController: UIViewController {
         super.viewWillDisappear(animated)
 
         let nc = NotificationCenter.default
-        nc.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
-        nc.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
+        nc.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        nc.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
 
@@ -359,7 +359,7 @@ class EditorDemoController: UIViewController {
 
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
@@ -368,7 +368,7 @@ class EditorDemoController: UIViewController {
 
     @objc func keyboardWillHide(_ notification: Notification) {
         guard let userInfo = notification.userInfo as? [String: AnyObject],
-            let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
                 return
         }
 
@@ -626,7 +626,7 @@ extension EditorDemoController {
         }
         
         let options = Constants.headers.map { headerType -> OptionsTableViewOption in
-            let attributes: [NSAttributedStringKey: Any] = [
+            let attributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: CGFloat(headerType.fontSize))
             ]
 
@@ -786,11 +786,11 @@ extension EditorDemoController {
 
         let alertController = UIAlertController(title:insertButtonTitle,
                                                 message:nil,
-                                                preferredStyle:UIAlertControllerStyle.alert)
+                                                preferredStyle:UIAlertController.Style.alert)
         alertController.view.accessibilityIdentifier = "linkModal"
 
         alertController.addTextField(configurationHandler: { [weak self]textField in
-            textField.clearButtonMode = UITextFieldViewMode.always;
+            textField.clearButtonMode = UITextField.ViewMode.always;
             textField.placeholder = NSLocalizedString("URL", comment:"URL text field placeholder");
             textField.keyboardType = .URL
             if #available(iOS 10, *) {
@@ -800,14 +800,14 @@ extension EditorDemoController {
 
             textField.addTarget(self,
                 action:#selector(EditorDemoController.alertTextFieldDidChange),
-            for:UIControlEvents.editingChanged)
+            for:UIControl.Event.editingChanged)
             
             textField.accessibilityIdentifier = "linkModalURL"
             })
 
         if allowTextEdit {
             alertController.addTextField(configurationHandler: { textField in
-                textField.clearButtonMode = UITextFieldViewMode.always
+                textField.clearButtonMode = UITextField.ViewMode.always
                 textField.placeholder = NSLocalizedString("Link Text", comment:"Link text field placeholder")
                 textField.isSecureTextEntry = false
                 textField.autocapitalizationType = UITextAutocapitalizationType.sentences
@@ -822,7 +822,7 @@ extension EditorDemoController {
         }
 
         alertController.addTextField(configurationHandler: { textField in
-            textField.clearButtonMode = UITextFieldViewMode.always
+            textField.clearButtonMode = UITextField.ViewMode.always
             textField.placeholder = NSLocalizedString("Target", comment:"Link text field placeholder")
             textField.isSecureTextEntry = false
             textField.autocapitalizationType = UITextAutocapitalizationType.sentences
@@ -836,7 +836,7 @@ extension EditorDemoController {
         })
 
         let insertAction = UIAlertAction(title:insertButtonTitle,
-                                         style:UIAlertActionStyle.default,
+                                         style:UIAlertAction.Style.default,
                                          handler:{ [weak self]action in
 
                                             self?.richTextView.becomeFirstResponder()
@@ -872,14 +872,14 @@ extension EditorDemoController {
         insertAction.accessibilityLabel = "insertLinkButton"
 
         let removeAction = UIAlertAction(title:removeButtonTitle,
-                                         style:UIAlertActionStyle.destructive,
+                                         style:UIAlertAction.Style.destructive,
                                          handler:{ [weak self] action in
                                             self?.richTextView.becomeFirstResponder()
                                             self?.richTextView.removeLink(inRange: range)
             })
 
         let cancelAction = UIAlertAction(title: cancelButtonTitle,
-                                         style:UIAlertActionStyle.cancel,
+                                         style:UIAlertAction.Style.cancel,
                                          handler:{ [weak self]action in
                 self?.richTextView.becomeFirstResponder()
             })
@@ -1135,10 +1135,13 @@ extension EditorDemoController: UINavigationControllerDelegate
 
 extension EditorDemoController: UIImagePickerControllerDelegate
 {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+// Local variable inserted by Swift 4.2 migrator.
+let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+
         dismiss(animated: true, completion: nil)
         richTextView.becomeFirstResponder()
-        guard let mediaType =  info[UIImagePickerControllerMediaType] as? String else {
+        guard let mediaType =  info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaType)] as? String else {
             return
         }
         let typeImage = kUTTypeImage as String
@@ -1146,7 +1149,7 @@ extension EditorDemoController: UIImagePickerControllerDelegate
 
         switch mediaType {
         case typeImage:
-            guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+            guard let image = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as? UIImage else {
                 return
             }
 
@@ -1154,7 +1157,7 @@ extension EditorDemoController: UIImagePickerControllerDelegate
             insertImage(image)
 
         case typeMovie:
-            guard let videoURL = info[UIImagePickerControllerMediaURL] as? URL else {
+            guard let videoURL = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaURL)] as? URL else {
                 return
             }
             insertVideo(videoURL)
@@ -1225,7 +1228,7 @@ private extension EditorDemoController {
             }
             let generator = AVAssetImageGenerator(asset: asset)
             generator.appliesPreferredTrackTransform = true
-            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(2, 1))],
+            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(value: 2, timescale: 1))],
                                                      completionHandler: { (time, cgImage, actualTime, result, error) in
                                                         guard let cgImage = cgImage else {
                                                             DispatchQueue.main.async {
@@ -1267,7 +1270,7 @@ private extension EditorDemoController
     func saveToDisk(image: UIImage) -> URL {
         let fileName = "\(ProcessInfo.processInfo.globallyUniqueString)_file.jpg"
 
-        guard let data = UIImageJPEGRepresentation(image, 0.9) else {
+        guard let data = image.jpegData(compressionQuality: 0.9) else {
             fatalError("Could not conert image to JPEG.")
         }
 
@@ -1301,7 +1304,7 @@ private extension EditorDemoController
         let asset = AVURLAsset(url: videoURL, options: nil)
         let imgGenerator = AVAssetImageGenerator(asset: asset)
         imgGenerator.appliesPreferredTrackTransform = true
-        guard let cgImage = try? imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil) else {
+        guard let cgImage = try? imgGenerator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil) else {
             return
         }
         let posterImage = UIImage(cgImage: cgImage)
@@ -1341,11 +1344,11 @@ private extension EditorDemoController
         richTextView.refresh(attachment, overlayUpdateOnly: true)
     }
 
-    var mediaMessageAttributes: [NSAttributedStringKey: Any] {
+    var mediaMessageAttributes: [NSAttributedString.Key: Any] {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
 
-        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
                                                         .paragraphStyle: paragraphStyle,
                                                         .foregroundColor: UIColor.white]
         return attributes
@@ -1670,4 +1673,14 @@ private extension TextList.Style {
     var iconImage: UIImage? {
         return formattingIdentifier.iconImage
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+	return input.rawValue
 }

@@ -4,7 +4,7 @@ import UIKit
 /// `ElementConverter` subclass for converters that just apply a formatter to the inherited attributes.
 ///
 protocol FormatterElementConverter: ElementConverter {
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any]
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any]
     func formatter() -> AttributeFormatter
 }
 
@@ -18,7 +18,7 @@ extension FormatterElementConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         guard !(element is RootNode) else {
             return inheritedAttributes

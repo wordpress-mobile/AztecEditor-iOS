@@ -4,16 +4,16 @@ import UIKit
 /// Formatter to apply simple value (NSNumber, UIColor) attributes to an attributed string. 
 class StandardAttributeFormatter: AttributeFormatter {
 
-    var placeholderAttributes: [NSAttributedStringKey: Any]? { return nil }
+    var placeholderAttributes: [NSAttributedString.Key: Any]? { return nil }
 
-    let attributeKey: NSAttributedStringKey
+    let attributeKey: NSAttributedString.Key
     var attributeValue: Any
 
-    let htmlRepresentationKey: NSAttributedStringKey
+    let htmlRepresentationKey: NSAttributedString.Key
 
     // MARK: - Init
 
-    init(attributeKey: NSAttributedStringKey, attributeValue: Any, htmlRepresentationKey: NSAttributedStringKey) {
+    init(attributeKey: NSAttributedString.Key, attributeValue: Any, htmlRepresentationKey: NSAttributedString.Key) {
         self.attributeKey = attributeKey
         self.attributeValue = attributeValue
         self.htmlRepresentationKey = htmlRepresentationKey
@@ -23,7 +23,7 @@ class StandardAttributeFormatter: AttributeFormatter {
         return range
     }
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
         
         resultingAttributes[attributeKey] = attributeValue
@@ -32,7 +32,7 @@ class StandardAttributeFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
 
         resultingAttributes.removeValue(forKey: attributeKey)
@@ -41,7 +41,7 @@ class StandardAttributeFormatter: AttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         let enabled = attributes[attributeKey] != nil
         return enabled
     }

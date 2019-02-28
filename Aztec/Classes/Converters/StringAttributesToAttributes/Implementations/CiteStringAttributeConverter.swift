@@ -8,7 +8,7 @@ import UIKit
 open class CiteStringAttributeConverter: StringAttributeConverter {
     
     public func convert(
-        attributes: [NSAttributedStringKey: Any],
+        attributes: [NSAttributedString.Key: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
         
         var elementNodes = elementNodes
@@ -16,7 +16,7 @@ open class CiteStringAttributeConverter: StringAttributeConverter {
         // We add the representation right away, if it exists... as it could contain attributes beyond just this
         // style.  The enable and disable methods below can modify this as necessary.
         //
-        if let representation = attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation,
+        if let representation = attributes[NSAttributedString.Key.citeHtmlRepresentation] as? HTMLRepresentation,
             case let .element(representationElement) = representation.kind {
             
             elementNodes.append(representationElement.toElementNode())
