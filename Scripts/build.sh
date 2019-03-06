@@ -1,18 +1,13 @@
-if [ ! $TRAVIS ]; then
-	TRAVIS_XCODE_WORKSPACE=Aztec.xcworkspace
-	TRAVIS_XCODE_PROJECT=Aztec.xcodeproj
-	TRAVIS_XCODE_SCHEME=AztecExample
-    TRAVIS_XCODE_SDK=iphonesimulator
-fi
+XCODE_WORKSPACE=Aztec.xcworkspace
+XCODE_PROJECT=Aztec.xcodeproj
+XCODE_SCHEME=AztecExample
+XCODE_SDK=iphonesimulator
 
 xcodebuild build test \
-	-workspace "$TRAVIS_XCODE_WORKSPACE" \
-	-scheme "$TRAVIS_XCODE_SCHEME" \
-	-sdk "$TRAVIS_XCODE_SDK" \
+	-workspace "$XCODE_WORKSPACE" \
+	-scheme "$XCODE_SCHEME" \
+	-sdk "$XCODE_SDK" \
     -destination "name=iPhone SE" \
 	-configuration Debug | xcpretty -c && exit ${PIPESTATUS[0]}
 
-
-
-
-	
+exit ${PIPESTATUS[0]}
