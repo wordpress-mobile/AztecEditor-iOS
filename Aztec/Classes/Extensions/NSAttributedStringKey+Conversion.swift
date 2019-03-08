@@ -4,13 +4,13 @@ import UIKit
 
 // MARK: - AttributedStringKey converters for Swift 3.2 and 4.0 support
 //
-extension NSAttributedStringKey {
+extension NSAttributedString.Key {
 
     /// Converts a collection of NSAttributedString Attributes, with 'NSAttributedStringKey' instances as 'Keys', into an
     /// equivalent collection that uses regular 'String' instances as keys.
     ///
     @inline(__always)
-    static func convertToRaw(_ attributes: [NSAttributedStringKey: Any]) -> [String: Any] {
+    static func convertToRaw(_ attributes: [NSAttributedString.Key: Any]) -> [String: Any] {
         var output = [String: Any]()
         
         for (key, value) in attributes {
@@ -25,11 +25,11 @@ extension NSAttributedStringKey {
     /// collection that uses the new 'NSAttributedStringKey' enum as keys.
     ///
     @inline(__always)
-    static func convertFromRaw(_ attributes: [String: Any]) -> [NSAttributedStringKey: Any] {
-        var output = [NSAttributedStringKey: Any]()
+    static func convertFromRaw(_ attributes: [String: Any]) -> [NSAttributedString.Key: Any] {
+        var output = [NSAttributedString.Key: Any]()
         
         for (key, value) in attributes {
-            let wrappedKey = NSAttributedStringKey(key)
+            let wrappedKey = NSAttributedString.Key(key)
             output[wrappedKey] = value
         }
         

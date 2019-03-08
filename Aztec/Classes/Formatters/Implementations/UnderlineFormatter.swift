@@ -4,7 +4,7 @@ class UnderlineFormatter: StandardAttributeFormatter {
 
     init() {
         super.init(attributeKey: .underlineStyle,
-                   attributeValue: NSUnderlineStyle.styleSingle.rawValue,
+                   attributeValue: NSUnderlineStyle.single.rawValue,
                    htmlRepresentationKey: .underlineHtmlRepresentation)
     }
 }

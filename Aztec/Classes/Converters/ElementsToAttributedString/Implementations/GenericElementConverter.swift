@@ -63,7 +63,7 @@ class GenericElementConverter: ElementConverter {
     
     func convert(
         _ element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any],
+        inheriting attributes: [NSAttributedString.Key: Any],
         contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
         guard isSupportedByEditor(element) else {
@@ -89,7 +89,7 @@ class GenericElementConverter: ElementConverter {
     ///
     private func convert(
         unsupported element: ElementNode,
-        inheriting attributes: [NSAttributedStringKey: Any]) -> NSAttributedString {
+        inheriting attributes: [NSAttributedString.Key: Any]) -> NSAttributedString {
         
         let serializer = HTMLSerializer()
         let attachment = HTMLAttachment()
@@ -108,7 +108,7 @@ class GenericElementConverter: ElementConverter {
     
     private func convert(
         supported element: ElementNode,
-        inheriting inheritedAttributes: [NSAttributedStringKey: Any],
+        inheriting inheritedAttributes: [NSAttributedString.Key: Any],
         contentSerializer serialize: ContentSerializer) -> NSAttributedString {
         
         let childrenAttributes = attributes(for: element, inheriting: inheritedAttributes)
@@ -130,7 +130,7 @@ private extension GenericElementConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func attributes(for element: ElementNode, inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         guard !(element is RootNode) else {
             return inheritedAttributes
@@ -138,7 +138,7 @@ private extension GenericElementConverter {
         
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
-        var finalAttributes: [NSAttributedStringKey: Any]
+        var finalAttributes: [NSAttributedString.Key: Any]
         
         if let elementFormatter = formatter(for: element) {
             finalAttributes = elementFormatter.apply(to: inheritedAttributes, andStore: representation)
@@ -158,9 +158,9 @@ private extension GenericElementConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    private func attributes(for htmlAttributes: [Attribute], inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
-        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedStringKey: Any] in
+        let finalAttributes = htmlAttributes.reduce(inheritedAttributes) { (previousAttributes, htmlAttribute) -> [NSAttributedString.Key: Any] in
             return attributes(for: htmlAttribute, inheriting: previousAttributes)
         }
         
@@ -177,9 +177,9 @@ private extension GenericElementConverter {
     ///
     /// - Returns: an attributes dictionary, for use in an NSAttributedString.
     ///
-    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    private func attributes(for attribute: Attribute, inheriting inheritedAttributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
-        let attributes: [NSAttributedStringKey: Any]
+        let attributes: [NSAttributedString.Key: Any]
         
         if let attributeFormatter = formatter(for: attribute) {
             let attributeHTMLRepresentation = HTMLRepresentation(for: .attribute(attribute))
@@ -201,7 +201,7 @@ private extension GenericElementConverter {
     ///
     /// - Returns: A collection of NSAttributedString Attributes, including the specified HTMLElementRepresentation.
     ///
-    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    private func attributes(storing representation: HTMLElementRepresentation, in attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         let unsupportedHTML = attributes[.unsupportedHtml] as? UnsupportedHTML
         var representations = unsupportedHTML?.representations ?? []
         representations.append(representation)

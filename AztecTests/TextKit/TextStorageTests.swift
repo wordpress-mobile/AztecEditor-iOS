@@ -26,7 +26,7 @@ class TextStorageTests: XCTestCase {
     // MARK: - Test Traits
 
     func testFontTraitExistsAtIndex() {
-        let attributes: [NSAttributedStringKey: Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
@@ -47,7 +47,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testFontTraitSpansRange() {
-        let attributes: [NSAttributedStringKey: Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 10)
         ]
 
@@ -61,7 +61,7 @@ class TextStorageTests: XCTestCase {
     }
 
     func testToggleTraitInRange() {
-        let attributes: [NSAttributedStringKey: Any] = [.font: UIFont.boldSystemFont(ofSize: 10)]
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: 10)]
 
         storage.append(NSAttributedString(string: "foo"))
         storage.append(NSAttributedString(string: "bar", attributes: attributes))
@@ -159,7 +159,7 @@ class TextStorageTests: XCTestCase {
         let finalHTML = "<p>\(updatedHTML)</p>"
 
         // Setup
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                              .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
@@ -375,7 +375,7 @@ class TextStorageTests: XCTestCase {
         let commentString = "This is a comment"
         let html = "<!--\(commentString)-->"
 
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                              .paragraphStyle: ParagraphStyle.default]
         
         storage.setHTML(html, defaultAttributes: defaultAttributes)
@@ -392,7 +392,7 @@ class TextStorageTests: XCTestCase {
         for element in elementsToTest {
             let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
             let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)>"
-            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+            let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
             let outputHTML = storage.getHTML()
@@ -407,7 +407,7 @@ class TextStorageTests: XCTestCase {
         for element in elementsToTest {
             let html = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
             let expectedHTML = "<\(element.rawValue) class=\"custom_hr\"><!-- comment -->Some content</\(element.rawValue)>"
-            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+            let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
             let outputHTML = storage.getHTML()
@@ -419,7 +419,7 @@ class TextStorageTests: XCTestCase {
     func testMultipleComments() {
         let html = "<!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3-->"
         let expectedHTML = "<p><!-- comment 1 --><!-- comment 2 -->Some content<!-- comment 3--></p>"
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         let outputHTML = storage.getHTML()
@@ -433,7 +433,7 @@ class TextStorageTests: XCTestCase {
         for element in elementsToTest {
             let html = "<!-- comment --><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><!-- comment -->"
             let expectedHTML = "<p><!-- comment --></p><\(element.rawValue) class=\"custom_hr\">Some content</\(element.rawValue)><p><!-- comment --></p>"
-            let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+            let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                    .paragraphStyle: ParagraphStyle.default]
             storage.setHTML(html, defaultAttributes: defaultAttributes)
             let outputHTML = storage.getHTML()
@@ -446,7 +446,7 @@ class TextStorageTests: XCTestCase {
         let html = """
 <blockquote class="wp-block-quote is-large"><p>Take comfort in the fact that you 'can' keep your current publishing flow... and then take some time to explore the possibilities that Gutenberg opens up to you.</p><cite>By M</cite></blockquote>
 """
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                .paragraphStyle: ParagraphStyle.default]
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         let outputHTML = storage.getHTML()
@@ -457,7 +457,7 @@ class TextStorageTests: XCTestCase {
     func testSingleSpaceBetweenElements() {
         let html = "<p><strong>WordPress</strong> <em>App</em></p>"
 
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                .paragraphStyle: ParagraphStyle.default]
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         let outputHTML = storage.getHTML()
@@ -473,7 +473,7 @@ class TextStorageTests: XCTestCase {
   </li>
 </ul>
 """
-        let defaultAttributes: [NSAttributedStringKey: Any] = [.font: UIFont.systemFont(ofSize: 14),
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
                                                                .paragraphStyle: ParagraphStyle.default]
         storage.setHTML(html, defaultAttributes: defaultAttributes)
         let outputHTML = storage.getHTML(prettify: true)

@@ -77,7 +77,7 @@ class GutenpackAttachmentRendererTests: XCTestCase {
         let desiredSize = CGSize(width: 100, height: GutenpackAttachmentRenderer.Constants.defaultHeight)
         
         guard let image = renderer.textView(textView, imageFor: attachment, with: desiredSize),
-            let pngRepresentation = UIImagePNGRepresentation(image) else {
+            let pngRepresentation = image.pngData() else {
                 XCTFail()
                 return
         }

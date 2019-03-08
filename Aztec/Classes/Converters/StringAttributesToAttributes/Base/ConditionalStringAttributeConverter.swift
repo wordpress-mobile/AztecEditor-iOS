@@ -14,7 +14,7 @@ open class ConditionalStringAttributeConverter: StringAttributeConverter {
     /// A predicate that will be used to select the converter that will be used
     /// for a conditional conversion.
     ///
-    typealias Predicate = (_ attributes: [NSAttributedStringKey: Any]) -> Bool
+    typealias Predicate = (_ attributes: [NSAttributedString.Key: Any]) -> Bool
     
     /// The branches representing our condition tree.
     ///
@@ -29,7 +29,7 @@ open class ConditionalStringAttributeConverter: StringAttributeConverter {
     // MARK: - StringAttributeConverter
     
     public func convert(
-        attributes: [NSAttributedStringKey: Any],
+        attributes: [NSAttributedString.Key: Any],
         andAggregateWith elementNodes: [ElementNode]) -> [ElementNode] {
         
         guard let converter = converter(for: attributes) else {
@@ -49,7 +49,7 @@ open class ConditionalStringAttributeConverter: StringAttributeConverter {
     /// - Returns: the branch that will convert the specified attributes, or `nil` if
     ///     no predicate matches those attributes.
     ///
-    private func branch(for attributes: [NSAttributedStringKey: Any]) -> Branch? {
+    private func branch(for attributes: [NSAttributedString.Key: Any]) -> Branch? {
         return branches.first { $0.predicate(attributes) }
     }
     
@@ -61,7 +61,7 @@ open class ConditionalStringAttributeConverter: StringAttributeConverter {
     /// - Returns: the converter that will convert the specified attributes, or `nil` if
     ///     no predicate matches those attributes.
     ///
-    private func converter(for attributes: [NSAttributedStringKey: Any]) -> StringAttributeConverter? {
+    private func converter(for attributes: [NSAttributedString.Key: Any]) -> StringAttributeConverter? {
         return branch(for: attributes)?.converter
     }
 }

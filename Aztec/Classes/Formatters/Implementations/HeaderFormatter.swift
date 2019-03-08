@@ -19,7 +19,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    public func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    public func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         guard let font = attributes[.font] as? UIFont else {
             return attributes
         }
@@ -50,7 +50,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let header = paragraphStyle.headers.last,
             header.level != .none
@@ -73,7 +73,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         return resultingAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
@@ -87,7 +87,7 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 //
 private extension HeaderFormatter {
 
-    func defaultFontSize(from attributes: [NSAttributedStringKey: Any]) -> Float? {
+    func defaultFontSize(from attributes: [NSAttributedString.Key: Any]) -> Float? {
         if let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let lastHeader = paragraphStyle.headers.last
         {

@@ -4,7 +4,7 @@ import XCTest
 
 class NSMutableAttributedStringParagraphPropertyTests: XCTestCase {
     
-    let sampleAttributes: [NSAttributedStringKey : Any] = [
+    let sampleAttributes: [NSAttributedString.Key : Any] = [
         .font: UIFont.systemFont(ofSize: UIFont.systemFontSize),
         .paragraphStyle: NSParagraphStyle()
     ]

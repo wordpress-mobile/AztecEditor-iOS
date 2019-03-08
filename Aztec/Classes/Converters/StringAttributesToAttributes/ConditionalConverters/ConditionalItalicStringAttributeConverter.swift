@@ -30,7 +30,7 @@ class ConditionalItalicStringAttributeConverter: ConditionalStringAttributeConve
     
     // MARK: - Predicate logic
     
-    private static func hasCiteRepresentation(_ attributes: [NSAttributedStringKey: Any]) -> Bool {
-        return attributes[NSAttributedStringKey.citeHtmlRepresentation] as? HTMLRepresentation != nil
+    private static func hasCiteRepresentation(_ attributes: [NSAttributedString.Key: Any]) -> Bool {
+        return attributes[NSAttributedString.Key.citeHtmlRepresentation] as? HTMLRepresentation != nil
     }
 }

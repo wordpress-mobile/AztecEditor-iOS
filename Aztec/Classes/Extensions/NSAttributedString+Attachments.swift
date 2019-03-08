@@ -15,14 +15,14 @@ extension NSAttributedString
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
-    public convenience init(attachment: NSTextAttachment, attributes: [NSAttributedStringKey: Any]) {
+    public convenience init(attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) {
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
         self.init(.textAttachment, attributes: attributesWithAttachment)
     }
     
-    public convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedStringKey: Any]) {
+    public convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedString.Key: Any]) {
         let figure = Figure()
         let figcaption = Figcaption(defaultFont: UIFont.systemFont(ofSize: 14), storing: nil)
         
@@ -48,6 +48,10 @@ extension NSAttributedString
         enumerateAttachmentsOfType(NSTextAttachment.self) { (attachment, _, _) in
             guard let data = attachment.fileWrapper?.regularFileContents else {
                 return
+            }
+
+            if let mediaAttachment = attachment as? MediaAttachment {
+                mediaAttachment.refreshIdentifier()
             }
 
             let scale = UIScreen.main.scale

@@ -70,7 +70,7 @@ public class OptionsTablePresenter: NSObject {
         
         let inputViewController = UIInputViewController(nibName: nil, bundle: nil)
         
-        inputViewController.addChildViewController(optionsViewController)
+        inputViewController.addChild(optionsViewController)
         inputViewController.view.addSubview(optionsViewController.view)
         
         let frame = calculateOptionsInputViewControllerFrame()

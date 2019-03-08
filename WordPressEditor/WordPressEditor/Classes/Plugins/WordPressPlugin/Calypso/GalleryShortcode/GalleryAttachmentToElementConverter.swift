@@ -2,7 +2,7 @@ import Aztec
 import Foundation
 
 class GalleryAttachmentToElementConverter: AttachmentToElementConverter {    
-    func convert(_ attachment: GalleryAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node] {
+    func convert(_ attachment: GalleryAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node] {
         
         let attributes = getAttributes(from: attachment)
         let galleryElement = ElementNode(type: .gallery, attributes: attributes, children: [])

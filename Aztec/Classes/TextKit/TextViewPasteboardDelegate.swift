@@ -107,8 +107,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
             newString.setAttributes(newAttributes, range: range)
         }
 
-        let typingAttributesSwifted = textView.typingAttributesSwifted
-        newString.addAttributes(typingAttributesSwifted, range: string.rangeOfEntireString)
+        newString.addAttributes(textView.typingAttributes, range: string.rangeOfEntireString)
         newString.loadLazyAttachments()
 
         textView.storage.replaceCharacters(in: selectedRange, with: newString)

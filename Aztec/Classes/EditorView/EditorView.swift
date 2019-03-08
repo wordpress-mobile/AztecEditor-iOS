@@ -186,6 +186,7 @@ extension EditorView {
 // MARK: - UITextInput
 
 extension EditorView: UITextInput {
+    
     public func text(in range: UITextRange) -> String? {
         return activeView.text(in: range)
     }
@@ -198,7 +199,7 @@ extension EditorView: UITextInput {
         return activeView.markedTextRange
     }
     
-    public var markedTextStyle: [AnyHashable : Any]? {
+    public var markedTextStyle: [NSAttributedString.Key: Any]? {
         get {
             return activeView.markedTextStyle
         }
@@ -282,7 +283,7 @@ extension EditorView: UITextInput {
         return activeView.caretRect(for: position)
     }
     
-    public func selectionRects(for range: UITextRange) -> [Any] {
+    public func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
         return activeView.selectionRects(for: range)
     }
     

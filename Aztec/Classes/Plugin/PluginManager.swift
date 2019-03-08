@@ -104,7 +104,7 @@ extension PluginManager: AttributedStringParserCustomizer {
         return nil
     }
     
-    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedStringKey : Any]) -> [Node]? {
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key : Any]) -> [Node]? {
         for plugin in plugins {
             if let customizer = plugin.outputCustomizer,
                 let elements = customizer.convert(attachment, attributes: attributes) {

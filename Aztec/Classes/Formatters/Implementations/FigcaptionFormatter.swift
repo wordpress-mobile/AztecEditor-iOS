@@ -9,7 +9,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
 
     // MARK: - Overwriten Methods
 
-    func apply(to attributes: [NSAttributedStringKey: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedStringKey: Any] {
+    func apply(to attributes: [NSAttributedString.Key: Any], andStore representation: HTMLRepresentation?) -> [NSAttributedString.Key: Any] {
         
         let defaultFont = self.defaultFont(from: attributes)
         
@@ -28,7 +28,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func remove(from attributes: [NSAttributedStringKey: Any]) -> [NSAttributedStringKey: Any] {
+    func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle,
             let figcaption = paragraphStyle.property(where: { $0 is Figcaption }) as? Figcaption else {
@@ -46,7 +46,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
         return finalAttributes
     }
 
-    func present(in attributes: [NSAttributedStringKey: Any]) -> Bool {
+    func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
@@ -56,7 +56,7 @@ open class FigcaptionFormatter: ParagraphAttributeFormatter {
     
     // MARK: - Default Font
     
-    private func defaultFont(from attributes: [NSAttributedStringKey:Any]) -> UIFont {
+    private func defaultFont(from attributes: [NSAttributedString.Key:Any]) -> UIFont {
         guard let font = attributes[.font] as? UIFont else {
             return UIFont.systemFont(ofSize: 14)
         }
