@@ -27,3 +27,5 @@ workflows:
           name: Validate WordPress-Editor-iOS.podspec
           podspec-path: WordPress-Editor-iOS.podspec
           bundle-install: false
+          # Updating specs is needed since WordPress-Editor-iOS depends on WordPress-Aztec-iOS
+          update-specs-repo: true
