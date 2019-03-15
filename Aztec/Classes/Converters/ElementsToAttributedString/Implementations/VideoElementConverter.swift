@@ -16,11 +16,9 @@ class VideoElementConverter: AttachmentElementConverter {
         
         let attachment = self.attachment(for: element)
         let intrinsicRepresentation = NSAttributedString(attachment: attachment, attributes: attributes)
-        //QUESTION :This line is commented out to avoid serialization of elements inside a video element like source.
-        //The source element are already parsed by the attachment so should we remove this line altogether or just remove the source elements and proceed.
-        //let serialization = serialize(element, intrinsicRepresentation, attributes)
+        let serialization = serialize(element, intrinsicRepresentation, attributes)
         
-        return (attachment, intrinsicRepresentation)
+        return (attachment, serialization)
     }
     
     // MARK: - Attachment Creation
@@ -54,8 +52,18 @@ class VideoElementConverter: AttachmentElementConverter {
             posterURL = nil
         }
 
+        let sources = extractSources(from: element)
 
+        let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, sources: sources)
+
+        attachment.extraAttributes = extraAttributes
+
+        return attachment
+    }
+
+    func extractSources(from element: ElementNode) -> [VideoSource] {
         var sources:[VideoSource] = []
+        var children = element.children
         //search for source subelements
         for node in element.children {
             guard let sourceElement = node as? ElementNode, sourceElement.name == "source" else {
@@ -65,11 +73,8 @@ class VideoElementConverter: AttachmentElementConverter {
             let type = sourceElement.attributes.first(where: { $0.name == "type"} )?.value.toString()
             sources.append(VideoSource(src: src, type: type) )
         }
-
-        let attachment = VideoAttachment(identifier: UUID().uuidString, srcURL: srcURL, posterURL: posterURL, sources: sources)
-
-        attachment.extraAttributes = extraAttributes
-
-        return attachment
+        children.removeAll(where: { $0 is ElementNode && $0.name == "source"})
+        element.children = children
+        return sources
     }
 }
