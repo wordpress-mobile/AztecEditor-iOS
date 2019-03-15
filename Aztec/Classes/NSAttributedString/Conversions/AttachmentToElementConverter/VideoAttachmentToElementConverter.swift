@@ -25,20 +25,8 @@ class VideoAttachmentToElementConverter: AttachmentToElementConverter {
             element.updateAttribute(named: attribute.name, value: attribute.value)
         }
 
-        var newChildren = element.children
-        for source in attachment.sources {
-            var attributes = [Attribute]()
-            if let src = source.src {
-                let sourceAttribute = Attribute(type: .src, value: .string(src))
-                attributes.append(sourceAttribute)
-            }
-            if let type = source.type {
-                let typeAttribute = Attribute(name: "type", value: .string(type))
-                attributes.append(typeAttribute)
-            }
-            newChildren.append(ElementNode(type: .source, attributes: attributes, children: []))
-        }
-        element.children = newChildren
+        element.children = element.children + videoSourceElements(from: attachment)
+
         return [element]
     }
     
@@ -61,5 +49,24 @@ class VideoAttachmentToElementConverter: AttachmentToElementConverter {
         }
         
         return Attribute(name: "poster", value: .string(poster))
+    }
+
+    /// Extracts the Video source elements from a VideoAttachment Instance.
+    ///
+    private func videoSourceElements(from attachment: VideoAttachment) -> [Node] {
+        var nodes = [Node]()
+        for source in attachment.sources {
+            var attributes = [Attribute]()
+            if let src = source.src {
+                let sourceAttribute = Attribute(type: .src, value: .string(src))
+                attributes.append(sourceAttribute)
+            }
+            if let type = source.type {
+                let typeAttribute = Attribute(name: "type", value: .string(type))
+                attributes.append(typeAttribute)
+            }
+            nodes.append(ElementNode(type: .source, attributes: attributes, children: []))
+        }
+        return nodes
     }
 }
