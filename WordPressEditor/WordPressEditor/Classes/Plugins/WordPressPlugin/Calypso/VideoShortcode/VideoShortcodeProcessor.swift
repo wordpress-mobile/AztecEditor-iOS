@@ -5,6 +5,7 @@ public class VideoShortcodeProcessor {
 
     static public var videoPressScheme = "videopress"
     static public var videoPressHTMLAttribute = "data-wpvideopress"
+    static public var videoWPShortcodeHTMLAttribute = "data-wpvideoshortcode"
     
     /// Shortcode processor to process videopress shortcodes to html video element
     /// More info here: https://en.support.wordpress.com/videopress/
@@ -107,6 +108,8 @@ public class VideoShortcodeProcessor {
             if let uploadID = shortcode.attributes[MediaAttachment.uploadKey] {
                 html += shortcodeAttributeSerializer.serialize(uploadID) + " "
             }
+
+            html += shortcodeAttributeSerializer.serialize(ShortcodeAttribute(key: videoWPShortcodeHTMLAttribute, value: "true")) + " "
             
             html += "/>"
             
@@ -122,6 +125,11 @@ public class VideoShortcodeProcessor {
         let shortcodeAttributeSerializer = ShortcodeAttributeSerializer()
         
         let postWordPressVideoProcessor = HTMLProcessor(for: "video", replacer: { (element) in
+
+            guard element.attributes[videoWPShortcodeHTMLAttribute]?.value != nil else {
+                    return nil
+            }
+
             var html = "[video "
             
             if let src = element.attributes["src"] {
