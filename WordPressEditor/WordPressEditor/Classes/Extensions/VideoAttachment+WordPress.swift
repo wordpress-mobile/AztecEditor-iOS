@@ -18,4 +18,17 @@ extension VideoAttachment {
             }
         }
     }
+
+    @objc var isShortcode: Bool {
+        get {
+            return extraAttributes[VideoShortcodeProcessor.videoWPShortcodeHTMLAttribute]?.toString() == "true"
+        }
+        set {
+            if newValue {
+                extraAttributes[VideoShortcodeProcessor.videoWPShortcodeHTMLAttribute] = .string(String("true"))
+            } else {
+                extraAttributes.remove(named: VideoShortcodeProcessor.videoWPShortcodeHTMLAttribute)
+            }
+        }
+    }
 }
