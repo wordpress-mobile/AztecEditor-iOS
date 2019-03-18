@@ -61,7 +61,13 @@ class VideoElementConverter: AttachmentElementConverter {
         return attachment
     }
 
-    func extractSources(from element: ElementNode) -> [VideoSource] {
+
+    /// This method search for source elements on the children of the video element and return an array of VideoSource with the corresponding information.<#Description#>
+    ///
+    /// - Parameter element: the video element to search for sources
+    /// - Returns: an array with the source information found
+    ///
+    private func extractSources(from element: ElementNode) -> [VideoSource] {
         var children = element.children
 
         //search for source subelements
@@ -72,7 +78,12 @@ class VideoElementConverter: AttachmentElementConverter {
         return sources
     }
 
-    func searchSources(in element: ElementNode) -> [VideoSource] {
+    /// This method recursively searches for source elements on the children of element provided and return an array of VideoSource with the corresponding information.
+    ///
+    /// - Parameter element: the element to search for sources
+    /// - Returns: an array with the source information found
+    ///
+    private func searchSources(in element: ElementNode) -> [VideoSource] {
         var sources:[VideoSource] = []
         for node in element.children {
             guard let sourceElement = node as? ElementNode, sourceElement.name == "source" else {
