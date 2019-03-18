@@ -62,9 +62,18 @@ class VideoElementConverter: AttachmentElementConverter {
     }
 
     func extractSources(from element: ElementNode) -> [VideoSource] {
-        var sources:[VideoSource] = []
         var children = element.children
+
         //search for source subelements
+        let sources = searchSources(in: element)
+
+        children.removeAll(where: { $0 is ElementNode && $0.name == "source"})
+        element.children = children
+        return sources
+    }
+
+    func searchSources(in element: ElementNode) -> [VideoSource] {
+        var sources:[VideoSource] = []
         for node in element.children {
             guard let sourceElement = node as? ElementNode, sourceElement.name == "source" else {
                 continue
@@ -72,9 +81,8 @@ class VideoElementConverter: AttachmentElementConverter {
             let src = sourceElement.attributes.first(where: { $0.name == "src"} )?.value.toString()
             let type = sourceElement.attributes.first(where: { $0.name == "type"} )?.value.toString()
             sources.append(VideoSource(src: src, type: type) )
+            sources.append(contentsOf: searchSources(in: sourceElement))
         }
-        children.removeAll(where: { $0 is ElementNode && $0.name == "source"})
-        element.children = children
         return sources
     }
 }
