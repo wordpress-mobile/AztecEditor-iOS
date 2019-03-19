@@ -6,7 +6,7 @@ import Aztec
 //
 extension MediaAttachment {
 
-    static let uploadKey = "data-wp_upload_id"
+    public static let uploadKey = "data-wp_upload_id"
 
     public var uploadID: String? {
         get {
