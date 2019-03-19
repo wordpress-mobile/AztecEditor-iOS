@@ -8,7 +8,7 @@ extension MediaAttachment {
 
     static let uploadKey = "data-wp_upload_id"
 
-    var uploadID: String? {
+    public var uploadID: String? {
         get {
             return extraAttributes[MediaAttachment.uploadKey]?.toString()
         }
