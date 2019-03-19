@@ -1022,7 +1022,11 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         case let videoAttachment as VideoAttachment:
             guard let posterURL = videoAttachment.posterURL else {
                 // Let's get a frame from the video directly
-                exportPreviewImageForVideo(atURL: url, onCompletion: success, onError: failure)
+                if let videoURL = videoAttachment.mediaURL {
+                    exportPreviewImageForVideo(atURL: videoURL, onCompletion: success, onError: failure)
+                } else {
+                    exportPreviewImageForVideo(atURL: url, onCompletion: success, onError: failure)
+                }
                 return
             }
             downloadImage(from: posterURL, success: success, onFailure: failure)
@@ -1382,7 +1386,7 @@ private extension EditorDemoController
                                                 self?.displayDetailsForAttachment(imageAttachment, position: position)
             })
             alertController.addAction(detailsAction)
-        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.url {
+        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.mediaURL {
             let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
                                               style: .default,
                                               handler: { [weak self] (action) in

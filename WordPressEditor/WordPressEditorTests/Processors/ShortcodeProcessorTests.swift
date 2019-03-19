@@ -24,7 +24,7 @@ class ShortcodeProcessorTests: XCTestCase {
         let sampleText = "[video src=\"video-source.mp4\"]"
         let parsedText = shortCodeParser.process(sampleText)
         
-        XCTAssertEqual(parsedText, "<video src=\"video-source.mp4\" />")
+        XCTAssertEqual(parsedText, "<video src=\"video-source.mp4\" data-wpvideoshortcode=\"true\" />")
     }
 
     func testOutputParserOfVideoPressCode() {
@@ -42,7 +42,7 @@ class ShortcodeProcessorTests: XCTestCase {
 
         let shortCodeParser = VideoShortcodeProcessor.wordPressVideoPostProcessor
 
-        let sampleText = "<video src=\"video-source.mp4\" />"
+        let sampleText = "<video src=\"video-source.mp4\" data-wpvideoshortcode=\"true\" />"
         let parsedText = shortCodeParser.process(sampleText)
         let expected = "[video src=\"video-source.mp4\" ]"
         XCTAssertEqual(parsedText, expected)

@@ -1,6 +1,15 @@
 import Foundation
 import UIKit
 
+public struct VideoSource {
+    public var src: String?
+    public var type: String?
+
+    public init(src: String?, type: String?) {
+        self.src = src
+        self.type = type
+    }
+}
 /// Custom text attachment.
 ///
 open class VideoAttachment: MediaAttachment {
@@ -8,6 +17,8 @@ open class VideoAttachment: MediaAttachment {
     /// Video poster image to show, while the video is not played.
     ///
     open var posterURL: URL?
+
+    open var sources = [VideoSource]()
     
     /// Creates a new attachment
     ///
@@ -15,10 +26,11 @@ open class VideoAttachment: MediaAttachment {
     /// - parameter srcURL: the url for the video to display
     /// - parameter posterURL: the url for a poster image for the video
     ///
-    required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil) {
+    required public init(identifier: String, srcURL: URL? = nil, posterURL: URL? = nil, sources: [VideoSource] = []) {
         super.init(identifier: identifier, url: srcURL)
         self.posterURL = posterURL
         self.overlayImage = Assets.playIcon
+        self.sources = sources
     }
 
     /// Required Initializer
@@ -95,6 +107,19 @@ open class VideoAttachment: MediaAttachment {
             return 0
         }
     }
+
+    override public var mediaURL: URL? {
+        get {
+            if url != nil {
+                return url
+            }
+            if let url = sources.first(where: {$0.src != nil})?.src {
+                return URL(string: url)
+            }
+
+            return nil
+        }
+    }
 }
 
 
@@ -108,6 +133,7 @@ extension VideoAttachment {
         }
 
         clone.posterURL = posterURL
+        clone.sources = sources
 
         return clone
     }

@@ -1547,7 +1547,22 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.getHTML(), "<p><video src=\"newVideo.mp4\" poster=\"video.jpg\" data-wpvideopress=\"ABCDE\"></video></p>")
     }
 
+    func testParseVideoWithSourceElements() {
+        let videoHTML = "<video poster=\"video.jpg\"><source src=\"newVideo.mp4\"></video>"
+        let textView = TextViewStub(withHTML: videoHTML)
 
+        XCTAssertEqual(textView.getHTML(), "<p><video poster=\"video.jpg\"><source src=\"newVideo.mp4\"></video></p>")
+
+        guard let attachment = textView.storage.mediaAttachments.first as? VideoAttachment else {
+            XCTFail("An video attachment should be present")
+            return
+        }
+        XCTAssertEqual(attachment.sources.count, 1, "One source should be available")
+
+        XCTAssertEqual(attachment.sources[0].src, "newVideo.mp4", "Video source should match")
+
+        XCTAssertEqual(attachment.mediaURL, URL(string:"newVideo.mp4"), "Video source should match")
+    }
     // MARK: - Comments
 
     /// This test check if the insertion of a Comment Attachment works correctly and the expected tag gets inserted
