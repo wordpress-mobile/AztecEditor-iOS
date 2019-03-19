@@ -5,7 +5,7 @@ import Aztec
 ///
 extension ImageAttachment {
 
-    @objc var alt: String? {
+    @objc public var alt: String? {
         get {
             return extraAttributes["alt"]?.toString()
         }
@@ -18,7 +18,7 @@ extension ImageAttachment {
         }
     }
 
-    var width: Int? {
+    public var width: Int? {
         get {
             guard let stringInt = extraAttributes["width"]?.toString() else {
                 return nil
@@ -35,7 +35,7 @@ extension ImageAttachment {
         }
     }
 
-    var height: Int? {
+    public var height: Int? {
         get {
             guard let stringInt = extraAttributes["height"]?.toString() else {
                 return nil
@@ -51,7 +51,7 @@ extension ImageAttachment {
         }
     }
 
-    var imageID: Int? {
+    public var imageID: Int? {
         get {
             guard let classAttribute = extraAttributes["class"]?.toString() else {
                 return nil
