@@ -135,6 +135,9 @@ public class ElementNode: Node {
     // MARK: - Node Overrides
     
     override func needsClosingParagraphSeparator() -> Bool {
+        if type == .li && !hasChildren() {
+            return true
+        }
         return (!hasChildren())
             && (hasAttributes() || !isLastInTree())
             && (isBlockLevel() || hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
