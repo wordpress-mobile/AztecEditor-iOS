@@ -9,7 +9,7 @@ extension String {
     ///
     /// - Returns: `true` if the specified index is in an empty line, `false` otherwise.
     ///
-    func isEmptyLine(at index: String.Index) -> Bool {
+    public func isEmptyLine(at index: String.Index) -> Bool {
         return isStartOfNewLine(at: index) && isEndOfLine(at: index)
     }
 
@@ -20,7 +20,7 @@ extension String {
     ///
     /// - Returns: `true` if the specified offset is in an empty line, `false` otherwise.
     ///
-    func isEmptyLine(at offset: Int) -> Bool {
+    public func isEmptyLine(at offset: Int) -> Bool {
         guard let index = self.indexFromLocation(offset) else {
             return true
         }
