@@ -18,6 +18,11 @@ open class WordPressOutputCustomizer: PluginOutputCustomizer {
         VideoShortcodeProcessor.wordPressVideoPostProcessor,
         RemovePProcessor(),
         ])
+
+    private let gutenbergOutputHTMLProcessor = PipelineProcessor([
+        VideoShortcodeProcessor.videoPressPostProcessor,
+        VideoShortcodeProcessor.wordPressVideoPostProcessor,
+        ])
     
     // MARK: - Gutenberg
     
@@ -37,7 +42,7 @@ open class WordPressOutputCustomizer: PluginOutputCustomizer {
     
     open func process(html: String) -> String {
         guard !isGutenbergContent(html) else {
-            return html
+            return gutenbergOutputHTMLProcessor.process(html)
         }
         
         return calypsoOutputHTMLProcessor.process(html)
