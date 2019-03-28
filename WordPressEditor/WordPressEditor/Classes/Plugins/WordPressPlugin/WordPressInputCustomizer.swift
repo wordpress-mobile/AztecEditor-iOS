@@ -18,6 +18,11 @@ open class WordPressInputCustomizer: PluginInputCustomizer {
         VideoShortcodeProcessor.wordPressVideoPreProcessor,
         AutoPProcessor()
         ])
+
+    private let gutenbergInputHTMLProcessor = PipelineProcessor([
+        VideoShortcodeProcessor.videoPressPreProcessor,
+        VideoShortcodeProcessor.wordPressVideoPreProcessor
+        ])
     
     // MARK: - Gutenberg
     
@@ -38,7 +43,7 @@ open class WordPressInputCustomizer: PluginInputCustomizer {
     
     open func process(html: String) -> String {
         guard !isGutenbergContent(html) else {
-            return html
+            return gutenbergInputHTMLProcessor.process(html)
         }
         
         return calypsoinputHTMLProcessor.process(html)
