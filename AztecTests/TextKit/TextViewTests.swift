@@ -1745,6 +1745,21 @@ class TextViewTests: XCTestCase {
         textView.cut(nil)
     }
 
+    /// This test verifies that trying to store data in an empty pasteboard
+    /// doesn't cause Aztec to crash.
+    ///
+    func testWritingIntoAnEmptyPasteboardDoesNotCauseAztecToCrash() {
+
+        let pasteboard = UIPasteboard.general
+        pasteboard.items.removeAll()
+
+        let data = "Foo".data(using: .utf8)!
+        let textView = TextViewStub(withSampleHTML: true)
+        textView.storeInPasteboard(encoded: data, pasteboard: pasteboard)
+
+        XCTAssertEqual(pasteboard.items.count, 1)
+    }
+
     /// This test verifies that Japanese Characters do not get hexa encoded anymore, since we actually support UTF8!
     /// Ref. Issue #632: Stop encoding non-latin characters
     ///
