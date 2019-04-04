@@ -135,11 +135,8 @@ public class ElementNode: Node {
     // MARK: - Node Overrides
     
     override func needsClosingParagraphSeparator() -> Bool {
-        if type == .li && !hasChildren() {
-            return true
-        }
         return (!hasChildren())
-            && (hasAttributes() || !isLastInTree())
+            && (canBeLastInTree() || !isLastInTree())
             && (isBlockLevel() || hasRightBlockLevelSibling() || isLastInAncestorEndingInBlockLevelSeparation())
     }
 
@@ -259,6 +256,14 @@ public class ElementNode: Node {
         }
 
         return false
+    }
+
+    /// Check if the node can be the last one in a tree
+    ///
+    /// - Returns: Returns `true` if it can be the last one, false otherwise.
+    ///
+    func canBeLastInTree() -> Bool {
+        return hasAttributes() || type == .li
     }
 
     /// Find out if this is a block-level element.
