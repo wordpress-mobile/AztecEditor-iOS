@@ -38,18 +38,10 @@ public class ElementNode: Node {
 
     // MARK: - Hashable
 
-    override public var hashValue: Int {
-        var hash = name.hashValue
-
-        for attribute in attributes {
-            hash ^= attribute.hashValue
-        }
-
-        for child in children {
-            hash ^= child.hashValue
-        }
-
-        return hash
+    override public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(attributes)
+        hasher.combine(children)
     }
 
 
