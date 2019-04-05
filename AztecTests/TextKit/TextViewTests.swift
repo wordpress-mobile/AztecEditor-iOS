@@ -1981,6 +1981,15 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(output, expected)
     }
 
+    /// This test makes sure that if an empty list is in the original HTML, it will still get output after our processing.
+    func testEmptyListsPersistsAfterAztec() {
+        let textView = TextViewStub(withHTML: "<ul><li></li></ul>")
+
+        let html = textView.getHTML(prettify: false)
+
+        XCTAssertEqual(html, "<ul><li></li></ul>")
+    }
+
     func testNestedLists() {
         let textView = TextViewStub(withHTML: "WordPress")
 
