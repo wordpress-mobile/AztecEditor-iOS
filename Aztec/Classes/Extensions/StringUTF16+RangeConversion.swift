@@ -11,7 +11,8 @@ extension String.UTF16View {
     ///
     func range(from nsRange: NSRange) -> Range<String.UTF16View.Index> {
         let start = index(startIndex, offsetBy: nsRange.location)
-        let end = index(start, offsetBy: nsRange.length)
+        let offset = count < nsRange.length ? count : nsRange.length
+        let end = index(start, offsetBy: offset)
 
         return start ..< end
     }
