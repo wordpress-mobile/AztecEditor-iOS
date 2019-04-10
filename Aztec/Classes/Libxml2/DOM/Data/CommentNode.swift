@@ -25,8 +25,9 @@ public class CommentNode: Node {
 
     // MARK - Hashable
 
-    override public var hashValue: Int {
-        return name.hashValue ^ comment.hashValue
+    override public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(comment)
     }
 
     // MARK: - Equatable

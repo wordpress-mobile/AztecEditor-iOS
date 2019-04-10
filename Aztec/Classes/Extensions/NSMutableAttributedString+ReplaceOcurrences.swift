@@ -34,14 +34,15 @@ extension NSMutableAttributedString {
                "Allowing the replacement string to contain the original string would result in a ininite loop.")
 
         let swiftUTF16Range = string.utf16.range(from: range)
-        let swiftRange = string.range(from: swiftUTF16Range)
+        var swiftRange = string.range(from: swiftUTF16Range)
 
         while let matchRange = string.range(of: stringToFind, options: [], range: swiftRange, locale: nil) {
             let matchNSRange = string.utf16NSRange(from: matchRange)
 
             replaceCharacters(in: matchNSRange, with: replacementString)
+            
+            // Since the new string may invalidate the initial swift range, we want to update it.
+            swiftRange = swiftRange.lowerBound ..< string.index(matchRange.lowerBound, offsetBy: replacementString.count)
         }
-
-
     }
 }
