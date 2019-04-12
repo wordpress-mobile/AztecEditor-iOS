@@ -26,7 +26,9 @@ open class TextList: ParagraphProperty {
             case 0:
                 return "\t\u{2022}"
             default:
-                return "\t\u{25E6}"
+                // Using the same black bullet for now until Android side is able to edit bullets by level too.
+                // Then this should be updated to "{25E6}"
+                return "\t\u{2022}"
             }
         }
     }
