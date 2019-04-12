@@ -14,10 +14,19 @@ open class TextList: ParagraphProperty {
         case ordered
         case unordered
 
-        func markerText(forItemNumber number: Int) -> String {
+        func markerText(forItemNumber number: Int, level: Int) -> String {
             switch self {
             case .ordered:      return "\t\(number)."
-            case .unordered:    return "\t\u{2022}"
+            case .unordered:    return unorderedMarker(for: level)
+            }
+        }
+
+        func unorderedMarker(for level: Int) -> String {
+            switch level {
+            case 0:
+                return "\t\u{2022}"
+            default:
+                return "\t\u{25E6}"
             }
         }
     }
@@ -27,9 +36,11 @@ open class TextList: ParagraphProperty {
     /// Kind of List: Ordered / Unordered
     ///
     let style: Style
+    let level: Int
 
-    init(style: Style, with representation: HTMLRepresentation? = nil) {
+    init(style: Style, with representation: HTMLRepresentation? = nil, level: Int = 0) {
         self.style = style
+        self.level = level
         super.init(with: representation)
     }
     
@@ -40,12 +51,19 @@ open class TextList: ParagraphProperty {
         } else {
             style = .ordered
         }
+        if aDecoder.containsValue(forKey: String(describing: \TextList.level)) {
+            level = aDecoder.decodeInteger(forKey: String(describing: \TextList.level))
+        } else {
+            level = 0
+        }
+
         super.init(coder: aDecoder)
     }
 
     public override func encode(with aCoder: NSCoder) {
         super.encode(with: aCoder)
         aCoder.encode(style.rawValue, forKey: String(describing: Style.self))
+        aCoder.encode(level, forKey: String(describing: \TextList.level))
     }
 
     public static func ==(lhs: TextList, rhs: TextList) -> Bool {

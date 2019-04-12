@@ -255,7 +255,7 @@ private extension LayoutManager {
         let paragraphAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         let markerAttributes = markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
 
-        let markerPlain = list.style.markerText(forItemNumber: number)
+        let markerPlain = list.style.markerText(forItemNumber: number, level: list.level)
         let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
 
         var yOffset = CGFloat(0)
