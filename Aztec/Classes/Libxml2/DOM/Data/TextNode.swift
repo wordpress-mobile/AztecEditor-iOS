@@ -53,8 +53,9 @@ public class TextNode: Node {
 
     // MARK - Hashable
 
-    override public var hashValue: Int {
-        return name.hashValue ^ contents.hashValue
+    override public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(contents)
     }
 
     // MARK: - Equatable

@@ -82,12 +82,11 @@ extension CSSAttribute: CustomReflectable {
 //
 extension CSSAttribute: Hashable {
 
-    public var hashValue: Int {
-        guard let value = value else {
-            return name.hashValue
+    public func hash(into hasher: inout Hasher) {
+        if let value = value {
+            hasher.combine(value)
         }
-
-        return name.hashValue ^ value.hashValue
+        hasher.combine(name)
     }
 }
 

@@ -199,16 +199,14 @@ extension Attribute {
 
         // MARK: - Hashable
 
-        public var hashValue: Int {
+        public func hash(into hasher: inout Hasher) {
             switch(self) {
             case .none:
-                return 0
+                hasher.combine(0)
             case .string(let string):
-                return string.hashValue
+                hasher.combine(string)
             case .inlineCss(let cssAttributes):
-                return cssAttributes.reduce(0, { (previous, cssAttribute) -> Int in
-                    return previous ^ cssAttribute.hashValue
-                })
+                hasher.combine(cssAttributes)
             }
         }
 
