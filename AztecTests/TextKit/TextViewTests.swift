@@ -2004,4 +2004,16 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(html, "<ul><li></li></ul>")
     }
+
+    func testNestedLists() {
+        let textView = TextViewStub(withHTML: "WordPress")
+
+        let html = "<ul><li>Hello</li><li>world<ul><li>Inner</li><li>Inner<ul><li>Inner2</li><li>Inner2</li></ul></li></ul></li></ul>"
+        let expected = "<ul><li>Hello</li><li>world<ul><li>Inner</li><li>Inner<ul><li>Inner2</li><li>Inner2</li></ul></li></ul></li></ul>"
+
+        textView.setHTML(html)
+        let output = textView.getHTML(prettify: false)
+
+        XCTAssertEqual(output, expected)
+    }
 }
