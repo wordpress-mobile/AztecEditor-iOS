@@ -89,8 +89,8 @@ public extension String {
     ///
     private func findValidLowerBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
 
-        guard self.utf16.count >= utf16Range.lowerBound.encodedOffset else {
-            return String.UTF16View.Index(encodedOffset: 0)
+        guard self.utf16.count >= utf16Range.lowerBound.utf16Offset(in: self) else {
+            return String.UTF16View.Index(utf16Offset: 0, in: self)
         }
 
         return findValidBound(for: utf16Range.lowerBound, using: -)
@@ -106,8 +106,8 @@ public extension String {
     ///
     private func findValidUpperBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
 
-        guard self.utf16.count >= utf16Range.upperBound.encodedOffset else {
-            return String.Index(encodedOffset: self.utf16.count)
+        guard self.utf16.count >= utf16Range.upperBound.utf16Offset(in: self) else {
+            return String.Index(utf16Offset: self.utf16.count, in: self)
         }
 
         return findValidBound(for: utf16Range.upperBound, using: +)
@@ -131,8 +131,8 @@ public extension String {
         var i = 1
 
         while(newBound == nil) {
-            let newOffset = method(bound.encodedOffset, i)
-            let newIndex = String.UTF16View.Index(encodedOffset: newOffset)
+            let newOffset = method(bound.utf16Offset(in: self), i)
+            let newIndex = String.UTF16View.Index(utf16Offset: newOffset, in: self)
             newBound = newIndex.samePosition(in: self)
             i += 1
         }
