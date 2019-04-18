@@ -2016,4 +2016,70 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(output, expected)
     }
+
+    func testNestedListItemsAreIndentedProperlyUsingTabKey() {
+        let textView = TextViewStub(withHTML: "WordPress")
+
+        let html = "<ul><li>Hello</li><li>world</li></ul>"
+        let expected = "<ul><li>Hello<ul><li>world</li></ul></li></ul>"
+
+        textView.setHTML(html)
+
+        selectRange(location: 6, length: 0, on: textView)
+        simulateTab(on: textView)
+
+        let output = textView.getHTML(prettify: false)
+
+        XCTAssertEqual(output, expected)
+    }
+
+    func testNestedListItemsAreUndentedProperlyUsingShiftTabKeyBinding() {
+        let textView = TextViewStub(withHTML: "WordPress")
+
+        let html = "<ul><li>Hello<ul><li>world</li></ul></li></ul>"
+        let expected = "<ul><li>Hello</li><li>world</li></ul>"
+
+        textView.setHTML(html)
+        selectRange(location: 6, length: 0, on: textView)
+        simulateShiftTab(on: textView)
+
+        let output = textView.getHTML(prettify: false)
+
+        XCTAssertEqual(output, expected)
+    }
+}
+
+// MARK: - Helpers
+
+extension TextViewTests {
+    func selectRange(location: Int, length: Int, on textView: TextViewStub) {
+        let newSelectedRange = NSRange(location: location, length: length)
+        textView.selectedRange = textView.text.utf16NSRange(from: newSelectedRange)
+    }
+
+    func simulateTab(on textView: TextViewStub) {
+        let command = textView.keyCommands?.first { command in
+            return command.input == String(.tab) && command.modifierFlags.isEmpty
+        }
+
+        guard let tab = command else {
+            XCTFail()
+            return
+        }
+
+        textView.handleTab(command: tab)
+    }
+
+    func simulateShiftTab(on textView: TextViewStub) {
+        let command = textView.keyCommands?.first { command in
+            return command.input == String(.tab) && command.modifierFlags.contains(.shift)
+        }
+
+        guard let tab = command else {
+            XCTFail()
+            return
+        }
+
+        textView.handleShiftTab(command: tab)
+    }
 }
