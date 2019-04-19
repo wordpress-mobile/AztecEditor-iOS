@@ -1745,6 +1745,21 @@ class TextViewTests: XCTestCase {
         textView.cut(nil)
     }
 
+    /// This test verifies that trying to store data in an empty pasteboard
+    /// doesn't cause Aztec to crash.
+    ///
+    func testWritingIntoAnEmptyPasteboardDoesNotCauseAztecToCrash() {
+
+        let pasteboard = UIPasteboard.general
+        pasteboard.items.removeAll()
+
+        let data = "Foo".data(using: .utf8)!
+        let textView = TextViewStub(withSampleHTML: true)
+        textView.storeInPasteboard(encoded: data, pasteboard: pasteboard)
+
+        XCTAssertEqual(pasteboard.items.count, 1)
+    }
+
     /// This test verifies that Japanese Characters do not get hexa encoded anymore, since we actually support UTF8!
     /// Ref. Issue #632: Stop encoding non-latin characters
     ///
@@ -1988,5 +2003,17 @@ class TextViewTests: XCTestCase {
         let html = textView.getHTML(prettify: false)
 
         XCTAssertEqual(html, "<ul><li></li></ul>")
+    }
+
+    func testNestedLists() {
+        let textView = TextViewStub(withHTML: "WordPress")
+
+        let html = "<ul><li>Hello</li><li>world<ul><li>Inner</li><li>Inner<ul><li>Inner2</li><li>Inner2</li></ul></li></ul></li></ul>"
+        let expected = "<ul><li>Hello</li><li>world<ul><li>Inner</li><li>Inner<ul><li>Inner2</li><li>Inner2</li></ul></li></ul></li></ul>"
+
+        textView.setHTML(html)
+        let output = textView.getHTML(prettify: false)
+
+        XCTAssertEqual(output, expected)
     }
 }

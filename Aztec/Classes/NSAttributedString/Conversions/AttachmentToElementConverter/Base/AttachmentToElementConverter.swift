@@ -19,11 +19,11 @@ public protocol AttachmentToElementConverter: BaseAttachmentToElementConverter {
 }
 
 public extension AttachmentToElementConverter {
-    public func cast(attachment: NSTextAttachment) -> Attachment? {
+    func cast(attachment: NSTextAttachment) -> Attachment? {
         return attachment as? Attachment
     }
     
-    public func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) -> [Node]? {
+    func convert(_ attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) -> [Node]? {
         guard let castedAttachment = cast(attachment: attachment) else {
             return nil
         }

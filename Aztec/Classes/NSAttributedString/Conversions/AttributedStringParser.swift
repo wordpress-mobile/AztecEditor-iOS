@@ -498,9 +498,10 @@ private extension AttributedStringParser {
         let previousProperty = conversion.property
         let newProperty = newProperties[index]
 
-        // `li` tags as a rule will never merge, unless it has a `figure` as child. We want to keep all
-        // `figure` children merged inside a single `li` tag.
-        if newProperty is HTMLLi, newProperties.indices.contains(index + 1), newProperties[index + 1] is Figure {
+        // `li` tags as a rule will never merge, unless it has a `figure` or a `textlist` as child. We want to keep all
+        // `figure` and textlist` children merged inside a single `li` tag.
+        if newProperty is HTMLLi, newProperties.indices.contains(index + 1),
+            newProperties[index + 1] is Figure ||  newProperties[index + 1] is TextList {
             return newProperty === previousProperty
         } else {
             return newProperty.isEqual(previousProperty)

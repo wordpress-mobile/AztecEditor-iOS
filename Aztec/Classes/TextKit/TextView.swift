@@ -486,15 +486,27 @@ open class TextView: UITextView {
     
     // MARK: - Intercept Keystrokes
 
+    public lazy var carriageReturnKeyCommand: UIKeyCommand = {
+        return UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift, action: #selector(handleShiftEnter(command:)))
+    }()
+
+    public lazy var tabKeyCommand: UIKeyCommand = {
+        return UIKeyCommand(input: String(.tab), modifierFlags: [], action: #selector(handleTab(command:)))
+    }()
+
+    public lazy var shiftTabKeyCommand: UIKeyCommand = {
+        return  UIKeyCommand(input: String(.tab), modifierFlags: .shift, action: #selector(handleShiftTab(command:)))
+    }()
+
     override open var keyCommands: [UIKeyCommand]? {
         get {
             // When the keyboard "enter" key is pressed, the keycode corresponds to .carriageReturn,
             // even if it's later converted to .lineFeed by default.
             //
             return [
-                UIKeyCommand(input: String(.carriageReturn), modifierFlags: .shift, action: #selector(handleShiftEnter(command:))),
-                UIKeyCommand(input: String(.tab), modifierFlags: .shift, action: #selector(handleShiftTab(command:))),
-                UIKeyCommand(input: String(.tab), modifierFlags: [], action: #selector(handleTab(command:)))
+                carriageReturnKeyCommand,
+                shiftTabKeyCommand,
+                tabKeyCommand,
             ]
         }
     }
@@ -542,9 +554,8 @@ open class TextView: UITextView {
 
     // MARK: - Pasteboard Helpers
 
-    private func storeInPasteboard(encoded data: Data) {
-        let pasteboard = UIPasteboard.general
-        pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
+    internal func storeInPasteboard(encoded data: Data, pasteboard: UIPasteboard = UIPasteboard.general) {
+        pasteboard.setData(data, forPasteboardType: NSAttributedString.pastesboardUTI)
     }
 
     // MARK: - Intercept keyboard operations

@@ -3,7 +3,7 @@ import UIKit
 
 public extension Character {
 
-    public enum Name: Character {
+    enum Name: Character {
         case lineFeed = "\u{000A}"
         case carriageReturn = "\u{000D}"
         case nonBreakingSpace = "\u{00A0}"
@@ -18,7 +18,7 @@ public extension Character {
         static let textAttachment = objectReplacement
     }
     
-    public static let paragraphBreakingCharacters: [Name] = [.lineFeed, .carriageReturn, .paragraphSeparator]
+    static let paragraphBreakingCharacters: [Name] = [.lineFeed, .carriageReturn, .paragraphSeparator]
     
     init(_ characterName: Name) {
         self.init(unicodeScalarLiteral: characterName.rawValue)
