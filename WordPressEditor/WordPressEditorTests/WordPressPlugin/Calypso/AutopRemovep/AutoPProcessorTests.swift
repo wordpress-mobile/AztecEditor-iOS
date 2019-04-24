@@ -101,4 +101,18 @@ class AutoPProcessorTests: XCTestCase {
         let output = processor.process(input)
         XCTAssertEqual(output, expected)
     }
+
+
+    /// After the migration to Swift 5, there were problems with ranges.
+    /// This test ensures there are no regresions related to this issue:
+    /// https://github.com/wordpress-mobile/WordPress-iOS/issues/11515
+    /// Where the `—` character was messing up the range used to replace the `</blockquote>` string.
+    /// This is independent of the kind of tag. It needs two different tags with a `new line` character in between to happen.
+    func testHTMLWithUTF16Characters() {
+        let html = "<blockquote>A Quote. —— Someone</blockquote>\n<img src=\"#\" />"
+        let expected = "<blockquote><p>A Quote. —— Someone</p></blockquote>\n<p><img src=\"#\" /></p>\n"
+        let finalHTML = processor.process(html)
+
+        XCTAssertEqual(finalHTML, expected)
+    }
 }
