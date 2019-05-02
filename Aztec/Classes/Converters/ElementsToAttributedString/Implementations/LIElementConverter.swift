@@ -31,7 +31,7 @@ class LIElementConverter: ElementConverter {
 
     private func hasNonEmptyTextChildren(node: ElementNode) -> Bool {
         for node in node.children {
-            if let text = node as? TextNode, !text.contents.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
+            if let text = node as? TextNode, !text.contents.trimmingCharacters(in: CharacterSet.whitespaces).isEmpty {
                 return true
             }
         }
