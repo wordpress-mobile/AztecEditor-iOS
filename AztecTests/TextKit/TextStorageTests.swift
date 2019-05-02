@@ -480,4 +480,18 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(html, outputHTML)
     }
+
+    func testListWithNestedLists() {
+        let initialHTML = "<ul><li>One</li><li><ul><li>Two</li></ul></li></ul>"
+
+        // Setup
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                .paragraphStyle: ParagraphStyle.default]
+
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
+        let expectedResult = "One"+String(.paragraphSeparator)+String(.paragraphSeparator)+"Two"
+        let result = String(storage.mutableString)
+
+        XCTAssertEqual(expectedResult, result)
+    }
 }
