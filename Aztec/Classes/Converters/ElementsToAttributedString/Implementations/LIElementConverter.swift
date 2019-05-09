@@ -15,10 +15,11 @@ class LIElementConverter: ElementConverter {
         precondition(element.type == .li)
 
         var intrinsicRepresentation: NSAttributedString?
-        let intrisicRepresentationBeforeChildren = !hasNonEmptyTextChildren(node: element) && hasNestedList(node: element)
-        if intrisicRepresentationBeforeChildren {
-            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: attributes)
-        }        
+        let intrisicRepresentationBeforeChildren = false
+//        let intrisicRepresentationBeforeChildren = !hasNonEmptyTextChildren(node: element) && hasNestedList(node: element)
+//        if intrisicRepresentationBeforeChildren {
+//            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: attributes)
+//        }        
 
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
