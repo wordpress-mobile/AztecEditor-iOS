@@ -30,12 +30,18 @@ class LIElementConverter: ElementConverter {
     }
 
     private func hasNonEmptyTextChildren(node: ElementNode) -> Bool {
+        var result = false
+        var whiteSpaces = CharacterSet.whitespacesAndNewlines
+        whiteSpaces.remove(charactersIn: String(.lineSeparator))
         for node in node.children {
-            if let text = node as? TextNode, !text.contents.trimmingCharacters(in: CharacterSet.whitespaces).isEmpty {
+            if let text = node as? TextNode, !text.contents.trimmingCharacters(in: whiteSpaces).isEmpty {
                 return true
             }
+            if let element = node as? ElementNode, !element.isNodeType(.ol) && !element.isNodeType(.ul) {
+                result = result || hasNonEmptyTextChildren(node: element)
+            }
         }
-        return false
+        return result
     }
 
     private func hasNestedList(node: ElementNode) -> Bool {
