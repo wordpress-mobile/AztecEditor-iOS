@@ -15,11 +15,10 @@ class LIElementConverter: ElementConverter {
         precondition(element.type == .li)
 
         var intrinsicRepresentation: NSAttributedString?
-        let intrisicRepresentationBeforeChildren = false
-//        let intrisicRepresentationBeforeChildren = !hasNonEmptyTextChildren(node: element) && hasNestedList(node: element)
-//        if intrisicRepresentationBeforeChildren {
-//            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: attributes)
-//        }        
+        let intrisicRepresentationBeforeChildren = !hasNonEmptyTextChildren(node: element) && hasNestedList(node: element)
+        if intrisicRepresentationBeforeChildren {
+            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: attributes)
+        }        
 
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
@@ -33,7 +32,7 @@ class LIElementConverter: ElementConverter {
     private func hasNonEmptyTextChildren(node: ElementNode) -> Bool {
         var result = false
         var whiteSpaces = CharacterSet.whitespacesAndNewlines
-        whiteSpaces.remove(charactersIn: String(.lineSeparator))
+        whiteSpaces.remove(charactersIn: String(.paragraphSeparator))
         for node in node.children {
             if let text = node as? TextNode, !text.contents.trimmingCharacters(in: whiteSpaces).isEmpty {
                 return true
