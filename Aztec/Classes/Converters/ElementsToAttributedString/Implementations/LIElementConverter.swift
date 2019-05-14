@@ -16,15 +16,15 @@ class LIElementConverter: ElementConverter {
 
         var intrinsicRepresentation: NSAttributedString?
         let intrisicRepresentationBeforeChildren = !hasNonEmptyTextChildren(node: element) && hasNestedList(node: element)
-        if intrisicRepresentationBeforeChildren {
-            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: attributes)
-        }        
 
         let elementRepresentation = HTMLElementRepresentation(element)
         let representation = HTMLRepresentation(for: .element(elementRepresentation))
         let formatter = LiFormatter(placeholderAttributes: nil)
         let finalAttributes = formatter.apply(to: attributes, andStore: representation)
 
+        if intrisicRepresentationBeforeChildren {
+            intrinsicRepresentation = NSAttributedString(string: String(.paragraphSeparator), attributes: finalAttributes)
+        }
 
         return serialize(element, intrinsicRepresentation, finalAttributes, intrisicRepresentationBeforeChildren)
     }
