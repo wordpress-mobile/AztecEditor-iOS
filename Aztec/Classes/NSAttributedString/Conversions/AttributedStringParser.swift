@@ -899,7 +899,7 @@ private extension AttributedStringParser {
             return representationElement.toElementNode()
         }
 
-        return ElementNode(type: .strike)
+        return ElementNode(type: .s)
     }
 
     /// Extracts all of the Code Elements contained within a collection of Attributes.
