@@ -134,7 +134,7 @@ class AttributedStringParserTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual(strike.name, Element.strike.rawValue)
+        XCTAssertEqual(strike.name, Element.s.rawValue)
         XCTAssertEqual(strike.children.count, 1)
 
         guard let text = strike.children.first as? TextNode else {
