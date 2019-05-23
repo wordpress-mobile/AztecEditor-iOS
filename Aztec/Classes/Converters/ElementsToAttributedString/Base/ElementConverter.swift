@@ -5,7 +5,7 @@ import UIKit
 ///
 public protocol ElementConverter {
     
-    typealias ContentSerializer = (_ elementNode: ElementNode, _ intrinsicRepresentation: NSAttributedString?, _ inheriting: [NSAttributedString.Key:Any]) -> NSAttributedString
+    typealias ContentSerializer = (_ elementNode: ElementNode, _ intrinsicRepresentation: NSAttributedString?, _ inheriting: [NSAttributedString.Key:Any], _ implicitRepresentationBeforeChildren: Bool) -> NSAttributedString
     
     /// Converts an instance of ElementNode into a NSAttributedString.
     ///
