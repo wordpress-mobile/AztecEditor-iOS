@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - Paragraph Analysis Helpers
 //
-extension String {
+public extension String {
 
     /// This methods verifies if the receiver string contains a new paragraph at the specified index.
     ///

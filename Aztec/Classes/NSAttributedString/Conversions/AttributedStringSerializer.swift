@@ -19,7 +19,8 @@ class AttributedStringSerializer {
         .figure: FigureElementConverter(),
         .hr: HRElementConverter(),
         .img: ImageElementConverter(),
-        .video: VideoElementConverter()
+        .video: VideoElementConverter(),
+        .li: LIElementConverter()
     ]
     
     // MARK: - Attributes Converter
@@ -158,15 +159,19 @@ class AttributedStringSerializer {
     //
     private(set) lazy var genericElementConverter = GenericElementConverter()
     
-    lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, intrinsicRepresentation, attributes) in
+    lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, intrinsicRepresentation, attributes, intrinsicRepresentationBeforeChildren) in
         let content = NSMutableAttributedString()
-        
+
+        if let intrinsicRepresentation = intrinsicRepresentation, intrinsicRepresentationBeforeChildren {
+            content.append(intrinsicRepresentation)
+        }
+
         for child in elementNode.children {
             let nodeString = self.serialize(child, inheriting: attributes)
             content.append(nodeString)
         }
         
-        if let intrinsicRepresentation = intrinsicRepresentation {
+        if let intrinsicRepresentation = intrinsicRepresentation, !intrinsicRepresentationBeforeChildren {
             content.append(intrinsicRepresentation)
         }
         
