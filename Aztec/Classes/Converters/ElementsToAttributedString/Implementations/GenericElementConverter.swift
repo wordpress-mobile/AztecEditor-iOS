@@ -113,7 +113,7 @@ class GenericElementConverter: ElementConverter {
         
         let childrenAttributes = attributes(for: element, inheriting: inheritedAttributes)
         
-        return serialize(element, nil, childrenAttributes)
+        return serialize(element, nil, childrenAttributes, false)
     }
 }
 
