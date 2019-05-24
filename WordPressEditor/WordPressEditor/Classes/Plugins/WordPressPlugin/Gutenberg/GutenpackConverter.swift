@@ -27,7 +27,7 @@ public class GutenpackConverter: ElementConverter {
             
             let representation = NSAttributedString(attachment: attachment, attributes: attributes)
             
-            return serialize(element, representation, attributes)
+            return serialize(element, representation, attributes, false)
         }
 
         let blockContent = String(content[content.startIndex ..< content.index(before: content.endIndex)])
@@ -37,7 +37,7 @@ public class GutenpackConverter: ElementConverter {
         let attachment = GutenpackAttachment(name: blockName, content: blockContent)
         let representation = NSAttributedString(attachment: attachment, attributes: attributes)
         
-        return serialize(element, representation, attributes)
+        return serialize(element, representation, attributes, false)
     }
         
 }
