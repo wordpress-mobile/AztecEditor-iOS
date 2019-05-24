@@ -2016,4 +2016,15 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(output, expected)
     }
+
+    // MARK: - Copy tests
+
+    func testCopyAndPasteToPlainText() {
+        let sourceTextView = TextViewStub(withHTML: "This is text with attributes: <strong>bold</strong>")
+
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+
+        XCTAssertEqual(UIPasteboard.general.string, "This is text with attributes: bold")
+    }
 }
