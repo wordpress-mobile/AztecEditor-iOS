@@ -555,7 +555,11 @@ open class TextView: UITextView {
     // MARK: - Pasteboard Helpers
 
     internal func storeInPasteboard(encoded data: Data, pasteboard: UIPasteboard = UIPasteboard.general) {
-        pasteboard.setData(data, forPasteboardType: NSAttributedString.pastesboardUTI)
+        if pasteboard.numberOfItems > 0 {
+            pasteboard.items[0][NSAttributedString.pastesboardUTI] = data;
+        } else {
+            pasteboard.addItems([[NSAttributedString.pastesboardUTI: data]])
+        }
     }
 
     // MARK: - Intercept keyboard operations
