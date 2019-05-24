@@ -1,5 +1,5 @@
 #
-# Be sure to run `pod lib lint WordPress-Aztec-iOS.podspec' to ensure this is a
+# Be sure to run `bundle exec pod lib lint WordPress-Editor-iOS.podspec' to ensure this is a
 # valid spec before submitting.
 #
 # Any lines starting with a # are optional, but their use is encouraged
