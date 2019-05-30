@@ -2017,7 +2017,7 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(output, expected)
     }
 
-    // MARK: - Copy tests
+    // MARK: - Copy/Paste tests
 
     func testCopyAndPasteToPlainText() {
         let sourceTextView = TextViewStub(withHTML: "This is text with attributes: <strong>bold</strong>")
@@ -2027,4 +2027,32 @@ class TextViewTests: XCTestCase {
 
         XCTAssertEqual(UIPasteboard.general.string, "This is text with attributes: bold")
     }
+
+    func testCopyHTML() {
+        let sourceTextView = TextViewStub(withHTML: "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.copy(nil)
+
+        XCTAssertEqual(UIPasteboard.general.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+    }
+
+    func testCutHTML() {
+        let sourceTextView = TextViewStub(withHTML: "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+
+        sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
+        sourceTextView.cut(nil)
+
+        XCTAssertEqual(UIPasteboard.general.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+    }
+
+    func testCopyPartialHTML() {
+        let sourceTextView = TextViewStub(withHTML: "<p><strong>bold</strong> and <italic>italic</italic></p>")
+
+        sourceTextView.selectedRange = NSRange(location: 0, length: 3)
+        sourceTextView.copy(nil)
+
+        XCTAssertEqual(UIPasteboard.general.html(), "<p><strong>bol</strong></p>")
+    }
+
 }
