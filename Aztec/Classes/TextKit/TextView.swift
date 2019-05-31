@@ -1,6 +1,6 @@
 import UIKit
 import Foundation
-
+import CoreServices
 
 // MARK: - TextViewAttachmentDelegate
 //
@@ -458,16 +458,20 @@ open class TextView: UITextView {
 
     open override func cut(_ sender: Any?) {
         let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        let html = storage.getHTML(range: selectedRange)
         super.cut(sender)
 
         storeInPasteboard(encoded: data)
+        storeInPasteboard(html: html)
     }
 
     open override func copy(_ sender: Any?) {
         let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        let html = storage.getHTML(range: selectedRange)
         super.copy(sender)
 
         storeInPasteboard(encoded: data)
+        storeInPasteboard(html: html)
     }
 
     open override func paste(_ sender: Any?) {
@@ -559,6 +563,14 @@ open class TextView: UITextView {
             pasteboard.items[0][NSAttributedString.pastesboardUTI] = data;
         } else {
             pasteboard.addItems([[NSAttributedString.pastesboardUTI: data]])
+        }
+    }
+
+    internal func storeInPasteboard(html: String, pasteboard: UIPasteboard = UIPasteboard.general) {
+        if pasteboard.numberOfItems > 0 {
+            pasteboard.items[0][kUTTypeHTML as String] = html;
+        } else {
+            pasteboard.addItems([[kUTTypeHTML as String: html]])
         }
     }
 
