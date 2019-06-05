@@ -92,7 +92,7 @@ extension TextNode {
         // U+000A, which is non-breaking space.  We need to maintain it.
         //
         let whitespace = CharacterSet.whitespacesAndNewlines
-        let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace))
+        let whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace)+String(.lineSeparator))
         let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
         
         let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)

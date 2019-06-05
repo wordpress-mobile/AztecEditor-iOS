@@ -4,7 +4,7 @@ import XCTest
 class GenericElementConverterTests: XCTestCase {
 
     let converter = GenericElementConverter()
-    let contentSerializer: ElementConverter.ContentSerializer = { elementNode, implicitRepresentation, attributes in
+    let contentSerializer: ElementConverter.ContentSerializer = { elementNode, implicitRepresentation, attributes, intrinsicRepresentationBeforeChildren in
         return NSAttributedString()
     }
 
