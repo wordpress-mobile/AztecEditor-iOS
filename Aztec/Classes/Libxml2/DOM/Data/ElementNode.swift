@@ -255,7 +255,7 @@ public class ElementNode: Node {
     /// - Returns: Returns `true` if it can be the last one, false otherwise.
     ///
     func canBeLastInTree() -> Bool {
-        return hasAttributes() || type == .li
+        return hasAttributes() || isBlockLevel()
     }
 
     /// Find out if this is a block-level element.
