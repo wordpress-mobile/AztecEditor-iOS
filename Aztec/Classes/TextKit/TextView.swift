@@ -176,7 +176,7 @@ open class TextView: UITextView {
 
     /// If this is true the text view will notify is delegate and notification system when changes happen by calls to methods like setHTML
     ///
-    open var shouldNotifyOfNonUserChanges = false
+    open var shouldNotifyOfNonUserChanges = true
 
     // MARK: - Customizable Input VC
     
