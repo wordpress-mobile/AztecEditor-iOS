@@ -20,7 +20,11 @@ public class HTMLConverter {
     }
     
     // MARK: - Converters: HTML -> AttributedString
-    
+
+    /// If a value is set the character set will be used to replace any last empty line created by the converter.
+    ///
+    open var characterToReplaceLastEmtpyLine: Character?
+
     let htmlToTree = HTMLParser()
     
     private(set) lazy var treeToAttributedString: AttributedStringSerializer = {
@@ -54,9 +58,25 @@ public class HTMLConverter {
         pluginManager.process(htmlTree: rootNode)
         
         let defaultAttributes = defaultAttributes ?? [:]
-        let attributedString = treeToAttributedString.serialize(rootNode, defaultAttributes: defaultAttributes)
+        var attributedString = treeToAttributedString.serialize(rootNode, defaultAttributes: defaultAttributes)
+
+        if let characterToUse = characterToReplaceLastEmtpyLine {
+            attributedString = replaceLastEmptyLine(in: attributedString, with: characterToUse)
+        }
         
         return attributedString
+    }
+
+    func replaceLastEmptyLine(in attributedString: NSAttributedString, with replacement: Character) -> NSAttributedString {
+        var result = attributedString
+        let string = attributedString.string
+        if string.isEmptyLineAtEndOfFile(at: string.count), !string.isEmpty, let location = string.location(before: attributedString.length) {
+            let mutableString = NSMutableAttributedString(attributedString: attributedString)
+            let attributes = mutableString.attributes(at: location, effectiveRange: nil)
+            mutableString.replaceCharacters(in: NSRange(location: location, length: attributedString.length-location), with: NSAttributedString(string: String(replacement), attributes: attributes))
+            result = mutableString
+        }
+        return result
     }
 
 
