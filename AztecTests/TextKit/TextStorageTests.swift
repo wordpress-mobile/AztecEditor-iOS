@@ -508,7 +508,7 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(expectedResult, result)
 
-        storage.htmlConverter.characterToReplaceLastEmtpyLine = Character(.zeroWidthSpace)
+        storage.htmlConverter.characterToReplaceLastEmptyLine = Character(.zeroWidthSpace)
 
         storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
         expectedResult = String(.zeroWidthSpace)

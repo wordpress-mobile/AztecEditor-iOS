@@ -23,7 +23,7 @@ public class HTMLConverter {
 
     /// If a value is set the character set will be used to replace any last empty line created by the converter.
     ///
-    open var characterToReplaceLastEmtpyLine: Character?
+    open var characterToReplaceLastEmptyLine: Character?
 
     let htmlToTree = HTMLParser()
     
@@ -60,7 +60,7 @@ public class HTMLConverter {
         let defaultAttributes = defaultAttributes ?? [:]
         var attributedString = treeToAttributedString.serialize(rootNode, defaultAttributes: defaultAttributes)
 
-        if let characterToUse = characterToReplaceLastEmtpyLine {
+        if let characterToUse = characterToReplaceLastEmptyLine {
             attributedString = replaceLastEmptyLine(in: attributedString, with: characterToUse)
         }
         
