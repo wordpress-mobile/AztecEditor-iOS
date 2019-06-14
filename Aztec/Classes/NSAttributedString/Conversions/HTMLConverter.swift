@@ -70,7 +70,7 @@ public class HTMLConverter {
     func replaceLastEmptyLine(in attributedString: NSAttributedString, with replacement: Character) -> NSAttributedString {
         var result = attributedString
         let string = attributedString.string
-        if string.isEmptyLineAtEndOfFile(at: string.count), !string.isEmpty, let location = string.location(before: attributedString.length) {
+        if !string.isEmpty, string.isEmptyLineAtEndOfFile(at: string.count), string.hasSuffix(String(.paragraphSeparator)), let location = string.location(before: attributedString.length) {
             let mutableString = NSMutableAttributedString(attributedString: attributedString)
             let attributes = mutableString.attributes(at: location, effectiveRange: nil)
             mutableString.replaceCharacters(in: NSRange(location: location, length: attributedString.length-location), with: NSAttributedString(string: String(replacement), attributes: attributes))
