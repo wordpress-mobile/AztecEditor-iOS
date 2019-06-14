@@ -516,4 +516,26 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(expectedResult, result)
     }
+
+    func testCiteOutput() {
+        let initialHTML = "<cite>Hello<br></cite>"
+
+        // Setup
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                .paragraphStyle: ParagraphStyle.default]
+
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
+        var expectedResult = String("Hello")+String(.lineSeparator)
+        var result = String(storage.string)
+
+        XCTAssertEqual(expectedResult, result)
+
+        storage.htmlConverter.characterToReplaceLastEmptyLine = Character(.zeroWidthSpace)
+
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
+        expectedResult = String("Hello")+String(.lineSeparator)
+        result = String(storage.string)
+
+        XCTAssertEqual(expectedResult, result)
+    }
 }
