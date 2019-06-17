@@ -173,6 +173,11 @@ open class TextView: UITextView {
     ///
     open var pasteboardDelegate: TextViewPasteboardDelegate = AztecTextViewPasteboardDelegate()
 
+
+    /// If this is true the text view will notify is delegate and notification system when changes happen by calls to methods like setHTML
+    ///
+    open var shouldNotifyOfNonUserChanges = true
+
     // MARK: - Customizable Input VC
     
     private var customInputViewController: UIInputViewController?
