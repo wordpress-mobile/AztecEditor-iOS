@@ -272,7 +272,7 @@ open class TextView: UITextView {
 
     // MARK: - TextKit Aztec Subclasses
 
-    var storage: TextStorage {
+    public var storage: TextStorage {
         return textStorage as! TextStorage
     }
 
