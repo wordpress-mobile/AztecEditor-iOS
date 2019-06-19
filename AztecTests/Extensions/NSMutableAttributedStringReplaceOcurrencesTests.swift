@@ -88,4 +88,14 @@ class NSMutableAttributedStringReplaceOcurrencesTests: XCTestCase {
 
         XCTAssertEqual(newAttrString, NSAttributedString(string: "🌎💚💚😬💚🌎"))
     }
+
+    /// Tests that replacing ocurrences on the end of a range work correctly
+    ///
+    func testReplaceOcurrencesThatAreOnEndOfRange() {
+        let attrString = NSAttributedString(string: "Hello"+String(.paragraphSeparator)+"Amazing"+String(.paragraphSeparator)+"World"+String(.paragraphSeparator))
+        let newAttrString = NSMutableAttributedString(attributedString: attrString)
+        newAttrString.replaceOcurrences(of: String(.paragraphSeparator), with: String(.lineFeed), within: NSRange(location:6, length: 8))
+
+        XCTAssertEqual(newAttrString, NSAttributedString(string: "Hello"+String(.paragraphSeparator)+"Amazing"+String(.lineFeed)+"World"+String(.paragraphSeparator)))
+    }
 }
