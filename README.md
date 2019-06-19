@@ -83,6 +83,14 @@ let textView = Aztec.TextView(
     defaultMissingImage: UIImage) {
 ```
 
+## Contributing
+
+Read our [Contributing Guide](CONTRIBUTING.md) to learn about reporting issues, contributing code, and more ways to contribute.
+
+## Getting in Touch
+
+If you have questions about getting setup or just want to say hi, join the [WordPress Slack](https://chat.wordpress.org) and drop a message on the `#mobile` channel.
+
 ## License
 
 WordPress-Aztec-iOS is available under the GPLv2 license. See the [LICENSE file](./LICENSE) for more info.
