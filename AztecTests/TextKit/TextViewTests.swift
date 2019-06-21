@@ -1254,6 +1254,22 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(textView.text, Constants.sampleText0 + Constants.sampleText1 + String(.lineFeed) + String(.lineFeed))
     }
 
+    /// Verifies that toggling a Blockquote paragraph in the middle of paragraph does not crash system.    
+    ///
+    func testTogglingBlockquoteOnMiddleOfRangeDoesNotCrash() {
+        let initialQuote = """
+            <blockquote><strong>Quote One</strong></blockquote>
+            <blockquote><strong>Quote Two</strong></blockquote>
+            <blockquote><strong>Quote Three</strong></blockquote>
+        """
+        let textView = TextViewStub(withHTML: initialQuote)
+
+        textView.selectedTextRange = textView.textRange(from: textView.endOfDocument, to: textView.endOfDocument)
+        textView.toggleBlockquote(range: NSRange(location: 11, length: 0))
+
+        XCTAssertEqual(textView.text, "Quote One" + String(.paragraphSeparator)+"Quote Two"+String(.lineFeed)+"Quote Three")
+    }
+
 
     // MARK: - Pre
 
