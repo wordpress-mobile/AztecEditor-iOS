@@ -81,7 +81,7 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - HTML Conversion
     
-    let htmlConverter = HTMLConverter()
+    public let htmlConverter = HTMLConverter()
     
     // MARK: - PluginManager
     
