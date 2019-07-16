@@ -167,7 +167,7 @@ public class Node: Equatable, CustomReflectable, Hashable {
             return nil
         }
 
-        let index = parent.children.index { node -> Bool in
+        let index = parent.children.firstIndex { node -> Bool in
             return node === self
         }!
 

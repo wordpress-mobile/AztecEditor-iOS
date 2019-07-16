@@ -635,7 +635,7 @@ extension EditorDemoController {
             return OptionsTableViewOption(image: headerType.iconImage, title: title)
         }
 
-        let selectedIndex = Constants.headers.index(of: headerLevelForSelectedText())
+        let selectedIndex = Constants.headers.firstIndex(of: headerLevelForSelectedText())
         let optionsTableViewController = OptionsTableViewController(options: options)
         optionsTableViewController.cellDeselectedTintColor = .gray
         
@@ -665,7 +665,7 @@ extension EditorDemoController {
 
         var index: Int? = nil
         if let listType = listTypeForSelectedText() {
-            index = Constants.lists.index(of: listType)
+            index = Constants.lists.firstIndex(of: listType)
         }
         
         let optionsTableViewController = OptionsTableViewController(options: options)

@@ -333,7 +333,7 @@ private extension AttributedStringParser {
         var nonDuplicates = [ElementNode]()
 
         for node in previous where current.contains(node) {
-            guard let index = current.index(of: node) else {
+            guard let index = current.firstIndex(of: node) else {
                 continue
             }
 

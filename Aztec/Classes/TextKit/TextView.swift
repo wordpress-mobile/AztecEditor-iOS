@@ -418,7 +418,7 @@ open class TextView: UITextView {
         }
         storage.attachmentsDelegate = self
         font = defaultFont
-        linkTextAttributes = [.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue), .foregroundColor: self.tintColor]
+        linkTextAttributes = [.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue), .foregroundColor: self.tintColor!]
         typingAttributes = defaultAttributes
         setupMenuController()
         setupAttachmentTouchDetection()

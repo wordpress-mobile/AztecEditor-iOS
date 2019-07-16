@@ -181,7 +181,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
     public var blockquoteIndent: CGFloat {
         let blockquoteIndex = properties.filter({ property in
             return property is Blockquote || property is TextList
-        }).index(where: { property in
+        }).firstIndex(where: { property in
             return property is Blockquote
         })
 
