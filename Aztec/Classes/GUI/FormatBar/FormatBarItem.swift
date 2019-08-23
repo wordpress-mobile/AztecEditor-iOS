@@ -14,7 +14,7 @@ open class FormatBarItem: UIButton {
 
     /// Tint Color to be applied whenever the button is selected
     ///
-    var selectedTintColor: UIColor? {
+    open var selectedTintColor: UIColor? {
         didSet {
             updateTintColor()
         }
@@ -23,7 +23,7 @@ open class FormatBarItem: UIButton {
 
     /// Tint Color to be applied whenever the button is highlighted
     ///
-    var highlightedTintColor: UIColor? {
+    open var highlightedTintColor: UIColor? {
         didSet {
             updateTintColor()
         }
@@ -32,7 +32,7 @@ open class FormatBarItem: UIButton {
 
     /// Tint Color to be applied whenever the button is disabled
     ///
-    var disabledTintColor: UIColor? {
+    open var disabledTintColor: UIColor? {
         didSet {
             updateTintColor()
         }
@@ -41,7 +41,7 @@ open class FormatBarItem: UIButton {
 
     /// Tint Color to be applied to the "Normal" State
     ///
-    var normalTintColor: UIColor? {
+    open var normalTintColor: UIColor? {
         didSet {
             updateTintColor()
         }
