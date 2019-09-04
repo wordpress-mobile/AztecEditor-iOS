@@ -6,12 +6,14 @@ import UIKit
 public class EditorView: UIView {
     public let htmlTextView: UITextView
     public let richTextView: TextView
+    public let htmlStorage: HTMLStorage
     
     // MARK: - Encoding / Decoding
     
     static let htmlTextViewKey = "Aztec.EditorView.htmlTextView"
     static let richTextViewKey = "Aztec.EditorView.richTextView"
-    
+    static let htmlStorageKey = "Aztec.EditorView.htmlStorage"
+
     // MARK: - Content Insets
     
     public var contentInset: UIEdgeInsets {
@@ -95,12 +97,14 @@ public class EditorView: UIView {
     
     public required init?(coder aDecoder: NSCoder) {
         guard let htmlTextView = aDecoder.decodeObject(forKey: EditorView.htmlTextViewKey) as? UITextView,
-            let richTextView = aDecoder.decodeObject(forKey: EditorView.richTextViewKey) as? TextView else {
+            let richTextView = aDecoder.decodeObject(forKey: EditorView.richTextViewKey) as? TextView,
+            let htmlStorage = aDecoder.decodeObject(forKey: EditorView.htmlStorageKey) as? HTMLStorage else {
                 return nil
         }
         
         self.htmlTextView = htmlTextView
         self.richTextView = richTextView
+        self.htmlStorage = htmlStorage
         
         if #available(iOS 11, *) {
             htmlTextView.smartInsertDeleteType = .no
@@ -117,10 +121,11 @@ public class EditorView: UIView {
         let storage = HTMLStorage(defaultFont: defaultHTMLFont)
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
-        
+
         storage.addLayoutManager(layoutManager)
         layoutManager.addTextContainer(container)
-        
+
+        self.htmlStorage = storage
         self.htmlTextView = UITextView(frame: .zero, textContainer: container)
         self.richTextView = TextView(defaultFont: defaultFont, defaultParagraphStyle: defaultParagraphStyle, defaultMissingImage: defaultMissingImage)
         
