@@ -80,4 +80,24 @@ class EditorViewTests: XCTestCase {
         XCTAssertEqual(editorView.editingMode, .richText)
         XCTAssertEqual(editorView.activeView, editorView.richTextView)
     }
+    
+    func testHTMLStorageTextColor() {
+        let font = UIFont.systemFont(ofSize: 14)
+        let editorView = Aztec.EditorView(
+            defaultFont: font,
+            defaultHTMLFont: font,
+            defaultParagraphStyle: ParagraphStyle(),
+            defaultMissingImage: UIImage())
+        
+        XCTAssertEqual(editorView.htmlStorage.textColor, HTMLStorage.Styles.defaultTextColor)
+        
+        editorView.htmlStorage.textColor = .red
+        editorView.richTextView.text = "Hello World"
+        editorView.toggleEditingMode()
+
+        let textColor = editorView.htmlStorage.attribute(.foregroundColor, at: 3, effectiveRange: nil) as! UIColor
+        
+        XCTAssertEqual(editorView.htmlStorage.textColor, UIColor.red)
+        XCTAssertEqual(textColor, UIColor.red)
+    }
 }
