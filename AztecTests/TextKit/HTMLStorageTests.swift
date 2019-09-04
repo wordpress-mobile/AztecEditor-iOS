@@ -63,4 +63,22 @@ class HTMLStorageTests: XCTestCase {
         XCTAssertEqual(openingTagColor, HTMLStorage.Styles.defaultTagColor)
         XCTAssertEqual(closingTagColor, HTMLStorage.Styles.defaultTagColor)
     }
+    
+    func testSetTextColor() {
+        let font = UIFont.boldSystemFont(ofSize: 12)
+        let storage = HTMLStorage(defaultFont: font)
+        let initialString = "Hello there"
+        
+        storage.insert(NSAttributedString(string: initialString), at: 0)
+        
+        XCTAssertEqual(storage.string, initialString)
+        XCTAssertEqual(storage.textColor, HTMLStorage.Styles.defaultTextColor)
+
+        storage.textColor = .red
+        storage.replaceCharacters(in: NSRange(location: 0, length: 4), with: NSAttributedString(string: "Hello world"))
+        
+        let textColor = storage.attribute(.foregroundColor, at: 0, effectiveRange: nil) as! UIColor
+
+        XCTAssertEqual(textColor, UIColor.red)
+    }
 }
