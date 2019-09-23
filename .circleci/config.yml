@@ -9,7 +9,7 @@ workflows:
     jobs:
       - ios/test:
           name: Test
-          xcode-version: "10.2.0"
+          xcode-version: "11.0"
           carthage-update: true
           carthage-working-directory: Example
           bundle-install: false
@@ -17,16 +17,16 @@ workflows:
           workspace: Aztec.xcworkspace
           scheme: AztecExample
           device: iPhone XS
-          ios-version: "12.2"
+          ios-version: "13.0"
 
       - ios/validate-podspec:
           name: Validate WordPress-Aztec-iOS.podspec
-          xcode-version: "10.2.0"
+          xcode-version: "11.0"
           podspec-path: WordPress-Aztec-iOS.podspec
 
       - ios/validate-podspec:
           name: Validate WordPress-Editor-iOS.podspec
-          xcode-version: "10.2.0"
+          xcode-version: "11.0"
           podspec-path: WordPress-Editor-iOS.podspec
           # Updating specs is needed since WordPress-Editor-iOS depends on WordPress-Aztec-iOS
           update-specs-repo: true
