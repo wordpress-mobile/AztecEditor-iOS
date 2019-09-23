@@ -16,7 +16,7 @@ workflows:
           pod-install: false
           workspace: Aztec.xcworkspace
           scheme: AztecExample
-          device: iPhone XS
+          device: iPhone 11
           ios-version: "13.0"
 
       - ios/validate-podspec:
