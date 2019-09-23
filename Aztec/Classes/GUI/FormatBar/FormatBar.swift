@@ -712,6 +712,8 @@ private extension FormatBar {
                 constant: 0
             )
             self.overflowToggleItemRTLLeadingConstraint = overflowLeadingConstraint
+        @unknown default:
+            overflowLeadingConstraint = overflowToggleItem.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor)
         }
 
         ///Trailing item
@@ -726,6 +728,8 @@ private extension FormatBar {
             trailingItemLeadingConstraint = trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor)
         case .rightToLeft:
             trailingItemLeadingConstraint = trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.leadingAnchor)
+        @unknown default:
+            trailingItemLeadingConstraint = trailingItemContainer.leadingAnchor.constraint(greaterThanOrEqualTo: scrollableStackView.trailingAnchor)
         }
 
         NSLayoutConstraint.activate([
