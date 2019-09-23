@@ -122,11 +122,11 @@ public class OptionsTablePresenter: NSObject {
 //
 extension OptionsTablePresenter: UIPopoverPresentationControllerDelegate {
     
-    private func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+    public func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
     }
     
-    private func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
+    public func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
         if optionsTableViewController != nil {
             optionsTableViewController = nil
         }
