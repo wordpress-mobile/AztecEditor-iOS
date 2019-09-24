@@ -323,7 +323,7 @@ extension EditorView: UITextInput {
         }
         
         set {
-            activeView.selectedTextRange = selectedTextRange
+            activeView.selectedTextRange = newValue
         }
     }
 }

@@ -22,7 +22,7 @@ public extension Array where Element == Attribute {
     }
     
     mutating func set(_ value: Attribute.Value, for name: String) {
-        guard let attributeIndex = index(where: { $0.name == name }) else {
+        guard let attributeIndex = firstIndex(where: { $0.name == name }) else {
             let newAttribute = Attribute(name: name, value: value)
             
             append(newAttribute)
@@ -33,7 +33,7 @@ public extension Array where Element == Attribute {
     }
     
     mutating func remove(named name: String) {
-        guard let attributeIndex = index(where: { $0.name == name }) else {
+        guard let attributeIndex = firstIndex(where: { $0.name == name }) else {
             return
         }
         
