@@ -747,7 +747,7 @@ open class TextView: UITextView {
     private static let formatterMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
-        .underline: UnderlineFormatter(),
+        .underline: SpanUnderlineFormatter(),
         .strikethrough: StrikethroughFormatter(),
         .link: LinkFormatter(),
         .orderedlist: TextListFormatter(style: .ordered),
@@ -935,7 +935,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        let formatter = UnderlineFormatter()
+        let formatter = SpanUnderlineFormatter()
         toggle(formatter: formatter, atRange: range)
     }
 
