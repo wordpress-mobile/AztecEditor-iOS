@@ -418,7 +418,7 @@ open class TextView: UITextView {
         }
         storage.attachmentsDelegate = self
         font = defaultFont
-        linkTextAttributes = [.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue), .foregroundColor: self.tintColor]
+        linkTextAttributes = [.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue), .foregroundColor: tintColor as Any]
         typingAttributes = defaultAttributes
         setupMenuController()
         setupAttachmentTouchDetection()
@@ -747,7 +747,7 @@ open class TextView: UITextView {
     private static let formatterMap: [FormattingIdentifier: AttributeFormatter] = [
         .bold: BoldFormatter(),
         .italic: ItalicFormatter(),
-        .underline: UnderlineFormatter(),
+        .underline: SpanUnderlineFormatter(),
         .strikethrough: StrikethroughFormatter(),
         .link: LinkFormatter(),
         .orderedlist: TextListFormatter(style: .ordered),
@@ -935,7 +935,7 @@ open class TextView: UITextView {
     /// - Parameter range: The NSRange to edit.
     ///
     open func toggleUnderline(range: NSRange) {
-        let formatter = UnderlineFormatter()
+        let formatter = SpanUnderlineFormatter()
         toggle(formatter: formatter, atRange: range)
     }
 
@@ -1342,8 +1342,7 @@ open class TextView: UITextView {
     open func replaceWithImage(at range: NSRange, sourceURL url: URL, placeHolderImage: UIImage?, identifier: String = UUID().uuidString) -> ImageAttachment {
         let attachment = ImageAttachment(identifier: identifier, url: url)
         attachment.delegate = storage
-        attachment.image = placeHolderImage
-        attachment.alignment = .none
+        attachment.image = placeHolderImage        
         replace(at: range, with: attachment)
         return attachment
     }
