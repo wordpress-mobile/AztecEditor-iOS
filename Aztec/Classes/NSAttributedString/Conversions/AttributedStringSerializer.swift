@@ -29,6 +29,7 @@ class AttributedStringSerializer {
         BoldElementAttributesConverter(),
         ItalicElementAttributesConverter(),
         UnderlineElementAttributesConverter(),
+        ForegroundColorElementAttributesConverter(),
         ]
     )
     

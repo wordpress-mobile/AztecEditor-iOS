@@ -377,6 +377,13 @@ class TextViewTests: XCTestCase {
         XCTAssert(!textView.formattingIdentifiersAtIndex(1).contains(.blockquote))
     }
 
+    func testColorAttributeAtPosition() {
+        let textView = TextViewStub(withHTML: "foo<span style=\"color: #FF0000\">bar</span>baz")
+
+        XCTAssert(textView.attributedText!.attributes(at: 4, effectiveRange: nil).keys.contains(.foregroundColor))
+        let color = textView.attributedText!.attributes(at: 4, effectiveRange: nil)[.foregroundColor] as! UIColor
+        XCTAssertEqual(color, UIColor(hexString: "#FF0000"))
+    }
 
     // MARK: - Adding newlines
 
