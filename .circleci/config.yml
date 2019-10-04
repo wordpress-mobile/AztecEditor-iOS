@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   # This uses the iOS Orb located at https://github.com/wordpress-mobile/circleci-orbs
-  ios: wordpress-mobile/ios@0.0.32
+  ios: wordpress-mobile/ios@0.0.35
 
 workflows:
   test_and_validate:
@@ -30,3 +30,26 @@ workflows:
           podspec-path: WordPress-Editor-iOS.podspec
           # Updating specs is needed since WordPress-Editor-iOS depends on WordPress-Aztec-iOS
           update-specs-repo: true
+
+      - ios/publish-podspec:
+          name: Publish WordPress-Aztec-iOS to Trunk
+          xcode-version: "11.0"
+          podspec-path: WordPress-Aztec-iOS.podspec
+          post-to-slack: true
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
+      - ios/publish-podspec:
+          name: Publish WordPress-Editor-iOS to Trunk
+          requires: [ "Publish WordPress-Aztec-iOS to Trunk" ]
+          xcode-version: "11.0"
+          podspec-path: WordPress-Editor-iOS.podspec
+          post-to-slack: true
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
