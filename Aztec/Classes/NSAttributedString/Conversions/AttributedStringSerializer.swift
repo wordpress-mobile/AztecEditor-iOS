@@ -29,6 +29,7 @@ class AttributedStringSerializer {
         BoldElementAttributesConverter(),
         ItalicElementAttributesConverter(),
         UnderlineElementAttributesConverter(),
+        ForegroundColorElementAttributesConverter(),
         ]
     )
     
@@ -180,32 +181,6 @@ class AttributedStringSerializer {
         }
         
         return content
-    }
-
-    // MARK: - Formatter Maps
-
-    public lazy var attributeFormattersMap: [String: AttributeFormatter] = {
-        return [:]
-    }()
-
-    public let styleToFormattersMap: [String: (AttributeFormatter, (String)->Any?)] = [
-        "color": (ColorFormatter(), {(value) in return UIColor(hexString: value)}),
-        "text-decoration": (UnderlineFormatter(), { (value) in return value == "underline" ? NSUnderlineStyle.single.rawValue : nil})
-    ]
-
-    func parseStyle(style: String) -> [String: String] {
-        var stylesDictionary = [String: String]()
-        let styleAttributes = style.components(separatedBy: ";")
-        for sytleAttribute in styleAttributes {
-            let keyValue = sytleAttribute.components(separatedBy: ":")
-            guard keyValue.count == 2,
-                  let key = keyValue.first?.trimmingCharacters(in: CharacterSet.whitespaces),
-                  let value = keyValue.last?.trimmingCharacters(in: CharacterSet.whitespaces) else {
-                continue
-            }
-            stylesDictionary[key] = value
-        }
-        return stylesDictionary
     }
 }
 

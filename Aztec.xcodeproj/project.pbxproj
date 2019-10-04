@@ -239,6 +239,8 @@
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */; };
 		FFD0FEB71DAE59A700430586 /* NSLayoutManager+Attachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */; };
+		FFD3C1712344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */; };
+		FFD3C1732344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */; };
 		FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD436971E3180A500A0E26F /* FontFormatterTests.swift */; };
 		FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */; };
 /* End PBXBuildFile section */
@@ -516,6 +518,8 @@
 		FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CiteFormatter.swift; sourceTree = "<group>"; };
 		FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSLayoutManager+Attachments.swift"; sourceTree = "<group>"; };
+		FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorCSSAttributeMatcher.swift; sourceTree = "<group>"; };
+		FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorElementAttributeConverter.swift; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -898,6 +902,7 @@
 				F1098740214FF55F00983B6A /* BoldElementAttributeConverter.swift */,
 				F109874421501A2F00983B6A /* ItalicElementAttributeConverter.swift */,
 				F109874821501C8B00983B6A /* UnderlineElementAttributeConverter.swift */,
+				FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -1087,6 +1092,7 @@
 				F15BA610215167D200424120 /* CSSAttributeMatcher.swift */,
 				F1F5C9DA21516E4B00F67990 /* ItalicCSSAttributeMatcher.swift */,
 				F1F5C9DC2151702600F67990 /* UnderlineCSSAttributeMatcher.swift */,
+				FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */,
 			);
 			path = CSS;
 			sourceTree = "<group>";
@@ -1524,6 +1530,8 @@
 				B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */,
 				F1E1D5881FEC52EE0086B339 /* GenericElementConverter.swift in Sources */,
 				F1FA0E861E6EF514009D98EE /* Node.swift in Sources */,
+				FFD3C1712344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift in Sources */,
+				FFD3C1732344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift in Sources */,
 				F1656FDE2152A6A6009C7E3A /* CiteStringAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
