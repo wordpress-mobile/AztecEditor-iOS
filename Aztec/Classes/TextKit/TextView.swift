@@ -226,7 +226,26 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
-    public let defaultFont: UIFont
+    public var monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12)
+
+    public var defaultFont: UIFont {
+        didSet {
+            refreshFont(oldFont: oldValue, newFont: defaultFont)
+        }
+    }
+
+    private func refreshFont(oldFont: UIFont, newFont: UIFont) {
+        let fullRange = NSRange(location: 0, length: textStorage.length)
+
+        textStorage.beginEditing()
+        textStorage.enumerateAttributes(in: fullRange, options: []) { (attributes, subrange, stop) in
+            if let currentFont = attributes[.font] as? UIFont, currentFont == oldFont {
+                textStorage.addAttribute(.font, value: newFont, range: subrange)
+            }
+        }
+        textStorage.endEditing()
+    }
+
     public let defaultParagraphStyle: ParagraphStyle
     var defaultMissingImage: UIImage
     
