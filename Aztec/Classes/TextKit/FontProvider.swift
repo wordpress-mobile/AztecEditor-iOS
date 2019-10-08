@@ -9,7 +9,7 @@ public class FontProvider {
 
     static var shared = FontProvider()
 
-    lazy var monospaceFont: UIFont = {
+    public lazy var monospaceFont: UIFont = {
         let baseFont = UIFont(descriptor:UIFontDescriptor(name: "Menlo", size: 14), size:14)
         let font: UIFont
         if #available(iOS 11.0, *) {
@@ -20,7 +20,7 @@ public class FontProvider {
         return font
     }()
 
-    lazy var defaultFont: UIFont = {
+    public lazy var defaultFont: UIFont = {
         let baseFont = UIFont.systemFont(ofSize: 14)
         let font: UIFont
         if #available(iOS 11.0, *) {
