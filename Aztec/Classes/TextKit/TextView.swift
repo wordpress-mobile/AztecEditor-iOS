@@ -397,13 +397,7 @@ open class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
-        let font = UIFont.systemFont(ofSize: 14)
-        if #available(iOS 11.0, *) {
-            self.defaultFont = UIFontMetrics.default.scaledFont(for: font)
-        } else {
-            self.defaultFont = font
-        }
-
+        self.defaultFont = FontProvider.shared.defaultFont
         defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
         
