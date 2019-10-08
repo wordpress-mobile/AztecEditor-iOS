@@ -226,8 +226,6 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
-    public var monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12)
-
     public var defaultFont: UIFont {
         didSet {
             refreshFont(oldFont: oldValue, newFont: defaultFont)
@@ -257,23 +255,6 @@ open class TextView: UITextView {
         if let color = textColor {
             attributes[.foregroundColor] = color
         }
-        return attributes
-    }
-    
-    /// This closure will be executed whenever the `TextView` needs to set the base style for
-    /// a caption.  Override this to customize the caption styling.
-    ///
-    public lazy var captionStyler: ([NSAttributedString.Key:Any]) -> [NSAttributedString.Key:Any] = { [weak self] attributes in
-        guard let `self` = self else {
-            return attributes
-        }
-        
-        let font = self.defaultFont.withSize(10)
-        
-        var attributes = attributes
-        attributes[.font] = font
-        attributes[.foregroundColor] = UIColor.darkGray
-        
         return attributes
     }
     
