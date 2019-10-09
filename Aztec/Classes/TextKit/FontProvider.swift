@@ -7,7 +7,7 @@ public class FontProvider {
 
     }
 
-    static var shared = FontProvider()
+    public static var shared = FontProvider()
 
     public lazy var monospaceFont: UIFont = {
         let baseFont = UIFont(descriptor:UIFontDescriptor(name: "Menlo", size: 14), size:14)

@@ -228,20 +228,8 @@ open class TextView: UITextView {
 
     public var defaultFont: UIFont {
         didSet {
-            refreshFont(oldFont: oldValue, newFont: defaultFont)
+            textStorage.replace(font: oldValue, with: defaultFont)
         }
-    }
-
-    private func refreshFont(oldFont: UIFont, newFont: UIFont) {
-        let fullRange = NSRange(location: 0, length: textStorage.length)
-
-        textStorage.beginEditing()
-        textStorage.enumerateAttributes(in: fullRange, options: []) { (attributes, subrange, stop) in
-            if let currentFont = attributes[.font] as? UIFont, currentFont == oldFont {
-                textStorage.addAttribute(.font, value: newFont, range: subrange)
-            }
-        }
-        textStorage.endEditing()
     }
 
     public let defaultParagraphStyle: ParagraphStyle
