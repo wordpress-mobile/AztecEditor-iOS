@@ -681,8 +681,8 @@ private extension FormatBar {
     /// Sets up the Constraints
     ///
     func configureConstraints() {
-        var leadingAnchor = safeAreaLayoutGuide.leadingAnchor
-        var trailingAnchor = safeAreaLayoutGuide.trailingAnchor
+        let leadingAnchor = safeAreaLayoutGuide.leadingAnchor
+        let trailingAnchor = safeAreaLayoutGuide.trailingAnchor
 
         ///Overflow toggle item
 
