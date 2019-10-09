@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   # This uses the iOS Orb located at https://github.com/wordpress-mobile/circleci-orbs
-  ios: wordpress-mobile/ios@dev:cocoapods-addtional-options
+  ios: wordpress-mobile/ios@0.0.36
 
 workflows:
   test_and_validate:
