@@ -226,6 +226,8 @@ open class TextView: UITextView {
 
     // MARK: - Properties: UI Defaults
 
+    /// The font to use to render any HTML that doesn't specify an explicit font.
+    /// If this is changed all the instances that use this font will be updated to the new one.
     public var defaultFont: UIFont {
         didSet {
             textStorage.replace(font: oldValue, with: defaultFont)
@@ -359,6 +361,10 @@ open class TextView: UITextView {
 
     // MARK: - Init & deinit
 
+    /// Creates a Text View using the provided parameters as a base for HTML rendering.
+    /// - Parameter defaultFont: The font to use to render the elements if no specific font is set by the HTML.
+    /// - Parameter defaultParagraphStyle: The default paragraph style if no explicit attributes are defined in HTML
+    /// - Parameter defaultMissingImage: The image to use if the view is not able to render an image specified in the HTML.
     @objc public init(
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
@@ -385,7 +391,7 @@ open class TextView: UITextView {
     }
 
     required public init?(coder aDecoder: NSCoder) {
-        self.defaultFont = FontProvider.shared.defaultFont
+        defaultFont = FontProvider.shared.defaultFont
         defaultParagraphStyle = ParagraphStyle.default
         defaultMissingImage = Assets.imageIcon
         
