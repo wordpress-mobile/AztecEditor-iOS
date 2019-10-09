@@ -231,10 +231,12 @@
 		FF24AC991F0146AF003CA91D /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF24AC981F0146AF003CA91D /* Assets.swift */; };
 		FF437B6420D7CB2D000D9666 /* HTMLLi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF437B6320D7CB2D000D9666 /* HTMLLi.swift */; };
 		FF437B6620D7CB83000D9666 /* LiFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF437B6520D7CB83000D9666 /* LiFormatter.swift */; };
+		FF48CAC8234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */; };
 		FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */; };
 		FF61909E202481F4004BCD0A /* CodeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF61909D202481F4004BCD0A /* CodeFormatter.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
+		FF7EAEC4234D253B007A26E0 /* FontProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7EAEC3234D253B007A26E0 /* FontProvider.swift */; };
 		FFA61E891DF18F3D00B71BF6 /* ParagraphStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */; };
 		FFA61EC21DF6C1C900B71BF6 /* NSAttributedString+Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */; };
 		FFB5D29720BEB21A0038DCFB /* CiteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */; };
@@ -505,6 +507,7 @@
 		FF24AC981F0146AF003CA91D /* Assets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		FF437B6320D7CB2D000D9666 /* HTMLLi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLLi.swift; sourceTree = "<group>"; };
 		FF437B6520D7CB83000D9666 /* LiFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiFormatter.swift; sourceTree = "<group>"; };
+		FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceAttributes.swift"; sourceTree = "<group>"; };
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
@@ -513,6 +516,7 @@
 		FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
 		FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineAttachment.swift; sourceTree = "<group>"; };
 		FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+FontTraits.swift"; sourceTree = "<group>"; };
+		FF7EAEC3234D253B007A26E0 /* FontProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontProvider.swift; sourceTree = "<group>"; };
 		FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParagraphStyle.swift; sourceTree = "<group>"; };
 		FFA61EC11DF6C1C900B71BF6 /* NSAttributedString+Archive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Archive.swift"; sourceTree = "<group>"; };
 		FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CiteFormatter.swift; sourceTree = "<group>"; };
@@ -746,6 +750,7 @@
 				FFD0FEB61DAE59A700430586 /* NSLayoutManager+Attachments.swift */,
 				F1584795203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift */,
 				F10BE6171EA7ADA6002E4625 /* NSMutableAttributedString+ReplaceOcurrences.swift */,
+				FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */,
 				F18733C41DA096EE005AEB80 /* NSRange+Helpers.swift */,
 				FF20D6431EDC395E00294B78 /* NSTextingResult+Helpers.swift */,
 				F1C05B9C1E37FA77007510EA /* String+CharacterName.swift */,
@@ -804,6 +809,7 @@
 				FFA61E881DF18F3D00B71BF6 /* ParagraphStyle.swift */,
 				B5A99D831EBA073D00DED081 /* HTMLStorage.swift */,
 				F9982CF521877663001E606B /* TextViewPasteboardDelegate.swift */,
+				FF7EAEC3234D253B007A26E0 /* FontProvider.swift */,
 			);
 			path = TextKit;
 			sourceTree = "<group>";
@@ -1573,6 +1579,7 @@
 				F165D92A20C72EF500EAA6B0 /* Array+ShortcodeAttribute.swift in Sources */,
 				F165D92420C72C1000EAA6B0 /* ShortcodeAttributeSerializer.swift in Sources */,
 				F177FF751FB6404D00CBBE35 /* UILayoutPriority+Swift4.swift in Sources */,
+				FF7EAEC4234D253B007A26E0 /* FontProvider.swift in Sources */,
 				F1C05B9D1E37FA77007510EA /* String+CharacterName.swift in Sources */,
 				F1FF7D9F201A1D24007B0B32 /* Figcaption.swift in Sources */,
 				FF17B2D2227A589F0022AECE /* LIElementConverter.swift in Sources */,
@@ -1639,6 +1646,7 @@
 				599F25381D8BC9A1002871D6 /* InAttributesConverter.swift in Sources */,
 				B551A4A01E770B3800EE3A7F /* UIFont+Emoji.swift in Sources */,
 				F13E8AD820B71BAA007C9F8A /* PluginManager.swift in Sources */,
+				FF48CAC8234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
 				F1584796203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift in Sources */,
 				F15BA6092151501300424120 /* BoldStringAttributeConverter.swift in Sources */,

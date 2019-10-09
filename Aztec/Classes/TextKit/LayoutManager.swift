@@ -317,7 +317,11 @@ private extension LayoutManager {
         traits.remove(.traitBold)
         traits.remove(.traitItalic)
 
-        let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-        return UIFont(descriptor: descriptor!, size: font.pointSize)
+        if let descriptor = font.fontDescriptor.withSymbolicTraits(traits) {
+            return UIFont(descriptor: descriptor, size: font.pointSize)
+        } else {
+            // Don't touch the font if we cannot remove the symbolic traits.
+            return font
+        }
     }
 }

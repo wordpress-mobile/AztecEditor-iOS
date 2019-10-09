@@ -1673,7 +1673,7 @@ class TextViewTests: XCTestCase {
 
         textView.insertText("😘")
         let currentTypingFont = textView.typingAttributes[.font] as! UIFont
-        XCTAssertEqual(currentTypingFont, font, "Font should be set to default")
+        XCTAssertEqual(currentTypingFont.fontDescriptor, font.fontDescriptor, "Font should be set to default")
     }
 
 

@@ -195,9 +195,13 @@ class EditorDemoController: UIViewController {
         } else {
             html = ""
         }
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(changeFont))
         editorView.setHTML(html)
         editorView.becomeFirstResponder()
+    }
+
+    @objc func changeFont() {
+        editorView.richTextView.defaultFont = UIFont.preferredFont(forTextStyle: .callout)
     }
 
     override func viewWillAppear(_ animated: Bool) {

@@ -14,19 +14,10 @@ open class PreFormatter: ParagraphAttributeFormatter {
     ///
     let placeholderAttributes: [NSAttributedString.Key: Any]?
 
-
     /// Designated Initializer
     ///
-    init(monospaceFont: UIFont = UIFont(descriptor:UIFontDescriptor(name: "Courier", size: 12), size:12), placeholderAttributes: [NSAttributedString.Key : Any]? = nil) {
-        let font: UIFont
-
-        if #available(iOS 11.0, *) {
-            font = UIFontMetrics.default.scaledFont(for: monospaceFont)
-        } else {
-            font = monospaceFont
-        }
-
-        self.monospaceFont = font
+    init(monospaceFont: UIFont = FontProvider.shared.monospaceFont, placeholderAttributes: [NSAttributedString.Key : Any]? = nil) {
+        self.monospaceFont = monospaceFont
         self.placeholderAttributes = placeholderAttributes
     }
 
