@@ -30,12 +30,8 @@ class EditorDemoController: UIViewController {
     
     fileprivate(set) lazy var editorView: Aztec.EditorView = {
         let defaultHTMLFont: UIFont
-        
-        if #available(iOS 11, *) {
-            defaultHTMLFont = UIFontMetrics.default.scaledFont(for: Constants.defaultContentFont)
-        } else {
-            defaultHTMLFont = Constants.defaultContentFont
-        }
+
+        defaultHTMLFont = UIFontMetrics.default.scaledFont(for: Constants.defaultContentFont)
         
         let editorView = Aztec.EditorView(
             defaultFont: Constants.defaultContentFont,
@@ -63,10 +59,8 @@ class EditorDemoController: UIViewController {
         textView.textAttachmentDelegate = self
         textView.accessibilityIdentifier = "richContentView"
         textView.clipsToBounds = false
-        if #available(iOS 11, *) {
-            textView.smartDashesType = .no
-            textView.smartQuotesType = .no
-        }
+        textView.smartDashesType = .no
+        textView.smartQuotesType = .no
     }
     
     private func setupHTMLTextView(_ textView: UITextView) {
@@ -79,14 +73,10 @@ class EditorDemoController: UIViewController {
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none
         textView.clipsToBounds = false
-        if #available(iOS 10, *) {
-            textView.adjustsFontForContentSizeCategory = true
-        }
-        
-        if #available(iOS 11, *) {
-            textView.smartDashesType = .no
-            textView.smartQuotesType = .no
-        }
+        textView.adjustsFontForContentSizeCategory = true
+
+        textView.smartDashesType = .no
+        textView.smartQuotesType = .no
     }
 
     fileprivate(set) lazy var titleTextView: UITextView = {
@@ -249,9 +239,8 @@ class EditorDemoController: UIViewController {
     func updateScrollInsets() {
         var scrollInsets = editorView.contentInset
         var rightMargin = (view.frame.maxX - editorView.frame.maxX)
-        if #available(iOS 11.0, *) {
-            rightMargin -= view.safeAreaInsets.right
-        }
+        rightMargin -= view.safeAreaInsets.right
+
         scrollInsets.right = -rightMargin
         editorView.scrollIndicatorInsets = scrollInsets
     }
@@ -497,6 +486,10 @@ extension EditorDemoController : UITextViewDelegate {
         textView.inputAccessoryView = formatBar
 
         return true
+    }
+
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return false
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -798,9 +791,7 @@ extension EditorDemoController {
             textField.clearButtonMode = UITextField.ViewMode.always;
             textField.placeholder = NSLocalizedString("URL", comment:"URL text field placeholder");
             textField.keyboardType = .URL
-            if #available(iOS 10, *) {
-                textField.textContentType = .URL
-            }
+            textField.textContentType = .URL
             textField.text = urlToUse?.absoluteString
 
             textField.addTarget(self,
