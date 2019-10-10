@@ -167,12 +167,23 @@ class EditorDemoController: UIViewController {
 
         edgesForExtendedLayout = UIRectEdge()
         navigationController?.navigationBar.isTranslucent = false
-
-        view.backgroundColor = .white
         view.addSubview(editorView)
         view.addSubview(titleTextView)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
+        // color setup
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = UIColor.systemBackground
+            titleTextView.textColor = UIColor.label
+            editorView.htmlTextView.textColor = UIColor.label
+            editorView.richTextView.textColor = UIColor.label
+            editorView.richTextView.blockquoteBackgroundColor = UIColor.tertiarySystemBackground
+            editorView.richTextView.preBackgroundColor = UIColor.tertiarySystemBackground
+            var attributes = editorView.richTextView.linkTextAttributes
+            attributes?[.foregroundColor] =  UIColor.link
+        } else {
+            view.backgroundColor = UIColor.white
+        }
         //Don't allow scroll while the constraints are being setup and text set
         editorView.isScrollEnabled = false
         configureConstraints()
@@ -940,11 +951,20 @@ extension EditorDemoController {
 
         let toolbar = Aztec.FormatBar()
 
-        toolbar.tintColor = .gray
-        toolbar.highlightedTintColor = .blue
-        toolbar.selectedTintColor = view.tintColor
-        toolbar.disabledTintColor = .lightGray
-        toolbar.dividerTintColor = .gray
+        if #available(iOS 13.0, *) {
+            toolbar.backgroundColor = UIColor.systemGroupedBackground
+            toolbar.tintColor = UIColor.secondaryLabel
+            toolbar.highlightedTintColor = UIColor.systemBlue
+            toolbar.selectedTintColor = UIColor.systemBlue
+            toolbar.disabledTintColor = .systemGray4
+            toolbar.dividerTintColor = UIColor.separator
+        } else {
+            toolbar.tintColor = .gray
+            toolbar.highlightedTintColor = .blue
+            toolbar.selectedTintColor = view.tintColor
+            toolbar.disabledTintColor = .lightGray
+            toolbar.dividerTintColor = .gray
+        }
 
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
