@@ -77,7 +77,7 @@ class ViewController: UITableViewController
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)!
         cell.accessoryType = .disclosureIndicator
-
+        //cell.backgroundColor = UIColor.
         let row = sections[indexPath.section].rows[indexPath.row]
         cell.textLabel?.text = row.title
 
@@ -87,19 +87,10 @@ class ViewController: UITableViewController
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
-    
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let textView = UITextView()
-        
-        textView.font = UIFont.boldSystemFont(ofSize: 14)
-        textView.textAlignment = .center
-        textView.isEditable = false
-        textView.text = sections[section].title
-        textView.backgroundColor = UIColor.lightGray
-        
-        return textView
-    }
 
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return sections[section].title
+    }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)

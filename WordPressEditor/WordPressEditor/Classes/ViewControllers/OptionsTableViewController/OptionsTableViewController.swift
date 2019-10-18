@@ -24,6 +24,25 @@ public struct OptionsTableViewOption: Equatable {
 }
 
 public class OptionsTableViewController: UITableViewController {
+
+    enum Constants {
+        static var cellBackgroundColor: UIColor = {
+            if #available(iOS 13.0, *) {
+                return .systemBackground
+            } else {
+                return .white
+            }
+        }()
+
+        static var cellSelectedBackgroundColor: UIColor = {
+            if #available(iOS 13.0, *) {
+                return .secondarySystemBackground
+            } else {
+                return .lightGray
+            }
+        }()
+    }
+
     private static let rowHeight: CGFloat = 44.0
     
     public typealias OnSelectHandler = (_ selected: Int) -> Void
@@ -32,14 +51,14 @@ public class OptionsTableViewController: UITableViewController {
     
     public var onSelect: OnSelectHandler?
     
-    public var cellBackgroundColor: UIColor = .white {
+    public var cellBackgroundColor: UIColor = Constants.cellBackgroundColor {
         didSet {
             tableView.backgroundColor = cellBackgroundColor
             tableView?.reloadData()
         }
     }
     
-    public var cellSelectedBackgroundColor: UIColor = .lightGray
+    public var cellSelectedBackgroundColor: UIColor = Constants.cellSelectedBackgroundColor
     
     public var cellDeselectedTintColor: UIColor? {
         didSet {
