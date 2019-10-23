@@ -341,7 +341,9 @@ open class TextView: UITextView {
 
     override open var textAlignment: NSTextAlignment {
         didSet {
-            recalculateTypingAttributes()
+            if (textAlignment != oldValue) {
+                recalculateTypingAttributes()
+            }
         }
     }
 
