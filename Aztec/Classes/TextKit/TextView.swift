@@ -275,7 +275,7 @@ open class TextView: UITextView {
 
     /// Blockquote Blocks Border Color.
     ///
-    @objc dynamic public var blockquoteBorderColor: UIColor {
+    @objc dynamic public var blockquoteBorderColor: UIColor? {
         get {
             return layout.blockquoteBorderColor
         }
@@ -286,7 +286,7 @@ open class TextView: UITextView {
 
     /// Blockquote Blocks Background Color.
     ///
-    @objc dynamic public var blockquoteBackgroundColor: UIColor {
+    @objc dynamic public var blockquoteBackgroundColor: UIColor? {
         get {
             return layout.blockquoteBackgroundColor
         }
@@ -309,7 +309,7 @@ open class TextView: UITextView {
 
     /// Pre Blocks Background Color.
     ///
-    @objc dynamic public var preBackgroundColor: UIColor {
+    @objc dynamic public var preBackgroundColor: UIColor? {
         get {
             return layout.preBackgroundColor
         }

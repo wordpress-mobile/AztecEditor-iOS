@@ -9,15 +9,15 @@ class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     ///
-    var blockquoteBorderColor = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    var blockquoteBorderColor: UIColor? = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
 
     /// Blockquote's Background Color
     ///
-    var blockquoteBackgroundColor = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
+    var blockquoteBackgroundColor: UIColor? = UIColor(red: 0.91, green: 0.94, blue: 0.95, alpha: 1.0)
 
     /// HTML Pre Background Color
     ///
-    var preBackgroundColor = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
+    var preBackgroundColor: UIColor? = UIColor(red: 243.0/255.0, green: 246.0/255.0, blue: 248.0/255.0, alpha: 1.0)
 
     /// Closure that is expected to return the TypingAttributes associated to the Extra Line Fragment
     ///
@@ -126,12 +126,17 @@ private extension LayoutManager {
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawBlockquote(in rect: CGRect, with context: CGContext) {
-        blockquoteBackgroundColor.setFill()
-        context.fill(rect)
+        if let blockquoteBackgroundColor = blockquoteBackgroundColor {
+            blockquoteBackgroundColor.setFill()
+            context.fill(rect)
 
-        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-        blockquoteBorderColor.setFill()
-        context.fill(borderRect)
+        }
+
+        if let blockquoteBorderColor = blockquoteBorderColor {
+            let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+            blockquoteBorderColor.setFill()
+            context.fill(borderRect)
+        }
     }
 }
 
@@ -172,6 +177,9 @@ private extension LayoutManager {
     /// Draws a single HTML Pre Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawHTMLPre(in rect: CGRect, with context: CGContext) {
+        guard let preBackgroundColor = preBackgroundColor else {
+            return
+        }
         preBackgroundColor.setFill()
         context.fill(rect)
     }
