@@ -45,6 +45,12 @@ open class MediaAttachment: NSTextAttachment {
         }
     }
 
+    /// Indicates if the media is loaded
+    ///
+    public var isLoaded: Bool {
+        return !needsNewAsset && !isFetchingImage
+    }
+
     /// Indicates if a new Asset should be retrieved, or we're current!.
     ///
     fileprivate var needsNewAsset = true
