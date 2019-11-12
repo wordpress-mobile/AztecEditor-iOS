@@ -29,4 +29,10 @@ class MediaAttachmentWordPressTests: XCTestCase {
         imageAttachment.extraAttributes[MediaAttachment.uploadKey] = nil
         XCTAssertEqual(imageAttachment.uploadID, nil)
     }
+
+    func testIsLoadedInitiallyReturnsFalse() {
+        let imageAttachment = MediaAttachment(identifier: "testing")
+
+        XCTAssertFalse(imageAttachment.isLoaded)
+    }
 }
