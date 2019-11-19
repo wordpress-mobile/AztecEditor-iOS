@@ -283,7 +283,7 @@ private extension LayoutManager {
         var resultAttributes = attributes
         var indent: CGFloat = 0
         if let style = attributes[.paragraphStyle] as? ParagraphStyle {
-            indent = style.listIndent + Metrics.listTextIndentation
+            indent = style.listIndent + Metrics.listTextIndentation - (Metrics.listTextIndentation / 4)
         }
 
         resultAttributes[.paragraphStyle] = markerParagraphStyle(indent: indent)
