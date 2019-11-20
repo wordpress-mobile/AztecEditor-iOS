@@ -647,7 +647,7 @@ open class TextView: UITextView {
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
-
+        recalculateTypingAttributes()
         notifyTextViewDidChange()
     }
 
@@ -1247,6 +1247,7 @@ open class TextView: UITextView {
     private func recalculateTypingAttributes(at location: Int) {
         
         guard storage.length > 0 else {
+            typingAttributes = defaultAttributes
             return
         }
         
