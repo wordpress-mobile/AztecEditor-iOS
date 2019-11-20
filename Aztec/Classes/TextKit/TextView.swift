@@ -242,12 +242,22 @@ open class TextView: UITextView {
             .font: defaultFont,
             .paragraphStyle: defaultParagraphStyle,
         ]
-        if let color = textColor {
+        if let color = defaultTextColor {
             attributes[.foregroundColor] = color
         }
         return attributes
     }
-    
+
+    open var defaultTextColor: UIColor?
+
+    override open var textColor: UIColor? {
+        get {
+            return super.textColor
+        }
+        set {
+            super.textColor = newValue            
+        }
+    }
     // MARK: - Plugin Loading
     
     var pluginManager: PluginManager {

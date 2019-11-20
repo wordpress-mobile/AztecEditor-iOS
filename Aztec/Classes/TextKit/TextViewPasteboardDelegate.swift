@@ -69,7 +69,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
             textView?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
-        let colorCorrectedString = fixColors(in: string, using: textView.textColor)
+        let colorCorrectedString = fixColors(in: string, using: textView.defaultTextColor)
 
         storage.replaceCharacters(in: selectedRange, with: colorCorrectedString)
         textView.notifyTextViewDidChange()
