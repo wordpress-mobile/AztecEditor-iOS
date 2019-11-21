@@ -248,16 +248,16 @@ open class TextView: UITextView {
         return attributes
     }
 
-    open var defaultTextColor: UIColor?
+    open lazy var defaultTextColor: UIColor? = {
+        let color: UIColor
+        if #available(iOS 13.0, *) {
+            color = UIColor.label
+        } else {
+            color = UIColor.darkText
+        }
+        return color
+    }()
 
-    override open var textColor: UIColor? {
-        get {
-            return super.textColor
-        }
-        set {
-            super.textColor = newValue            
-        }
-    }
     // MARK: - Plugin Loading
     
     var pluginManager: PluginManager {
