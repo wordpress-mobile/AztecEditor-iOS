@@ -65,7 +65,7 @@ class EditorDemoController: UIViewController {
     
     private func setupHTMLTextView(_ textView: UITextView) {
         let accessibilityLabel = NSLocalizedString("HTML Content", comment: "Post HTML content")
-        self.configureDefaultProperties(for: textView, accessibilityLabel: accessibilityLabel)
+        self.configureDefaultProperties(htmlTextView: textView, accessibilityLabel: accessibilityLabel)
         
         textView.isHidden = true
         textView.delegate = self
@@ -171,6 +171,8 @@ class EditorDemoController: UIViewController {
         view.addSubview(titleTextView)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
+        Aztec.Metrics.listTextIndentation = 24
+        editorView.richTextView.textContainer.lineFragmentPadding = 0
         // color setup
         if #available(iOS 13.0, *) {
             view.backgroundColor = UIColor.systemBackground
@@ -325,7 +327,22 @@ class EditorDemoController: UIViewController {
     }
 
 
-    private func configureDefaultProperties(for textView: UITextView, accessibilityLabel: String) {
+    private func configureDefaultProperties(for textView: TextView, accessibilityLabel: String) {
+        textView.accessibilityLabel = accessibilityLabel
+        textView.font = Constants.defaultContentFont
+        textView.keyboardDismissMode = .interactive
+        if #available(iOS 13.0, *) {
+            textView.textColor = UIColor.label
+            textView.defaultTextColor = UIColor.label
+        } else {
+            // Fallback on earlier versions
+            textView.textColor = UIColor(red: 0x1A/255.0, green: 0x1A/255.0, blue: 0x1A/255.0, alpha: 1)
+            textView.defaultTextColor = UIColor(red: 0x1A/255.0, green: 0x1A/255.0, blue: 0x1A/255.0, alpha: 1)
+        }
+        textView.linkTextAttributes = [.foregroundColor: UIColor(red: 0x01 / 255.0, green: 0x60 / 255.0, blue: 0x87 / 255.0, alpha: 1), NSAttributedString.Key.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue)]
+    }
+
+    private func configureDefaultProperties(htmlTextView textView: UITextView, accessibilityLabel: String) {
         textView.accessibilityLabel = accessibilityLabel
         textView.font = Constants.defaultContentFont
         textView.keyboardDismissMode = .interactive
