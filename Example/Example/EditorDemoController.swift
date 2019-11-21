@@ -171,6 +171,8 @@ class EditorDemoController: UIViewController {
         view.addSubview(titleTextView)
         view.addSubview(titlePlaceholderLabel)
         view.addSubview(separatorView)
+        Aztec.Metrics.listTextIndentation = 24
+        editorView.richTextView.textContainer.lineFragmentPadding = 0
         // color setup
         if #available(iOS 13.0, *) {
             view.backgroundColor = UIColor.systemBackground
