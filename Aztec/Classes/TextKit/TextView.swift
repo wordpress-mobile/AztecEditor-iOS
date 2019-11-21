@@ -242,12 +242,20 @@ open class TextView: UITextView {
             .font: defaultFont,
             .paragraphStyle: defaultParagraphStyle,
         ]
-        if let color = textColor {
+        if let color = defaultTextColor {
             attributes[.foregroundColor] = color
         }
         return attributes
     }
-    
+
+    open lazy var defaultTextColor: UIColor? = {
+        if #available(iOS 13.0, *) {
+            return UIColor.label
+        } else {
+            return UIColor.darkText
+        }        
+    }()
+
     // MARK: - Plugin Loading
     
     var pluginManager: PluginManager {
@@ -637,7 +645,7 @@ open class TextView: UITextView {
         evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange()
         ensureRemovalOfParagraphAttributesWhenPressingBackspaceAndEmptyingTheDocument()
         ensureCursorRedraw(afterEditing: deletedString.string)
-
+        recalculateTypingAttributes()
         notifyTextViewDidChange()
     }
 
@@ -1237,6 +1245,7 @@ open class TextView: UITextView {
     private func recalculateTypingAttributes(at location: Int) {
         
         guard storage.length > 0 else {
+            typingAttributes = defaultAttributes
             return
         }
         

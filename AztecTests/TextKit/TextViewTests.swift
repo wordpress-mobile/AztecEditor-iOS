@@ -2078,4 +2078,32 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(UIPasteboard.general.html(), "<p><strong>bol</strong></p>")
     }
 
+    /// Check if pasting attributed text without color, the color is set to default color
+    func testPasteAttributedText() {
+        let sourceAttributedText = NSAttributedString(string: "Hello world")
+        var pasteItems = [String:Any]()
+        pasteItems[kUTTypePlainText as String] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
+        UIPasteboard.general.setItems([pasteItems], options: [:])
+        let textView = TextViewStub(withHTML: "")
+        textView.defaultTextColor = UIColor.red
+        textView.paste(nil)
+
+        let attributedString = textView.attributedText!
+
+        let attributes = attributedString.attributes(at: 0, effectiveRange: nil)
+
+        XCTAssertEqual(attributes[.foregroundColor] as! UIColor, UIColor.red)
+        XCTAssertEqual(textView.text, "Hello world")
+    }
+
+    /// Check that deleting all text resets the typying attributes to the default attributes
+    func testDeleteAllTextSetTypyingAttributesToDefault() {
+        let textView = TextViewStub(withHTML: "<p style=\"color:0xFF0000\">Hello world</p>")
+        textView.defaultTextColor = UIColor.green
+        textView.selectedRange = textView.attributedText!.rangeOfEntireString
+        textView.deleteBackward()
+        let attributes = textView.typingAttributes
+        XCTAssertEqual(attributes[.foregroundColor] as! UIColor,UIColor.green)
+    }
+
 }
