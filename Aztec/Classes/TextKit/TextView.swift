@@ -249,13 +249,11 @@ open class TextView: UITextView {
     }
 
     open lazy var defaultTextColor: UIColor? = {
-        let color: UIColor
         if #available(iOS 13.0, *) {
-            color = UIColor.label
+            return UIColor.label
         } else {
-            color = UIColor.darkText
-        }
-        return color
+            return UIColor.darkText
+        }        
     }()
 
     // MARK: - Plugin Loading
