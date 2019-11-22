@@ -210,8 +210,12 @@ private extension LayoutManager {
 
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
             let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
-            let markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
-
+            var markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
+            if list.reversed {
+                markerNumber = -markerNumber
+            }
+            markerNumber += list.start
+            
             drawItem(number: markerNumber, in: markerRect, from: list, using: paragraphStyle, at: enclosingRange.location)
         }
     }

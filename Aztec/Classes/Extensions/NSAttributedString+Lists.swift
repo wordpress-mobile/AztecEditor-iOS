@@ -86,7 +86,7 @@ extension NSAttributedString {
         guard let rangeOfList = range(of:list, at: location) else {
             return NSNotFound
         }
-        var numberInList = 1
+        var numberInList = 0
         let paragraphRanges = self.paragraphRanges(intersecting: rangeOfList)
 
         for (_, enclosingRange) in paragraphRanges {

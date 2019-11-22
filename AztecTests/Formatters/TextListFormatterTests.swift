@@ -33,8 +33,8 @@ class TextListFormatterTests: XCTestCase {
         XCTAssert(lists[2].style == .unordered)
         XCTAssert(lists[3].style == .ordered)
 
-        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 1)
-        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 1)
+        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 0)
+        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 0)
     }
 
     // Helpers #2:
@@ -64,7 +64,7 @@ class TextListFormatterTests: XCTestCase {
         }
 
         for (index, textList) in lists.enumerated() {
-            XCTAssert(list.itemNumber(in: textList, at: ranges[index].location) == index + 1)
+            XCTAssert(list.itemNumber(in: textList, at: ranges[index].location) == index)
         }
     }
 
@@ -92,7 +92,7 @@ class TextListFormatterTests: XCTestCase {
         XCTAssert(lists.count == 1)
 
         XCTAssert(lists[0].style == .ordered)
-        XCTAssert(string.itemNumber(in: lists[0], at: ranges[0].location) == 1)
+        XCTAssert(string.itemNumber(in: lists[0], at: ranges[0].location) == 0)
     }
 
 
@@ -152,7 +152,7 @@ class TextListFormatterTests: XCTestCase {
         }
 
         for (index, textList) in lists.enumerated() {
-            XCTAssertEqual(list.itemNumber(in: textList, at: ranges[index+1].location), index + 1)
+            XCTAssertEqual(list.itemNumber(in: textList, at: ranges[index+1].location), index)
         }
     }
 
@@ -185,7 +185,7 @@ class TextListFormatterTests: XCTestCase {
         XCTAssert(lists[2].style == .ordered)
         XCTAssert(lists[3].style == .unordered)
 
-        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 1)
+        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 0)
         XCTAssertEqual(list.itemNumber(in: lists[2], at: ranges[2].location), NSNotFound)
     }
 
@@ -246,9 +246,9 @@ class TextListFormatterTests: XCTestCase {
         XCTAssert(lists[2].style == .unordered)
         XCTAssert(lists[3].style == .ordered)
 
-        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 1)
-        XCTAssert(list.itemNumber(in: lists[1], at: ranges[1].location) == 2)
-        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 1)
+        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 0)
+        XCTAssert(list.itemNumber(in: lists[1], at: ranges[1].location) == 1)
+        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 0)
     }
 
 
@@ -280,9 +280,9 @@ class TextListFormatterTests: XCTestCase {
         XCTAssert(lists[3].style == .ordered)
         XCTAssert(lists[4].style == .ordered)
 
-        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 1)
-        XCTAssert(list.itemNumber(in: lists[1], at: ranges[1].location) == 2)
-        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 4)
+        XCTAssert(list.itemNumber(in: lists[0], at: ranges[0].location) == 0)
+        XCTAssert(list.itemNumber(in: lists[1], at: ranges[1].location) == 1)
+        XCTAssert(list.itemNumber(in: lists[3], at: ranges[3].location) == 3)
 
     }
 
@@ -318,7 +318,7 @@ class TextListFormatterTests: XCTestCase {
             XCTAssert(list!.style == .ordered)
 
 
-            XCTAssert(string.itemNumber(in: list!, at: range.location) == index + 1)
+            XCTAssert(string.itemNumber(in: list!, at: range.location) == index)
         }
     }
 
@@ -356,7 +356,7 @@ class TextListFormatterTests: XCTestCase {
             }
 
             XCTAssert(list.style == .ordered)
-            XCTAssert(string.itemNumber(in: list, at: range.location) == index+1)
+            XCTAssert(string.itemNumber(in: list, at: range.location) == index)
         }
     }
 
@@ -424,10 +424,9 @@ class TextListFormatterTests: XCTestCase {
 
         XCTAssert(items.count == 5)
 
-        XCTAssert(list.itemNumber(in: items[0], at: 0) == 1)
-        XCTAssert(list.itemNumber(in: items[0], at: 13)  == 2)
+        XCTAssert(list.itemNumber(in: items[0], at: 0) == 0)
+        XCTAssert(list.itemNumber(in: items[0], at: 13)  == 1)
     }
-
 
     // Verifies that the `present(in: at:)` helper effectively returns true, as needed.
     //

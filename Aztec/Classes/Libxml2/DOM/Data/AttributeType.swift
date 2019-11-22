@@ -36,4 +36,6 @@ extension AttributeType {
     public static let src = AttributeType("src")
     public static let style = AttributeType("style")
     public static let target = AttributeType("target")
+    public static let reversed = AttributeType("reversed")
+    public static let start = AttributeType("start")
 }
