@@ -68,6 +68,34 @@ extension NSAttributedString {
         return resultRange
     }
 
+    /// Returns the number of  items of a list at the given location.
+    ///
+    /// - Parameters:
+    ///   - list: The list.
+    ///   - location: The location of the item.
+    ///
+    /// - Returns: Returns the total number of items within the list.
+    ///
+    func numberOfItems(in list: TextList,  at location: Int) -> Int {
+        guard
+            let paragraphStyle = attribute(.paragraphStyle, at: location, effectiveRange: nil) as? ParagraphStyle
+            else {
+                return NSNotFound
+        }
+        let listDepth = paragraphStyle.lists.count
+        guard let rangeOfList = range(of:list, at: location) else {
+            return NSNotFound
+        }
+        var numberInList = 0
+        let paragraphRanges = self.paragraphRanges(intersecting: rangeOfList)
+        for (_, enclosingRange) in paragraphRanges {
+            if let paragraphStyle = attribute(.paragraphStyle, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
+               listDepth == paragraphStyle.lists.count {
+                numberInList += 1
+            }
+        }
+        return numberInList
+    }
     /// Returns the index of the item at the given location within the list.
     ///
     /// - Parameters:

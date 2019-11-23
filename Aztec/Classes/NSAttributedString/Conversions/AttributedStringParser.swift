@@ -770,8 +770,8 @@ private extension AttributedStringParser {
                     listElement.updateAttribute(named: "reversed", value: .none)
                 }
 
-                if list.start != 1 {
-                    listElement.updateAttribute(named: "start", value: .string("\(list.start)"))
+                if let start = list.start {
+                    listElement.updateAttribute(named: "start", value: .string("\(start)"))
                 }
             }
         }

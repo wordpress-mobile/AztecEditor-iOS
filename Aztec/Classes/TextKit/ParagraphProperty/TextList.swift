@@ -24,7 +24,7 @@ open class TextList: ParagraphProperty {
 
     public let reversed: Bool
 
-    public let start: Int
+    public let start: Int?
 
     // MARK: - Properties
 
@@ -32,16 +32,19 @@ open class TextList: ParagraphProperty {
     ///
     let style: Style
 
-    init(style: Style, start: Int = 1, reversed: Bool = false, with representation: HTMLRepresentation? = nil) {
+    init(style: Style, start: Int? = nil, reversed: Bool = false, with representation: HTMLRepresentation? = nil) {
         self.style = style
 
         if let representation = representation, case let .element( html ) = representation.kind {
             self.reversed = html.attribute(ofType: .reversed) != nil
             
-            if let startAttribute = html.attribute(ofType: .start), case let .string( value ) = startAttribute.value, let start = Int(value) {
+            if let startAttribute = html.attribute(ofType: .start),
+                case let .string( value ) = startAttribute.value,
+                let start = Int(value)
+            {
                 self.start = start
             } else {
-                self.start = 1
+                self.start = nil
             }
         } else {
             self.start = start
@@ -61,7 +64,7 @@ open class TextList: ParagraphProperty {
             let decodedStart = aDecoder.decodeInteger(forKey: AttributeType.start.rawValue)
             start = decodedStart
         } else {
-            start = 1
+            start = nil
         }
 
         if aDecoder.containsValue(forKey: AttributeType.reversed.rawValue) {
