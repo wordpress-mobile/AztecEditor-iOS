@@ -74,7 +74,7 @@ extension NSAttributedString {
     ///   - list: The list.
     ///   - location: The location of the item.
     ///
-    /// - Returns: Returns the total number of items within the list.
+    /// - Returns: Returns the total number of items within the list or NSNotFound if no list is available at location.
     ///
     func numberOfItems(in list: TextList,  at location: Int) -> Int {
         guard
@@ -102,7 +102,7 @@ extension NSAttributedString {
     ///   - list: The list.
     ///   - location: The location of the item.
     ///
-    /// - Returns: Returns the index within the list.
+    /// - Returns: Returns the index within the list or NSNotFound is no list is available at location.
     ///
     func itemNumber(in list: TextList, at location: Int) -> Int {
         guard
