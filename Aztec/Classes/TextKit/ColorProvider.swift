@@ -40,7 +40,7 @@ public class ColorProvider {
     ///  By default the the color available are the one defined in the HTML specification: https://www.w3schools.com/colors/colors_names.asp
     /// - Parameter name: the name of the color, or nil if the name is not available
     public func color(named name: String) -> UIColor? {
-        if let color = htmlColors[name] {
+        if let color = htmlColors[name.lowercased()] {
             return color
         }
 
