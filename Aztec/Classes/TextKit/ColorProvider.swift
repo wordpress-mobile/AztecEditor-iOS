@@ -20,15 +20,13 @@ public class ColorProvider {
                 return [String:UIColor]()
         }
 
-        return colorDict.compactMapValues { (value) -> UIColor? in
-            return UIColor.init(hexString: value)
-        }
+        return colorDict.compactMapValues { UIColor(hexString: $0) }
     }()
 
     private var extraColors = [String:UIColor]()
 
     /// Adds extra named colors to be used by the `color(named:)` method.
-    ///  If the there is a name collision the value on the added dictionary will overwrite the current color.
+    ///  If there is a name collision, the value in the added dictionary will overwrite the current color.
     /// - Parameter namedColors: a dictionary of colors keyed by name
     public func add(namedColors: [String: UIColor]) {
         extraColors.merge(namedColors) { (base, other) -> UIColor in
@@ -36,9 +34,9 @@ public class ColorProvider {
         }
     }
 
-    /// Returns a color designated by name if available.
-    ///  By default the the color available are the one defined in the HTML specification: https://www.w3schools.com/colors/colors_names.asp
-    /// - Parameter name: the name of the color, or nil if the name is not available
+    /// Returns a color designated by name or nil if the name is not available
+    ///  By default the the color available are the ones defined in the HTML specification: https://www.w3schools.com/colors/colors_names.asp
+    /// - Parameter name: the name of the color
     public func color(named name: String) -> UIColor? {
         if let color = htmlColors[name.lowercased()] {
             return color
@@ -49,9 +47,9 @@ public class ColorProvider {
 
     public lazy var codeBackgroungColor: UIColor = {
         if #available(iOS 13.0, *) {
-            return UIColor.secondarySystemBackground
+            return .secondarySystemBackground
         } else {
-            return UIColor.lightGray
+            return .lightGray
         }
     }()
 }
