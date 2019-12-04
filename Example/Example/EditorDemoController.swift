@@ -1087,7 +1087,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
 
     func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
         let imageSize = CGSize(width:64, height:64)
-        let placeholderImage: UIImage
+        var placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
             placeholderImage = Gridicon.iconOfType(.image, withSize: imageSize)
@@ -1096,7 +1096,9 @@ extension EditorDemoController: TextViewAttachmentDelegate {
         default:
             placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
         }
-
+        if #available(iOS 13.0, *) {
+            placeholderImage = placeholderImage.withTintColor(.label)
+        }
         return placeholderImage
     }
 
@@ -1501,10 +1503,19 @@ private extension EditorDemoController
 
 extension EditorDemoController {
 
+    static var tintedMissingImage: UIImage = {
+        if #available(iOS 13.0, *) {
+            return Gridicon.iconOfType(.image).withTintColor(.label)
+        } else {
+            // Fallback on earlier versions
+            return Gridicon.iconOfType(.image)
+        }
+    }()
+
     struct Constants {
         static let defaultContentFont   = UIFont.systemFont(ofSize: 14)
         static let defaultHtmlFont      = UIFont.systemFont(ofSize: 24)
-        static let defaultMissingImage  = Gridicon.iconOfType(.image)
+        static let defaultMissingImage  = tintedMissingImage
         static let formatBarIconSize    = CGSize(width: 20.0, height: 20.0)
         static let headers              = [Header.HeaderType.none, .h1, .h2, .h3, .h4, .h5, .h6]
         static let lists                = [TextList.Style.unordered, .ordered]        
