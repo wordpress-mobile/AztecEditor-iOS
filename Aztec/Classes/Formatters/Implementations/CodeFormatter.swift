@@ -12,7 +12,7 @@ class CodeFormatter: AttributeFormatter {
 
     // MARK: - Init
 
-    init(monospaceFont: UIFont = FontProvider.shared.monospaceFont, backgroundColor: UIColor = UIColor.lightGray) {
+    init(monospaceFont: UIFont = FontProvider.shared.monospaceFont, backgroundColor: UIColor = ColorProvider.shared.codeBackgroungColor) {
         self.monospaceFont = monospaceFont
         self.backgroundColor = backgroundColor
         self.htmlRepresentationKey = .codeHtmlRepresentation

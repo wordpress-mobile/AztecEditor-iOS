@@ -223,6 +223,8 @@
 		F99D5CF321B989FF0089314A /* StringRangeMultibyteConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99D5CF221B989FF0089314A /* StringRangeMultibyteConversionTests.swift */; };
 		FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF0714001EFD78AF00E50713 /* Media.xcassets */; };
 		FF17B2D2227A589F0022AECE /* LIElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF17B2D1227A589F0022AECE /* LIElementConverter.swift */; };
+		FF1F56A123955EF600E93A30 /* ColorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1F56A023955EF600E93A30 /* ColorProvider.swift */; };
+		FF1F56A3239562B900E93A30 /* html_colors.json in Resources */ = {isa = PBXBuildFile; fileRef = FF1F56A2239562B900E93A30 /* html_colors.json */; };
 		FF20D6401EDC389A00294B78 /* ShortcodeAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63D1EDC389A00294B78 /* ShortcodeAttribute.swift */; };
 		FF20D6411EDC389A00294B78 /* HTMLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */; };
 		FF20D6421EDC389A00294B78 /* Processor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20D63F1EDC389A00294B78 /* Processor.swift */; };
@@ -499,6 +501,8 @@
 		F99D5CF221B989FF0089314A /* StringRangeMultibyteConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringRangeMultibyteConversionTests.swift; sourceTree = "<group>"; };
 		FF0714001EFD78AF00E50713 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		FF17B2D1227A589F0022AECE /* LIElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIElementConverter.swift; sourceTree = "<group>"; };
+		FF1F56A023955EF600E93A30 /* ColorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorProvider.swift; sourceTree = "<group>"; };
+		FF1F56A2239562B900E93A30 /* html_colors.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = html_colors.json; sourceTree = "<group>"; };
 		FF20D63D1EDC389A00294B78 /* ShortcodeAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortcodeAttribute.swift; sourceTree = "<group>"; };
 		FF20D63E1EDC389A00294B78 /* HTMLProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLProcessor.swift; sourceTree = "<group>"; };
 		FF20D63F1EDC389A00294B78 /* Processor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Processor.swift; sourceTree = "<group>"; };
@@ -810,6 +814,7 @@
 				B5A99D831EBA073D00DED081 /* HTMLStorage.swift */,
 				F9982CF521877663001E606B /* TextViewPasteboardDelegate.swift */,
 				FF7EAEC3234D253B007A26E0 /* FontProvider.swift */,
+				FF1F56A023955EF600E93A30 /* ColorProvider.swift */,
 			);
 			path = TextKit;
 			sourceTree = "<group>";
@@ -1337,6 +1342,7 @@
 			isa = PBXGroup;
 			children = (
 				FF0714001EFD78AF00E50713 /* Media.xcassets */,
+				FF1F56A2239562B900E93A30 /* html_colors.json */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -1486,6 +1492,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF1F56A3239562B900E93A30 /* html_colors.json in Resources */,
 				FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1540,6 +1547,7 @@
 				FFD3C1732344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift in Sources */,
 				F1656FDE2152A6A6009C7E3A /* CiteStringAttributeConverter.swift in Sources */,
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
+				FF1F56A123955EF600E93A30 /* ColorProvider.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
 				914CD9E72200B2D200DDD5C9 /* BoldFormatter.swift in Sources */,
 				F1BDDDE72060403B000714E1 /* FigureFormatter.swift in Sources */,
