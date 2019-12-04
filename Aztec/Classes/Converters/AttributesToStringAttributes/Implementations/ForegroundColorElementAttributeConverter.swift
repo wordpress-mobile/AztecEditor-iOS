@@ -11,7 +11,7 @@ class ForegroundColorElementAttributesConverter: ElementAttributeConverter {
         
         guard let cssColor = attribute.firstCSSAttribute(ofType: .foregroundColor),
             let colorValue = cssColor.value,
-            let color = UIColor(hexString: colorValue) else {
+            let color = ColorProvider.shared.color(named: colorValue) ?? UIColor(hexString: colorValue) else {
             return attributes
         }
         

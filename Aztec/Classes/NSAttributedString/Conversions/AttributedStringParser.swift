@@ -765,6 +765,15 @@ private extension AttributedStringParser {
             listElement = element.toElementNode()
         } else {
             listElement = ElementNode(type: listType)
+            if list.style == .ordered {
+                if list.reversed {
+                    listElement.updateAttribute(named: "reversed", value: .none)
+                }
+
+                if let start = list.start {
+                    listElement.updateAttribute(named: "start", value: .string("\(start)"))
+                }
+            }
         }
 
         return listElement
