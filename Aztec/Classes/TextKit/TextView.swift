@@ -256,6 +256,17 @@ open class TextView: UITextView {
         }        
     }()
 
+    open override var textColor: UIColor? {
+        set {
+            super.textColor = newValue
+            defaultTextColor = newValue
+        }
+
+        get {
+            return super.textColor
+        }
+    }
+
     // MARK: - Plugin Loading
     
     var pluginManager: PluginManager {
