@@ -191,6 +191,23 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
         return CGFloat(depth) * Metrics.listTextIndentation
     }
+    
+    /// The amount of indent for the nested blockquote of the paragraph if any.
+    ///
+    public var blockquoteNestedIndent: (depth: Int, indent: CGFloat) {
+        let listAndBlockquotes = properties.filter({ property in
+            return property is Blockquote || property is TextList
+        })
+        var depth = 0
+        for position in (0..<listAndBlockquotes.count).reversed() {
+            if listAndBlockquotes[position] is Blockquote {
+                depth = position
+                break
+            }
+        }
+        let indent = CGFloat(depth) * Metrics.listTextIndentation
+        return (depth, indent)
+    }
 
     /// The amount of indent for the list of the paragraph if any.
     ///
