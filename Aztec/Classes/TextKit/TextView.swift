@@ -303,7 +303,13 @@ open class TextView: UITextView {
         }
     }
 
-
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if let previous = previousTraitCollection, previous.hasDifferentColorAppearance(comparedTo: traitCollection) {
+                self.setHTML(self.getHTML())
+            }
+        }
+    }
     /// Blockquote Blocks Background Width.
     ///
     @objc dynamic public var blockquoteBorderWidth: CGFloat {
