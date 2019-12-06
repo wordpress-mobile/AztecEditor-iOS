@@ -859,6 +859,21 @@ extension FormatBar: UIScrollViewDelegate {
     }
 }
 
+// MARK: - Accessibility
+
+extension FormatBar {
+    /// The accessibility label of the overflow toggle button
+    ///
+    public var overflowToggleAccessibilityLabel: String? {
+        set {
+            overflowToggleItem.accessibilityLabel = newValue
+        }
+        get {
+            return overflowToggleItem.accessibilityLabel
+        }
+    }
+}
+
 // MARK: - Constants
 extension FormatBar {
     struct Constants {
