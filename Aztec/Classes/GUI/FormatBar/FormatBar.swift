@@ -440,6 +440,7 @@ open class FormatBar: UIView {
             rotateOverflowToggleItem(.vertical, animated: false)
         }
 
+        updateOverflowToggleItemAccessibilityTraits(expanded: overflowVisible)
         updateOverflowToggleItemVisibility()
     }
 
@@ -527,6 +528,7 @@ open class FormatBar: UIView {
         formatter?.formatBar(self, didChangeOverflowState: (shouldExpand) ? .visible : .hidden)
 
         updateOverflowToggleItemRTLLayout(expand: shouldExpand, animated: true)
+        updateOverflowToggleItemAccessibilityTraits(expanded: shouldExpand)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -871,6 +873,12 @@ extension FormatBar {
         get {
             return overflowToggleItem.accessibilityLabel
         }
+    }
+
+    private func updateOverflowToggleItemAccessibilityTraits(expanded: Bool) {
+        // We _could_ use overflowToggleItem.isSelected instead of modifying the traits. However,
+        // that would highlight the button with another color, which we don't need.
+        overflowToggleItem.accessibilityTraits = expanded ? [.button, .selected] : [.button]
     }
 }
 
