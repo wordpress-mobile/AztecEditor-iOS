@@ -10,6 +10,11 @@ class LayoutManager: NSLayoutManager {
     /// Blockquote's Left Border Color
     ///
     var blockquoteBorderColor: UIColor? = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    
+    var blockquoteBorderColor1: UIColor? = UIColor(red: 0.62, green: 0.75, blue: 0.83, alpha: 1.0)
+
+    var blockquoteBorderColor2: UIColor? = UIColor(red: 0.72, green: 0.85, blue: 0.93, alpha: 1.0)
+
 
     /// Blockquote's Background Color
     ///
@@ -62,7 +67,7 @@ private extension LayoutManager {
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
-
+            
             let blockquoteIndent = paragraphStyle.blockquoteIndent
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
@@ -82,7 +87,7 @@ private extension LayoutManager {
                     
                     let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
                     
-                    self.drawBlockquote(in: nestRect.integral, with: context)
+                    self.drawNestedBlockquote(in: nestRect.integral, with: context, at: index)
                 }
                 
             
@@ -134,6 +139,45 @@ private extension LayoutManager {
         }
 
         return blockquoteRect
+    }
+    
+    private func drawNestedBlockquote(in rect: CGRect, with context: CGContext, at depth: Int) {
+        
+        switch depth {
+        case 0:
+            if let blockquoteBorderColor = blockquoteBorderColor {
+                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+                blockquoteBorderColor.setFill()
+                context.fill(borderRect)
+                
+            }
+            
+        case 1:
+            if let blockquoteBorderColor = blockquoteBorderColor1 {
+                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+                blockquoteBorderColor.setFill()
+                context.fill(borderRect)
+                
+            }
+            
+        case 2:
+            if let blockquoteBorderColor = blockquoteBorderColor2 {
+                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+                blockquoteBorderColor.setFill()
+                context.fill(borderRect)
+                
+            }
+            
+        default:
+            if let blockquoteBorderColor = blockquoteBorderColor2 {
+                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+                blockquoteBorderColor.setFill()
+                context.fill(borderRect)
+    
+            }
+            
+        }
+
     }
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
