@@ -864,19 +864,8 @@ extension FormatBar: UIScrollViewDelegate {
 
 // MARK: - Accessibility
 
-extension FormatBar {
-    /// The accessibility label of the overflow toggle button
-    ///
-    public var overflowToggleAccessibilityLabel: String? {
-        set {
-            overflowToggleItem.accessibilityLabel = newValue
-        }
-        get {
-            return overflowToggleItem.accessibilityLabel
-        }
-    }
-
-    private func updateOverflowToggleItemAccessibilityTraits(expanded: Bool) {
+private extension FormatBar {
+    func updateOverflowToggleItemAccessibilityTraits(expanded: Bool) {
         // We _could_ use overflowToggleItem.isSelected instead of modifying the traits. However,
         // that would highlight the button with another color, which we don't need.
         overflowToggleItem.accessibilityTraits = expanded ? [.button, .selected] : [.button]
