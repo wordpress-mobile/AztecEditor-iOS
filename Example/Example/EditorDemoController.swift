@@ -993,7 +993,6 @@ extension EditorDemoController {
         }
 
         toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
-        toolbar.overflowToggleAccessibilityLabel = NSLocalizedString("More", comment: "Accessibility label for the More button on formatting toolbar.")
 
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.autoresizingMask = [ .flexibleHeight ]

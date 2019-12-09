@@ -110,6 +110,7 @@ open class FormatBar: UIView {
         let item = FormatBarItem(image: UIImage(), identifier: nil)
         self.configureStylesFor(item)
 
+        item.accessibilityLabel = NSLocalizedString("More", comment: "Accessibility label for the More button on formatting toolbar.")
         item.addTarget(self, action: #selector(handleToggleButtonAction), for: .touchUpInside)
         item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
 
