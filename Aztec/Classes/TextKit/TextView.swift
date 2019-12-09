@@ -317,7 +317,13 @@ open class TextView: UITextView {
         }
     }
 
-
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if let previous = previousTraitCollection, previous.hasDifferentColorAppearance(comparedTo: traitCollection) {
+                self.refreshMediaAttachments()
+            }
+        }
+    }
     /// Blockquote Blocks Background Width.
     ///
     @objc dynamic public var blockquoteBorderWidth: CGFloat {
@@ -1395,6 +1401,14 @@ open class TextView: UITextView {
     open func removeMediaAttachments() {
         storage.removeMediaAttachments()
         notifyTextViewDidChange()
+    }
+
+    /// Forces  a Refresh of all media attachment in the text view
+    open func refreshMediaAttachments() {
+        storage.enumerateAttachmentsOfType(MediaAttachment.self) { (attachment, range, _) in
+            attachment.refresh()
+            self.refresh(attachment, overlayUpdateOnly: false)
+        }
     }
 
     /// Replaces a Video attachment at the specified range

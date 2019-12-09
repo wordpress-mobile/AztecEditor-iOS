@@ -186,6 +186,14 @@ open class MediaAttachment: NSTextAttachment {
         needsNewAsset = refreshAsset
     }
 
+    /// Invalidates the attachment and forces an update of the attachment image
+    open func refresh() {
+        needsNewAsset = true
+        retryCount = 0
+        image = nil
+        glyphImage = nil
+    }
+
     /// Refresh attachment identifier
     ///
     /// - Parameter identifier: new identifier
