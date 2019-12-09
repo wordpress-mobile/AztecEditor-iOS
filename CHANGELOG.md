@@ -1,3 +1,7 @@
+1.14.1
+-----
+* Support for xcode 10.
+
 1.14.0
 -----
 * Support standard HTML colors by name.
