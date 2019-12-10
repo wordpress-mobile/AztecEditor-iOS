@@ -2103,6 +2103,7 @@ private extension TextView {
         }
         
         typingAttributes[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
+        typingAttributes[.foregroundColor] = defaultTextColor
     }
     
     private func removeParagraphPropertiesFromParagraph(spanning range: NSRange) {
@@ -2114,6 +2115,7 @@ private extension TextView {
         }
         
         attributes[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
+        attributes[.foregroundColor] = defaultTextColor
         
         storage.setAttributes(attributes, range: range)
     }
