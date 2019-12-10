@@ -651,7 +651,7 @@ open class TextView: UITextView {
     }
     
     // MARK: Blockquote helpers
-    private func getTextColorForQuoteDepth(_ depth: Int) -> (prev: UIColor, next: UIColor) {
+    private func getTextColorForQuoteDepth(_ depth: Int, toggle: Bool = false) -> (prev: UIColor, next: UIColor) {
         
         //prev color
         let originalColor = defaultAttributes[.foregroundColor] as! UIColor
@@ -668,7 +668,8 @@ open class TextView: UITextView {
         let index = depth > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : depth
 
         let nextIndex = index+1 > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : index+1
-        let nextColor = layout.blockquoteBorderColor[nextIndex]!
+        // when index is 0 could be quotes off or quotes on first level, toggle bool helps us know if we are toggling it on or indenting to next level and act accordingly
+        let nextColor = toggle ? layout.blockquoteBorderColor[index]! : layout.blockquoteBorderColor[nextIndex]!
         
         return (prevColor, nextColor)
     }
@@ -1113,10 +1114,11 @@ open class TextView: UITextView {
         var originalQuoteAttributes = typingAttributes
         originalQuoteAttributes.removeValue(forKey: .foregroundColor)
         
-        let textColor = getTextColorForQuoteDepth(currentDepth)
+        let textColor = getTextColorForQuoteDepth(currentDepth, toggle: true)
         originalQuoteAttributes[.foregroundColor] = textColor.prev
         
         let formatter = BlockquoteFormatter(placeholderAttributes: originalQuoteAttributes)
+        //use the first color when toggling on
         formatter.nextTextColor = textColor.next
         
         toggle(formatter: formatter, atRange: range)
