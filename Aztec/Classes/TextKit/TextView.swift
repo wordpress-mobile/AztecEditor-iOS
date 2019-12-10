@@ -314,6 +314,24 @@ open class TextView: UITextView {
         }
     }
     
+    @objc dynamic public var blockquoteBorderColorNested3: UIColor {
+        get {
+            return layout.blockquoteBorderColor[3]!
+        }
+        set {
+            layout.blockquoteBorderColor[3] = newValue
+        }
+    }
+    
+    @objc dynamic public var blockquoteBorderColorNested4: UIColor {
+        get {
+            return layout.blockquoteBorderColor[4]!
+        }
+        set {
+            layout.blockquoteBorderColor[4] = newValue
+        }
+    }
+    
     /// Blockquote Blocks Background Color.
     ///
     @objc dynamic public var blockquoteBackgroundColor: UIColor? {

@@ -10,12 +10,14 @@ class LayoutManager: NSLayoutManager {
     /// Blockquote's Left Border Color
     /// Include 3 nested values
     
-    var blockquoteBorderColor = [0 : UIColor(hexString: "66D6FF")!,
-                                1 : UIColor(hexString: "5198E8")!,
-                                2 : UIColor(hexString: "597CFF")!]
+    var blockquoteBorderColor = [0 : UIColor(hexString: "9252FF")!,
+                                1 : UIColor(hexString: "5A4AE8")!,
+                                2 : UIColor(hexString: "5D77FE")!,
+                                3 : UIColor(hexString: "4A8EE8")!,
+                                4 : UIColor(hexString: "52CAFF")!]
     
-    /// Update this accordingly to the dictionary above
-    static let quoteMaxDepth: Int = 2
+    /// Update this accordingly to the highest index value in the dictionary above
+    static let quoteMaxDepth: Int = 4
 
 
     /// Blockquote's Background Color
