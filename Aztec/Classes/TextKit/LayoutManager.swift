@@ -17,7 +17,7 @@ class LayoutManager: NSLayoutManager {
                                 4 : UIColor(hexString: "52CAFF")!]
     
     /// Update this accordingly to the highest index value in the dictionary above
-    static let quoteMaxDepth: Int = 4
+    var quoteMaxDepth: Int = 4
 
 
     /// Blockquote's Background Color
@@ -147,7 +147,7 @@ private extension LayoutManager {
     
     private func drawNestedBlockquote(in rect: CGRect, with context: CGContext, at depth: Int) {
         
-        let index = depth > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : depth
+        let index = depth > quoteMaxDepth ? quoteMaxDepth : depth
 
         if let blockquoteBorderColor = blockquoteBorderColor[index] {
             let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))

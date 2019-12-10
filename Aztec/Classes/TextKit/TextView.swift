@@ -285,6 +285,22 @@ open class TextView: UITextView {
 
     // MARK: - Apparance Properties
 
+    /// Blockquote max depth, enter 1 - 5, default is 5
+    @objc dynamic public var blockquoteMaxDepth: Int {
+        get {
+            return layout.quoteMaxDepth + 1
+        }
+        set {
+            if newValue < 0 {
+                layout.quoteMaxDepth = 0
+            } else if newValue <= 5 {
+                layout.quoteMaxDepth = newValue - 1
+            } else {
+                layout.quoteMaxDepth = 4
+            }
+        }
+    }
+    
     /// Blockquote Blocks Border Color.
     ///
     @objc dynamic public var blockquoteBorderColor: UIColor {
@@ -676,16 +692,16 @@ open class TextView: UITextView {
         let prevColor: UIColor
         if depth - 1 < 0 {
             prevColor = originalColor
-        } else if depth - 1 >= LayoutManager.quoteMaxDepth {
-            prevColor = layout.blockquoteBorderColor[LayoutManager.quoteMaxDepth]!
+        } else if depth - 1 >= layout.quoteMaxDepth {
+            prevColor = layout.blockquoteBorderColor[layout.quoteMaxDepth]!
         } else {
             prevColor = layout.blockquoteBorderColor[depth-1]!
         }
         
         //next color
-        let index = depth > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : depth
+        let index = depth > layout.quoteMaxDepth ? layout.quoteMaxDepth : depth
 
-        let nextIndex = index+1 > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : index+1
+        let nextIndex = index+1 > layout.quoteMaxDepth ? layout.quoteMaxDepth : index+1
         // when index is 0 could be quotes off or quotes on first level, toggle bool helps us know if we are toggling it on or indenting to next level and act accordingly
         let nextColor = toggle ? layout.blockquoteBorderColor[index]! : layout.blockquoteBorderColor[nextIndex]!
         
