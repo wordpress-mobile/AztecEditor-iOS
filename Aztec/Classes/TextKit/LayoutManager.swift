@@ -8,12 +8,14 @@ import QuartzCore
 class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
-    ///
-    var blockquoteBorderColor: UIColor? = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    /// Include 3 nested values
     
-    var blockquoteBorderColor1: UIColor? = UIColor(red: 0.62, green: 0.75, blue: 0.83, alpha: 1.0)
-
-    var blockquoteBorderColor2: UIColor? = UIColor(red: 0.72, green: 0.85, blue: 0.93, alpha: 1.0)
+    var blockquoteBorderColor = [0 : UIColor(hexString: "66D6FF")!,
+                                1 : UIColor(hexString: "5198E8")!,
+                                2 : UIColor(hexString: "597CFF")!]
+    
+    /// Update this accordingly to the dictionary above
+    static let quoteMaxDepth: Int = 2
 
 
     /// Blockquote's Background Color
@@ -143,39 +145,12 @@ private extension LayoutManager {
     
     private func drawNestedBlockquote(in rect: CGRect, with context: CGContext, at depth: Int) {
         
-        switch depth {
-        case 0:
-            if let blockquoteBorderColor = blockquoteBorderColor {
-                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-                blockquoteBorderColor.setFill()
-                context.fill(borderRect)
-                
-            }
-            
-        case 1:
-            if let blockquoteBorderColor = blockquoteBorderColor1 {
-                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-                blockquoteBorderColor.setFill()
-                context.fill(borderRect)
-                
-            }
-            
-        case 2:
-            if let blockquoteBorderColor = blockquoteBorderColor2 {
-                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-                blockquoteBorderColor.setFill()
-                context.fill(borderRect)
-                
-            }
-            
-        default:
-            if let blockquoteBorderColor = blockquoteBorderColor2 {
-                let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-                blockquoteBorderColor.setFill()
-                context.fill(borderRect)
-    
-            }
-            
+        let index = depth > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : depth
+
+        if let blockquoteBorderColor = blockquoteBorderColor[index] {
+            let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+            blockquoteBorderColor.setFill()
+            context.fill(borderRect)
         }
 
     }
@@ -189,7 +164,7 @@ private extension LayoutManager {
 
         }
 
-        if let blockquoteBorderColor = blockquoteBorderColor {
+        if let blockquoteBorderColor = blockquoteBorderColor[0] {
             let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
             blockquoteBorderColor.setFill()
             context.fill(borderRect)

@@ -287,30 +287,30 @@ open class TextView: UITextView {
 
     /// Blockquote Blocks Border Color.
     ///
-    @objc dynamic public var blockquoteBorderColor: UIColor? {
+    @objc dynamic public var blockquoteBorderColor: UIColor {
         get {
-            return layout.blockquoteBorderColor
+            return layout.blockquoteBorderColor[0]!
         }
         set {
-            layout.blockquoteBorderColor = newValue
+            layout.blockquoteBorderColor[0] = newValue
         }
     }
 
-    @objc dynamic public var blockquoteBorderColorNested1: UIColor? {
+    @objc dynamic public var blockquoteBorderColorNested1: UIColor {
         get {
-            return layout.blockquoteBorderColor1
+            return layout.blockquoteBorderColor[1]!
         }
         set {
-            layout.blockquoteBorderColor1 = newValue
+            layout.blockquoteBorderColor[1] = newValue
         }
     }
     
-    @objc dynamic public var blockquoteBorderColorNested2: UIColor? {
+    @objc dynamic public var blockquoteBorderColorNested2: UIColor {
         get {
-            return layout.blockquoteBorderColor2
+            return layout.blockquoteBorderColor[2]!
         }
         set {
-            layout.blockquoteBorderColor2 = newValue
+            layout.blockquoteBorderColor[2] = newValue
         }
     }
     
@@ -624,7 +624,17 @@ open class TextView: UITextView {
     
     private func indent(blockquote: Blockquote, increase: Bool = true) {
         
-        let formatter = BlockquoteFormatter(placeholderAttributes: nil, increaseDepth: true)
+        let paragraphStyle = typingAttributes.paragraphStyle()
+        let currentDepth = paragraphStyle.blockquoteNestedIndent.depth
+        
+        let textColor = getTextColorForQuoteDepth(currentDepth)
+                
+        var previousAttributes = typingAttributes
+        previousAttributes.removeValue(forKey: .foregroundColor)
+        previousAttributes[.foregroundColor] = textColor.prev
+        
+        let formatter = BlockquoteFormatter(placeholderAttributes: previousAttributes, increaseDepth: true)
+        formatter.nextTextColor = textColor.next
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) {
@@ -638,6 +648,29 @@ open class TextView: UITextView {
             return finalRange
         }
 
+    }
+    
+    // MARK: Blockquote helpers
+    private func getTextColorForQuoteDepth(_ depth: Int) -> (prev: UIColor, next: UIColor) {
+        
+        //prev color
+        let originalColor = defaultAttributes[.foregroundColor] as! UIColor
+        let prevColor: UIColor
+        if depth - 1 < 0 {
+            prevColor = originalColor
+        } else if depth - 1 >= LayoutManager.quoteMaxDepth {
+            prevColor = layout.blockquoteBorderColor[LayoutManager.quoteMaxDepth]!
+        } else {
+            prevColor = layout.blockquoteBorderColor[depth-1]!
+        }
+        
+        //next color
+        let index = depth > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : depth
+
+        let nextIndex = index+1 > LayoutManager.quoteMaxDepth ? LayoutManager.quoteMaxDepth : index+1
+        let nextColor = layout.blockquoteBorderColor[nextIndex]!
+        
+        return (prevColor, nextColor)
     }
 
     // MARK: Blockquote increase or decrease indentation
@@ -1072,7 +1105,20 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
+        //track nested depth
+        let paragraphStyle = typingAttributes.paragraphStyle()
+        let currentDepth = paragraphStyle.blockquoteNestedIndent.depth
+        
+        //get original color or previous nested color as appropriate when toggling back and forth
+        var originalQuoteAttributes = typingAttributes
+        originalQuoteAttributes.removeValue(forKey: .foregroundColor)
+        
+        let textColor = getTextColorForQuoteDepth(currentDepth)
+        originalQuoteAttributes[.foregroundColor] = textColor.prev
+        
+        let formatter = BlockquoteFormatter(placeholderAttributes: originalQuoteAttributes)
+        formatter.nextTextColor = textColor.next
+        
         toggle(formatter: formatter, atRange: range)
         
         let citeFormatter = CiteFormatter()
