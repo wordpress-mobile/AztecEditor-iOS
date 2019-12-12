@@ -226,7 +226,9 @@ open class TextView: UITextView {
     
     // MARK: - Properties: Blockquotes
     
-    var maximumBlockquoteIndentationLevels = 9
+    /// The max levels of quote indentation allowed
+    /// Set to 9 for iPhone sized screen, 24 for other devices
+    var maximumBlockquoteIndentationLevels = UIDevice.current.userInterfaceIdiom == .phone ? 9 : 24
 
     // MARK: - Properties: UI Defaults
 
@@ -285,66 +287,15 @@ open class TextView: UITextView {
 
     // MARK: - Apparance Properties
 
-    /// Blockquote max depth, enter 1 - 5, default is 5
-    @objc dynamic public var blockquoteMaxDepth: Int {
-        get {
-            return layout.quoteMaxDepth + 1
-        }
-        set {
-            if newValue < 0 {
-                layout.quoteMaxDepth = 0
-            } else if newValue <= 5 {
-                layout.quoteMaxDepth = newValue - 1
-            } else {
-                layout.quoteMaxDepth = 4
-            }
-        }
-    }
     
-    /// Blockquote Blocks Border Color.
+    /// Blockquote Blocks Border and Text Colors
     ///
-    @objc dynamic public var blockquoteBorderColor: UIColor {
+    @objc dynamic public var blockquoteBorderColors: [UIColor] {
         get {
-            return layout.blockquoteBorderColor[0]!
+            return layout.blockquoteBorderColors
         }
         set {
-            layout.blockquoteBorderColor[0] = newValue
-        }
-    }
-
-    @objc dynamic public var blockquoteBorderColorNested1: UIColor {
-        get {
-            return layout.blockquoteBorderColor[1]!
-        }
-        set {
-            layout.blockquoteBorderColor[1] = newValue
-        }
-    }
-    
-    @objc dynamic public var blockquoteBorderColorNested2: UIColor {
-        get {
-            return layout.blockquoteBorderColor[2]!
-        }
-        set {
-            layout.blockquoteBorderColor[2] = newValue
-        }
-    }
-    
-    @objc dynamic public var blockquoteBorderColorNested3: UIColor {
-        get {
-            return layout.blockquoteBorderColor[3]!
-        }
-        set {
-            layout.blockquoteBorderColor[3] = newValue
-        }
-    }
-    
-    @objc dynamic public var blockquoteBorderColorNested4: UIColor {
-        get {
-            return layout.blockquoteBorderColor[4]!
-        }
-        set {
-            layout.blockquoteBorderColor[4] = newValue
+            layout.blockquoteBorderColors = newValue
         }
     }
     
@@ -687,23 +638,27 @@ open class TextView: UITextView {
     // MARK: Blockquote helpers
     private func getTextColorForQuoteDepth(_ depth: Int, toggle: Bool = false) -> (prev: UIColor, next: UIColor) {
         
+        let quoteCount = layout.blockquoteBorderColors.count
+        
         //prev color
         let originalColor = defaultAttributes[.foregroundColor] as! UIColor
         let prevColor: UIColor
-        if depth - 1 < 0 {
+        let prevIndex = depth - 1
+        
+        if prevIndex < 0 {
             prevColor = originalColor
-        } else if depth - 1 >= layout.quoteMaxDepth {
-            prevColor = layout.blockquoteBorderColor[layout.quoteMaxDepth]!
+        } else if prevIndex < quoteCount {
+            prevColor = layout.blockquoteBorderColors[prevIndex]
         } else {
-            prevColor = layout.blockquoteBorderColor[depth-1]!
+            prevColor = layout.blockquoteBorderColors[quoteCount-1]
         }
         
         //next color
-        let index = depth > layout.quoteMaxDepth ? layout.quoteMaxDepth : depth
+        let index = depth < quoteCount ? depth : quoteCount-1
 
-        let nextIndex = index+1 > layout.quoteMaxDepth ? layout.quoteMaxDepth : index+1
+        let nextIndex = index+1 < quoteCount ? index+1 : quoteCount-1
         // when index is 0 could be quotes off or quotes on first level, toggle bool helps us know if we are toggling it on or indenting to next level and act accordingly
-        let nextColor = toggle ? layout.blockquoteBorderColor[index]! : layout.blockquoteBorderColor[nextIndex]!
+        let nextColor = toggle ? layout.blockquoteBorderColors[index] : layout.blockquoteBorderColors[nextIndex]
         
         return (prevColor, nextColor)
     }
