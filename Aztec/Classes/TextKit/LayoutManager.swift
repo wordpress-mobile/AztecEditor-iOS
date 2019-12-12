@@ -10,15 +10,11 @@ class LayoutManager: NSLayoutManager {
     /// Blockquote's Left Border Color
     /// Include 3 nested values
     
-    var blockquoteBorderColor = [0 : UIColor(hexString: "9252FF")!,
-                                1 : UIColor(hexString: "5A4AE8")!,
-                                2 : UIColor(hexString: "5D77FE")!,
-                                3 : UIColor(hexString: "4A8EE8")!,
-                                4 : UIColor(hexString: "52CAFF")!]
-    
-    /// Update this accordingly to the highest index value in the dictionary above
-    var quoteMaxDepth: Int = 4
-
+    var blockquoteBorderColors = [UIColor(hexString: "9252FF")!,
+                                UIColor(hexString: "5A4AE8")!,
+                                UIColor(hexString: "5D77FE")!,
+                                UIColor(hexString: "4A8EE8")!,
+                                UIColor(hexString: "52CAFF")!]
 
     /// Blockquote's Background Color
     ///
@@ -147,11 +143,13 @@ private extension LayoutManager {
     
     private func drawNestedBlockquote(in rect: CGRect, with context: CGContext, at depth: Int) {
         
-        let index = depth > quoteMaxDepth ? quoteMaxDepth : depth
-
-        if let blockquoteBorderColor = blockquoteBorderColor[index] {
+        let quoteCount = blockquoteBorderColors.count
+        let index = depth < quoteCount ? depth : quoteCount-1
+        
+        if blockquoteBorderColors.indices.contains(index) {
+            let borderColor = blockquoteBorderColors[index]
             let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-            blockquoteBorderColor.setFill()
+            borderColor.setFill()
             context.fill(borderRect)
         }
 
@@ -166,9 +164,9 @@ private extension LayoutManager {
 
         }
 
-        if let blockquoteBorderColor = blockquoteBorderColor[0] {
+        if let borderColor = blockquoteBorderColors.first {
             let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-            blockquoteBorderColor.setFill()
+            borderColor.setFill()
             context.fill(borderRect)
         }
     }
