@@ -609,17 +609,9 @@ open class TextView: UITextView {
     
     private func indent(blockquote: Blockquote, increase: Bool = true) {
         
-        let paragraphStyle = typingAttributes.paragraphStyle()
-        let currentDepth = paragraphStyle.blockquoteNestedIndent.depth
         
-        let textColor = getTextColorForQuoteDepth(currentDepth)
-                
-        var previousAttributes = typingAttributes
-        previousAttributes.removeValue(forKey: .foregroundColor)
-        previousAttributes[.foregroundColor] = textColor.prev
         
-        let formatter = BlockquoteFormatter(placeholderAttributes: previousAttributes, increaseDepth: true)
-        formatter.nextTextColor = textColor.next
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes, increaseDepth: true)
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
         performUndoable(at: targetRange) {
@@ -633,34 +625,6 @@ open class TextView: UITextView {
             return finalRange
         }
 
-    }
-    
-    // MARK: Blockquote helpers
-    private func getTextColorForQuoteDepth(_ depth: Int, toggle: Bool = false) -> (prev: UIColor, next: UIColor) {
-        
-        let quoteCount = layout.blockquoteBorderColors.count
-        
-        //prev color
-        let originalColor = defaultAttributes[.foregroundColor] as! UIColor
-        let prevColor: UIColor
-        let prevIndex = depth - 1
-        
-        if prevIndex < 0 {
-            prevColor = originalColor
-        } else if prevIndex < quoteCount {
-            prevColor = layout.blockquoteBorderColors[prevIndex]
-        } else {
-            prevColor = layout.blockquoteBorderColors[quoteCount-1]
-        }
-        
-        //next color
-        let index = depth < quoteCount ? depth : quoteCount-1
-
-        let nextIndex = index+1 < quoteCount ? index+1 : quoteCount-1
-        // when index is 0 could be quotes off or quotes on first level, toggle bool helps us know if we are toggling it on or indenting to next level and act accordingly
-        let nextColor = toggle ? layout.blockquoteBorderColors[index] : layout.blockquoteBorderColors[nextIndex]
-        
-        return (prevColor, nextColor)
     }
 
     // MARK: Blockquote increase or decrease indentation
@@ -1095,20 +1059,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        //track nested depth
-        let paragraphStyle = typingAttributes.paragraphStyle()
-        let currentDepth = paragraphStyle.blockquoteNestedIndent.depth
-        
-        //get original color or previous nested color as appropriate when toggling back and forth
-        var originalQuoteAttributes = typingAttributes
-        originalQuoteAttributes.removeValue(forKey: .foregroundColor)
-        
-        let textColor = getTextColorForQuoteDepth(currentDepth, toggle: true)
-        originalQuoteAttributes[.foregroundColor] = textColor.prev
-        
-        let formatter = BlockquoteFormatter(placeholderAttributes: originalQuoteAttributes)
-        //use the first color when toggling on
-        formatter.nextTextColor = textColor.next
+        let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes)
         
         toggle(formatter: formatter, atRange: range)
         
@@ -2058,7 +2009,6 @@ private extension TextView {
         }
         
         typingAttributes[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
-        typingAttributes[.foregroundColor] = defaultTextColor
     }
     
     private func removeParagraphPropertiesFromParagraph(spanning range: NSRange) {
@@ -2070,7 +2020,6 @@ private extension TextView {
         }
         
         attributes[.paragraphStyle] = paragraphStyleWithoutProperties(from: paragraphStyle)
-        attributes[.foregroundColor] = defaultTextColor
         
         storage.setAttributes(attributes, range: range)
     }

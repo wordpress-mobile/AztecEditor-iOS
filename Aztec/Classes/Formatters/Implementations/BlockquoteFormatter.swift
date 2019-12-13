@@ -13,9 +13,6 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
     /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
     let increaseDepth: Bool
     
-    /// Next color
-    var nextTextColor: UIColor?
-
 
     /// Designated Initializer
     ///
@@ -44,7 +41,6 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.foregroundColor] = nextTextColor
         
         return resultingAttributes
     }
@@ -62,13 +58,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        
-        resultingAttributes.removeValue(forKey: .foregroundColor)
-
-        if let defaultAttributes = self.placeholderAttributes {
-            resultingAttributes[.foregroundColor] = defaultAttributes[.foregroundColor]
-        }
-        
+                
         return resultingAttributes
     }
 
