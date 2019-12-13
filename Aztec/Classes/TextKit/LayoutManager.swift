@@ -76,7 +76,9 @@ private extension LayoutManager {
                 let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
                 let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
 
-                self.drawBlockquote(in: blockquoteRect.integral, with: context)
+                self.drawBlockquoteBackground(in: blockquoteRect.integral, with: context)
+                self.drawBlockquoteBorder(in: blockquoteRect.integral, with: context, at: 0)
+
                 
                 //nested blockquote
                 let nestDepth = paragraphStyle.blockquoteNestedIndent.depth
@@ -86,7 +88,7 @@ private extension LayoutManager {
                     
                     let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
                     
-                    self.drawNestedBlockquote(in: nestRect.integral, with: context, at: index)
+                    self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
                 }
                 
             
@@ -107,7 +109,8 @@ private extension LayoutManager {
         let extraIndent = paragraphStyle.blockquoteIndent
         let extraRect = blockquoteRect(origin: origin, lineRect: extraLineFragmentRect, blockquoteIndent: extraIndent, lineEndsParagraph: false)
 
-        drawBlockquote(in: extraRect.integral, with: context)
+        drawBlockquoteBackground(in: extraRect.integral, with: context)
+        drawBlockquoteBorder(in: extraRect.integral, with: context, at: 0)
     }
 
 
@@ -140,10 +143,10 @@ private extension LayoutManager {
         return blockquoteRect
     }
     
-    private func drawNestedBlockquote(in rect: CGRect, with context: CGContext, at depth: Int) {
+    private func drawBlockquoteBorder(in rect: CGRect, with context: CGContext, at depth: Int) {
         
         let quoteCount = blockquoteBorderColors.count
-        let index = depth < quoteCount ? depth : quoteCount-1
+        let index = min(depth, quoteCount-1)
         
         if blockquoteBorderColors.indices.contains(index) {
             let borderColor = blockquoteBorderColors[index]
@@ -156,17 +159,10 @@ private extension LayoutManager {
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
-    private func drawBlockquote(in rect: CGRect, with context: CGContext) {
+    private func drawBlockquoteBackground(in rect: CGRect, with context: CGContext) {
         if let blockquoteBackgroundColor = blockquoteBackgroundColor {
             blockquoteBackgroundColor.setFill()
             context.fill(rect)
-
-        }
-
-        if let borderColor = blockquoteBorderColors.first {
-            let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-            borderColor.setFill()
-            context.fill(borderRect)
         }
     }
 }
