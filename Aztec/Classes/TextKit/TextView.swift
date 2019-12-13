@@ -227,8 +227,8 @@ open class TextView: UITextView {
     // MARK: - Properties: Blockquotes
     
     /// The max levels of quote indentation allowed
-    /// Set to 9 for iPhone sized screen, 24 for other devices
-    var maximumBlockquoteIndentationLevels = UIDevice.current.userInterfaceIdiom == .phone ? 9 : 24
+    /// Default is 9
+    public var maximumBlockquoteIndentationLevels = 9
 
     // MARK: - Properties: UI Defaults
 
