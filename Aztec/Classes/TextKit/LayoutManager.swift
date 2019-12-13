@@ -8,8 +8,7 @@ import QuartzCore
 class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
-    /// Include 3 nested values
-    
+    /// Set the array with how many colors you like, they appear in the order they are set in the array.
     var blockquoteBorderColors = [UIColor(hexString: "9252FF")!,
                                 UIColor(hexString: "5A4AE8")!,
                                 UIColor(hexString: "5D77FE")!,
