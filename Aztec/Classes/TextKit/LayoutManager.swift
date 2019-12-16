@@ -77,18 +77,14 @@ private extension LayoutManager {
                 let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
 
                 self.drawBlockquoteBackground(in: blockquoteRect.integral, with: context)
-                self.drawBlockquoteBorder(in: blockquoteRect.integral, with: context, at: 0)
-
                 
-                //nested blockquote
                 let nestDepth = paragraphStyle.blockquoteNestedIndent.depth
-                guard nestDepth >= 1 else {return}
-                for index in 1...nestDepth {
-                    let indent = CGFloat(index) * Metrics.listTextIndentation
-                    
-                    let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
-                    
-                    self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
+                for index in 0...nestDepth {
+                  let indent = CGFloat(index) * Metrics.listTextIndentation
+
+                  let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
+
+                  self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
                 }
                 
             
