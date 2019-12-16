@@ -140,26 +140,24 @@ private extension LayoutManager {
     }
     
     private func drawBlockquoteBorder(in rect: CGRect, with context: CGContext, at depth: Int) {
-        
         let quoteCount = blockquoteBorderColors.count
         let index = min(depth, quoteCount-1)
         
-        if blockquoteBorderColors.indices.contains(index) {
-            let borderColor = blockquoteBorderColors[index]
-            let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-            borderColor.setFill()
-            context.fill(borderRect)
-        }
-
+        guard index < quoteCount else {return}
+        
+        let borderColor = blockquoteBorderColors[index]
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+        borderColor.setFill()
+        context.fill(borderRect)
     }
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
     private func drawBlockquoteBackground(in rect: CGRect, with context: CGContext) {
-        if let blockquoteBackgroundColor = blockquoteBackgroundColor {
-            blockquoteBackgroundColor.setFill()
-            context.fill(rect)
-        }
+        guard let color = blockquoteBackgroundColor else {return}
+        
+        color.setFill()
+        context.fill(rect)
     }
 }
 
