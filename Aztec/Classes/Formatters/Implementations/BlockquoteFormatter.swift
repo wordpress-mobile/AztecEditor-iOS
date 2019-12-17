@@ -28,7 +28,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         self.borderColors = borderColors
         self.increaseDepth = increaseDepth
             
-        self.currentDepth = typingAttributes?.paragraphStyle().blockquoteNestedIndent.depth ?? 0
+        self.currentDepth = typingAttributes?.paragraphStyle().blockquoteDepth ?? 0
     }
     
     private func colorForNext(depth: Int) -> UIColor {
