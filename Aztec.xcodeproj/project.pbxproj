@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1A830346228583B200798076 /* NSBundle+AztecBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A830345228583B200798076 /* NSBundle+AztecBundle.swift */; };
-		1EDDEBA5239A68320000A957 /* XCodeVersion.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 1EDDEBA4239A68320000A957 /* XCodeVersion.xcconfig */; };
 		40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */; };
 		40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */; };
 		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
@@ -282,7 +281,6 @@
 
 /* Begin PBXFileReference section */
 		1A830345228583B200798076 /* NSBundle+AztecBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecBundle.swift"; sourceTree = "<group>"; };
-		1EDDEBA4239A68320000A957 /* XCodeVersion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = XCodeVersion.xcconfig; sourceTree = "<group>"; };
 		40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRElementConverter.swift; sourceTree = "<group>"; };
 		40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRElementConverter.swift; sourceTree = "<group>"; };
 		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
@@ -553,14 +551,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1EDDEBA3239A68090000A957 /* config */ = {
-			isa = PBXGroup;
-			children = (
-				1EDDEBA4239A68320000A957 /* XCodeVersion.xcconfig */,
-			);
-			path = config;
-			sourceTree = "<group>";
-		};
 		40A2986F1FD61B1C00AEDF3B /* Implementations */ = {
 			isa = PBXGroup;
 			children = (
@@ -607,7 +597,6 @@
 				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */,
 				FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */,
-				1EDDEBA3239A68090000A957 /* config */,
 				5951CB901D8BC93600E1866F /* Aztec */,
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
@@ -1503,7 +1492,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EDDEBA5239A68320000A957 /* XCodeVersion.xcconfig in Resources */,
 				FF1F56A3239562B900E93A30 /* html_colors.json in Resources */,
 				FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */,
 			);
@@ -1913,7 +1901,6 @@
 		};
 		5951CBA31D8BC93600E1866F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1EDDEBA4239A68320000A957 /* XCodeVersion.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";

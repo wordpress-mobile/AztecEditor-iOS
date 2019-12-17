@@ -81,11 +81,9 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     }
 
     private func fixColors(in string: NSAttributedString, using baseColor: UIColor?) -> NSAttributedString {
-#if XCODE11
         guard #available(iOS 13.0, *) else {
             return string
         }
-        
         let colorToUse = baseColor ?? UIColor.label
 
         let newString = NSMutableAttributedString(attributedString: string)
@@ -95,9 +93,6 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
             }
         }
         return newString
-#else
-        return string
-#endif
     }
 
     /// Tries to paste raw text from the clipboard, replacing the selected range.
