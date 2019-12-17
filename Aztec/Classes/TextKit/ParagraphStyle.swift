@@ -175,26 +175,16 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             super.tailIndent = newValue
         }
     }
-
-    /// The amount of indent for the blockquote of the paragraph if any.
-    ///
-    public var blockquoteIndent: CGFloat {
-        let blockquoteIndex = properties.filter({ property in
-            return property is Blockquote || property is TextList
-        }).firstIndex(where: { property in
-            return property is Blockquote
-        })
-
-        guard let depth = blockquoteIndex else {
-            return 0
-        }
-
-        return CGFloat(depth) * Metrics.listTextIndentation
-    }
     
     /// The amount of indent for the nested blockquote of the paragraph if any.
     ///
-    public var blockquoteNestedIndent: (depth: Int, indent: CGFloat) {
+    public var blockquoteIndent: CGFloat {
+        return CGFloat(blockquoteDepth) * Metrics.listTextIndentation
+    }
+    
+    /// The level of depth for the nested blockquote of the paragraph if any.
+    ///
+    public var blockquoteDepth: Int {
         let listAndBlockquotes = properties.filter({ property in
             return property is Blockquote || property is TextList
         })
@@ -205,8 +195,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
                 break
             }
         }
-        let indent = CGFloat(depth) * Metrics.listTextIndentation
-        return (depth, indent)
+        return depth
     }
 
     /// The amount of indent for the list of the paragraph if any.
