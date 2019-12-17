@@ -1059,7 +1059,7 @@ open class TextView: UITextView {
     open func toggleBlockquote(range: NSRange) {
         ensureInsertionOfEndOfLineForEmptyParagraphAtEndOfFile(forApplicationRange: range)
 
-        let formatter = BlockquoteFormatter(typingAttributes: typingAttributes)
+        let formatter = BlockquoteFormatter(typingAttributes: typingAttributes, defaultTextAttributes: defaultAttributes, borderColors: blockquoteBorderColors)
         
         toggle(formatter: formatter, atRange: range)
         

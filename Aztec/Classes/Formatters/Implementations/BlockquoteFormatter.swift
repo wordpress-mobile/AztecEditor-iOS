@@ -15,7 +15,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
     let defaultTextAttributes: TextAttributes
     let borderColors: [UIColor]?
 
-    /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
+    /// Tells if the formatter is increasing the depth of a blockquote or simple changing the current one if any
     let increaseDepth: Bool
     
     let currentDepth: Int
@@ -31,22 +31,28 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         self.currentDepth = typingAttributes?.paragraphStyle().blockquoteNestedIndent.depth ?? 0
     }
     
-    private func colorForDepth(depth: Int) -> UIColor {
-        
-        //TODO: fix index out of range, add logic etc
-        
-        if let colors = borderColors {
-            return colors[depth]
-        }
-        
-        if let attributes = defaultTextAttributes {
-            return attributes[NSAttributedString.Key.foregroundColor] as! UIColor
-        }
-        
-        if #available(iOS 13.0, *) {
-            return UIColor.label
+    private func colorForNext(depth: Int) -> UIColor {
+        guard let colors = borderColors else { return UIColor.darkText }
+
+        if increaseDepth {
+            let index = min(depth+1, colors.count-1)
+            return colors[index]
         } else {
-            return UIColor.darkText
+            return colors[0]
+        }
+    }
+    
+    private func colorForPrev(depth: Int) -> UIColor {
+        guard let colors = borderColors else { return UIColor.darkText }
+
+        //increaseDepth is not used here as shift tab and pressing quote toggle button behave differently
+        if depth > 0 {
+            let positiveIndex = max(depth-1, 0)
+            let index = min(positiveIndex, colors.count-1)
+            return colors[index]
+        } else {
+            guard let att = defaultTextAttributes else { return UIColor.darkText }
+            return att[.foregroundColor] as! UIColor
         }
     }
 
@@ -69,7 +75,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.foregroundColor] = colorForDepth(depth: currentDepth)
+        resultingAttributes[.foregroundColor] = colorForNext(depth: currentDepth)
         
         
         return resultingAttributes
@@ -91,11 +97,8 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         
         //remove quote color
         resultingAttributes.removeValue(forKey: .foregroundColor)
-
-        //restore default text color which may have been customized by the user
-        if let defaultAttributes = self.defaultTextAttributes {
-            resultingAttributes[.foregroundColor] = defaultAttributes[.foregroundColor]
-        }
+        
+        resultingAttributes[.foregroundColor] = colorForPrev(depth: currentDepth)
 
                 
         return resultingAttributes
