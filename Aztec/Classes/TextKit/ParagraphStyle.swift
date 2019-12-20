@@ -176,17 +176,30 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         }
     }
     
-    /// The amount of indent for the nested blockquote of the paragraph if any.
-    ///
+    /// The level of indent to start the blockquote of the paragraph. Includes list indentation.
+    /// Handles whether blockquote is outside or insdie of a list.
     public var blockquoteIndent: CGFloat {
-        return CGFloat(blockquoteDepth) * Metrics.listTextIndentation
-    }
-    
-    /// The level of depth for the nested blockquote of the paragraph if any.
-    ///
-    public var blockquoteDepth: Int {
         let listAndBlockquotes = properties.filter({ property in
             return property is Blockquote || property is TextList
+        })
+        if listAndBlockquotes.first is Blockquote {
+            return 0
+        }
+        var depth = 0
+        for position in (0..<listAndBlockquotes.count).reversed() {
+            if listAndBlockquotes[position] is Blockquote {
+                depth = position
+                break
+            }
+        }
+        return CGFloat(depth) * Metrics.listTextIndentation
+    }
+    
+    /// The level of depth for the nested blockquote of the paragraph. Excludes list indentation.
+    ///
+    public var blockquoteNestDepth: Int {
+        let listAndBlockquotes = properties.filter({ property in
+            return property is Blockquote
         })
         var depth = 0
         for position in (0..<listAndBlockquotes.count).reversed() {

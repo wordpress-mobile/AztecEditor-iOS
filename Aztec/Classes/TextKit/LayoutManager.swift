@@ -70,16 +70,19 @@ private extension LayoutManager {
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                
+                let startIndent = paragraphStyle.blockquoteIndent
+
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
-                let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: 0.0, lineEndsParagraph: lineEndsParagraph)
+                let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: startIndent, lineEndsParagraph: lineEndsParagraph)
 
                 self.drawBlockquoteBackground(in: blockquoteRect.integral, with: context)
                 
-                let nestDepth = paragraphStyle.blockquoteDepth
+                let nestDepth = paragraphStyle.blockquoteNestDepth
                 for index in 0...nestDepth {
-                  let indent = CGFloat(index) * Metrics.listTextIndentation
+                  let indent = startIndent + CGFloat(index) * Metrics.listTextIndentation
 
                   let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
 
