@@ -9,11 +9,7 @@ class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
     /// Set the array with how many colors you like, they appear in the order they are set in the array.
-    var blockquoteBorderColors = [UIColor(hexString: "9252FF")!,
-                                UIColor(hexString: "5A4AE8")!,
-                                UIColor(hexString: "5D77FE")!,
-                                UIColor(hexString: "4A8EE8")!,
-                                UIColor(hexString: "52CAFF")!]
+    var blockquoteBorderColors = [UIColor.systemGray]
 
     /// Blockquote's Background Color
     ///
