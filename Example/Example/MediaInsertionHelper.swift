@@ -15,32 +15,16 @@ class MediaInsertionHelper
     
     let richTextView: TextView
 
-    var mediaMessageAttributes: [NSAttributedString.Key: Any]
+    var attachmentTextAttributes: [NSAttributedString.Key: Any]
 
-    init(textView: TextView, messageAttributes: [NSAttributedString.Key: Any]) {
+    init(textView: TextView, attachmentTextAttributes: [NSAttributedString.Key: Any]) {
         self.richTextView = textView
-        self.mediaMessageAttributes = messageAttributes
-    }
-
-    func saveToDisk(image: UIImage) -> URL {
-        let fileName = "\(ProcessInfo.processInfo.globallyUniqueString)_file.jpg"
-
-        guard let data = image.jpegData(compressionQuality: 0.9) else {
-            fatalError("Could not conert image to JPEG.")
-        }
-
-        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
-
-        guard (try? data.write(to: fileURL, options: [.atomic])) != nil else {
-            fatalError("Could not write the image to disk.")
-        }
-
-        return fileURL
+        self.attachmentTextAttributes = attachmentTextAttributes
     }
 
     func insertImage(_ image: UIImage) {
 
-        let fileURL = saveToDisk(image: image)
+        let fileURL = image.saveToTemporaryFile()
 
         let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
         attachment.size = .full
@@ -63,7 +47,7 @@ class MediaInsertionHelper
             return
         }
         let posterImage = UIImage(cgImage: cgImage)
-        let posterURL = saveToDisk(image: posterImage)
+        let posterURL = posterImage.saveToTemporaryFile()
         let attachment = richTextView.replaceWithVideo(at: richTextView.selectedRange, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
         let mediaID = attachment.identifier
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
@@ -85,7 +69,7 @@ class MediaInsertionHelper
         attachment.progress = progress.fractionCompleted
         if mediaErrorMode && progress.fractionCompleted >= 0.25 {
             timer.invalidate()
-            let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
+            let message = NSAttributedString(string: "Upload failed!", attributes: attachmentTextAttributes)
             attachment.message = message
             attachment.overlayImage = Gridicon.iconOfType(.refresh)
         }

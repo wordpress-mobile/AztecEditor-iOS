@@ -1,5 +1,3 @@
-import AVFoundation
-import AVKit
 import Aztec
 import Foundation
 import Gridicons
@@ -27,7 +25,11 @@ class EditorDemoController: UIViewController {
     }
 
     fileprivate(set) lazy var mediaInsertionHelper: MediaInsertionHelper = {
-        return MediaInsertionHelper(textView: self.richTextView, messageAttributes: Constants.mediaMessageAttributes)
+        return MediaInsertionHelper(textView: self.richTextView, attachmentTextAttributes: Constants.mediaMessageAttributes)
+    }()
+
+    fileprivate(set) lazy var textViewAttachmentDelegate: TextViewAttachmentDelegate = {
+        return TextViewAttachmentDelegateProvider(baseController: self, attachmentTextAttributes: Constants.mediaMessageAttributes)
     }()
     
     fileprivate(set) lazy var editorView: Aztec.EditorView = {
@@ -58,7 +60,7 @@ class EditorDemoController: UIViewController {
         
         textView.delegate = self
         textView.formattingDelegate = self
-        textView.textAttachmentDelegate = self
+        textView.textAttachmentDelegate = self.textViewAttachmentDelegate
         textView.accessibilityIdentifier = "richContentView"
         textView.clipsToBounds = false
         textView.smartDashesType = .no
@@ -125,9 +127,7 @@ class EditorDemoController: UIViewController {
         separatorView.translatesAutoresizingMaskIntoConstraints = false
 
         return separatorView
-    }()
-
-    fileprivate var currentSelectedAttachment: MediaAttachment?
+    }()    
 
     let sampleHTML: String?
     let wordPressMode: Bool
@@ -1057,126 +1057,6 @@ extension EditorDemoController {
 
 }
 
-// MARK: - TextViewAttachmentDelegate
-
-extension EditorDemoController: TextViewAttachmentDelegate {
-
-    func textView(_ textView: TextView, attachment: NSTextAttachment, imageAt url: URL, onSuccess success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
-
-        switch attachment {
-        case let videoAttachment as VideoAttachment:
-            guard let posterURL = videoAttachment.posterURL else {
-                // Let's get a frame from the video directly
-                if let videoURL = videoAttachment.mediaURL {
-                    exportPreviewImageForVideo(atURL: videoURL, onCompletion: success, onError: failure)
-                } else {
-                    exportPreviewImageForVideo(atURL: url, onCompletion: success, onError: failure)
-                }
-                return
-            }
-            downloadImage(from: posterURL, success: success, onFailure: failure)
-        case let imageAttachment as ImageAttachment:
-            if let imageURL = imageAttachment.url {
-                downloadImage(from: imageURL, success: success, onFailure: failure)
-            }
-        default:
-            failure()
-        }
-    }
-
-    func textView(_ textView: TextView, placeholderFor attachment: NSTextAttachment) -> UIImage {
-        return placeholderImage(for: attachment)
-    }
-
-    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
-        let imageSize = CGSize(width:64, height:64)
-        var placeholderImage: UIImage
-        switch attachment {
-        case _ as ImageAttachment:
-            placeholderImage = Gridicon.iconOfType(.image, withSize: imageSize)
-        case _ as VideoAttachment:
-            placeholderImage = Gridicon.iconOfType(.video, withSize: imageSize)
-        default:
-            placeholderImage = Gridicon.iconOfType(.attachment, withSize: imageSize)
-        }
-        if #available(iOS 13.0, *) {
-            placeholderImage = placeholderImage.withTintColor(.label)
-        }
-        return placeholderImage
-    }
-
-    func textView(_ textView: TextView, urlFor imageAttachment: ImageAttachment) -> URL? {
-        guard let image = imageAttachment.image else {
-            return nil
-        }
-
-        return mediaInsertionHelper.saveToDisk(image: image)
-    }
-
-    func textView(_ textView: TextView, deletedAttachment attachment: MediaAttachment) {
-        print("Attachment \(attachment.identifier) removed.\n")
-    }
-
-    func textView(_ textView: TextView, selected attachment: NSTextAttachment, atPosition position: CGPoint) {
-        switch attachment {
-        case let attachment as HTMLAttachment:
-            displayUnknownHtmlEditor(for: attachment)
-        case let attachment as MediaAttachment:
-            selected(textAttachment: attachment, atPosition: position)
-        default:
-            break
-        }
-    }
-
-    func textView(_ textView: TextView, deselected attachment: NSTextAttachment, atPosition position: CGPoint) {
-        deselected(textAttachment: attachment, atPosition: position)
-    }
-
-    fileprivate func resetMediaAttachmentOverlay(_ mediaAttachment: MediaAttachment) {
-        mediaAttachment.overlayImage = nil
-        mediaAttachment.message = nil
-    }
-
-    func selected(textAttachment attachment: MediaAttachment, atPosition position: CGPoint) {
-        if (currentSelectedAttachment == attachment) {
-            displayActions(forAttachment: attachment, position: position)
-        } else {
-            if let selectedAttachment = currentSelectedAttachment {
-                resetMediaAttachmentOverlay(selectedAttachment)
-                richTextView.refresh(selectedAttachment)
-            }
-
-            // and mark the newly tapped attachment
-            if attachment.message == nil {
-                let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
-                attachment.message = NSAttributedString(string: message, attributes: Constants.mediaMessageAttributes)
-            }
-            attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
-            richTextView.refresh(attachment)
-            currentSelectedAttachment = attachment
-        }
-    }
-
-    func deselected(textAttachment attachment: NSTextAttachment, atPosition position: CGPoint) {
-        currentSelectedAttachment = nil
-        if let mediaAttachment = attachment as? MediaAttachment {
-            resetMediaAttachmentOverlay(mediaAttachment)
-            richTextView.refresh(mediaAttachment)
-        }
-    }
-
-    func displayVideoPlayer(for videoURL: URL) {
-        let asset = AVURLAsset(url: videoURL)
-        let controller = AVPlayerViewController()
-        let playerItem = AVPlayerItem(asset: asset)
-        let player = AVPlayer(playerItem: playerItem)
-        controller.showsPlaybackControls = true
-        controller.player = player
-        player.play()
-        present(controller, animated:true, completion: nil)
-    }
-}
-
 extension EditorDemoController: UINavigationControllerDelegate
 {
 }
@@ -1217,203 +1097,8 @@ let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
     }
 }
 
-
-// MARK: - Unknown HTML
+// MARK: - Constants
 //
-private extension EditorDemoController {
-
-    func displayUnknownHtmlEditor(for attachment: HTMLAttachment) {
-        let targetVC = UnknownEditorViewController(attachment: attachment)
-        targetVC.onDidSave = { [weak self] html in
-            self?.richTextView.edit(attachment) { updated in
-                updated.rawHTML = html
-            }
-
-            self?.dismiss(animated: true, completion: nil)
-        }
-
-        targetVC.onDidCancel = { [weak self] in
-            self?.dismiss(animated: true, completion: nil)
-        }
-
-        let navigationController = UINavigationController(rootViewController: targetVC)
-        displayAsPopover(viewController: navigationController)
-    }
-
-    func displayAsPopover(viewController: UIViewController) {
-        viewController.modalPresentationStyle = .popover
-        viewController.preferredContentSize = view.frame.size
-
-        let presentationController = viewController.popoverPresentationController
-        presentationController?.sourceView = view
-        presentationController?.delegate = self
-
-        present(viewController, animated: true, completion: nil)
-    }
-}
-
-
-// MARK: - UIPopoverPresentationControllerDelegate
-//
-extension EditorDemoController: UIPopoverPresentationControllerDelegate {
-
-    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
-        return .none
-    }
-
-    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-    }
-}
-
-// MARK: - Media fetch methods
-//
-private extension EditorDemoController {
-
-    func exportPreviewImageForVideo(atURL url: URL, onCompletion: @escaping (UIImage) -> (), onError: @escaping () -> ()) {
-        DispatchQueue.global(qos: .background).async {
-            let asset = AVURLAsset(url: url)
-            guard asset.isExportable else {
-                onError()
-                return
-            }
-            let generator = AVAssetImageGenerator(asset: asset)
-            generator.appliesPreferredTrackTransform = true
-            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTimeMake(value: 2, timescale: 1))],
-                                                     completionHandler: { (time, cgImage, actualTime, result, error) in
-                                                        guard let cgImage = cgImage else {
-                                                            DispatchQueue.main.async {
-                                                                onError()
-                                                            }
-                                                            return
-                                                        }
-                                                        let image = UIImage(cgImage: cgImage)
-                                                        DispatchQueue.main.async {
-                                                            onCompletion(image)
-                                                        }
-            })
-        }
-    }
-
-    func downloadImage(from url: URL, success: @escaping (UIImage) -> Void, onFailure failure: @escaping () -> Void) {
-        let task = URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
-            DispatchQueue.main.async {
-                guard self != nil else {
-                    return
-                }
-
-                guard error == nil, let data = data, let image = UIImage(data: data, scale: UIScreen.main.scale) else {
-                    failure()
-                    return
-                }
-
-                success(image)
-            }
-        }
-
-        task.resume()
-    }
-}
-
-// MARK: - Media Attachment Actions
-//
-extension EditorDemoController {
-    func displayActions(forAttachment attachment: MediaAttachment, position: CGPoint) {
-        let mediaID = attachment.identifier
-        let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
-        let message: String? = nil
-        let alertController = UIAlertController(title: title, message:message, preferredStyle: .actionSheet)
-        let dismissAction = UIAlertAction(title: NSLocalizedString("Dismiss", comment: "User action to dismiss media options."),
-                                          style: .cancel,
-                                          handler: { [weak self] (action) in
-                                            self?.resetMediaAttachmentOverlay(attachment)
-                                            self?.richTextView.refresh(attachment)
-        }
-        )
-        alertController.addAction(dismissAction)
-
-        let removeAction = UIAlertAction(title: NSLocalizedString("Remove Media", comment: "User action to remove media."),
-                                         style: .destructive,
-                                         handler: { [weak self] (action) in
-                                            self?.richTextView.remove(attachmentID: mediaID)
-        })
-        alertController.addAction(removeAction)
-
-        if let imageAttachment = attachment as? ImageAttachment {
-            let detailsAction = UIAlertAction(title:NSLocalizedString("Media Details", comment: "User action to change media details."),
-                                              style: .default,
-                                              handler: { [weak self] (action) in
-                                                self?.displayDetailsForAttachment(imageAttachment, position: position)
-            })
-            alertController.addAction(detailsAction)
-        } else if let videoAttachment = attachment as? VideoAttachment, let videoURL = videoAttachment.mediaURL {
-            let detailsAction = UIAlertAction(title:NSLocalizedString("Play Video", comment: "User action to play video."),
-                                              style: .default,
-                                              handler: { [weak self] (action) in
-                                                self?.displayVideoPlayer(for: videoURL)
-            })
-            alertController.addAction(detailsAction)
-        }
-
-        alertController.title = title
-        alertController.message = message
-        alertController.popoverPresentationController?.sourceView = richTextView
-        alertController.popoverPresentationController?.sourceRect = CGRect(origin: position, size: CGSize(width: 1, height: 1))
-        alertController.popoverPresentationController?.permittedArrowDirections = .any
-        present(alertController, animated:true, completion: nil)
-    }
-
-    func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
-
-        let caption = richTextView.caption(for: attachment)
-        let detailsViewController = AttachmentDetailsViewController.controller(for: attachment, with: caption)
-
-        let linkInfo = richTextView.linkInfo(for: attachment)
-        let linkRange = linkInfo?.range
-        let linkUpdateRange = linkRange ?? richTextView.textStorage.ranges(forAttachment: attachment).first!
-
-        if let linkURL = linkInfo?.url {
-            detailsViewController.linkURL = linkURL
-        }
-
-        detailsViewController.onUpdate = { [weak self] (alignment, size, srcURL, linkURL, alt, caption) in
-            guard let `self` = self else {
-                return
-            }
-
-            let attachment = self.richTextView.edit(attachment) { attachment in
-                if let alt = alt {
-                    attachment.extraAttributes["alt"] = .string(alt)
-                }
-
-                attachment.alignment = alignment
-                attachment.size = size
-                attachment.updateURL(srcURL)
-            }
-
-            if let caption = caption, caption.length > 0 {
-                self.richTextView.replaceCaption(for: attachment, with: caption)
-            } else {
-                self.richTextView.removeCaption(for: attachment)
-            }
-
-            if let newLinkURL = linkURL {
-                self.richTextView.setLink(newLinkURL, inRange: linkUpdateRange)
-            } else if linkURL != nil {
-                self.richTextView.removeLink(inRange: linkUpdateRange)
-            }
-        }
-
-        let selectedRange = richTextView.selectedRange
-
-        detailsViewController.onDismiss = { [unowned self] in
-            self.richTextView.becomeFirstResponder()
-            self.richTextView.selectedRange = selectedRange
-        }
-
-        let navigationController = UINavigationController(rootViewController: detailsViewController)
-        present(navigationController, animated: true, completion: nil)
-    }
-}
 
 extension EditorDemoController {
 
