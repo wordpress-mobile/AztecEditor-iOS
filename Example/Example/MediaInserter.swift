@@ -4,7 +4,7 @@ import Aztec
 import AVFoundation
 import Gridicons
 
-class MediaInsertionHelper
+class MediaInserter
 {
     fileprivate var mediaErrorMode = false
 
@@ -36,7 +36,7 @@ class MediaInsertionHelper
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
         progress.totalUnitCount = 100
 
-        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MediaInsertionHelper.timerFireMethod(_:)), userInfo: progress, repeats: true)
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MediaInserter.timerFireMethod(_:)), userInfo: progress, repeats: true)
     }
 
     func insertVideo(_ videoURL: URL) {
@@ -53,7 +53,7 @@ class MediaInsertionHelper
         let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
         progress.totalUnitCount = 100
 
-        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MediaInsertionHelper.timerFireMethod(_:)), userInfo: progress, repeats: true)
+        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MediaInserter.timerFireMethod(_:)), userInfo: progress, repeats: true)
     }
 
     @objc func timerFireMethod(_ timer: Timer) {

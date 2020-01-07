@@ -24,8 +24,8 @@ class EditorDemoController: UIViewController {
         }
     }
 
-    fileprivate(set) lazy var mediaInsertionHelper: MediaInsertionHelper = {
-        return MediaInsertionHelper(textView: self.richTextView, attachmentTextAttributes: Constants.mediaMessageAttributes)
+    fileprivate(set) lazy var mediaInserter: MediaInserter = {
+        return MediaInserter(textView: self.richTextView, attachmentTextAttributes: Constants.mediaMessageAttributes)
     }()
 
     fileprivate(set) lazy var textViewAttachmentDelegate: TextViewAttachmentDelegate = {
@@ -1084,13 +1084,13 @@ let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
             }
 
             // Insert Image + Reclaim Focus
-            mediaInsertionHelper.insertImage(image)
+            mediaInserter.insertImage(image)
 
         case typeMovie:
             guard let videoURL = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaURL)] as? URL else {
                 return
             }
-            mediaInsertionHelper.insertVideo(videoURL)
+            mediaInserter.insertVideo(videoURL)
         default:
             print("Media type not supported: \(mediaType)")
         }
