@@ -8,9 +8,7 @@ import Photos
 import UIKit
 import WordPressEditor
 
-class EditorDemoController: UIViewController {
-
-    fileprivate var mediaErrorMode = false
+class EditorDemoController: UIViewController {    
 
     fileprivate(set) lazy var formatBar: Aztec.FormatBar = {
         return self.createToolbar()
@@ -27,6 +25,10 @@ class EditorDemoController: UIViewController {
             return editorView.htmlTextView
         }
     }
+
+    fileprivate(set) lazy var mediaInsertionHelper: MediaInsertionHelper = {
+        return MediaInsertionHelper(textView: self.richTextView, messageAttributes: Constants.mediaMessageAttributes)
+    }()
     
     fileprivate(set) lazy var editorView: Aztec.EditorView = {
         let defaultHTMLFont: UIFont
@@ -1108,8 +1110,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             return nil
         }
 
-        // TODO: start fake upload process
-        return saveToDisk(image: image)
+        return mediaInsertionHelper.saveToDisk(image: image)
     }
 
     func textView(_ textView: TextView, deletedAttachment attachment: MediaAttachment) {
@@ -1148,7 +1149,7 @@ extension EditorDemoController: TextViewAttachmentDelegate {
             // and mark the newly tapped attachment
             if attachment.message == nil {
                 let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
-                attachment.message = NSAttributedString(string: message, attributes: mediaMessageAttributes)
+                attachment.message = NSAttributedString(string: message, attributes: Constants.mediaMessageAttributes)
             }
             attachment.overlayImage = Gridicon.iconOfType(.pencil, withSize: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
             richTextView.refresh(attachment)
@@ -1203,13 +1204,13 @@ let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
             }
 
             // Insert Image + Reclaim Focus
-            insertImage(image)
+            mediaInsertionHelper.insertImage(image)
 
         case typeMovie:
             guard let videoURL = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaURL)] as? URL else {
                 return
             }
-            insertVideo(videoURL)
+            mediaInsertionHelper.insertVideo(videoURL)
         default:
             print("Media type not supported: \(mediaType)")
         }
@@ -1312,97 +1313,10 @@ private extension EditorDemoController {
         task.resume()
     }
 }
-// MARK: - Misc
+
+// MARK: - Media Attachment Actions
 //
-private extension EditorDemoController
-{
-    func saveToDisk(image: UIImage) -> URL {
-        let fileName = "\(ProcessInfo.processInfo.globallyUniqueString)_file.jpg"
-
-        guard let data = image.jpegData(compressionQuality: 0.9) else {
-            fatalError("Could not conert image to JPEG.")
-        }
-
-        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
-
-        guard (try? data.write(to: fileURL, options: [.atomic])) != nil else {
-            fatalError("Could not write the image to disk.")
-        }
-        
-        return fileURL
-    }
-    
-    func insertImage(_ image: UIImage) {
-        
-        let fileURL = saveToDisk(image: image)
-        
-        let attachment = richTextView.replaceWithImage(at: richTextView.selectedRange, sourceURL: fileURL, placeHolderImage: image)
-        attachment.size = .full
-        attachment.alignment = ImageAttachment.Alignment.none
-        if let attachmentRange = richTextView.textStorage.ranges(forAttachment: attachment).first {
-            richTextView.setLink(fileURL, inRange: attachmentRange)
-        }
-        let imageID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: imageID])
-        progress.totalUnitCount = 100
-        
-        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
-    }
-
-    func insertVideo(_ videoURL: URL) {
-        let asset = AVURLAsset(url: videoURL, options: nil)
-        let imgGenerator = AVAssetImageGenerator(asset: asset)
-        imgGenerator.appliesPreferredTrackTransform = true
-        guard let cgImage = try? imgGenerator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil) else {
-            return
-        }
-        let posterImage = UIImage(cgImage: cgImage)
-        let posterURL = saveToDisk(image: posterImage)
-        let attachment = richTextView.replaceWithVideo(at: richTextView.selectedRange, sourceURL: URL(string:"placeholder://")!, posterURL: posterURL, placeHolderImage: posterImage)
-        let mediaID = attachment.identifier
-        let progress = Progress(parent: nil, userInfo: [MediaProgressKey.mediaID: mediaID, MediaProgressKey.videoURL:videoURL])
-        progress.totalUnitCount = 100
-
-        Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(EditorDemoController.timerFireMethod(_:)), userInfo: progress, repeats: true)
-    }
-
-    @objc func timerFireMethod(_ timer: Timer) {
-        guard let progress = timer.userInfo as? Progress,
-              let imageId = progress.userInfo[MediaProgressKey.mediaID] as? String,
-              let attachment = richTextView.attachment(withId: imageId)
-        else {
-            timer.invalidate()
-            return
-        }        
-        progress.completedUnitCount += 1
-
-        attachment.progress = progress.fractionCompleted
-        if mediaErrorMode && progress.fractionCompleted >= 0.25 {
-            timer.invalidate()
-            let message = NSAttributedString(string: "Upload failed!", attributes: mediaMessageAttributes)
-            attachment.message = message
-            attachment.overlayImage = Gridicon.iconOfType(.refresh)
-        }
-        if progress.fractionCompleted >= 1 {
-            timer.invalidate()
-            attachment.progress = nil
-            if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.updateURL(videoURL)
-            }
-        }
-        richTextView.refresh(attachment, overlayUpdateOnly: true)
-    }
-
-    var mediaMessageAttributes: [NSAttributedString.Key: Any] {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .center
-
-        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
-                                                        .paragraphStyle: paragraphStyle,
-                                                        .foregroundColor: UIColor.white]
-        return attributes
-    }
-
+extension EditorDemoController {
     func displayActions(forAttachment attachment: MediaAttachment, position: CGPoint) {
         let mediaID = attachment.identifier
         let title: String = NSLocalizedString("Media Options", comment: "Title for action sheet with media options.")
@@ -1449,14 +1363,14 @@ private extension EditorDemoController
     }
 
     func displayDetailsForAttachment(_ attachment: ImageAttachment, position:CGPoint) {
-        
+
         let caption = richTextView.caption(for: attachment)
         let detailsViewController = AttachmentDetailsViewController.controller(for: attachment, with: caption)
-        
+
         let linkInfo = richTextView.linkInfo(for: attachment)
         let linkRange = linkInfo?.range
         let linkUpdateRange = linkRange ?? richTextView.textStorage.ranges(forAttachment: attachment).first!
-        
+
         if let linkURL = linkInfo?.url {
             detailsViewController.linkURL = linkURL
         }
@@ -1475,32 +1389,31 @@ private extension EditorDemoController
                 attachment.size = size
                 attachment.updateURL(srcURL)
             }
-            
+
             if let caption = caption, caption.length > 0 {
                 self.richTextView.replaceCaption(for: attachment, with: caption)
             } else {
                 self.richTextView.removeCaption(for: attachment)
             }
-            
+
             if let newLinkURL = linkURL {
                 self.richTextView.setLink(newLinkURL, inRange: linkUpdateRange)
             } else if linkURL != nil {
                 self.richTextView.removeLink(inRange: linkUpdateRange)
             }
         }
-        
+
         let selectedRange = richTextView.selectedRange
-        
-        detailsViewController.onDismiss = { [unowned self] in            
+
+        detailsViewController.onDismiss = { [unowned self] in
             self.richTextView.becomeFirstResponder()
             self.richTextView.selectedRange = selectedRange
         }
 
-        let navigationController = UINavigationController(rootViewController: detailsViewController)        
+        let navigationController = UINavigationController(rootViewController: detailsViewController)
         present(navigationController, animated: true, completion: nil)
     }
 }
-
 
 extension EditorDemoController {
 
@@ -1522,12 +1435,16 @@ extension EditorDemoController {
         static let lists                = [TextList.Style.unordered, .ordered]        
         static let moreAttachmentText   = "more"
         static let titleInsets          = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
-    }
+        static var mediaMessageAttributes: [NSAttributedString.Key: Any] {
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.alignment = .center
 
-    struct MediaProgressKey {
-        static let mediaID = ProgressUserInfoKey("mediaID")
-        static let videoURL = ProgressUserInfoKey("videoURL")
-    }
+            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 15, weight: .semibold),
+                                                            .paragraphStyle: paragraphStyle,
+                                                            .foregroundColor: UIColor.white]
+            return attributes
+        }
+    }    
 }
 
 extension FormattingIdentifier {

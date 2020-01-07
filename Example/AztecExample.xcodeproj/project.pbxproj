@@ -43,6 +43,7 @@
 		FF629DC9223BC418004C4106 /* videoShortcodes.html in Resources */ = {isa = PBXBuildFile; fileRef = FF629DC8223BC418004C4106 /* videoShortcodes.html */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFC41BDE20DBC7BA004DFB4D /* video.html in Resources */ = {isa = PBXBuildFile; fileRef = FFC41BDD20DBC7BA004DFB4D /* video.html */; };
+		FFFA53D023C4A64200829A43 /* MediaInsertionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53CF23C4A64200829A43 /* MediaInsertionHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,6 +161,7 @@
 		FF629DC8223BC418004C4106 /* videoShortcodes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = videoShortcodes.html; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFC41BDD20DBC7BA004DFB4D /* video.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = video.html; sourceTree = "<group>"; };
+		FFFA53CF23C4A64200829A43 /* MediaInsertionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaInsertionHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -255,6 +257,7 @@
 				FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
+				FFFA53CF23C4A64200829A43 /* MediaInsertionHelper.swift */,
 				B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
@@ -471,6 +474,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFFA53D023C4A64200829A43 /* MediaInsertionHelper.swift in Sources */,
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
