@@ -43,6 +43,9 @@
 		FF629DC9223BC418004C4106 /* videoShortcodes.html in Resources */ = {isa = PBXBuildFile; fileRef = FF629DC8223BC418004C4106 /* videoShortcodes.html */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFC41BDE20DBC7BA004DFB4D /* video.html in Resources */ = {isa = PBXBuildFile; fileRef = FFC41BDD20DBC7BA004DFB4D /* video.html */; };
+		FFFA53D023C4A64200829A43 /* MediaInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53CF23C4A64200829A43 /* MediaInserter.swift */; };
+		FFFA53D523C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */; };
+		FFFA53D723C4C43700829A43 /* UIImage+SaveTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -160,6 +163,9 @@
 		FF629DC8223BC418004C4106 /* videoShortcodes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = videoShortcodes.html; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFC41BDD20DBC7BA004DFB4D /* video.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = video.html; sourceTree = "<group>"; };
+		FFFA53CF23C4A64200829A43 /* MediaInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaInserter.swift; sourceTree = "<group>"; };
+		FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewAttachmentDelegateProvider.swift; sourceTree = "<group>"; };
+		FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+SaveTo.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -255,6 +261,9 @@
 				FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
+				FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */,
+				FFFA53CF23C4A64200829A43 /* MediaInserter.swift */,
+				FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */,
 				B5DB1C361EC630E10005E623 /* UnknownEditorViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
@@ -471,9 +480,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFFA53D023C4A64200829A43 /* MediaInserter.swift in Sources */,
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
+				FFFA53D523C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
+				FFFA53D723C4C43700829A43 /* UIImage+SaveTo.swift in Sources */,
 				E63EF92B1D36A60B00B5BA4B /* EditorDemoController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 			);
