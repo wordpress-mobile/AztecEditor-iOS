@@ -141,7 +141,9 @@ private extension LayoutManager {
         let quoteCount = blockquoteBorderColors.count
         let index = min(depth, quoteCount-1)
         
-        guard index < quoteCount else {return}
+        guard quoteCount > 0 && index < quoteCount else {
+            return            
+        }
         
         let borderColor = blockquoteBorderColors[index]
         let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
