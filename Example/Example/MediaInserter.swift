@@ -77,7 +77,7 @@ class MediaInserter
             timer.invalidate()
             attachment.progress = nil
             if let videoAttachment = attachment as? VideoAttachment, let videoURL = progress.userInfo[MediaProgressKey.videoURL] as? URL {
-                videoAttachment.updateURL(videoURL)
+                videoAttachment.updateURL(videoURL, refreshAsset: false)
             }
         }
         richTextView.refresh(attachment, overlayUpdateOnly: true)
