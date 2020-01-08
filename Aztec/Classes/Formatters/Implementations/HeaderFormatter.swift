@@ -69,7 +69,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
 
         if let font = attributes[.font] as? UIFont {
             let newFont = font.withSize(CGFloat(header.defaultFontSize))
-            resultingAttributes[.font] = newFont.modifyTraits(.traitBold, enable: false)
+            if Configuration.headersWithBoldTrait {
+                resultingAttributes[.font] = newFont.modifyTraits(.traitBold, enable: false)
+            }
         }
         resultingAttributes[.headingRepresentation] = nil
         return resultingAttributes
