@@ -10,11 +10,15 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
     ///
     let placeholderAttributes: [NSAttributedString.Key: Any]?
 
+    /// Tells if the formatter is increasing the depth of a list or simple changing the current one if any
+    let increaseDepth: Bool
+    
 
     /// Designated Initializer
     ///
-    init(placeholderAttributes: [NSAttributedString.Key: Any]? = nil) {
+    init(placeholderAttributes: [NSAttributedString.Key: Any]? = nil, increaseDepth: Bool = false) {
         self.placeholderAttributes = placeholderAttributes
+        self.increaseDepth = increaseDepth
     }
 
 
@@ -26,11 +30,18 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
         if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
             newParagraphStyle.setParagraphStyle(paragraphStyle)
         }
-
-        newParagraphStyle.appendProperty(Blockquote(with: representation))
+        
+        let newQuote = Blockquote(with: representation)
+        
+        if newParagraphStyle.blockquotes.isEmpty || increaseDepth {
+            newParagraphStyle.insertProperty(newQuote, afterLastOfType: Blockquote.self)
+        } else {
+            newParagraphStyle.replaceProperty(ofType: Blockquote.self, with: newQuote)
+        }
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
+        
         return resultingAttributes
     }
 
@@ -47,6 +58,7 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
+                
         return resultingAttributes
     }
 
@@ -55,5 +67,10 @@ class BlockquoteFormatter: ParagraphAttributeFormatter {
             return false
         }
         return !style.blockquotes.isEmpty
+    }
+    
+    static func blockquotes(in attributes: [NSAttributedString.Key: Any]) -> [Blockquote] {
+        let style = attributes[.paragraphStyle] as? ParagraphStyle
+        return style?.blockquotes ?? []
     }
 }

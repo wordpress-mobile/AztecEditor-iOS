@@ -181,7 +181,7 @@ class EditorDemoController: UIViewController {
             editorView.richTextView.textColor = UIColor.label
             editorView.richTextView.blockquoteBackgroundColor = UIColor.secondarySystemBackground
             editorView.richTextView.preBackgroundColor = UIColor.secondarySystemBackground
-            editorView.richTextView.blockquoteBorderColor = UIColor.secondarySystemFill
+            editorView.richTextView.blockquoteBorderColors = [.secondarySystemFill, .systemTeal, .systemBlue]
             var attributes = editorView.richTextView.linkTextAttributes
             attributes?[.foregroundColor] =  UIColor.link
         } else {
