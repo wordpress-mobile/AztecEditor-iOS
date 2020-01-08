@@ -42,7 +42,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         
         let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
         var newFont = UIFont(descriptor: newDescriptor, size: targetFontSize)
-        newFont = newFont.modifyTraits(.traitBold, enable: true)
+        if Configuration.headersWithBoldTrait {
+            newFont = newFont.modifyTraits(.traitBold, enable: true)
+        }
 
         resultingAttributes[.paragraphStyle] = newParagraphStyle
         resultingAttributes[.font] = newFont

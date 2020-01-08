@@ -36,7 +36,7 @@
 		599F25531D8BC9A1002871D6 /* TextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25311D8BC9A1002871D6 /* TextStorage.swift */; };
 		599F25541D8BC9A1002871D6 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599F25321D8BC9A1002871D6 /* TextView.swift */; };
 		74EEC71B1FAB6EC900B989E3 /* UIImage+Resize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */; };
-		914CD9E72200B2D200DDD5C9 /* BoldFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914CD9E62200B2D200DDD5C9 /* BoldFormatter.swift */; };
+		914CD9E72200B2D200DDD5C9 /* BoldWithShadowForHeadingFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914CD9E62200B2D200DDD5C9 /* BoldWithShadowForHeadingFormatter.swift */; };
 		917E22132201D2A5008AC826 /* BoldFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917E22122201D2A5008AC826 /* BoldFormatterTests.swift */; };
 		B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */; };
 		B524228D1F30C039002E7C6C /* HTMLDiv.swift in Sources */ = {isa = PBXBuildFile; fileRef = B524228C1F30C039002E7C6C /* HTMLDiv.swift */; };
@@ -247,6 +247,8 @@
 		FFD3C1712344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */; };
 		FFD3C1732344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */; };
 		FFD436981E3180A500A0E26F /* FontFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD436971E3180A500A0E26F /* FontFormatterTests.swift */; };
+		FFFA53E523C6277700829A43 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53E423C6277700829A43 /* Configuration.swift */; };
+		FFFA53E723C628E700829A43 /* BoldFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53E623C628E700829A43 /* BoldFormatter.swift */; };
 		FFFEC7DB1EA7698900F4210F /* VideoAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */; };
 /* End PBXBuildFile section */
 
@@ -312,7 +314,7 @@
 		59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAttributeConverterTests.swift; sourceTree = "<group>"; };
 		59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InNodeConverterTests.swift; sourceTree = "<group>"; };
 		74EEC71A1FAB6EC900B989E3 /* UIImage+Resize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Resize.swift"; sourceTree = "<group>"; };
-		914CD9E62200B2D200DDD5C9 /* BoldFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldFormatter.swift; sourceTree = "<group>"; };
+		914CD9E62200B2D200DDD5C9 /* BoldWithShadowForHeadingFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldWithShadowForHeadingFormatter.swift; sourceTree = "<group>"; };
 		917E22122201D2A5008AC826 /* BoldFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoldFormatterTests.swift; sourceTree = "<group>"; };
 		B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewStubDelegate.swift; sourceTree = "<group>"; };
 		B524228C1F30C039002E7C6C /* HTMLDiv.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDiv.swift; sourceTree = "<group>"; };
@@ -531,6 +533,8 @@
 		FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorElementAttributeConverter.swift; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
+		FFFA53E423C6277700829A43 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		FFFA53E623C628E700829A43 /* BoldFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoldFormatter.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -826,6 +830,7 @@
 				F9982CF521877663001E606B /* TextViewPasteboardDelegate.swift */,
 				FF7EAEC3234D253B007A26E0 /* FontProvider.swift */,
 				FF1F56A023955EF600E93A30 /* ColorProvider.swift */,
+				FFFA53E423C6277700829A43 /* Configuration.swift */,
 			);
 			path = TextKit;
 			sourceTree = "<group>";
@@ -995,7 +1000,7 @@
 			isa = PBXGroup;
 			children = (
 				F12F58561EF20394008AE298 /* BlockquoteFormatter.swift */,
-				914CD9E62200B2D200DDD5C9 /* BoldFormatter.swift */,
+				914CD9E62200B2D200DDD5C9 /* BoldWithShadowForHeadingFormatter.swift */,
 				F1BDDDE420603C18000714E1 /* FigcaptionFormatter.swift */,
 				F1BDDDE62060403B000714E1 /* FigureFormatter.swift */,
 				F12F58571EF20394008AE298 /* ColorFormatter.swift */,
@@ -1003,6 +1008,7 @@
 				B524228E1F30C098002E7C6C /* HTMLDivFormatter.swift */,
 				F12F585B1EF20394008AE298 /* HTMLParagraphFormatter.swift */,
 				F18986E41EF2043E0060EDBA /* ItalicFormatter.swift */,
+				FFFA53E623C628E700829A43 /* BoldFormatter.swift */,
 				F12F585D1EF20394008AE298 /* LinkFormatter.swift */,
 				F12F585E1EF20394008AE298 /* PreFormatter.swift */,
 				FF437B6520D7CB83000D9666 /* LiFormatter.swift */,
@@ -1561,7 +1567,7 @@
 				599F254B1D8BC9A1002871D6 /* String+RangeConversion.swift in Sources */,
 				FF1F56A123955EF600E93A30 /* ColorProvider.swift in Sources */,
 				599F25481D8BC9A1002871D6 /* Metrics.swift in Sources */,
-				914CD9E72200B2D200DDD5C9 /* BoldFormatter.swift in Sources */,
+				914CD9E72200B2D200DDD5C9 /* BoldWithShadowForHeadingFormatter.swift in Sources */,
 				F1BDDDE72060403B000714E1 /* FigureFormatter.swift in Sources */,
 				B59C9F9F1DF74BB80073B1D6 /* UIFont+Traits.swift in Sources */,
 				F10BE61A1EA7AE9D002E4625 /* NSAttributedString+ReplaceOcurrences.swift in Sources */,
@@ -1589,6 +1595,7 @@
 				F18A1EBA21C0828700F1AA9E /* PluginInputCustomizer.swift in Sources */,
 				F15BA60F21515C0F00424120 /* UnderlineStringAttributeConverter.swift in Sources */,
 				F18B81ED1EA560B700885F43 /* StringUTF16+RangeConversion.swift in Sources */,
+				FFFA53E723C628E700829A43 /* BoldFormatter.swift in Sources */,
 				F16A2AD520CC437E00BF3A0A /* LineAttachmentToElementConverter.swift in Sources */,
 				B574F4A41FB0CF3B0048F355 /* NSAttributedStringKey+Conversion.swift in Sources */,
 				F12F58631EF20394008AE298 /* AttributeFormatter.swift in Sources */,
@@ -1668,6 +1675,7 @@
 				F13E8AD820B71BAA007C9F8A /* PluginManager.swift in Sources */,
 				FF48CAC8234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift in Sources */,
 				F12F586E1EF20394008AE298 /* LinkFormatter.swift in Sources */,
+				FFFA53E523C6277700829A43 /* Configuration.swift in Sources */,
 				F1584796203C9B4C00EE05A1 /* NSMutableAttributedString+ParagraphProperty.swift in Sources */,
 				F15BA6092151501300424120 /* BoldStringAttributeConverter.swift in Sources */,
 				F1AFD65820B45E5700CB0279 /* CommentAttachmentRenderer.swift in Sources */,

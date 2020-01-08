@@ -16,7 +16,7 @@ class GenericElementConverter: ElementConverter {
     // MARK: - Built-in formatter instances
     
     lazy var blockquoteFormatter = BlockquoteFormatter(increaseDepth: true)
-    lazy var boldFormatter = BoldFormatter()
+    lazy var boldFormatter = Configuration.defaultBoldFormatter
     lazy var divFormatter = HTMLDivFormatter()
     lazy var h1Formatter = HeaderFormatter(headerLevel: .h1)
     lazy var h2Formatter = HeaderFormatter(headerLevel: .h2)
