@@ -302,8 +302,7 @@ private extension TextViewAttachmentDelegateProvider {
         displayAsPopover(viewController: navigationController)
     }
 
-    func displayAsPopover(viewController: UIViewController) {
-        viewController.modalPresentationStyle = .popover
+    func displayAsPopover(viewController: UIViewController) {        
         viewController.preferredContentSize = baseController.view.frame.size
 
         let presentationController = viewController.popoverPresentationController
