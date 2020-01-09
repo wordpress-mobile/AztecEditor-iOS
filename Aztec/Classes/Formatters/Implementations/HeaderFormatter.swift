@@ -70,7 +70,12 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         if let font = attributes[.font] as? UIFont {
             var newFont = font.withSize(CGFloat(header.defaultFontSize))
             if Configuration.headersWithBoldTrait {
-                 newFont = newFont.modifyTraits(.traitBold, enable: false)
+                newFont = newFont.modifyTraits(.traitBold, enable: false)
+                if attributes[.shadow] != nil {
+                    resultingAttributes.removeValue(forKey: .shadow)
+                    resultingAttributes.removeValue(forKey: .kern)
+                    newFont = newFont.modifyTraits(.traitBold, enable: true)
+                }
             }
             resultingAttributes[.font] = newFont
         }
@@ -82,7 +87,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
-
+        if headerLevel == .none {
+            return paragraphStyle.headerLevel != 0
+        }
         return paragraphStyle.headerLevel != 0 && paragraphStyle.headerLevel == headerLevel.rawValue
     }
 }

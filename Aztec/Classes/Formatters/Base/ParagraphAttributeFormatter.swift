@@ -37,14 +37,14 @@ extension ParagraphAttributeFormatter {
         let rangeToApply = applicationRange(for: range, in: text)
 
         text.replaceOcurrences(of: String(.paragraphSeparator), with: String(.lineFeed), within: rangeToApply)
-        
-        text.enumerateAttributes(in: rangeToApply, options: []) { (attributes, range, stop) in
-            let currentAttributes = text.attributes(at: range.location, effectiveRange: nil)
+        // We copy the string that gets update to avoid that removal of paragraph attributes, like NSParagraphStyle,
+        // on a certain range affect all the paragraph and have side effects on the remaining removal
+        let updatedText = text.mutableCopy() as! NSMutableAttributedString
+        text.enumerateAttributes(in: rangeToApply, options: []) { (currentAttributes, range, stop) in
             let attributes = remove(from: currentAttributes)
-            
-            text.setAttributes(attributes, range: range)
+            updatedText.setAttributes(attributes, range: range)
         }
-
+        text.replaceCharacters(in: rangeToApply, with: updatedText.attributedSubstring(from: rangeToApply))
         return rangeToApply
     }
 }
