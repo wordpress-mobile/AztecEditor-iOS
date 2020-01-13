@@ -3,7 +3,7 @@ import XCTest
 
 class BoldFormatterTests: XCTestCase {
 
-    private let boldFormatter = BoldFormatter()
+    private let boldFormatter = BoldWithShadowForHeadingFormatter()
     
     func testApplyAttributesOnHeading() {
         var attributes: [NSAttributedString.Key : Any] = [.font: UIFont.systemFont(ofSize: UIFont.systemFontSize)]
