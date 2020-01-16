@@ -255,14 +255,11 @@ open class TextView: UITextView {
     }
 
     open lazy var defaultTextColor: UIColor? = {
-        #if XCODE11
         if #available(iOS 13.0, *) {
             return UIColor.label
         } else {
             return UIColor.darkText
-        }
-        #endif
-        return UIColor.darkText
+        }        
     }()
 
     open override var textColor: UIColor? {
