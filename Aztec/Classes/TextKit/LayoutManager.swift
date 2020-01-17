@@ -228,7 +228,7 @@ private extension LayoutManager {
             else {
                 return
             }
-
+            let attributes = textStorage.attributes(at: enclosingRange.location, effectiveRange: nil)
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
             let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
             var markerNumber = textStorage.itemNumber(in: list, at: enclosingRange.location)
@@ -240,8 +240,8 @@ private extension LayoutManager {
                 }
             }
             markerNumber += start
-            
-            drawItem(number: markerNumber, in: markerRect, from: list, using: paragraphStyle, at: enclosingRange.location)
+            let markerString = list.style.markerText(forItemNumber: markerNumber)
+            drawItem(markerString, in: markerRect, styled: attributes, at: enclosingRange.location)
         }
     }
 
@@ -278,31 +278,36 @@ private extension LayoutManager {
     /// Draws the specified List Item Number, at a given location.
     ///
     /// - Parameters:
-    ///     - number: Marker Number of the item to be drawn
+    ///     - markerText: Marker String of the item to be drawn
     ///     - rect: Visible Rect in which the Marker should be rendered
-    ///     - list: Associated TextList
-    ///     - style: ParagraphStyle associated to the list
+    ///     - styled: Paragraph attributes associated to the list
     ///     - location: Text Location that should get the marker rendered.
     ///
-    private func drawItem(number: Int, in rect: CGRect, from list: TextList, using style: ParagraphStyle, at location: Int) {
-        guard let textStorage = textStorage else {
+    private func drawItem(_ markerText: String, in rect: CGRect, styled paragraphAttributes: [NSAttributedString.Key: Any], at location: Int) {
+        guard let style = paragraphAttributes[.paragraphStyle] as? NSParagraphStyle else {
             return
         }
-
-        let paragraphAttributes = textStorage.attributes(at: location, effectiveRange: nil)
         let markerAttributes = markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
-
-        let markerPlain = list.style.markerText(forItemNumber: number)
-        let markerText = NSAttributedString(string: markerPlain, attributes: markerAttributes)
+        let markerAttributedText = NSAttributedString(string: markerText, attributes: markerAttributes)
 
         var yOffset = CGFloat(0)
+        var xOffset = CGFloat(0)
+        let indentWidth = style.firstLineHeadIndent
+        let markerWidth = markerAttributedText.size().width
 
         if location > 0 {
             yOffset += style.paragraphSpacingBefore
         }
+        // If the marker width is larger than the indent available let's offset the area to draw to the left
+        if markerWidth > indentWidth {
+            xOffset = indentWidth - markerWidth
+        }
 
-        let markerRect = rect.offsetBy(dx: 0, dy: yOffset)
-        markerText.draw(in: markerRect)
+        var markerRect = rect.offsetBy(dx: xOffset, dy: yOffset)
+
+        markerRect.size.width = max(indentWidth, markerWidth)
+
+        markerAttributedText.draw(in: markerRect)
     }
 
 
@@ -328,7 +333,7 @@ private extension LayoutManager {
     }
 
 
-    /// Returns the Marker Paratraph Attributes
+    /// Returns the Marker Paragraph Attributes
     ///
     private func markerParagraphStyle(indent: CGFloat) -> NSParagraphStyle {
         let tabStop = NSTextTab(textAlignment: .right, location: indent, options: [:])
