@@ -110,6 +110,7 @@ open class FormatBar: UIView {
         let item = FormatBarItem(image: UIImage(), identifier: nil)
         self.configureStylesFor(item)
 
+        item.accessibilityLabel = NSLocalizedString("More", comment: "Accessibility label for the More button on formatting toolbar.")
         item.addTarget(self, action: #selector(handleToggleButtonAction), for: .touchUpInside)
         item.addTarget(self, action: #selector(handleButtonTouch), for: .touchDown)
 
@@ -440,6 +441,7 @@ open class FormatBar: UIView {
             rotateOverflowToggleItem(.vertical, animated: false)
         }
 
+        updateOverflowToggleItemAccessibilityTraits(expanded: overflowVisible)
         updateOverflowToggleItemVisibility()
     }
 
@@ -527,6 +529,7 @@ open class FormatBar: UIView {
         formatter?.formatBar(self, didChangeOverflowState: (shouldExpand) ? .visible : .hidden)
 
         updateOverflowToggleItemRTLLayout(expand: shouldExpand, animated: true)
+        updateOverflowToggleItemAccessibilityTraits(expanded: shouldExpand)
     }
 
     private func setOverflowItemsVisible(_ visible: Bool, animated: Bool = true) {
@@ -856,6 +859,16 @@ private extension FormatBar {
 extension FormatBar: UIScrollViewDelegate {
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         formatter?.formatBarTouchesBegan(self)
+    }
+}
+
+// MARK: - Accessibility
+
+private extension FormatBar {
+    func updateOverflowToggleItemAccessibilityTraits(expanded: Bool) {
+        // We _could_ use overflowToggleItem.isSelected instead of modifying the traits. However,
+        // that would highlight the button with another color, which we don't need.
+        overflowToggleItem.accessibilityTraits = expanded ? [.button, .selected] : [.button]
     }
 }
 

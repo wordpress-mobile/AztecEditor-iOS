@@ -46,13 +46,10 @@ public class ColorProvider {
     }
 
     public lazy var codeBackgroungColor: UIColor = {
-        #if XCODE11
         if #available(iOS 13.0, *) {
             return .secondarySystemBackground
         } else {
             return .lightGray
         }
-        #endif
-        return .lightGray
     }()
 }

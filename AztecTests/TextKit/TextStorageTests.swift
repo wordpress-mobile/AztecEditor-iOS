@@ -538,4 +538,28 @@ class TextStorageTests: XCTestCase {
 
         XCTAssertEqual(expectedResult, result)
     }
+
+    /// Verifies that the all header formatting is removed when Header as styles (bold or italic)
+    ///
+    func testAllHeaderFormattingIsRemoved() {
+        let initialHTML = "<p>Hello World</p>"
+
+        // Setup
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                .paragraphStyle: ParagraphStyle.default]
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
+
+        let formatterH1 = HeaderFormatter(headerLevel: .h1)
+        let formatterBold = BoldWithShadowForHeadingFormatter()
+
+        formatterH1.applyAttributes(to: storage, at: NSRange(location:0, length: 0))
+        formatterBold.applyAttributes(to: storage, at: NSRange(location: 6, length: 3))
+
+        formatterH1.removeAttributes(from: storage, at: NSRange(location:0, length: 0))
+
+        storage.enumerateAttributes(in: storage.rangeOfEntireString, options: []) { (attributes, range, stop) in
+            let font = attributes[.font] as! UIFont
+            XCTAssert(font.pointSize == 14)
+        }
+    }
 }

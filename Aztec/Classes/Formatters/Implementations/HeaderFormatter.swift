@@ -42,7 +42,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         
         let newDescriptor = font.fontDescriptor.addingAttributes([.size: targetFontSize])
         var newFont = UIFont(descriptor: newDescriptor, size: targetFontSize)
-        newFont = newFont.modifyTraits(.traitBold, enable: true)
+        if Configuration.headersWithBoldTrait {
+            newFont = newFont.modifyTraits(.traitBold, enable: true)
+        }
 
         resultingAttributes[.paragraphStyle] = newParagraphStyle
         resultingAttributes[.font] = newFont
@@ -66,8 +68,16 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         resultingAttributes[.paragraphStyle] = newParagraphStyle
 
         if let font = attributes[.font] as? UIFont {
-            let newFont = font.withSize(CGFloat(header.defaultFontSize))
-            resultingAttributes[.font] = newFont.modifyTraits(.traitBold, enable: false)
+            var newFont = font.withSize(CGFloat(header.defaultFontSize))
+            if Configuration.headersWithBoldTrait {
+                newFont = newFont.modifyTraits(.traitBold, enable: false)
+                if attributes[.shadow] != nil {
+                    resultingAttributes.removeValue(forKey: .shadow)
+                    resultingAttributes.removeValue(forKey: .kern)
+                    newFont = newFont.modifyTraits(.traitBold, enable: true)
+                }
+            }
+            resultingAttributes[.font] = newFont
         }
         resultingAttributes[.headingRepresentation] = nil
         return resultingAttributes
@@ -77,7 +87,9 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
         guard let paragraphStyle = attributes[.paragraphStyle] as? ParagraphStyle else {
             return false
         }
-
+        if headerLevel == .none {
+            return paragraphStyle.headerLevel != 0
+        }
         return paragraphStyle.headerLevel != 0 && paragraphStyle.headerLevel == headerLevel.rawValue
     }
 }

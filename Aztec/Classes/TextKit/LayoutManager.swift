@@ -8,8 +8,8 @@ import QuartzCore
 class LayoutManager: NSLayoutManager {
 
     /// Blockquote's Left Border Color
-    ///
-    var blockquoteBorderColor: UIColor? = UIColor(red: 0.52, green: 0.65, blue: 0.73, alpha: 1.0)
+    /// Set the array with how many colors you like, they appear in the order they are set in the array.
+    var blockquoteBorderColors = [UIColor.systemGray]
 
     /// Blockquote's Background Color
     ///
@@ -62,17 +62,30 @@ private extension LayoutManager {
             guard let paragraphStyle = object as? ParagraphStyle, !paragraphStyle.blockquotes.isEmpty else {
                 return
             }
-
-            let blockquoteIndent = paragraphStyle.blockquoteIndent
+                        
             let blockquoteGlyphRange = glyphRange(forCharacterRange: range, actualCharacterRange: nil)
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                
+                let startIndent = paragraphStyle.blockquoteIndent
+
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
                 let lineEndsParagraph = lineCharacters.isEndOfParagraph(before: lineCharacters.endIndex)
-                let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: blockquoteIndent, lineEndsParagraph: lineEndsParagraph)
+                let blockquoteRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: startIndent, lineEndsParagraph: lineEndsParagraph)
 
-                self.drawBlockquote(in: blockquoteRect.integral, with: context)
+                self.drawBlockquoteBackground(in: blockquoteRect.integral, with: context)
+                
+                let nestDepth = paragraphStyle.blockquoteNestDepth
+                for index in 0...nestDepth {
+                  let indent = startIndent + CGFloat(index) * Metrics.listTextIndentation
+
+                  let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
+
+                  self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
+                }
+                
+            
             }
         }
 
@@ -90,7 +103,8 @@ private extension LayoutManager {
         let extraIndent = paragraphStyle.blockquoteIndent
         let extraRect = blockquoteRect(origin: origin, lineRect: extraLineFragmentRect, blockquoteIndent: extraIndent, lineEndsParagraph: false)
 
-        drawBlockquote(in: extraRect.integral, with: context)
+        drawBlockquoteBackground(in: extraRect.integral, with: context)
+        drawBlockquoteBorder(in: extraRect.integral, with: context, at: 0)
     }
 
 
@@ -122,21 +136,28 @@ private extension LayoutManager {
 
         return blockquoteRect
     }
+    
+    private func drawBlockquoteBorder(in rect: CGRect, with context: CGContext, at depth: Int) {
+        let quoteCount = blockquoteBorderColors.count
+        let index = min(depth, quoteCount-1)
+        
+        guard quoteCount > 0 && index < quoteCount else {
+            return            
+        }
+        
+        let borderColor = blockquoteBorderColors[index]
+        let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
+        borderColor.setFill()
+        context.fill(borderRect)
+    }
 
     /// Draws a single Blockquote Line Fragment, in the specified Rectangle, using a given Graphics Context.
     ///
-    private func drawBlockquote(in rect: CGRect, with context: CGContext) {
-        if let blockquoteBackgroundColor = blockquoteBackgroundColor {
-            blockquoteBackgroundColor.setFill()
-            context.fill(rect)
-
-        }
-
-        if let blockquoteBorderColor = blockquoteBorderColor {
-            let borderRect = CGRect(origin: rect.origin, size: CGSize(width: blockquoteBorderWidth, height: rect.height))
-            blockquoteBorderColor.setFill()
-            context.fill(borderRect)
-        }
+    private func drawBlockquoteBackground(in rect: CGRect, with context: CGContext) {
+        guard let color = blockquoteBackgroundColor else {return}
+        
+        color.setFill()
+        context.fill(rect)
     }
 }
 

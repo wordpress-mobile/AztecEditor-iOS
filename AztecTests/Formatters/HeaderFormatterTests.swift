@@ -28,7 +28,7 @@ class HeaderFormatterTests: XCTestCase {
 
         let removedAttrs = formatter.remove(from: updatedAttrs)
         let removedFont = removedAttrs[.font] as! UIFont
-        XCTAssert(removedFont.pointSize == defaultFontSize)
+        XCTAssertEqual(removedFont.pointSize, defaultFontSize)
     }
 
     /// Verifies that the Default Font is preserved whenever a Header Style is applied on top of an existant Header.
@@ -46,6 +46,6 @@ class HeaderFormatterTests: XCTestCase {
 
         let removedAttrs = formatterH2.remove(from: updatedH2Attrs)
         let removedFont = removedAttrs[.font] as! UIFont
-        XCTAssert(removedFont.pointSize == defaultFontSize)
+        XCTAssertEqual(removedFont.pointSize, defaultFontSize)
     }
 }
