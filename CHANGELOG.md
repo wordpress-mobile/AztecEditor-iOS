@@ -1,3 +1,10 @@
+1.15.0
+-----
+ * Allow to use headers fonts without bold effect applied
+ * Support for multilevel blockquotes
+ * Fix presentation of placeholder images in dark mode.
+ * Fix bug that didn't set default text color when changing text color 
+ 
 1.14.1
 -----
 * Support for xcode 10.
