@@ -2085,14 +2085,15 @@ class TextViewTests: XCTestCase {
         pasteItems[kUTTypePlainText as String] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
         UIPasteboard.general.setItems([pasteItems], options: [:])
         let textView = TextViewStub(withHTML: "")
-        textView.defaultTextColor = UIColor.red
+        textView.textColor = UIColor.red
         textView.paste(nil)
 
         let attributedString = textView.attributedText!
 
         let attributes = attributedString.attributes(at: 0, effectiveRange: nil)
-
-        XCTAssertEqual(attributes[.foregroundColor] as! UIColor, UIColor.red)
+        if let colorSet = attributes[.foregroundColor] as? UIColor {
+            XCTAssertEqual(colorSet, UIColor.red)
+        }
         XCTAssertEqual(textView.text, "Hello world")
     }
 
