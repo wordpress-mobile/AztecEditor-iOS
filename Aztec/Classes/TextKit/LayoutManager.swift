@@ -67,7 +67,7 @@ private extension LayoutManager {
 
             enumerateLineFragments(forGlyphRange: blockquoteGlyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
                 
-                let startIndent = paragraphStyle.blockquoteIndent
+                let startIndent = paragraphStyle.indentToFirst(Blockquote.self) - Metrics.listTextIndentation
 
                 let lineRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
                 let lineCharacters = textStorage.attributedSubstring(from: lineRange).string
@@ -78,13 +78,12 @@ private extension LayoutManager {
                 
                 let nestDepth = paragraphStyle.blockquoteNestDepth
                 for index in 0...nestDepth {
-                  let indent = startIndent + CGFloat(index) * Metrics.listTextIndentation
+                    let indent = paragraphStyle.indent(to: index, of: Blockquote.self) - Metrics.listTextIndentation
 
-                  let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
+                    let nestRect = self.blockquoteRect(origin: origin, lineRect: rect, blockquoteIndent: indent, lineEndsParagraph: lineEndsParagraph)
 
-                  self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
+                    self.drawBlockquoteBorder(in: nestRect.integral, with: context, at: index)
                 }
-                
             
             }
         }
@@ -100,7 +99,7 @@ private extension LayoutManager {
                 return
         }
 
-        let extraIndent = paragraphStyle.blockquoteIndent
+        let extraIndent = paragraphStyle.indentToLast(Blockquote.self)
         let extraRect = blockquoteRect(origin: origin, lineRect: extraLineFragmentRect, blockquoteIndent: extraIndent, lineEndsParagraph: false)
 
         drawBlockquoteBackground(in: extraRect.integral, with: context)
@@ -121,11 +120,7 @@ private extension LayoutManager {
     private func blockquoteRect(origin: CGPoint, lineRect: CGRect, blockquoteIndent: CGFloat, lineEndsParagraph: Bool) -> CGRect {
         var blockquoteRect = lineRect.offsetBy(dx: origin.x, dy: origin.y)
         
-        guard blockquoteIndent != 0 else {
-            return blockquoteRect
-        }
-
-        let paddingWidth = Metrics.listTextIndentation * 0.5 + blockquoteIndent
+        let paddingWidth = blockquoteIndent
         blockquoteRect.origin.x += paddingWidth
         blockquoteRect.size.width -= paddingWidth
 
@@ -284,7 +279,7 @@ private extension LayoutManager {
     ///     - location: Text Location that should get the marker rendered.
     ///
     private func drawItem(_ markerText: String, in rect: CGRect, styled paragraphAttributes: [NSAttributedString.Key: Any], at location: Int) {
-        guard let style = paragraphAttributes[.paragraphStyle] as? NSParagraphStyle else {
+        guard let style = paragraphAttributes[.paragraphStyle] as? ParagraphStyle else {
             return
         }
         let markerAttributes = markerAttributesBasedOnParagraph(attributes: paragraphAttributes)
@@ -292,8 +287,8 @@ private extension LayoutManager {
 
         var yOffset = CGFloat(0)
         var xOffset = CGFloat(0)
-        let indentWidth = style.firstLineHeadIndent
-        let markerWidth = markerAttributedText.size().width
+        let indentWidth = style.indentToLast(TextList.self)
+        let markerWidth = markerAttributedText.size().width * 1.5
 
         if location > 0 {
             yOffset += style.paragraphSpacingBefore
@@ -315,10 +310,7 @@ private extension LayoutManager {
     ///
     private func markerAttributesBasedOnParagraph(attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var resultAttributes = attributes
-        var indent: CGFloat = 0
-        if let style = attributes[.paragraphStyle] as? ParagraphStyle {
-            indent = style.listIndent + Metrics.listTextIndentation - (Metrics.listTextIndentation / 4)
-        }
+        let indent: CGFloat = CGFloat(Metrics.tabStepInterval)
 
         resultAttributes[.paragraphStyle] = markerParagraphStyle(indent: indent)
         resultAttributes.removeValue(forKey: .underlineStyle)
@@ -336,10 +328,11 @@ private extension LayoutManager {
     /// Returns the Marker Paragraph Attributes
     ///
     private func markerParagraphStyle(indent: CGFloat) -> NSParagraphStyle {
-        let tabStop = NSTextTab(textAlignment: .right, location: indent, options: [:])
+
         let paragraphStyle = NSMutableParagraphStyle()
-        
-        paragraphStyle.tabStops = [tabStop]
+        paragraphStyle.alignment = .right
+        paragraphStyle.tailIndent = -indent
+        paragraphStyle.lineBreakMode = .byClipping
 
         return paragraphStyle
     }
