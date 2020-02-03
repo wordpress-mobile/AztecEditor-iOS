@@ -234,7 +234,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     private func indent(for list: TextList) -> CGFloat {
         let markerSize = CGFloat(list.style.markerText(forItemNumber: list.start ?? 1).count)
-        let markerMinimum = max(3, markerSize)
+        let markerMinimum = max(CGFloat(Metrics.listMinimumIndentChars), markerSize)
         return Metrics.listTextIndentation + (markerMinimum * Metrics.listTextCharIndentation)
     }
     /// The amount of indent for the list of the paragraph if any.
