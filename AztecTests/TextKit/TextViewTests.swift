@@ -2106,4 +2106,14 @@ class TextViewTests: XCTestCase {
         XCTAssertEqual(attributes[.foregroundColor] as! UIColor,UIColor.green)
     }
 
+    func testLinksWithMultipleCharactersNonLatinDontBreak() {
+        let textView = TextViewStub(withHTML: "<p><a href=\"www.worpdress.com\">WordPress 워드 프레스</a></p>")
+        let html = textView.getHTML()
+        XCTAssertEqual(html, "<p><a href=\"www.worpdress.com\">WordPress 워드 프레스</a></p>")
+
+        textView.setHTML("<p><a href=\"www.worpdress.com\">WordPress</a><a href=\"www.jetpack.com\">워드 프레스</a></p>")
+        let htmlTwoLinks = textView.getHTML()
+        XCTAssertEqual(htmlTwoLinks, "<p><a href=\"www.worpdress.com\">WordPress</a><a href=\"www.jetpack.com\">워드 프레스</a></p>")
+    }
+
 }
