@@ -1,3 +1,7 @@
+1.16.0
+-----
+ * Improve display of ordered lists with large bullet numbers
+ 
 1.15.0
 -----
  * Allow to use headers fonts without bold effect applied
