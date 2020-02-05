@@ -2085,14 +2085,15 @@ class TextViewTests: XCTestCase {
         pasteItems[kUTTypePlainText as String] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
         UIPasteboard.general.setItems([pasteItems], options: [:])
         let textView = TextViewStub(withHTML: "")
-        textView.defaultTextColor = UIColor.red
+        textView.textColor = UIColor.red
         textView.paste(nil)
 
         let attributedString = textView.attributedText!
 
         let attributes = attributedString.attributes(at: 0, effectiveRange: nil)
-
-        XCTAssertEqual(attributes[.foregroundColor] as! UIColor, UIColor.red)
+        if let colorSet = attributes[.foregroundColor] as? UIColor {
+            XCTAssertEqual(colorSet, UIColor.red)
+        }
         XCTAssertEqual(textView.text, "Hello world")
     }
 
@@ -2104,6 +2105,16 @@ class TextViewTests: XCTestCase {
         textView.deleteBackward()
         let attributes = textView.typingAttributes
         XCTAssertEqual(attributes[.foregroundColor] as! UIColor,UIColor.green)
+    }
+
+    func testLinksWithMultipleCharactersNonLatinDontBreak() {
+        let textView = TextViewStub(withHTML: "<p><a href=\"www.worpdress.com\">WordPress 워드 프레스</a></p>")
+        let html = textView.getHTML()
+        XCTAssertEqual(html, "<p><a href=\"www.worpdress.com\">WordPress 워드 프레스</a></p>")
+
+        textView.setHTML("<p><a href=\"www.worpdress.com\">WordPress</a><a href=\"www.jetpack.com\">워드 프레스</a></p>")
+        let htmlTwoLinks = textView.getHTML()
+        XCTAssertEqual(htmlTwoLinks, "<p><a href=\"www.worpdress.com\">WordPress</a><a href=\"www.jetpack.com\">워드 프레스</a></p>")
     }
 
 }

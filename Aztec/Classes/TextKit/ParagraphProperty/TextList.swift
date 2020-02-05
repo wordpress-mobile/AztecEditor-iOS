@@ -16,8 +16,8 @@ open class TextList: ParagraphProperty {
 
         func markerText(forItemNumber number: Int) -> String {
             switch self {
-            case .ordered:      return "\t\(number)."
-            case .unordered:    return "\t\u{2022}"
+            case .ordered:      return "\(number)."
+            case .unordered:    return "\u{2022}"
             }
         }
     }

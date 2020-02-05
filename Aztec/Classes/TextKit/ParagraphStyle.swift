@@ -140,7 +140,7 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var headIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(lists.count + blockquotes.count) * Metrics.listTextIndentation)
+            let extra: CGFloat = (CGFloat(blockquotes.count) * Metrics.listTextIndentation) + listIndent
 
             return baseHeadIndent + extra
         }
@@ -152,7 +152,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     open override var firstLineHeadIndent: CGFloat {
         get {
-            let extra: CGFloat = (CGFloat(lists.count + blockquotes.count) * Metrics.listTextIndentation)
+
+            let extra: CGFloat = (CGFloat(blockquotes.count) * Metrics.listTextIndentation) + listIndent
 
             return baseFirstLineHeadIndent + extra
         }
@@ -175,57 +176,74 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
             super.tailIndent = newValue
         }
     }
-    
-    /// The level of indent to start the blockquote of the paragraph. Includes list indentation.
-    /// Handles whether blockquote is outside or insdie of a list.
-    public var blockquoteIndent: CGFloat {
-        let listAndBlockquotes = properties.filter({ property in
-            return property is Blockquote || property is TextList
-        })
-        if listAndBlockquotes.first is Blockquote {
-            return 0
-        }
-        var depth = 0
-        for position in (0..<listAndBlockquotes.count).reversed() {
-            if listAndBlockquotes[position] is Blockquote {
-                depth = position
+
+    /// Calculates the indentation of the paragraph up, for up to a certain depth of nesting of the type provided
+    /// - Parameters:
+    ///   - depth: the depth up to check
+    ///   - type: the type to check
+    public func indent<T : ParagraphProperty>(to depth: Int, of type: T.Type) -> CGFloat {
+        var position = -1
+        var currentDepth = -1
+        for property in properties {
+            position += 1
+            if property is T {
+                currentDepth += 1
+            }
+            if depth == currentDepth {
                 break
             }
         }
-        return CGFloat(depth) * Metrics.listTextIndentation
+        if position == -1 || currentDepth == -1 {
+            return 0
+        }
+        return indent(through: position)
+    }
+
+    /// Calculates the indentation of the paragraph up to the fist of property of the type
+    /// - Parameter type: the type to check
+    public func indentToFirst<T : ParagraphProperty>(_ type: T.Type) -> CGFloat {
+        let depth = properties.firstIndex(where: {$0 is T}) ?? 0
+        return indent(through: depth)
+    }
+
+    /// Calculates the indentation of the paragraph up the last property of the type specified
+    /// - Parameter type: the paragraph property type to check
+    public func indentToLast<T : ParagraphProperty>(_ type: T.Type) -> CGFloat {
+        let depth = properties.lastIndex(where: {$0 is T}) ?? 0
+        return indent(through: depth)
+    }
+
+    /// Calculates the level of indent up to a certain depth
+    private func indent(through depth: Int) -> CGFloat {
+        let totalIndent = properties.prefix(through: depth).reduce(CGFloat(0)) { (total, property)  in
+            if let list = property as? TextList {
+                return total + indent(for: list)
+            } else if property is Blockquote {
+                return total + Metrics.listTextIndentation
+            }
+            return total
+        }
+        return totalIndent
     }
     
     /// The level of depth for the nested blockquote of the paragraph. Excludes list indentation.
     ///
     public var blockquoteNestDepth: Int {
-        let listAndBlockquotes = properties.filter({ property in
-            return property is Blockquote
-        })
-        var depth = 0
-        for position in (0..<listAndBlockquotes.count).reversed() {
-            if listAndBlockquotes[position] is Blockquote {
-                depth = position
-                break
-            }
-        }
-        return depth
+        return max(0, blockquotes.count - 1)
     }
 
+    private func indent(for list: TextList) -> CGFloat {
+        let markerSize = CGFloat(list.style.markerText(forItemNumber: list.start ?? 1).count)
+        let markerMinimum = max(CGFloat(Metrics.listMinimumIndentChars), markerSize)
+        return Metrics.listTextIndentation + (markerMinimum * Metrics.listTextCharIndentation)
+    }
     /// The amount of indent for the list of the paragraph if any.
     ///
     public var listIndent: CGFloat {
-        let listAndBlockquotes = properties.filter({ property in
-            return property is Blockquote || property is TextList
-        })
-        var depth = 0
-        for position in (0..<listAndBlockquotes.count).reversed() {
-            if listAndBlockquotes[position] is TextList {
-                depth = position
-                break
-            }
+        let listIndent: CGFloat = lists.reduce(0) { (total, list) in
+            return total + indent(for: list)
         }
-
-        return CGFloat(depth) * Metrics.listTextIndentation
+        return listIndent
     }
 
     open var baseHeadIndent: CGFloat = 0

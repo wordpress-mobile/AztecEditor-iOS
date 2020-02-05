@@ -43,6 +43,7 @@
 		FF629DC9223BC418004C4106 /* videoShortcodes.html in Resources */ = {isa = PBXBuildFile; fileRef = FF629DC8223BC418004C4106 /* videoShortcodes.html */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
 		FFC41BDE20DBC7BA004DFB4D /* video.html in Resources */ = {isa = PBXBuildFile; fileRef = FFC41BDD20DBC7BA004DFB4D /* video.html */; };
+		FFC6772223D07E3E00B76815 /* bigLists.html in Resources */ = {isa = PBXBuildFile; fileRef = FFC6772123D07E3E00B76815 /* bigLists.html */; };
 		FFFA53D023C4A64200829A43 /* MediaInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53CF23C4A64200829A43 /* MediaInserter.swift */; };
 		FFFA53D523C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */; };
 		FFFA53D723C4C43700829A43 /* UIImage+SaveTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */; };
@@ -163,6 +164,7 @@
 		FF629DC8223BC418004C4106 /* videoShortcodes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = videoShortcodes.html; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
 		FFC41BDD20DBC7BA004DFB4D /* video.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = video.html; sourceTree = "<group>"; };
+		FFC6772123D07E3E00B76815 /* bigLists.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = bigLists.html; sourceTree = "<group>"; };
 		FFFA53CF23C4A64200829A43 /* MediaInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaInserter.swift; sourceTree = "<group>"; };
 		FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewAttachmentDelegateProvider.swift; sourceTree = "<group>"; };
 		FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+SaveTo.swift"; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 				FFC41BDD20DBC7BA004DFB4D /* video.html */,
 				FF629DC8223BC418004C4106 /* videoShortcodes.html */,
 				FF5CDACC239E78B200CF235B /* failedMedia.html */,
+				FFC6772123D07E3E00B76815 /* bigLists.html */,
 			);
 			path = SampleContent;
 			sourceTree = "<group>";
@@ -457,6 +460,7 @@
 				59280F2A1D47CAF40083FB59 /* content.html in Resources */,
 				FF5CDACD239E78B200CF235B /* failedMedia.html in Resources */,
 				B5FB212A1FEC38470067D597 /* captions.html in Resources */,
+				FFC6772223D07E3E00B76815 /* bigLists.html in Resources */,
 				FF1FD05C20932EDE00186384 /* gutenberg.html in Resources */,
 				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
