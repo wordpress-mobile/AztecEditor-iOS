@@ -39,6 +39,7 @@
 		F1D3610B20929F0200B4E7A5 /* WordPressEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D3610420929E6D00B4E7A5 /* WordPressEditor.framework */; };
 		FF149F4A20E3C49A0070FECB /* imagesOverlays.html in Resources */ = {isa = PBXBuildFile; fileRef = FF149F4920E3C49A0070FECB /* imagesOverlays.html */; };
 		FF1FD05C20932EDE00186384 /* gutenberg.html in Resources */ = {isa = PBXBuildFile; fileRef = FF1FD05B20932EDE00186384 /* gutenberg.html */; };
+		FF1FEC7E2406E071006221AA /* underline.html in Resources */ = {isa = PBXBuildFile; fileRef = FF1FEC7D2406E071006221AA /* underline.html */; };
 		FF5CDACD239E78B200CF235B /* failedMedia.html in Resources */ = {isa = PBXBuildFile; fileRef = FF5CDACC239E78B200CF235B /* failedMedia.html */; };
 		FF629DC9223BC418004C4106 /* videoShortcodes.html in Resources */ = {isa = PBXBuildFile; fileRef = FF629DC8223BC418004C4106 /* videoShortcodes.html */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
@@ -160,6 +161,7 @@
 		F1D360FC20929E6D00B4E7A5 /* WordPressEditor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WordPressEditor.xcodeproj; path = ../WordPressEditor/WordPressEditor.xcodeproj; sourceTree = "<group>"; };
 		FF149F4920E3C49A0070FECB /* imagesOverlays.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = imagesOverlays.html; sourceTree = "<group>"; };
 		FF1FD05B20932EDE00186384 /* gutenberg.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = gutenberg.html; sourceTree = "<group>"; };
+		FF1FEC7D2406E071006221AA /* underline.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = underline.html; sourceTree = "<group>"; };
 		FF5CDACC239E78B200CF235B /* failedMedia.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = failedMedia.html; sourceTree = "<group>"; };
 		FF629DC8223BC418004C4106 /* videoShortcodes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = videoShortcodes.html; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				FF629DC8223BC418004C4106 /* videoShortcodes.html */,
 				FF5CDACC239E78B200CF235B /* failedMedia.html */,
 				FFC6772123D07E3E00B76815 /* bigLists.html */,
+				FF1FEC7D2406E071006221AA /* underline.html */,
 			);
 			path = SampleContent;
 			sourceTree = "<group>";
@@ -465,6 +468,7 @@
 				59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 				FF149F4A20E3C49A0070FECB /* imagesOverlays.html in Resources */,
+				FF1FEC7E2406E071006221AA /* underline.html in Resources */,
 				FFC41BDE20DBC7BA004DFB4D /* video.html in Resources */,
 				FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */,
 			);

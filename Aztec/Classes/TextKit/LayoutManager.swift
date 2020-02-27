@@ -201,7 +201,6 @@ private extension LayoutManager {
     }
 }
 
-
 // MARK: - Lists Helpers
 //
 private extension LayoutManager {
@@ -360,3 +359,16 @@ private extension LayoutManager {
         }
     }
 }
+
+extension LayoutManager {
+
+    override func underlineGlyphRange(_ glyphRange: NSRange, underlineType underlineVal: NSUnderlineStyle, lineFragmentRect lineRect: CGRect, lineFragmentGlyphRange lineGlyphRange: NSRange, containerOrigin: CGPoint) {
+
+        var updatedGlyphRange = glyphRange
+        if glyphRange.endLocation == lineGlyphRange.endLocation {
+            updatedGlyphRange = NSRange(location: glyphRange.location, length: glyphRange.length - 1)
+        }
+        drawUnderline(forGlyphRange: updatedGlyphRange, underlineType: underlineVal, baselineOffset: 0, lineFragmentRect: lineRect, lineFragmentGlyphRange: lineGlyphRange, containerOrigin: containerOrigin)
+    }
+}
+
