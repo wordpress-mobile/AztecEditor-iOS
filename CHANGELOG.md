@@ -1,3 +1,7 @@
+1.17.0
+-----
+ * Fix drawing of underlines when they have a nbsp and span to the end of a line
+
 1.16.0
 -----
  * Improve display of ordered lists with large bullet numbers
