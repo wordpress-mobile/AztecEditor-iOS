@@ -71,7 +71,7 @@ class MediaInserter
             timer.invalidate()
             let message = NSAttributedString(string: "Upload failed!", attributes: attachmentTextAttributes)
             attachment.message = message
-            attachment.overlayImage = Gridicon.iconOfType(.refresh)
+            attachment.overlayImage = .gridicon(.refresh)
         }
         if progress.fractionCompleted >= 1 {
             timer.invalidate()

@@ -994,7 +994,7 @@ extension EditorDemoController {
             toolbar.dividerTintColor = .gray
         }
 
-        toolbar.overflowToggleIcon = Gridicon.iconOfType(.ellipsis)
+        toolbar.overflowToggleIcon = .gridicon(.ellipsis)
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.autoresizingMask = [ .flexibleHeight ]
         toolbar.formatter = self
@@ -1104,10 +1104,10 @@ extension EditorDemoController {
 
     static var tintedMissingImage: UIImage = {
         if #available(iOS 13.0, *) {
-            return Gridicon.iconOfType(.image).withTintColor(.label)
+            return UIImage.gridicon(.image).withTintColor(.label)
         } else {
             // Fallback on earlier versions
-            return Gridicon.iconOfType(.image)
+            return .gridicon(.image)
         }
     }()
 
