@@ -363,9 +363,15 @@ private extension LayoutManager {
 extension LayoutManager {
 
     override func underlineGlyphRange(_ glyphRange: NSRange, underlineType underlineVal: NSUnderlineStyle, lineFragmentRect lineRect: CGRect, lineFragmentGlyphRange lineGlyphRange: NSRange, containerOrigin: CGPoint) {
-
+        guard let textStorage = textStorage else {
+            return
+        }
+        let underlinedString = textStorage.attributedSubstring(from: glyphRange).string
         var updatedGlyphRange = glyphRange
-        if glyphRange.endLocation == lineGlyphRange.endLocation {
+        if glyphRange.endLocation == lineGlyphRange.endLocation,
+           underlinedString.contains(String.init(.nonBreakingSpace)),
+            underlinedString.hasSuffix(String.init(.paragraphSeparator))
+        {
             updatedGlyphRange = NSRange(location: glyphRange.location, length: glyphRange.length - 1)
         }
         drawUnderline(forGlyphRange: updatedGlyphRange, underlineType: underlineVal, baselineOffset: 0, lineFragmentRect: lineRect, lineFragmentGlyphRange: lineGlyphRange, containerOrigin: containerOrigin)

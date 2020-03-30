@@ -1,3 +1,7 @@
+1.17.1
+-----
+* Fix drawing of underlines when they include the last character of content.
+
 1.17.0
 -----
  * Fix drawing of underlines when they have a nbsp and span to the end of a line
