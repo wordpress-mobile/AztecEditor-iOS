@@ -1184,7 +1184,7 @@ extension FormattingIdentifier {
 
     private func gridicon(_ gridiconType: GridiconType) -> UIImage {
         let size = EditorDemoController.Constants.formatBarIconSize
-        return Gridicon.iconOfType(gridiconType, withSize: size)
+        return .gridicon(gridiconType, size: size)
     }
 
     var accessibilityIdentifier: String {
