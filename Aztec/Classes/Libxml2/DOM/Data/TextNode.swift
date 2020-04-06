@@ -116,6 +116,7 @@ extension TextNode {
     /// - Returns: true if sanitization should happen, false otherwise
     ///
     private func shouldSanitizeText() -> Bool {
-        return !hasAncestor(ofType: .pre)
+        return false
+        //return !hasAncestor(ofType: .pre)
     }
 }
