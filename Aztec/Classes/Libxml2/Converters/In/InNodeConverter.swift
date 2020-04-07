@@ -84,7 +84,7 @@ class InNodeConverter: SafeConverter {
         var children = [Node]()
 
         if rawNode.children != nil {
-            let nodesConverter = InNodesConverter()
+            let nodesConverter = InNodesConverter(shouldCollapseSpaces: shouldCollapseSpaces)
             children.append(contentsOf: nodesConverter.convert(rawNode.children))
         }
 
