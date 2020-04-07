@@ -7,7 +7,7 @@ public class TextNode: Node {
 
     let contents: String
 
-    let shouldRemoveExtraSpaces: Bool = false
+    var shouldCollapseSpaces: Bool = true
 
     // MARK: - CustomReflectable
     
@@ -95,12 +95,12 @@ extension TextNode {
         //
         let whitespace = CharacterSet.whitespacesAndNewlines
         var whitespaceToKeep = CharacterSet(charactersIn: String(.nonBreakingSpace)+String(.lineSeparator))
-        if ( !shouldRemoveExtraSpaces ) {
+        if ( !shouldCollapseSpaces ) {
             whitespaceToKeep.insert(charactersIn: String(.space))
         }
         let whitespaceToRemove = whitespace.subtracting(whitespaceToKeep)
         let trimmedText = text.trimmingCharacters(in: whitespaceToRemove)
-        if ( !shouldRemoveExtraSpaces ) {
+        if ( !shouldCollapseSpaces ) {
             return trimmedText
         }
         var singleSpaceText = trimmedText

@@ -3,6 +3,7 @@ import libxml2
 
 class InNodeConverter: SafeConverter {
     
+    var shouldCollapseSpaces: Bool = true
     /// Converts a single node (from libxml2) into an HTML.Node.
     ///
     /// - Parameters:
@@ -105,7 +106,7 @@ class InNodeConverter: SafeConverter {
     fileprivate func createTextNode(_ rawNode: xmlNode) -> TextNode {
         let text = String(cString: rawNode.content)
         let node = TextNode(text: text)
-
+        node.shouldCollapseSpaces = shouldCollapseSpaces
         return node
     }
 

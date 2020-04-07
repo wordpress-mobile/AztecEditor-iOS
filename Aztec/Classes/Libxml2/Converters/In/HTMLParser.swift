@@ -8,6 +8,8 @@ open class HTMLParser {
         case NoRootNode = "No root node"
     }
 
+    var shouldCollapseSpaces: Bool = true
+
     /// Public initializer
     ///
     public init() { }
@@ -71,7 +73,7 @@ open class HTMLParser {
 
         let rootNodePtr = xmlDocGetRootElement(document)
         let nodeConverter = InNodeConverter()
-
+        nodeConverter.shouldCollapseSpaces = shouldCollapseSpaces
         guard let rootNode = rootNodePtr?.pointee,
             let node = nodeConverter.convert(rootNode) as? RootNode else {
                 return RootNode(children: [TextNode(text: "")])
