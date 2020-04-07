@@ -2,7 +2,10 @@ import Foundation
 import libxml2
 
 class InNodeConverter: SafeConverter {
-    
+
+    init(shouldCollapseSpaces: Bool = true) {
+        self.shouldCollapseSpaces = shouldCollapseSpaces        
+    }
     var shouldCollapseSpaces: Bool = true
     /// Converts a single node (from libxml2) into an HTML.Node.
     ///
@@ -54,7 +57,7 @@ class InNodeConverter: SafeConverter {
         var children = [Node]()
 
         if rawNode.children != nil {
-            let nodesConverter = InNodesConverter()
+            let nodesConverter = InNodesConverter(shouldCollapseSpaces: shouldCollapseSpaces)
             children.append(contentsOf: nodesConverter.convert(rawNode.children))
         }
 
