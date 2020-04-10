@@ -562,4 +562,21 @@ class TextStorageTests: XCTestCase {
             XCTAssert(font.pointSize == 14)
         }
     }
+
+    /// Verifies that spaces are not collapsed
+    ///
+    func testConverterCollapsesSpacesText() {
+        let initialHTML = "<p>  Hello  World  </p>"
+
+        // Setup
+        let defaultAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14),
+                                                                .paragraphStyle: ParagraphStyle.default]
+
+        storage.htmlConverter.shouldCollapseSpaces = false
+        storage.setHTML(initialHTML, defaultAttributes: defaultAttributes)
+
+        let expectedResult = "<p>  Hello  World  </p>"
+        let result = storage.getHTML()
+        XCTAssertEqual(expectedResult, result)
+    }
 }
