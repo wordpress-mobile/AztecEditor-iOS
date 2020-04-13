@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Editor-iOS'
-  s.version          = '1.17.1'
+  s.version          = '1.17.2-beta.1'
   s.summary          = 'The WordPress HTML Editor.'
 
 # This description is used to generate tags and improve search results.
@@ -39,5 +39,3 @@ Pod::Spec.new do |s|
 
   s.dependency "WordPress-Aztec-iOS", s.version.to_s
 end
-
-
