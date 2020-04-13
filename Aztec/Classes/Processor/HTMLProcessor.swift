@@ -51,7 +51,7 @@ open class HTMLProcessor: Processor {
     /// 5. The closing tag.
     ///
     private lazy var htmlRegexProcessor: RegexProcessor = { [unowned self] in
-        let pattern = "\\<(\(element))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!\\/\\1\\>)[^\\<]*)*)(\\<\\/\\1\\>))?)"
+        let pattern = "\\<(\(element))(?![\\w-])([^\\>\\/]*(?:\\/(?!\\>)[^\\>\\/]*)*?)(?:(\\/)\\>|\\>(?:([^\\<]*(?:\\<(?!(?:<\\/\\1\\>))[^\\<]*)*)(\\<\\/\\1\\>))?)"
         let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         
         return RegexProcessor(regex: regex) { (match: NSTextCheckingResult, text: String) -> String? in
