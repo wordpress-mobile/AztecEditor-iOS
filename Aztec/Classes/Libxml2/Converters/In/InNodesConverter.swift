@@ -5,8 +5,11 @@ import libxml2
 /// Converts a C linked list of xmlNode to [HTML.Node].
 ///
 class InNodesConverter: SafeCLinkedListToArrayConverter<InNodeConverter> {
-    
-    required init() {
-        super.init(elementConverter: InNodeConverter(), next: { return $0.next })
+
+    let shouldCollapseSpaces: Bool
+
+    required init(shouldCollapseSpaces: Bool = true) {
+        self.shouldCollapseSpaces = shouldCollapseSpaces
+        super.init(elementConverter: InNodeConverter(shouldCollapseSpaces: shouldCollapseSpaces), next: { return $0.next })
     }
 }

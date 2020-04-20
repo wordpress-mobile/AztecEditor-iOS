@@ -25,6 +25,10 @@ public class HTMLConverter {
     ///
     open var characterToReplaceLastEmptyLine: Character?
 
+    /// If this value is set the converter will behave like a browser and collapse extra white spaces
+    ///
+    open var shouldCollapseSpaces: Bool = true
+
     let htmlToTree = HTMLParser()
     
     private(set) lazy var treeToAttributedString: AttributedStringSerializer = {
@@ -53,6 +57,7 @@ public class HTMLConverter {
     ///
     func attributedString(from html: String, defaultAttributes: [NSAttributedString.Key: Any]? = [:]) -> NSAttributedString {
         let processedHTML = pluginManager.process(html: html)
+        htmlToTree.shouldCollapseSpaces = shouldCollapseSpaces
         let rootNode = htmlToTree.parse(processedHTML)
         
         pluginManager.process(htmlTree: rootNode)
