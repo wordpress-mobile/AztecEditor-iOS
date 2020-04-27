@@ -42,7 +42,7 @@ open class SuperscriptStringAttributeConverter: StringAttributeConverter {
                 return false
         }
         
-        return baselineOffset.intValue > 0;
+        return baselineOffset.intValue >= 4;
     }
 }
 

@@ -42,7 +42,7 @@ open class SubscriptStringAttributeConverter: StringAttributeConverter {
                 return false
         }
         
-        return baselineOffset.intValue < 0;
+        return baselineOffset.intValue <= -4;
     }
 }
 
