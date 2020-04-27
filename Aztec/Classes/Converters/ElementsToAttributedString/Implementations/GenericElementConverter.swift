@@ -34,6 +34,7 @@ class GenericElementConverter: ElementConverter {
     lazy var unorderedListFormatter = TextListFormatter(style: .unordered, increaseDepth: true)
     lazy var codeFormatter = CodeFormatter()
     lazy var liFormatter = LiFormatter()
+    lazy var superscriptFormatter = SuperscriptFormatter()
     
     public lazy var elementFormattersMap: [Element: AttributeFormatter] = {
         return [
@@ -55,7 +56,8 @@ class GenericElementConverter: ElementConverter {
             .p: self.paragraphFormatter,
             .pre: self.preFormatter,
             .code: self.codeFormatter,
-            .li: self.liFormatter
+            .li: self.liFormatter,
+            .sup: self.superscriptFormatter,
         ]
     }()
     
