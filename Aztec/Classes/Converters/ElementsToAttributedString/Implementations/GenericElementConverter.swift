@@ -35,6 +35,7 @@ class GenericElementConverter: ElementConverter {
     lazy var codeFormatter = CodeFormatter()
     lazy var liFormatter = LiFormatter()
     lazy var superscriptFormatter = SuperscriptFormatter()
+    lazy var subscriptFormatter = SubscriptFormatter()
     
     public lazy var elementFormattersMap: [Element: AttributeFormatter] = {
         return [
@@ -58,6 +59,7 @@ class GenericElementConverter: ElementConverter {
             .code: self.codeFormatter,
             .li: self.liFormatter,
             .sup: self.superscriptFormatter,
+            .sub: self.subscriptFormatter,
         ]
     }()
     
