@@ -17,10 +17,11 @@ class WordPressTextViewPasteboardDelegate: AztecTextViewPasteboardDelegate {
         }
 
         let result = super.tryPastingString(in: textView)
-
-        // Bump the input to the next line – we need the embed link to be the only
-        // text on this line – otherwise it can't be autoconverted.
-        textView.insertText(String(.lineSeparator))
+        if result {
+            // Bump the input to the next line – we need the embed link to be the only
+            // text on this line – otherwise it can't be autoconverted.
+            textView.insertText(String(.lineSeparator))
+        }
 
         return result
     }

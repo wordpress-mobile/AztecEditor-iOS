@@ -534,6 +534,10 @@ extension EditorDemoController : UITextViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateTitlePosition()
     }
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return true
+    }
 }
 
 extension EditorDemoController : Aztec.TextViewFormattingDelegate {
