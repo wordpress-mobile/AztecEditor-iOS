@@ -11,12 +11,15 @@ class StandardAttributeFormatter: AttributeFormatter {
 
     let htmlRepresentationKey: NSAttributedString.Key
 
+    let needsToMatchValue: Bool
+
     // MARK: - Init
 
-    init(attributeKey: NSAttributedString.Key, attributeValue: Any, htmlRepresentationKey: NSAttributedString.Key) {
+    init(attributeKey: NSAttributedString.Key, attributeValue: Any, htmlRepresentationKey: NSAttributedString.Key, needsToMatchValue: Bool = false) {
         self.attributeKey = attributeKey
         self.attributeValue = attributeValue
         self.htmlRepresentationKey = htmlRepresentationKey
+        self.needsToMatchValue = needsToMatchValue
     }
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
@@ -43,7 +46,16 @@ class StandardAttributeFormatter: AttributeFormatter {
 
     func present(in attributes: [NSAttributedString.Key: Any]) -> Bool {
         let enabled = attributes[attributeKey] != nil
-        return enabled
+        if (!needsToMatchValue) {
+            return enabled
+        }
+
+        if let value = attributes[attributeKey] as? NSObject,
+            let attributeValue = attributeValue as? NSObject {
+            return value.isEqual(attributeValue)
+        }
+
+        return false
     }
 }
 

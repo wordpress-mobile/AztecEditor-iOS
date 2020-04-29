@@ -1,3 +1,7 @@
+1.19.0
+-------
+* Add support for the sup and sub HTML tags.
+
 1.18.0
 -------
 * Added an option to not colapse whitespaces when saving the HTML.
