@@ -12,4 +12,11 @@ extension UITextView {
         delegate?.textViewDidChange?(self)
         NotificationCenter.default.post(name: UITextView.textDidChangeNotification, object: self)
     }
+
+    final func shouldChangeText(in range: NSRange, with text:String) -> Bool {
+        guard let result = self.delegate?.textView?(self, shouldChangeTextIn: range, replacementText: text) else {
+            return true
+        }
+        return result
+    }
 }

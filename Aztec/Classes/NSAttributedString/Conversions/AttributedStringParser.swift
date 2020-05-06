@@ -27,6 +27,8 @@ class AttributedStringParser {
         BoldStringAttributeConverter(),
         ConditionalItalicStringAttributeConverter(),
         UnderlineStringAttributeConverter(),
+        SuperscriptStringAttributeConverter(),
+        SubscriptStringAttributeConverter(),
     ]
     
     // MARK: - Attachment Converters

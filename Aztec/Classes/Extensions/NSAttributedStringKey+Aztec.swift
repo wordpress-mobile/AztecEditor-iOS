@@ -53,4 +53,12 @@ public extension NSAttributedString.Key {
     /// Key used to store citeHTMLRepresentations, by our CiteFormatter.
     ///
     static let citeHtmlRepresentation = NSAttributedString.Key("Cite.htmlRepresentation")
+
+    /// Key used to store Sup Tag Metadata, by our SupFormatter.
+    ///
+    static let supHtmlRepresentation = NSAttributedString.Key("Sup.htmlRepresentation")
+
+    /// Key used to store Sub Tag Metadata, by our SupFormatter.
+    ///
+    static let subHtmlRepresentation = NSAttributedString.Key("Sub.htmlRepresentation")
 }
