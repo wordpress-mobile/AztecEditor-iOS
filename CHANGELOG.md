@@ -1,6 +1,7 @@
 1.19.0
 -------
 * Add support for the sup and sub HTML tags.
+* Fix invokation of the delegate method `shouldChangeTextIn` when pasting new content.
 
 1.18.0
 -------
