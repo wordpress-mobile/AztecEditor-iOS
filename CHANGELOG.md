@@ -1,3 +1,7 @@
+1.19.1
+-------
+* Fix a bug where collapse of whitespaces was happening for empty HTML nodes.
+
 1.19.0
 -------
 * Add support for the sup and sub HTML tags.
