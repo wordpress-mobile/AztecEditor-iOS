@@ -369,8 +369,7 @@ extension LayoutManager {
         let underlinedString = textStorage.attributedSubstring(from: glyphRange).string
         var updatedGlyphRange = glyphRange
         if glyphRange.endLocation == lineGlyphRange.endLocation,
-           underlinedString.contains(String.init(.nonBreakingSpace)),
-            underlinedString.hasSuffix(String.init(.paragraphSeparator))
+            underlinedString.hasSuffix(String.init(.paragraphSeparator)) || underlinedString.hasSuffix(String.init(.lineSeparator)) || underlinedString.hasSuffix(String.init(.carriageReturn)) || underlinedString.hasSuffix(String.init(.lineFeed))
         {
             updatedGlyphRange = NSRange(location: glyphRange.location, length: glyphRange.length - 1)
         }

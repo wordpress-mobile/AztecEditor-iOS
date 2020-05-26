@@ -1,3 +1,7 @@
+1.19.2
+-------
+* Fix drawing of underlines when they include newlines.
+
 1.19.1
 -------
 * Fix a bug where collapse of whitespaces was happening for empty HTML nodes.
