@@ -37,10 +37,10 @@ Open a PR on github where you target the `master` branch with the `release/x.y.z
 Before going any further, It's normally good practice to test the Aztec integration into WordPress-iOS project, to make sure I won’t have to do the release process twice.
 
 Make sure WordPress-iOS’s podfile specifies the SAME (and latest) commit number for both of these:
-
+```
 pod 'WordPress-Aztec-iOS', :git => 'https://github.com/wordpress-mobile/AztecEditor-iOS.git', :commit => 'e0fc55abb4809b3b23b6d8b56791798af864025d'
 pod 'WordPress-Editor-iOS', :git => 'https://github.com/wordpress-mobile/AztecEditor-iOS.git', :commit => 'e0fc55abb4809b3b23b6d8b56791798af864025d'
-
+```
 The things we want to look out for are:
 
 - That the pod can be properly installed in WPiOS.
