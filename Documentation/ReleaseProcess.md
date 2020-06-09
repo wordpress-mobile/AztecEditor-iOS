@@ -2,7 +2,7 @@
 
 ### Step 1: Creating a release branch ###
 
-The branch structure in Aztec iOS is based on the GIT Flow methodology.
+The branch structure in Aztec iOS is based on the [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
 
 These are the main branches involved in the release process:
 ```
@@ -34,7 +34,7 @@ Open a PR on github where you target the `master` branch with the `release/x.y.z
 
 ### Step 2: Testing the Integration ###
 
-Before going any further, It's normally good practice to test the Aztec integration into WordPress-iOS project, to make sure I won’t have to do the release process twice.
+Before going any further, tt's normally good practice to test the Aztec integration into [WordPress-iOS project](https://github.com/wordpress-mobile/WordPress-iOS), to make sure we won’t have to do the release process twice.
 
 Make sure WordPress-iOS’s podfile specifies the SAME (and latest) commit number for both of these:
 ```
@@ -97,7 +97,7 @@ bundle exec pod trunk push WordPress-Editor-iOS.podspec
 
 For simplicity Aztec uses a single milestone named “Next Stable”. The purpose of this milestone is to be used to assign to it all of the regular issues that are closed and merged into develop during the regular development process.
 
-At this point in the release process you should rename the milestone to the version you’re about to release.
+At this point in the release process you should rename the milestone to the version you've just released.
 
 Once renamed, you can create a new “Next Stable” milestone and assign all pending open issues to it.
 
