@@ -40,6 +40,7 @@
 		FF149F4A20E3C49A0070FECB /* imagesOverlays.html in Resources */ = {isa = PBXBuildFile; fileRef = FF149F4920E3C49A0070FECB /* imagesOverlays.html */; };
 		FF1FD05C20932EDE00186384 /* gutenberg.html in Resources */ = {isa = PBXBuildFile; fileRef = FF1FD05B20932EDE00186384 /* gutenberg.html */; };
 		FF1FEC7E2406E071006221AA /* underline.html in Resources */ = {isa = PBXBuildFile; fileRef = FF1FEC7D2406E071006221AA /* underline.html */; };
+		FF29DF0C24A2399A00868706 /* EditorDemoController+PHPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF29DF0B24A2399A00868706 /* EditorDemoController+PHPicker.swift */; };
 		FF5CDACD239E78B200CF235B /* failedMedia.html in Resources */ = {isa = PBXBuildFile; fileRef = FF5CDACC239E78B200CF235B /* failedMedia.html */; };
 		FF629DC9223BC418004C4106 /* videoShortcodes.html in Resources */ = {isa = PBXBuildFile; fileRef = FF629DC8223BC418004C4106 /* videoShortcodes.html */; };
 		FF9AF5481DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */; };
@@ -162,6 +163,8 @@
 		FF149F4920E3C49A0070FECB /* imagesOverlays.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = imagesOverlays.html; sourceTree = "<group>"; };
 		FF1FD05B20932EDE00186384 /* gutenberg.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = gutenberg.html; sourceTree = "<group>"; };
 		FF1FEC7D2406E071006221AA /* underline.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = underline.html; sourceTree = "<group>"; };
+		FF29DF0B24A2399A00868706 /* EditorDemoController+PHPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorDemoController+PHPicker.swift"; sourceTree = "<group>"; };
+		FF29DF1024A246D800868706 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		FF5CDACC239E78B200CF235B /* failedMedia.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = failedMedia.html; sourceTree = "<group>"; };
 		FF629DC8223BC418004C4106 /* videoShortcodes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = videoShortcodes.html; sourceTree = "<group>"; };
 		FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AttachmentDetailsViewController.storyboard; sourceTree = "<group>"; };
@@ -197,6 +200,7 @@
 		02ECB379638AE0CDEAB24BEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FF29DF1024A246D800868706 /* MobileCoreServices.framework */,
 				F122C2502072AE190018ED06 /* libxml2.tbd */,
 				5967193D1D8BC60D00F18F7F /* Gridicons.framework */,
 			);
@@ -267,6 +271,7 @@
 				FF9AF5471DB0E4E200C42ED3 /* AttachmentDetailsViewController.storyboard */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				E63EF92A1D36A60B00B5BA4B /* EditorDemoController.swift */,
+				FF29DF0B24A2399A00868706 /* EditorDemoController+PHPicker.swift */,
 				FFFA53D423C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift */,
 				FFFA53CF23C4A64200829A43 /* MediaInserter.swift */,
 				FFFA53D623C4C43700829A43 /* UIImage+SaveTo.swift */,
@@ -491,6 +496,7 @@
 				FFFA53D023C4A64200829A43 /* MediaInserter.swift in Sources */,
 				B5DB1C371EC630E10005E623 /* UnknownEditorViewController.swift in Sources */,
 				FFFA53D523C4AD0B00829A43 /* TextViewAttachmentDelegateProvider.swift in Sources */,
+				FF29DF0C24A2399A00868706 /* EditorDemoController+PHPicker.swift in Sources */,
 				599F25701D8BCF57002871D6 /* AppDelegate.swift in Sources */,
 				59D2873B1D8C599B00B99C80 /* AttachmentDetailsViewController.swift in Sources */,
 				FFFA53D723C4C43700829A43 /* UIImage+SaveTo.swift in Sources */,

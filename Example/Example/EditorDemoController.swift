@@ -1012,7 +1012,12 @@ extension EditorDemoController {
         }
 
         toolbar.leadingItemHandler = { [weak self] item in
-            self?.showImagePicker()
+            if #available(iOS 14, *) {
+                self?.showPHPicker()
+            } else {
+                // Fallback on earlier versions
+                self?.showImagePicker()
+            }
         }
 
         return toolbar
