@@ -1,8 +1,6 @@
 import Foundation
+import UniformTypeIdentifiers
 import PhotosUI
-import CoreServices
-import AVFoundation
-
 
 @available(iOS 14, *)
 extension EditorDemoController: PHPickerViewControllerDelegate {
@@ -20,17 +18,18 @@ extension EditorDemoController: PHPickerViewControllerDelegate {
         for result in results {
             print("ID: \(result.assetIdentifier ?? "")\n")
             print("Type Identifiers: \(result.itemProvider.registeredTypeIdentifiers)\n")
-            let mediaTypesPriority: [String] = [AVFileType.heic.rawValue, kUTTypeJPEG as String, kUTTypeGIF as String, AVFileType.mp4.rawValue, AVFileType.mov.rawValue]
+
+            let mediaTypesPriority: [UTType] = [.heic, .jpeg, .gif]
             for mediaType in mediaTypesPriority {
-                if result.itemProvider.hasItemConformingToTypeIdentifier(mediaType) {
-                    exportImage(in: result.itemProvider, forTypeIdentifier: mediaType)
+                if result.itemProvider.hasItemConformingToTypeIdentifier(mediaType.identifier) {
+                    exportImage(in: result.itemProvider, forTypeIdentifier: mediaType.identifier)
                     break
                 }
             }
-            let videoTypesPriority: [String] = [AVFileType.mp4.rawValue, AVFileType.mov.rawValue]
+            let videoTypesPriority: [UTType] = [.movie, .mpeg]
             for mediaType in videoTypesPriority {
-                if result.itemProvider.hasItemConformingToTypeIdentifier(mediaType) {
-                    exportVideo(in: result.itemProvider, forTypeIdentifier: mediaType)
+                if result.itemProvider.hasItemConformingToTypeIdentifier(mediaType.identifier) {
+                    exportVideo(in: result.itemProvider, forTypeIdentifier: mediaType.identifier)
                     break
                 }
             }
