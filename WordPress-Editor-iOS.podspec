@@ -39,5 +39,3 @@ Pod::Spec.new do |s|
 
   s.dependency "WordPress-Aztec-iOS", s.version.to_s
 end
-
-
