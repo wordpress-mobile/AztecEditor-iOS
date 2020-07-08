@@ -1,6 +1,6 @@
 import UIKit
 
-extension UIColor {
+public extension UIColor {
 
     /// Creates a color based on a hexString. If the string is not a valid hexColor it return nil
     /// Example of colors: #FF0000, #00FF0000

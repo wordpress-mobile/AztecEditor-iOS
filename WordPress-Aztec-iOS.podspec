@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '1.19.2'
+  s.version          = '1.19.3'
   s.summary          = 'The native HTML Editor.'
 
 # This description is used to generate tags and improve search results.
@@ -41,5 +41,3 @@ Pod::Spec.new do |s|
   s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
   				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
 end
-
-

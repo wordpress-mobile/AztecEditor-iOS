@@ -235,6 +235,7 @@
 		FF437B6620D7CB83000D9666 /* LiFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF437B6520D7CB83000D9666 /* LiFormatter.swift */; };
 		FF48CAC8234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */; };
 		FF4E26601EA8DF1E005E8E42 /* ImageAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */; };
+		FF5DCBF2248ED900006D9FC7 /* ReleaseProcess.md in Resources */ = {isa = PBXBuildFile; fileRef = FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */; };
 		FF61909E202481F4004BCD0A /* CodeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF61909D202481F4004BCD0A /* CodeFormatter.swift */; };
 		FF7A1C511E5651EA00C4C7C8 /* LineAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7A1C501E5651EA00C4C7C8 /* LineAttachment.swift */; };
 		FF7C89B01E3BC52F000472A8 /* NSAttributedString+FontTraits.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7C89AF1E3BC52F000472A8 /* NSAttributedString+FontTraits.swift */; };
@@ -521,6 +522,7 @@
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = ReleaseProcess.md; sourceTree = "<group>"; };
 		FF61909D202481F4004BCD0A /* CodeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeFormatter.swift; sourceTree = "<group>"; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
 		FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
@@ -604,6 +606,7 @@
 		5951CB841D8BC93600E1866F = {
 			isa = PBXGroup;
 			children = (
+				FF5DCBF0248ED900006D9FC7 /* Documentation */,
 				FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */,
 				FF5B98E41DC355B400571CA4 /* LICENSE */,
 				FF5B98E21DC29D0C00571CA4 /* README.md */,
@@ -1390,6 +1393,14 @@
 			path = Processor;
 			sourceTree = "<group>";
 		};
+		FF5DCBF0248ED900006D9FC7 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */,
+			);
+			path = Documentation;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1510,6 +1521,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF5DCBF2248ED900006D9FC7 /* ReleaseProcess.md in Resources */,
 				FF1F56A3239562B900E93A30 /* html_colors.json in Resources */,
 				FF0714021EFD78AF00E50713 /* Media.xcassets in Resources */,
 			);
