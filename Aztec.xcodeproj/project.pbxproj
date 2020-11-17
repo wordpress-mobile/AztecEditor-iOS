@@ -541,6 +541,7 @@
 		FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorElementAttributeConverter.swift; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
+		FFE859252564232100FAEB12 /* Architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Architecture.md; sourceTree = "<group>"; };
 		FFFA53E423C6277700829A43 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		FFFA53E623C628E700829A43 /* BoldFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoldFormatter.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
@@ -1397,6 +1398,7 @@
 			isa = PBXGroup;
 			children = (
 				FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */,
+				FFE859252564232100FAEB12 /* Architecture.md */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";
