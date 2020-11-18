@@ -45,7 +45,7 @@ The following "ensure..." methods handle all these scenarios:
  - [ensureInsertionOfEndOfLine](https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Aztec/Classes/TextKit/TextView.swift#L697)
  - [evaluateRemovalOfSingleLineParagraphAttributesAfterSelectionChange](https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Aztec/Classes/TextKit/TextView.swift#L1884)
 
-These methods check if you and adding or removing new paragraphs around lists or quotes and update the attributes accordingly. 
+These methods check if you are adding or removing new paragraphs around lists or quotes and update the attributes accordingly. 
 
 # Presentation of the custom attributes
 
@@ -96,7 +96,6 @@ The `AttributedStringParser` transforms the `NSAttributedString` to a DOM tree. 
 Then it goes through the DOM tree and merges nodes to create a simplified version of the tree.
 
 We then use the `HTMLSerializer` to convert the DOM Tree to an HTML string.
-
 
 
 
