@@ -286,7 +286,7 @@ private extension LayoutManager {
 
         let markerWidth = markerAttributedText.size().width * 1.5
         let markerHeight = markerAttributedText.size().height
-        var yOffset = CGFloat(rect.size.height / 2.0 - markerHeight / 2.0)
+        let yOffset = CGFloat(rect.size.height / 2.0 - markerHeight / 2.0)
         var xOffset = CGFloat(0)
         let indentWidth = style.indentToLast(TextList.self)
 
