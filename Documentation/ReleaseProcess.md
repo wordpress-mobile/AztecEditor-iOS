@@ -6,7 +6,7 @@ The branch structure in Aztec iOS is based on the [Git Flow](https://nvie.com/po
 
 These are the main branches involved in the release process:
 ```
-master: Kept up to date with the latest release.
+trunk: Kept up to date with the latest release.
 develop: Bleeding edge branch with all of the latest changes.
 release/x.y.z: Version branch, which we will use during the release process.
 ```
@@ -29,7 +29,7 @@ WordPress-Aztec-iOS.podspec
 WordPress-Editor-iOS.podespec
 ```
 
-Open a PR on github where you target the `master` branch with the `release/x.y.z` branch and call it `Release x.y.z`
+Open a PR on github where you target the `trunk` branch with the `release/x.y.z` branch and call it `Release x.y.z`
 
 
 ### Step 2: Testing the Integration ###
@@ -49,13 +49,13 @@ The things we want to look out for are:
 
 ### Step 3: Merge the branch ###
 
-If the release PR is approved and all is working correctly in WP-iOS merge the release branch to master.
+If the release PR is approved and all is working correctly in WP-iOS merge the release branch to trunk.
 
 ### Step 4: Push the POD. ###
 
 *Automated Process*
 
-Create a new release on Github targetting the master branch and name it `Release x.y.z`
+Create a new release on Github targetting the trunk branch and name it `Release x.y.z`
 
 Set a tag with the value `x.y.z` .  
 
@@ -63,7 +63,7 @@ On the description field and the content of the changelog for this version
 
 Press the `Publish release` button
 
-At this moment the CI automation should notice your tag and after some minutes you should get the new pod publish on CocoaPods master trunk.
+At this moment the CI automation should notice your tag and after some minutes you should get the new pod publish on CocoaPods.
 
 If this for some reason fails chech the manual process bellow
 
@@ -103,10 +103,10 @@ Once renamed, you can create a new “Next Stable” milestone and assign all pe
 
 At this point you’re ready to close the version milestone in GitHub.
 
-### Step 6: Merge Master to develop ###
+### Step 6: Merge Trunk to develop ###
 
-Following the git Flow methodology you now need to merge the master branch back to develop.
+Following the git Flow methodology you now need to merge the trunk branch back to develop.
 
-Create a new PR in GitHub that targets `develop` with the master branch.
+Create a new PR in GitHub that targets `develop` with the trunk branch.
 
 After review, if all is ok, merge that PR and your work is done.

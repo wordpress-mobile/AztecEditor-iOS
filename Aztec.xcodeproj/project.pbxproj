@@ -293,6 +293,7 @@
 		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
 		40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElementConverter.swift; sourceTree = "<group>"; };
 		40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoElementConverter.swift; sourceTree = "<group>"; };
+		50A1CC6E250FEA93001D5517 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5951CB921D8BC93600E1866F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5951CB971D8BC93600E1866F /* AztecTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -521,7 +522,6 @@
 		FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceAttributes.swift"; sourceTree = "<group>"; };
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
-		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = ReleaseProcess.md; sourceTree = "<group>"; };
 		FF61909D202481F4004BCD0A /* CodeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeFormatter.swift; sourceTree = "<group>"; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
@@ -541,6 +541,7 @@
 		FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorElementAttributeConverter.swift; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
+		FFE859252564232100FAEB12 /* Architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Architecture.md; sourceTree = "<group>"; };
 		FFFA53E423C6277700829A43 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		FFFA53E623C628E700829A43 /* BoldFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoldFormatter.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
@@ -608,7 +609,7 @@
 			children = (
 				FF5DCBF0248ED900006D9FC7 /* Documentation */,
 				FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */,
-				FF5B98E41DC355B400571CA4 /* LICENSE */,
+				50A1CC6E250FEA93001D5517 /* LICENSE.md */,
 				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */,
 				FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */,
@@ -1397,6 +1398,7 @@
 			isa = PBXGroup;
 			children = (
 				FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */,
+				FFE859252564232100FAEB12 /* Architecture.md */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";

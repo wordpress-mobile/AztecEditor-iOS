@@ -93,5 +93,4 @@ If you have questions about getting setup or just want to say hi, join the [Word
 
 ## License
 
-WordPress-Aztec-iOS is available under the GPLv2 license. See the [LICENSE file](./LICENSE) for more info.
-WordPress-Editor-iOS is available under the GPLv2 license. See the [LICENSE file](./LICENSE) for more info.
+AztecEditor-iOS and WordPress-Editor-iOS are open source projects covered by the [Mozilla Public License Version 2.0](LICENSE.md).
