@@ -36,6 +36,13 @@ cd Example
 carthage update --platform iOS
 ```
 
+*If using XCode 12 use the follow script:*
+
+```bash
+cd Example
+./carthage.sh update --platform iOS
+```
+
 Once Carthage finishes, you should open the file `Aztec.xcworkspace` from the root directory of Aztec.
 
 Make sure the `AztecExample` target it selected, and press CMD + R to run it.
