@@ -2,6 +2,7 @@
 
 # carthage.sh
 # Usage example: ./carthage.sh build --platform iOS
+# This script was copied from here: https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
 
 set -euo pipefail
 
