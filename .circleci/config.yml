@@ -7,14 +7,13 @@ orbs:
 commands:
   custom-carthage:
     steps:
+      - xcode-version: "12.1.0"
       - run:
           name: Custom Carthage
           command: cd Example && ./carthage.sh build --platform iOS && cd ..
 
 jobs:
   custom-carthage:
-    macos:
-      - xcode: "12.1.0"
     steps:
       - custom-carthage
 
