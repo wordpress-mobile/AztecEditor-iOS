@@ -11,7 +11,7 @@ workflows:
           name: Carthage Update
           xcode-version: "12.1.0"
           workspace: Aztec.xcworkspace
-          scheme: Carthage Update          
+          scheme: CarthageBuild
           device: iPhone 11
 
       - ios/test:
