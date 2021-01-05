@@ -7,12 +7,14 @@ orbs:
 workflows:
   test_and_validate:
     jobs:
-      - ios/xcode-build:
+      - ios/test:
           name: Carthage Update
           xcode-version: "12.1.0"
           workspace: Aztec.workspace
           scheme: Carthage Update
           ios-version: "14.0"
+          device: iPhone 11
+
       - ios/test:
           name: Test
           xcode-version: "12.1.0"
