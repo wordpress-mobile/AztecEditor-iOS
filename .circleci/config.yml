@@ -9,7 +9,7 @@ workflows:
     jobs:
       - ios/test:
           name: Test
-          xcode-version: "11.0"
+          xcode-version: "12.1.0"
           carthage-update: true
           carthage-working-directory: Example
           bundle-install: false
@@ -21,19 +21,19 @@ workflows:
 
       - ios/validate-podspec:
           name: Validate WordPress-Aztec-iOS.podspec
-          xcode-version: "11.0"
+          xcode-version: "12.1.0"
           podspec-path: WordPress-Aztec-iOS.podspec
 
       - ios/validate-podspec:
           name: Validate WordPress-Editor-iOS.podspec
-          xcode-version: "11.0"
+          xcode-version: "12.1.0"
           podspec-path: WordPress-Editor-iOS.podspec
           # Reference WordPress-Aztec-iOS.podspec locally so we don't have to get it from the specs repo
           additional-parameters: --include-podspecs=WordPress-Aztec-iOS.podspec
 
       - ios/publish-podspec:
           name: Publish WordPress-Aztec-iOS to Trunk
-          xcode-version: "11.0"
+          xcode-version: "12.1.0"
           podspec-path: WordPress-Aztec-iOS.podspec
           post-to-slack: true
           filters:
