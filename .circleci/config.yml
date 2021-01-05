@@ -14,7 +14,7 @@ commands:
 jobs:
   custom-carthage:
     macos:
-      - xcode-version: "12.1.0"
+      - xcode: "12.1.0"
     steps:
       - custom-carthage
 
