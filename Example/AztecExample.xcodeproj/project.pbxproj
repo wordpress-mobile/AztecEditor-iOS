@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		FFB801A425A4DE2000B5A78F /* Chartage Update */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = FFB801AC25A4DE2000B5A78F /* Build configuration list for PBXAggregateTarget "Chartage Update" */;
+			buildPhases = (
+				FFB801AF25A4DE2A00B5A78F /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Chartage Update";
+			productName = ChartageBuild;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		59280F2A1D47CAF40083FB59 /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = 59280F281D47CAF40083FB59 /* content.html */; };
 		59280F2B1D47CAF40083FB59 /* SampleText.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 59280F291D47CAF40083FB59 /* SampleText.rtf */; };
@@ -394,6 +408,10 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
+					FFB801A425A4DE2000B5A78F = {
+						CreatedOnToolsVersion = 12.3;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "AztecExample" */;
@@ -421,6 +439,7 @@
 			targets = (
 				607FACCF1AFB9204008FA782 /* AztecExample */,
 				CC400F161E9EC04200859AB4 /* AztecUITests */,
+				FFB801A425A4DE2000B5A78F /* Chartage Update */,
 			);
 		};
 /* End PBXProject section */
@@ -487,6 +506,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FFB801AF25A4DE2A00B5A78F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n./carthage.sh build --platform iOS\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		607FACCC1AFB9204008FA782 /* Sources */ = {
@@ -952,6 +991,38 @@
 			};
 			name = "Release-Alpha";
 		};
+		FFB801A525A4DE2000B5A78F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FFB801A625A4DE2000B5A78F /* Release-Alpha */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Release-Alpha";
+		};
+		FFB801A725A4DE2000B5A78F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		FFB801A825A4DE2000B5A78F /* Profiling */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profiling;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -984,6 +1055,17 @@
 				CC400F1F1E9EC04200859AB4 /* Release-Alpha */,
 				CC400F201E9EC04200859AB4 /* Release */,
 				CC400F211E9EC04200859AB4 /* Profiling */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FFB801AC25A4DE2000B5A78F /* Build configuration list for PBXAggregateTarget "Chartage Update" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FFB801A525A4DE2000B5A78F /* Debug */,
+				FFB801A625A4DE2000B5A78F /* Release-Alpha */,
+				FFB801A725A4DE2000B5A78F /* Release */,
+				FFB801A825A4DE2000B5A78F /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

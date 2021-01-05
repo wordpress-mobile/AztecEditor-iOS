@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E8CE3EFE1F213AAA003254AB"
-               BuildableName = "Carthage Update"
-               BlueprintName = "Carthage Update"
-               ReferencedContainer = "container:Aztec.xcodeproj">
+               BlueprintIdentifier = "FFB801A425A4DE2000B5A78F"
+               BuildableName = "Chartage Update"
+               BlueprintName = "Chartage Update"
+               ReferencedContainer = "container:Example/AztecExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -40,15 +40,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E8CE3EFE1F213AAA003254AB"
-            BuildableName = "Carthage Update"
-            BlueprintName = "Carthage Update"
-            ReferencedContainer = "container:Aztec.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -56,15 +47,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E8CE3EFE1F213AAA003254AB"
-            BuildableName = "Carthage Update"
-            BlueprintName = "Carthage Update"
-            ReferencedContainer = "container:Aztec.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
