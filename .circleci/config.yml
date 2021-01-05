@@ -16,16 +16,13 @@ executors:
     description: |
       An executor with sensible defaults for iOS builds.
       See supported versions here: https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-    parameters:
-      <<: *xcode_version_parameter
     macos:
-      xcode: << parameters.xcode-version >>
-      
+      xcode: "12.1.0"
+
 jobs:
   custom-carthage:
     executor:
       name: default
-      xcode-version: "12.1.0"
     steps:
       - custom-carthage
 
