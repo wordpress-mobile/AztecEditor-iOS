@@ -4,13 +4,6 @@ orbs:
   # Using 1.0 of our Orbs means it will use the latest 1.0.x version from https://github.com/wordpress-mobile/circleci-orbs
   ios: wordpress-mobile/ios@1.0
 
-commands:
-  custom-carthage:
-    steps:
-      - run:
-          name: Custom Carthage
-          command: cd Example && ./carthage.sh build --platform iOS && cd ..
-
 executors:
   default:
     description: |
@@ -24,7 +17,9 @@ jobs:
     executor:
       name: default
     steps:
-      - custom-carthage
+       - run:
+          name: Custom Carthage
+          command: cd Example && ./carthage.sh build --platform iOS && cd ..
 
 workflows:
   test_and_validate:
