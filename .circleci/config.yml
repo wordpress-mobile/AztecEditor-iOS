@@ -13,7 +13,9 @@ commands:
 workflows:
   test_and_validate:
     jobs:
-      - custom-carthage
+      - custom-carthage:
+         steps:
+           - custom-carthage
 
       - ios/test:
           name: Test
