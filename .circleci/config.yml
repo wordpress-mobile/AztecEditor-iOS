@@ -4,14 +4,20 @@ orbs:
   # Using 1.0 of our Orbs means it will use the latest 1.0.x version from https://github.com/wordpress-mobile/circleci-orbs
   ios: wordpress-mobile/ios@1.0
 
+commands:
+  custom-carthage:
+    steps:
+      - run:
+          name: Custom Carthage
+          command: cd Example && ./carthage.sh build --platform iOS && cd ..
 workflows:
   test_and_validate:
     jobs:
+      - custom-carthage
+
       - ios/test:
           name: Test
           xcode-version: "12.1.0"
-          carthage-update: true
-          carthage-working-directory: Example
           bundle-install: false
           pod-install: false
           workspace: Aztec.xcworkspace
@@ -45,7 +51,7 @@ workflows:
       - ios/publish-podspec:
           name: Publish WordPress-Editor-iOS to Trunk
           requires: [ "Publish WordPress-Aztec-iOS to Trunk" ]
-          xcode-version: "11.0"
+          xcode-version: "12.1.0"
           podspec-path: WordPress-Editor-iOS.podspec
           post-to-slack: true
           filters:
