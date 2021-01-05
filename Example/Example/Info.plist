@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>To add photos or videos to your content.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Aztec</string>
 	<key>CFBundleExecutable</key>
