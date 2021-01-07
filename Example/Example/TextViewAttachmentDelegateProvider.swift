@@ -42,16 +42,15 @@ class TextViewAttachmentDelegateProvider: NSObject, TextViewAttachmentDelegate {
         return placeholderImage(for: attachment)
     }
 
-    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
-        let imageSize = CGSize(width:64, height:64)
+    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {        
         var placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
-            placeholderImage = UIImage.init(systemName: "photo")!
+            placeholderImage = UIImage.systemImage("photo")
         case _ as VideoAttachment:
-            placeholderImage = UIImage.init(systemName: "video")!
+            placeholderImage = UIImage.systemImage("video")
         default:
-            placeholderImage = UIImage.init(systemName: "paperclip")!
+            placeholderImage = UIImage.systemImage("paperclip")
         }
         if #available(iOS 13.0, *) {
             placeholderImage = placeholderImage.withTintColor(.label)

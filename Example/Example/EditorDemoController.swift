@@ -1135,53 +1135,65 @@ extension EditorDemoController {
     }    
 }
 
+extension UIImage {
+
+    static func systemImage(_ name: String) -> UIImage {
+        guard let image = UIImage(systemName: name) else {
+            assertionFailure("Missing system image: \(name)")
+            return UIImage()
+        }
+
+        return image
+    }
+}
+
 extension FormattingIdentifier {
 
     var iconImage: UIImage {
 
         switch(self) {
         case .media:
-            return UIImage.init(systemName: "plus.circle")!
+            return UIImage.systemImage("plus.circle")
         case .p:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .bold:
-            return UIImage.init(systemName: "bold")!
+            return UIImage.systemImage("bold")
         case .italic:
-            return UIImage.init(systemName: "italic")!
+            return UIImage.systemImage("italic")
         case .underline:
-            return UIImage.init(systemName: "underline")!
+            return UIImage.systemImage("underline")
         case .strikethrough:
-            return UIImage.init(systemName: "strikethrough")!
+            return UIImage.systemImage("strikethrough")
         case .blockquote:
-            return UIImage.init(systemName: "text.quote")!
+            return UIImage.systemImage("text.quote")
         case .orderedlist:
-            return UIImage.init(systemName: "list.number")!
+            return UIImage.systemImage("list.number")
         case .unorderedlist:
-            return UIImage.init(systemName: "list.bullet")!
+            return UIImage.systemImage("list.bullet")
         case .link:
-            return UIImage.init(systemName: "link")!
+            return UIImage.systemImage("link")
         case .horizontalruler:
-            return UIImage.init(systemName: "minus")!
+            return UIImage.systemImage("minus")
         case .sourcecode:
-            return UIImage.init(systemName: "chevron.left.slash.chevron.right")!
+            return UIImage.systemImage("chevron.left.slash.chevron.right")
         case .more:
-            return UIImage.init(systemName: "ellipsis")!
+            return UIImage.systemImage("textformat.abc.dottedunderline")
         case .header1:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .header2:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .header3:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .header4:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .header5:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .header6:
-            return UIImage.init(systemName: "textformat.size")!
+            return UIImage.systemImage("textformat.size")
         case .code:
-            return UIImage.init(systemName: "textbox")!
+            return UIImage.systemImage("textbox")
         default:
-            return UIImage.init(systemName: "info")!
+            return UIImage.systemImage("info")
         }
     }
 

@@ -70,7 +70,7 @@ class MediaInserter
             timer.invalidate()
             let message = NSAttributedString(string: "Upload failed!", attributes: attachmentTextAttributes)
             attachment.message = message
-            attachment.overlayImage = UIImage.init(systemName: "arrow.clockwise")
+            attachment.overlayImage = UIImage.systemImage("arrow.clockwise")
         }
         if progress.fractionCompleted >= 1 {
             timer.invalidate()
