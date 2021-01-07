@@ -1,6 +1,5 @@
 import Aztec
 import Foundation
-import Gridicons
 import MobileCoreServices
 import Photos
 import UIKit
@@ -998,7 +997,7 @@ extension EditorDemoController {
             toolbar.dividerTintColor = .gray
         }
 
-        toolbar.overflowToggleIcon = .gridicon(.ellipsis)
+        toolbar.overflowToggleIcon = UIImage.init(systemName: "ellipsis")!
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.autoresizingMask = [ .flexibleHeight ]
         toolbar.formatter = self
@@ -1108,10 +1107,10 @@ extension EditorDemoController {
 
     static var tintedMissingImage: UIImage = {
         if #available(iOS 13.0, *) {
-            return UIImage.gridicon(.image).withTintColor(.label)
+            return UIImage.init(systemName: "photo")!.withTintColor(.label)
         } else {
             // Fallback on earlier versions
-            return .gridicon(.image)
+            return UIImage.init(systemName: "photo")!
         }
     }()
 
@@ -1142,53 +1141,48 @@ extension FormattingIdentifier {
 
         switch(self) {
         case .media:
-            return gridicon(.addOutline)
+            return UIImage.init(systemName: "plus.circle")!
         case .p:
-            return gridicon(.heading)
+            return UIImage.init(systemName: "textformat.size")!
         case .bold:
-            return gridicon(.bold)
+            return UIImage.init(systemName: "bold")!
         case .italic:
-            return gridicon(.italic)
+            return UIImage.init(systemName: "italic")!
         case .underline:
-            return gridicon(.underline)
+            return UIImage.init(systemName: "underline")!
         case .strikethrough:
-            return gridicon(.strikethrough)
+            return UIImage.init(systemName: "strikethrough")!
         case .blockquote:
-            return gridicon(.quote)
+            return UIImage.init(systemName: "text.quote")!
         case .orderedlist:
-            return gridicon(.listOrdered)
+            return UIImage.init(systemName: "list.number")!
         case .unorderedlist:
-            return gridicon(.listUnordered)
+            return UIImage.init(systemName: "list.bullet")!
         case .link:
-            return gridicon(.link)
+            return UIImage.init(systemName: "link")!
         case .horizontalruler:
-            return gridicon(.minusSmall)
+            return UIImage.init(systemName: "minus")!
         case .sourcecode:
-            return gridicon(.code)
+            return UIImage.init(systemName: "chevron.left.slash.chevron.right")!
         case .more:
-            return gridicon(.readMore)
+            return UIImage.init(systemName: "ellipsis")!
         case .header1:
-            return gridicon(.headingH1)
+            return UIImage.init(systemName: "textformat.size")!
         case .header2:
-            return gridicon(.headingH2)
+            return UIImage.init(systemName: "textformat.size")!
         case .header3:
-            return gridicon(.headingH3)
+            return UIImage.init(systemName: "textformat.size")!
         case .header4:
-            return gridicon(.headingH4)
+            return UIImage.init(systemName: "textformat.size")!
         case .header5:
-            return gridicon(.headingH5)
+            return UIImage.init(systemName: "textformat.size")!
         case .header6:
-            return gridicon(.headingH6)
+            return UIImage.init(systemName: "textformat.size")!
         case .code:
-            return gridicon(.posts)
+            return UIImage.init(systemName: "textbox")!
         default:
-            return gridicon(.help)
+            return UIImage.init(systemName: "info")!
         }
-    }
-
-    private func gridicon(_ gridiconType: GridiconType) -> UIImage {
-        let size = EditorDemoController.Constants.formatBarIconSize
-        return .gridicon(gridiconType, size: size)
     }
 
     var accessibilityIdentifier: String {
