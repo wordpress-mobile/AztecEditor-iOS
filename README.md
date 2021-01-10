@@ -22,28 +22,11 @@ WordPressEditor is a Swift library that provides a plugin to make Aztec work wit
 ## Requirements
 
 - iOS 10 and above
-- Xcode 9.3 and above
+- Xcode 11 and above
 
 ## Running the Example App
 
-To run the Example app, you first need to make sure its dependencies are installed:
-
-- Make sure you have [Carthage](https://github.com/Carthage/Carthage) installed.
-- Using the command line:
-
-```bash
-cd Example
-carthage update --platform iOS
-```
-
-*If using XCode 12 use the follow script:*
-
-```bash
-cd Example
-./carthage.sh update --platform iOS
-```
-
-Once Carthage finishes, you should open the file `Aztec.xcworkspace` from the root directory of Aztec.
+To run the Example app, you first  open the file `Aztec.xcworkspace` from the root directory of Aztec.
 
 Make sure the `AztecExample` target it selected, and press CMD + R to run it.
 
