@@ -1,6 +1,5 @@
 import Aztec
 import Foundation
-import Gridicons
 import MobileCoreServices
 import Photos
 import UIKit
@@ -453,19 +452,19 @@ class EditorDemoController: UIViewController {
         }
         
         if richTextView.isFirstResponder {
-            return [ UIKeyCommand(input:"B", modifierFlags: .command, action:#selector(toggleBold), discoverabilityTitle:NSLocalizedString("Bold", comment: "Discoverability title for bold formatting keyboard shortcut.")),
-                     UIKeyCommand(input:"I", modifierFlags: .command, action:#selector(toggleItalic), discoverabilityTitle:NSLocalizedString("Italic", comment: "Discoverability title for italic formatting keyboard shortcut.")),
-                     UIKeyCommand(input:"S", modifierFlags: [.command], action:#selector(toggleStrikethrough), discoverabilityTitle: NSLocalizedString("Strikethrough", comment:"Discoverability title for strikethrough formatting keyboard shortcut.")),
-                     UIKeyCommand(input:"U", modifierFlags: .command, action:#selector(EditorDemoController.toggleUnderline(_:)), discoverabilityTitle: NSLocalizedString("Underline", comment:"Discoverability title for underline formatting keyboard shortcut.")),
-                     UIKeyCommand(input:"Q", modifierFlags:[.command,.alternate], action: #selector(toggleBlockquote), discoverabilityTitle: NSLocalizedString("Block Quote", comment: "Discoverability title for block quote keyboard shortcut.")),
-                     UIKeyCommand(input:"K", modifierFlags:.command, action:#selector(toggleLink), discoverabilityTitle: NSLocalizedString("Insert Link", comment: "Discoverability title for insert link keyboard shortcut.")),
-                     UIKeyCommand(input:"M", modifierFlags:[.command,.alternate], action:#selector(showImagePicker), discoverabilityTitle: NSLocalizedString("Insert Media", comment: "Discoverability title for insert media keyboard shortcut.")),
-                     UIKeyCommand(input:"U", modifierFlags:[.command, .alternate], action:#selector(toggleUnorderedList), discoverabilityTitle:NSLocalizedString("Bullet List", comment: "Discoverability title for bullet list keyboard shortcut.")),
-                     UIKeyCommand(input:"O", modifierFlags:[.command, .alternate], action:#selector(toggleOrderedList), discoverabilityTitle:NSLocalizedString("Numbered List", comment:"Discoverability title for numbered list keyboard shortcut.")),
-                     UIKeyCommand(input:"H", modifierFlags:[.command, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+            return [ UIKeyCommand(title: NSLocalizedString("Bold", comment: "Discoverability title for bold formatting keyboard shortcut."), action:#selector(toggleBold), input:"B", modifierFlags: .command, propertyList: nil, alternates: []),
+                     UIKeyCommand(title:NSLocalizedString("Italic", comment: "Discoverability title for italic formatting keyboard shortcut."), action:#selector(toggleItalic), input:"I", modifierFlags: .command ),
+                     UIKeyCommand(title: NSLocalizedString("Strikethrough", comment:"Discoverability title for strikethrough formatting keyboard shortcut."), action:#selector(toggleStrikethrough), input:"S", modifierFlags: [.command]),
+                     UIKeyCommand(title: NSLocalizedString("Underline", comment:"Discoverability title for underline formatting keyboard shortcut."), action:#selector(EditorDemoController.toggleUnderline(_:)), input:"U", modifierFlags: .command ),
+                     UIKeyCommand(title: NSLocalizedString("Block Quote", comment: "Discoverability title for block quote keyboard shortcut."), action: #selector(toggleBlockquote), input:"Q", modifierFlags:[.command,.alternate]),
+                     UIKeyCommand(title: NSLocalizedString("Insert Link", comment: "Discoverability title for insert link keyboard shortcut."), action:#selector(toggleLink), input:"K", modifierFlags:.command),
+                     UIKeyCommand(title: NSLocalizedString("Insert Media", comment: "Discoverability title for insert media keyboard shortcut."), action:#selector(showImagePicker), input:"M", modifierFlags:[.command,.alternate]),
+                     UIKeyCommand(title:NSLocalizedString("Bullet List", comment: "Discoverability title for bullet list keyboard shortcut."), action:#selector(toggleUnorderedList), input:"U", modifierFlags:[.command, .alternate]),
+                     UIKeyCommand(title:NSLocalizedString("Numbered List", comment:"Discoverability title for numbered list keyboard shortcut."), action:#selector(toggleOrderedList), input:"O", modifierFlags:[.command, .alternate]),
+                     UIKeyCommand(title:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."), action:#selector(toggleEditingMode), input:"H", modifierFlags:[.command, .shift])
             ]
         } else if htmlTextView.isFirstResponder {
-            return [UIKeyCommand(input:"H", modifierFlags:[.command, .shift], action:#selector(toggleEditingMode), discoverabilityTitle:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."))
+            return [UIKeyCommand(title:NSLocalizedString("Toggle HTML Source ", comment: "Discoverability title for HTML keyboard shortcut."), action:#selector(toggleEditingMode), input:"H", modifierFlags:[.command, .shift])
             ]
         }
         return []
@@ -998,7 +997,7 @@ extension EditorDemoController {
             toolbar.dividerTintColor = .gray
         }
 
-        toolbar.overflowToggleIcon = .gridicon(.ellipsis)
+        toolbar.overflowToggleIcon = UIImage.init(systemName: "ellipsis")!
         toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0)
         toolbar.autoresizingMask = [ .flexibleHeight ]
         toolbar.formatter = self
@@ -1108,10 +1107,10 @@ extension EditorDemoController {
 
     static var tintedMissingImage: UIImage = {
         if #available(iOS 13.0, *) {
-            return UIImage.gridicon(.image).withTintColor(.label)
+            return UIImage.init(systemName: "photo")!.withTintColor(.label)
         } else {
             // Fallback on earlier versions
-            return .gridicon(.image)
+            return UIImage.init(systemName: "photo")!
         }
     }()
 
@@ -1136,59 +1135,66 @@ extension EditorDemoController {
     }    
 }
 
+extension UIImage {
+
+    static func systemImage(_ name: String) -> UIImage {
+        guard let image = UIImage(systemName: name) else {
+            assertionFailure("Missing system image: \(name)")
+            return UIImage()
+        }
+
+        return image
+    }
+}
+
 extension FormattingIdentifier {
 
     var iconImage: UIImage {
 
         switch(self) {
         case .media:
-            return gridicon(.addOutline)
+            return UIImage.systemImage("plus.circle")
         case .p:
-            return gridicon(.heading)
+            return UIImage.systemImage("textformat.size")
         case .bold:
-            return gridicon(.bold)
+            return UIImage.systemImage("bold")
         case .italic:
-            return gridicon(.italic)
+            return UIImage.systemImage("italic")
         case .underline:
-            return gridicon(.underline)
+            return UIImage.systemImage("underline")
         case .strikethrough:
-            return gridicon(.strikethrough)
+            return UIImage.systemImage("strikethrough")
         case .blockquote:
-            return gridicon(.quote)
+            return UIImage.systemImage("text.quote")
         case .orderedlist:
-            return gridicon(.listOrdered)
+            return UIImage.systemImage("list.number")
         case .unorderedlist:
-            return gridicon(.listUnordered)
+            return UIImage.systemImage("list.bullet")
         case .link:
-            return gridicon(.link)
+            return UIImage.systemImage("link")
         case .horizontalruler:
-            return gridicon(.minusSmall)
+            return UIImage.systemImage("minus")
         case .sourcecode:
-            return gridicon(.code)
+            return UIImage.systemImage("chevron.left.slash.chevron.right")
         case .more:
-            return gridicon(.readMore)
+            return UIImage.systemImage("textformat.abc.dottedunderline")
         case .header1:
-            return gridicon(.headingH1)
+            return UIImage.systemImage("textformat.size")
         case .header2:
-            return gridicon(.headingH2)
+            return UIImage.systemImage("textformat.size")
         case .header3:
-            return gridicon(.headingH3)
+            return UIImage.systemImage("textformat.size")
         case .header4:
-            return gridicon(.headingH4)
+            return UIImage.systemImage("textformat.size")
         case .header5:
-            return gridicon(.headingH5)
+            return UIImage.systemImage("textformat.size")
         case .header6:
-            return gridicon(.headingH6)
+            return UIImage.systemImage("textformat.size")
         case .code:
-            return gridicon(.posts)
+            return UIImage.systemImage("textbox")
         default:
-            return gridicon(.help)
+            return UIImage.systemImage("info")
         }
-    }
-
-    private func gridicon(_ gridiconType: GridiconType) -> UIImage {
-        let size = EditorDemoController.Constants.formatBarIconSize
-        return .gridicon(gridiconType, size: size)
     }
 
     var accessibilityIdentifier: String {

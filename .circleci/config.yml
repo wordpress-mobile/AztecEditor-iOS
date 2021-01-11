@@ -10,8 +10,6 @@ workflows:
       - ios/test:
           name: Test
           xcode-version: "11.0"
-          carthage-update: true
-          carthage-working-directory: Example
           bundle-install: false
           pod-install: false
           workspace: Aztec.xcworkspace

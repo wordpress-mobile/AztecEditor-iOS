@@ -1,7 +1,6 @@
 import Foundation
 import Aztec
 import UIKit
-import Gridicons
 import AVFoundation
 import AVKit
 
@@ -43,16 +42,15 @@ class TextViewAttachmentDelegateProvider: NSObject, TextViewAttachmentDelegate {
         return placeholderImage(for: attachment)
     }
 
-    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {
-        let imageSize = CGSize(width:64, height:64)
+    func placeholderImage(for attachment: NSTextAttachment) -> UIImage {        
         var placeholderImage: UIImage
         switch attachment {
         case _ as ImageAttachment:
-            placeholderImage = .gridicon(.image, size: imageSize)
+            placeholderImage = UIImage.systemImage("photo")
         case _ as VideoAttachment:
-            placeholderImage = .gridicon(.video, size: imageSize)
+            placeholderImage = UIImage.systemImage("video")
         default:
-            placeholderImage = .gridicon(.attachment, size: imageSize)
+            placeholderImage = UIImage.systemImage("paperclip")
         }
         if #available(iOS 13.0, *) {
             placeholderImage = placeholderImage.withTintColor(.label)
@@ -106,7 +104,7 @@ class TextViewAttachmentDelegateProvider: NSObject, TextViewAttachmentDelegate {
                 let message = NSLocalizedString("Options", comment: "Options to show when tapping on a media object on the post/page editor.")
                 attachment.message = NSAttributedString(string: message, attributes: attachmentTextAttributes)
             }
-            attachment.overlayImage = UIImage.gridicon(.pencil, size: CGSize(width: 32.0, height: 32.0)).withRenderingMode(.alwaysTemplate)
+            attachment.overlayImage = UIImage.init(systemName: "square.and.pencil")!.withRenderingMode(.alwaysTemplate)
             textView.refresh(attachment)
             currentSelectedAttachment = attachment
         }
