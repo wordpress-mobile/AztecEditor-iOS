@@ -21,8 +21,8 @@ WordPressEditor is a Swift library that provides a plugin to make Aztec work wit
 
 ## Requirements
 
-- iOS 10 and above
-- Xcode 11 and above
+- iOS 11 and above
+- Xcode 12 and above
 
 ## Running the Example App
 

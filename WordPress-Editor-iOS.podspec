@@ -23,13 +23,11 @@ Pod::Spec.new do |s|
 
   s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MPLv2', :file => 'LICENSE' }
+  s.license          = { :type => 'MPLv2', :file => 'LICENSE.md' }
   s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com', 'Sergio Estevao' => 'sergioestevao@gmail.com', 'Jorge Leandro Perez' => 'jorge.perez@automattic.com' }
-  s.social_media_url = "http://twitter.com/WordPressiOS"
   s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
-
   s.module_name = "WordPressEditor"
   s.source_files = 'WordPressEditor/WordPressEditor/Classes/**/*'
   s.resources = 'WordPressEditor/WordPressEditor/Assets/**/*'
