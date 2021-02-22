@@ -34,7 +34,7 @@ Open a PR on github where you target the `trunk` branch with the `release/x.y.z`
 
 ### Step 2: Testing the Integration ###
 
-Before going any further, tt's normally good practice to test the Aztec integration into [WordPress-iOS project](https://github.com/wordpress-mobile/WordPress-iOS), to make sure we won’t have to do the release process twice.
+Before going any further, it's normally good practice to test the Aztec integration into [WordPress-iOS project](https://github.com/wordpress-mobile/WordPress-iOS), to make sure we won’t have to do the release process twice.
 
 Make sure WordPress-iOS’s podfile specifies the SAME (and latest) commit number for both of these:
 ```
@@ -65,7 +65,7 @@ Press the `Publish release` button
 
 At this moment the CI automation should notice your tag and after some minutes you should get the new pod publish on CocoaPods.
 
-If this for some reason fails chech the manual process bellow
+If this for some reason fails check the manual process below
 
 *Manual Process*
 
