@@ -1,3 +1,8 @@
+1.19.4
+-------
+* Fix Carthage build for Xcode 12
+* Replace gridicons with SFSymbols on the Example app
+
 1.19.3
 -------
 * Expose UIColor hexString helpers to be used by subclasses of Aztec components.
