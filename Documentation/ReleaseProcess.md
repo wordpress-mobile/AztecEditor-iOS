@@ -65,7 +65,7 @@ Press the `Publish release` button
 
 At this moment the CI automation should notice your tag and after some minutes you should get the new pod publish on CocoaPods.
 
-If this for some reason fails check the manual process below
+If this for some reason fails check the manual process below. Also note that the CI checks for a merged release PR can sometimes fail if the checks run prior to CocoaPods populating the new version through the CDN. Waiting a little while (e.g. 30-60 minutes) and rerunning the CI checks can sometimes repair the checks.
 
 *Manual Process*
 
