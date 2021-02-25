@@ -59,7 +59,7 @@ Create a new release on Github targetting the trunk branch and name it `Release 
 
 Set a tag with the value `x.y.z` .  
 
-On the description field and the content of the changelog for this version
+On the description field add the content of the changelog for this version
 
 Press the `Publish release` button
 
