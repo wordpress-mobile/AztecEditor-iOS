@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 import Aztec
 import AVFoundation
-import Gridicons
 
 class MediaInserter
 {
@@ -71,7 +70,7 @@ class MediaInserter
             timer.invalidate()
             let message = NSAttributedString(string: "Upload failed!", attributes: attachmentTextAttributes)
             attachment.message = message
-            attachment.overlayImage = .gridicon(.refresh)
+            attachment.overlayImage = UIImage.systemImage("arrow.clockwise")
         }
         if progress.fractionCompleted >= 1 {
             timer.invalidate()

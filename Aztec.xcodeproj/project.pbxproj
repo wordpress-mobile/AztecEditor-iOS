@@ -264,13 +264,6 @@
 			remoteGlobalIDString = 5951CB8D1D8BC93600E1866F;
 			remoteInfo = Aztec;
 		};
-		E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5951CB851D8BC93600E1866F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E8CE3EFE1F213AAA003254AB;
-			remoteInfo = "Carthage Update";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -293,6 +286,7 @@
 		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
 		40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElementConverter.swift; sourceTree = "<group>"; };
 		40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoElementConverter.swift; sourceTree = "<group>"; };
+		50A1CC6E250FEA93001D5517 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5951CB921D8BC93600E1866F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5951CB971D8BC93600E1866F /* AztecTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -521,7 +515,6 @@
 		FF48CAC7234DD5D3007FFC79 /* NSMutableAttributedString+ReplaceAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+ReplaceAttributes.swift"; sourceTree = "<group>"; };
 		FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageAttachment.swift; sourceTree = "<group>"; };
 		FF5B98E21DC29D0C00571CA4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
-		FF5B98E41DC355B400571CA4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = ReleaseProcess.md; sourceTree = "<group>"; };
 		FF61909D202481F4004BCD0A /* CodeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeFormatter.swift; sourceTree = "<group>"; };
 		FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "WordPress-Aztec-iOS.podspec"; sourceTree = "<group>"; };
@@ -541,6 +534,7 @@
 		FFD3C1702344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorCSSAttributeMatcher.swift; sourceTree = "<group>"; };
 		FFD3C1722344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForegroundColorElementAttributeConverter.swift; sourceTree = "<group>"; };
 		FFD436971E3180A500A0E26F /* FontFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontFormatterTests.swift; sourceTree = "<group>"; };
+		FFE859252564232100FAEB12 /* Architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Architecture.md; sourceTree = "<group>"; };
 		FFFA53E423C6277700829A43 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		FFFA53E623C628E700829A43 /* BoldFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoldFormatter.swift; sourceTree = "<group>"; };
 		FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoAttachment.swift; sourceTree = "<group>"; };
@@ -608,7 +602,7 @@
 			children = (
 				FF5DCBF0248ED900006D9FC7 /* Documentation */,
 				FF7A1C481E51EFB600C4C7C8 /* WordPress-Aztec-iOS.podspec */,
-				FF5B98E41DC355B400571CA4 /* LICENSE */,
+				50A1CC6E250FEA93001D5517 /* LICENSE.md */,
 				FF5B98E21DC29D0C00571CA4 /* README.md */,
 				FF7A1C4A1E51F05700C4C7C8 /* CONTRIBUTING.md */,
 				FFC2BBF81F2A25CF00E404FB /* CHANGELOG.md */,
@@ -1397,6 +1391,7 @@
 			isa = PBXGroup;
 			children = (
 				FF5DCBF1248ED900006D9FC7 /* ReleaseProcess.md */,
+				FFE859252564232100FAEB12 /* Architecture.md */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";
@@ -1413,23 +1408,6 @@
 		};
 /* End PBXHeadersBuildPhase section */
 
-/* Begin PBXLegacyTarget section */
-		E8CE3EFE1F213AAA003254AB /* Carthage Update */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "$(ACTION)";
-			buildConfigurationList = E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */;
-			buildPhases = (
-			);
-			buildToolPath = "${PROJECT_DIR}/Scripts/carthage_script.sh";
-			buildWorkingDirectory = "";
-			dependencies = (
-			);
-			name = "Carthage Update";
-			passBuildSettingsInEnvironment = 1;
-			productName = "Carthage Update";
-		};
-/* End PBXLegacyTarget section */
-
 /* Begin PBXNativeTarget section */
 		5951CB8D1D8BC93600E1866F /* Aztec */ = {
 			isa = PBXNativeTarget;
@@ -1443,7 +1421,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E8CE3F051F213AD0003254AB /* PBXTargetDependency */,
 			);
 			name = Aztec;
 			productName = Aztec;
@@ -1476,7 +1453,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1230;
 				ORGANIZATIONNAME = "Automattic Inc.";
 				TargetAttributes = {
 					5951CB8D1D8BC93600E1866F = {
@@ -1488,10 +1465,6 @@
 					5951CB961D8BC93600E1866F = {
 						CreatedOnToolsVersion = 8.0;
 						LastSwiftMigration = 1100;
-						ProvisioningStyle = Automatic;
-					};
-					E8CE3EFE1F213AAA003254AB = {
-						CreatedOnToolsVersion = 8.3.3;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -1511,7 +1484,6 @@
 			targets = (
 				5951CB8D1D8BC93600E1866F /* Aztec */,
 				5951CB961D8BC93600E1866F /* AztecTests */,
-				E8CE3EFE1F213AAA003254AB /* Carthage Update */,
 			);
 		};
 /* End PBXProject section */
@@ -1801,11 +1773,6 @@
 			target = 5951CB8D1D8BC93600E1866F /* Aztec */;
 			targetProxy = 5951CB991D8BC93600E1866F /* PBXContainerItemProxy */;
 		};
-		E8CE3F051F213AD0003254AB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E8CE3EFE1F213AAA003254AB /* Carthage Update */;
-			targetProxy = E8CE3F041F213AD0003254AB /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1834,6 +1801,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1900,6 +1868,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1947,10 +1916,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -1978,10 +1943,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2002,10 +1963,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
@@ -2021,10 +1978,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
@@ -2032,53 +1985,6 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
-		};
-		E8CE3EFF1F213AAA003254AB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		E8CE3F001F213AAA003254AB /* Release-Alpha */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = "Release-Alpha";
-		};
-		E8CE3F011F213AAA003254AB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		E8CE3F021F213AAA003254AB /* Profiling */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Profiling;
 		};
 		F111A1101DA7E8B600294FD3 /* Profiling */ = {
 			isa = XCBuildConfiguration;
@@ -2105,6 +2011,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2153,10 +2060,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2177,10 +2080,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
@@ -2214,6 +2113,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2268,10 +2168,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2293,10 +2189,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Example/Carthage/Build/iOS",
-				);
 				INFOPLIST_FILE = AztecTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wordpress.AztecTests;
@@ -2338,17 +2230,6 @@
 				F1882B6B1D9E0F8E000B48D6 /* Release-Alpha */,
 				5951CBA71D8BC93600E1866F /* Release */,
 				F111A1121DA7E8B600294FD3 /* Profiling */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E8CE3F031F213AAA003254AB /* Build configuration list for PBXLegacyTarget "Carthage Update" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E8CE3EFF1F213AAA003254AB /* Debug */,
-				E8CE3F001F213AAA003254AB /* Release-Alpha */,
-				E8CE3F011F213AAA003254AB /* Release */,
-				E8CE3F021F213AAA003254AB /* Profiling */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
