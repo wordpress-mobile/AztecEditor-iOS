@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.resources = 'WordPressEditor/WordPressEditor/Assets/**/*'
   s.xcconfig = {
     'OTHER_LDFLAGS' => '-lxml2',
-  	'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'
+    'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'
   }
 
   s.dependency "WordPress-Aztec-iOS", s.version.to_s
