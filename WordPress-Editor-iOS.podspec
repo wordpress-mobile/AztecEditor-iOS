@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
 
   s.homepage      = 'https://github.com/wordpress-mobile/AztecEditor-iOS'
   s.license       = { :type => 'MPLv2', :file => 'LICENSE.md' }
-  s.author        = { 'The WordPress Mobile Team' => 'mobile@automattic.com' }
+  s.author        = { 'The WordPress Mobile Team' => 'mobile@wordpress.org' }
 
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
