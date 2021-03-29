@@ -1,34 +1,22 @@
-#
-# Be sure to run `bundle exec pod lib lint WordPress-Aztec-iOS.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
-  s.name             = 'WordPress-Aztec-iOS'
-  s.version          = '1.19.4'
-  s.summary          = 'The native HTML Editor.'
+  s.name          = 'WordPress-Aztec-iOS'
+  s.version       = '1.19.4'
 
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
+  s.summary       = 'The native HTML Editor.'
+  s.description   = <<-DESC
+                    The native HTML Editor by Automattic Inc.
 
-  s.description      = <<-DESC
-                       The native HTML Editor by Automattic Inc.
-                       DESC
+                    This library provides a UITextView subclass with HTML visual editing capabilities.
+                  DESC
 
-  s.homepage         = 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MPLv2', :file => 'LICENSE.md' }
-  s.author           = { 'Automattic' => 'mobile@automattic.com', 'Diego Rey Mendez' => 'diego.rey.mendez@automattic.com', 'Sergio Estevao' => 'sergioestevao@gmail.com', 'Jorge Leandro Perez' => 'jorge.perez@automattic.com' }
-  s.source           = { :git => 'https://github.com/wordpress-mobile/WordPress-Aztec-iOS.git', :tag => s.version.to_s }
+  s.homepage      = 'https://github.com/wordpress-mobile/AztecEditor-iOS'
+  s.license       = { :type => 'MPLv2', :file => 'LICENSE.md' }
+  s.author        = { 'The WordPress Mobile Team' => 'mobile@wordpress.org' }
+
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
 
+  s.source        = { :git => 'https://github.com/wordpress-mobile/AztecEditor-iOS.git', :tag => s.version.to_s }
   s.module_name = "Aztec"
   s.source_files = 'Aztec/Classes/**/*'
   s.resource_bundles = {
@@ -36,7 +24,8 @@ Pod::Spec.new do |s|
       "Aztec/Assets/**/*"
     ]
   }
-
-  s.xcconfig = {'OTHER_LDFLAGS' => '-lxml2',
-  				'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'}
+  s.xcconfig = {
+    'OTHER_LDFLAGS' => '-lxml2',
+    'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'
+  }
 end
