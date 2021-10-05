@@ -1,3 +1,7 @@
+1.19.5
+-------
+* Addd support for the Mark HTML tag.
+
 1.19.4
 -------
 * Fix Carthage build for Xcode 12
