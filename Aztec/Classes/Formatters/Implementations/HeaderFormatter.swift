@@ -114,6 +114,12 @@ private extension HeaderFormatter {
     }
 
     func headerFontSize(for type: Header.HeaderType, defaultSize: Float?) -> Float {
+        let defaultHeaderFontSize = Float(16) // From Header.swift
+        // Allow overwriting the fontSize with the default one if it's set
+        if defaultSize != defaultHeaderFontSize {
+            return defaultSize!
+        }
+
         guard type == .none, let defaultSize = defaultSize else {
             return type.fontSize
         }
