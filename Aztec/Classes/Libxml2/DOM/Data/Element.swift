@@ -30,7 +30,7 @@ public struct Element: RawRepresentable, Hashable {
     public static var mergeableBlockLevelElements = Set<Element>([.blockquote, .div, .figure, .figcaption, .h1, .h2, .h3, .h4, .h5, .h6, .hr, .li, .ol, .ul, .p, .pre])
 
     /// List of style HTML elements that can be merged together when they are sibling to each other
-    public static var mergeableStyleElements = Set<Element>([.i, .em, .b, .strong, .strike, .u, .code, .cite, .a, .sup, .sub])
+    public static var mergeableStyleElements = Set<Element>([.i, .em, .b, .strong, .strike, .u, .code, .cite, .a, .sup, .sub, .mark])
 
     /// List of block level elements that can be merged but only when they have a single children that is also mergeable
     ///
@@ -121,6 +121,7 @@ extension Element {
     public static let video = Element("video")
     public static let wbr = Element("wbr")
     public static let body = Element("body")
+    public static let mark = Element("mark")
 
 }
 

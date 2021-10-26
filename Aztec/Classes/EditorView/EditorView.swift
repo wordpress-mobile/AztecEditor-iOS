@@ -269,11 +269,11 @@ extension EditorView: UITextInput {
         return activeView.characterRange(byExtending: position, in: direction)
     }
     
-    public func baseWritingDirection(for position: UITextPosition, in direction: UITextStorageDirection) -> UITextWritingDirection {
+    public func baseWritingDirection(for position: UITextPosition, in direction: UITextStorageDirection) -> NSWritingDirection {
         return activeView.baseWritingDirection(for: position, in: direction)
     }
     
-    public func setBaseWritingDirection(_ writingDirection: UITextWritingDirection, for range: UITextRange) {
+    public func setBaseWritingDirection(_ writingDirection: NSWritingDirection, for range: UITextRange) {
         activeView.setBaseWritingDirection(writingDirection, for: range)
     }
     
