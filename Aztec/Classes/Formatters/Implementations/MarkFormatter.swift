@@ -33,5 +33,3 @@ class MarkFormatter: AttributeFormatter {
         return attributes[NSAttributedString.Key.markHtmlRepresentation] != nil
     }
 }
-
-

@@ -61,7 +61,7 @@ public extension NSAttributedString.Key {
     /// Key used to store Sub Tag Metadata, by our SupFormatter.
     ///
     static let subHtmlRepresentation = NSAttributedString.Key("Sub.htmlRepresentation")
-    
+
     /// Key used to store Mark Tag Metadata, by our MarkFormatter.
     ///
     static let markHtmlRepresentation = NSAttributedString.Key("Mark.htmlRepresentation")
