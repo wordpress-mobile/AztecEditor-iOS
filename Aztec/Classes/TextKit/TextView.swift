@@ -1971,7 +1971,7 @@ private extension TextView {
     /// Removes all paragraph formatting from the typingAttributes and from the selected range.
     ///
     private func removeParagraphFormatting() {
-        for formatter in paragraphFormatters {  
+        for formatter in paragraphFormatters {
             typingAttributes = formatter.remove(from: typingAttributes)
             formatter.removeAttributes(from: storage, at: selectedRange)
         }
