@@ -853,7 +853,8 @@ open class TextView: UITextView {
         .header5: HeaderFormatter(headerLevel: .h5),
         .header6: HeaderFormatter(headerLevel: .h6),
         .p: HTMLParagraphFormatter(),
-        .code: CodeFormatter()
+        .code: CodeFormatter(),
+        .mark: MarkFormatter()
     ]
 
     /// Get a list of format identifiers spanning the specified range as a String array.
@@ -1135,6 +1136,16 @@ open class TextView: UITextView {
         let formatter = HeaderFormatter(headerLevel: headerType)
         toggle(formatter: formatter, atRange: range)
         forceRedrawCursorAfterDelay()
+    }
+
+    /// Adds or removes a mark style from the specified range.
+    ///
+    /// - Parameter range: The NSRange to edit.
+    ///
+    open func toggleMark(range: NSRange) {
+        let formatter = MarkFormatter()
+        formatter.placeholderAttributes = self.defaultAttributes
+        toggle(formatter: formatter, atRange: range)
     }
 
     /// Replaces with an horizontal ruler on the specified range
