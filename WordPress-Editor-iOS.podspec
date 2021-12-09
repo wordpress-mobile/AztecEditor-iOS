@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name          = 'WordPress-Editor-iOS'
-  s.version       = '1.19.5'
+  s.version       = '1.19.6'
 
   s.summary       = 'The WordPress HTML Editor.'
   s.description   = <<-DESC
