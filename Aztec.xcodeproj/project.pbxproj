@@ -13,6 +13,7 @@
 		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
 		40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */; };
 		40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */; };
+		568FF25827552BFF0057B2E3 /* MarkFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568FF25727552BFF0057B2E3 /* MarkFormatter.swift */; };
 		594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */; };
 		594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06D1D8BDFA700D138DF /* InNodeConverterTests.swift */; };
@@ -287,6 +288,7 @@
 		40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElementConverter.swift; sourceTree = "<group>"; };
 		40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoElementConverter.swift; sourceTree = "<group>"; };
 		50A1CC6E250FEA93001D5517 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		568FF25727552BFF0057B2E3 /* MarkFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkFormatter.swift; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5951CB921D8BC93600E1866F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5951CB971D8BC93600E1866F /* AztecTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AztecTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1013,6 +1015,7 @@
 				FF949363245744560085ABB3 /* SubscriptFormatter.swift */,
 				FF61909D202481F4004BCD0A /* CodeFormatter.swift */,
 				FFB5D29620BEB21A0038DCFB /* CiteFormatter.swift */,
+				568FF25727552BFF0057B2E3 /* MarkFormatter.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -1696,6 +1699,7 @@
 				F1079D67208F80FE009717FA /* EditorView.swift in Sources */,
 				F15A8B6520BED08900C57ED2 /* ParagraphPropertyConverter.swift in Sources */,
 				F1D7F525221CE2D20065555D /* HTMLStyleToggler.swift in Sources */,
+				568FF25827552BFF0057B2E3 /* MarkFormatter.swift in Sources */,
 				F1FA0E811E6EF514009D98EE /* Attribute.swift in Sources */,
 				F16A2ADD20CC503F00BF3A0A /* VideoAttachmentToElementConverter.swift in Sources */,
 			);
