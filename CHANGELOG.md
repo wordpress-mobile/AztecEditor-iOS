@@ -1,6 +1,10 @@
+1.19.6
+-------
+* Add support for Mark inline formatting.
+
 1.19.5
 -------
-* Addd support for the Mark HTML tag.
+* Add support for the Mark HTML tag.
 
 1.19.4
 -------
