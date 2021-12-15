@@ -112,12 +112,14 @@ private extension HeaderFormatter {
 
         return nil
     }
-
+    
     func headerFontSize(for type: Header.HeaderType, defaultSize: Float?) -> Float {
-        guard type == .none, let defaultSize = defaultSize else {
-            return type.fontSize
+        if let defaultSize = defaultSize {
+            if type == .none && !isForGutenberg {
+                return defaultSize
+            }
+            return type.fontSize * (defaultSize / 16)
         }
-
-        return defaultSize
+        return type.fontSize
     }
 }
