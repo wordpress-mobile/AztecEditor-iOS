@@ -78,10 +78,20 @@ protocol TextStorageAttachmentsDelegate: class {
 /// Custom NSTextStorage
 ///
 open class TextStorage: NSTextStorage {
+    let isForGutenberg: Bool
+    
+    init(isForGutenberg: Bool = false) {
+        self.isForGutenberg = isForGutenberg
+        super.init()
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - HTML Conversion
     
-    public let htmlConverter = HTMLConverter()
+    lazy public var htmlConverter = HTMLConverter(isForGutenberg: isForGutenberg)
     
     // MARK: - PluginManager
     

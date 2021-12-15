@@ -152,6 +152,8 @@ public protocol TextViewPasteboardDelegate: class {
 // MARK: - TextView
 //
 open class TextView: UITextView {
+    
+    let isForGutenberg = false
 
     // MARK: - Aztec Delegates
 
@@ -415,7 +417,7 @@ open class TextView: UITextView {
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
-        let storage = TextStorage()
+        let storage = TextStorage(isForGutenberg: isForGutenberg)
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 

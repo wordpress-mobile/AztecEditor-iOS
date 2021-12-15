@@ -4,6 +4,7 @@ import Foundation
 /// It takes care of converting HTML text to NSAttributedString and vice-versa.
 ///
 public class HTMLConverter {
+    let isForGutenberg: Bool
     
     // MARK: - Plugins & Parsing
     
@@ -11,12 +12,14 @@ public class HTMLConverter {
     
     // MARK: - Initializers
     
-    public init() {
+    public init(isForGutenberg: Bool = false) {
+        self.isForGutenberg = isForGutenberg
         pluginManager = PluginManager()
     }
     
-    init(with pluginManager: PluginManager) {
+    init(with pluginManager: PluginManager, isForGutenberg: Bool = false) {
         self.pluginManager = pluginManager
+        self.isForGutenberg = isForGutenberg
     }
     
     // MARK: - Converters: HTML -> AttributedString
@@ -32,7 +35,7 @@ public class HTMLConverter {
     let htmlToTree = HTMLParser()
     
     private(set) lazy var treeToAttributedString: AttributedStringSerializer = {
-        return AttributedStringSerializer(customizer: pluginManager)
+        return AttributedStringSerializer(customizer: pluginManager, isForGutenberg: isForGutenberg)
     }()
     
     // MARK: - Converters: AttributedString -> HTML

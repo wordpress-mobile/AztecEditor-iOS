@@ -8,6 +8,8 @@ protocol AttributedStringSerializerCustomizer {
 /// Composes an attributed string from an HTML tree.
 ///
 class AttributedStringSerializer {
+    let isForGutenberg: Bool
+    
     private let customizer: AttributedStringSerializerCustomizer?
     
     // MARK: - Element Converters
@@ -35,8 +37,8 @@ class AttributedStringSerializer {
     
     // MARK: - Initializers
 
-    required init(
-        customizer: AttributedStringSerializerCustomizer? = nil) {
+    required init(customizer: AttributedStringSerializerCustomizer? = nil, isForGutenberg: Bool = false) {
+        self.isForGutenberg = isForGutenberg
         
         self.customizer = customizer
     }
@@ -158,7 +160,7 @@ class AttributedStringSerializer {
     // This converter should not be added to `elementFormattersMap`.  This converter is returned
     // whenever the map doesn't find a proper match.
     //
-    private(set) lazy var genericElementConverter = GenericElementConverter()
+    private(set) lazy var genericElementConverter = GenericElementConverter(isForGutenberg: isForGutenberg)
     
     lazy var contentSerializer: ElementConverter.ContentSerializer = { [unowned self] (elementNode, intrinsicRepresentation, attributes, intrinsicRepresentationBeforeChildren) in
         let content = NSMutableAttributedString()

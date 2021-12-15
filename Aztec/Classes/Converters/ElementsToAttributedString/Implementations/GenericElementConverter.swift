@@ -4,6 +4,11 @@ import UIKit
 /// Converts a generic element to `NSAttributedString`.  Should only be used if a specific converter is not found.
 ///
 class GenericElementConverter: ElementConverter {
+    let isForGutenberg: Bool
+    
+    required init(isForGutenberg: Bool = false) {
+        self.isForGutenberg = isForGutenberg
+    }
     
     // MARK: - Element Support
     
@@ -18,12 +23,12 @@ class GenericElementConverter: ElementConverter {
     lazy var blockquoteFormatter = BlockquoteFormatter(increaseDepth: true)
     lazy var boldFormatter = Configuration.defaultBoldFormatter
     lazy var divFormatter = HTMLDivFormatter()
-    lazy var h1Formatter = HeaderFormatter(headerLevel: .h1)
-    lazy var h2Formatter = HeaderFormatter(headerLevel: .h2)
-    lazy var h3Formatter = HeaderFormatter(headerLevel: .h3)
-    lazy var h4Formatter = HeaderFormatter(headerLevel: .h4)
-    lazy var h5Formatter = HeaderFormatter(headerLevel: .h5)
-    lazy var h6Formatter = HeaderFormatter(headerLevel: .h6)
+    lazy var h1Formatter = HeaderFormatter(headerLevel: .h1, isForGutenberg: isForGutenberg)
+    lazy var h2Formatter = HeaderFormatter(headerLevel: .h2, isForGutenberg: isForGutenberg)
+    lazy var h3Formatter = HeaderFormatter(headerLevel: .h3, isForGutenberg: isForGutenberg)
+    lazy var h4Formatter = HeaderFormatter(headerLevel: .h4, isForGutenberg: isForGutenberg)
+    lazy var h5Formatter = HeaderFormatter(headerLevel: .h5, isForGutenberg: isForGutenberg)
+    lazy var h6Formatter = HeaderFormatter(headerLevel: .h6, isForGutenberg: isForGutenberg)
     lazy var italicFormatter = ItalicFormatter()
     lazy var linkFormatter = LinkFormatter()
     lazy var orderedListFormatter = TextListFormatter(style: .ordered, increaseDepth: true)

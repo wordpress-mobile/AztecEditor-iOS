@@ -9,13 +9,15 @@ open class HeaderFormatter: ParagraphAttributeFormatter {
     /// Heading Level of this formatter
     ///
     let headerLevel: Header.HeaderType
+    
+    let isForGutenberg: Bool
 
     /// Designated Initializer
     ///
-    public init(headerLevel: Header.HeaderType = .h1) {
+    public init(headerLevel: Header.HeaderType = .h1, isForGutenberg: Bool = false) {
         self.headerLevel = headerLevel
+        self.isForGutenberg = isForGutenberg
     }
-
 
     // MARK: - Overwriten Methods
 
