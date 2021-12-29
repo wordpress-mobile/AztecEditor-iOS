@@ -114,6 +114,10 @@ private extension HeaderFormatter {
     }
 
     func headerFontSize(for type: Header.HeaderType, defaultSize: Float?) -> Float {
+        if Configuration.useDefaultFont {
+            return defaultSize!
+        }
+
         guard type == .none, let defaultSize = defaultSize else {
             return type.fontSize
         }
