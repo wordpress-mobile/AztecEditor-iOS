@@ -1,3 +1,8 @@
+1.19.7
+-------
+* Add variable to control whether typing attributes should be recalculated when deleting backward.
+* Allow using the default font for the PreFormatter/HeaderFormatter.
+
 1.19.6
 -------
 * Add support for Mark inline formatting.
