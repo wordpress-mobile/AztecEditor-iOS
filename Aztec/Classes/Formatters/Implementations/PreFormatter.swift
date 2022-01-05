@@ -30,8 +30,10 @@ open class PreFormatter: ParagraphAttributeFormatter {
 
         newParagraphStyle.appendProperty(HTMLPre(with: representation))
 
+        let defaultFont = attributes[.font]
+
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-        resultingAttributes[.font] = monospaceFont
+        resultingAttributes[.font] = Configuration.useDefaultFont ? defaultFont : monospaceFont
 
         return resultingAttributes
     }
