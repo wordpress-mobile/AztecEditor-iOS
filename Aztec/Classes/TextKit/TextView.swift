@@ -1108,7 +1108,7 @@ open class TextView: UITextView {
         let isOlTagPresent = formatter.present(in: storage, at: range)
         let isLiTagPresent = liFormatter.present(in: storage, at: range)
 
-        if (isOlTagPresent != isLiTagPresent) {
+        if isOlTagPresent != isLiTagPresent {
             toggle(formatter: liFormatter, atRange: range)
         }
         forceRedrawCursorAfterDelay()
@@ -1129,7 +1129,7 @@ open class TextView: UITextView {
         let isOlTagPresent = formatter.present(in: storage, at: range)
         let isLiTagPresent = liFormatter.present(in: storage, at: range)
 
-        if (isOlTagPresent != isLiTagPresent){
+        if isOlTagPresent != isLiTagPresent {
             toggle(formatter: liFormatter, atRange: range)
         }
         forceRedrawCursorAfterDelay()
