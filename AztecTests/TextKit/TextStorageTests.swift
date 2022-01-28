@@ -579,4 +579,45 @@ class TextStorageTests: XCTestCase {
         let result = storage.getHTML()
         XCTAssertEqual(expectedResult, result)
     }
+
+    /// Verifies that missing Heading attributes are retained on string replacements
+    ///
+    func testMissingHeadingAttributeIsRetained() {
+        let defaultAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14),
+            .paragraphStyle: ParagraphStyle.default,
+            .headingRepresentation: 2
+        ]
+
+        let headerString = NSAttributedString(
+            string: "Hello i'm a header",
+            attributes: defaultAttributes
+        )
+
+        storage.setAttributedString(headerString)
+
+        let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello i'm a header")
+        XCTAssertEqual(originalAttributes.count, 3)
+        XCTAssertNotNil(originalAttributes[.headingRepresentation])
+
+        // autocorrect seemed to strip custom keys, so remove .headingRepresentation
+        let autoCorrectedAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14),
+            .paragraphStyle: ParagraphStyle.default
+        ]
+
+        let autoCorrectedString = NSAttributedString(
+            string: "I'm",
+            attributes: autoCorrectedAttributes
+        )
+
+        let range = NSRange(location: 6, length: 3)
+        storage.replaceCharacters(in: range, with: autoCorrectedString)
+
+        let finalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a header")
+        XCTAssertEqual(finalAttributes.count, 3)
+        XCTAssertNotNil(finalAttributes[.headingRepresentation])
+    }
 }
