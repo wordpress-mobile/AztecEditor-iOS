@@ -1111,8 +1111,12 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
 
         let liFormatter = LiFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: liFormatter, atRange: range)
+        let isOlTagPresent = formatter.present(in: storage, at: range)
+        let isLiTagPresent = liFormatter.present(in: storage, at: range)
 
+        if isOlTagPresent != isLiTagPresent {
+            toggle(formatter: liFormatter, atRange: range)
+        }
         forceRedrawCursorAfterDelay()
     }
 
@@ -1128,8 +1132,12 @@ open class TextView: UITextView {
         toggle(formatter: formatter, atRange: range)
 
         let liFormatter = LiFormatter(placeholderAttributes: typingAttributes)
-        toggle(formatter: liFormatter, atRange: range)
-        
+        let isOlTagPresent = formatter.present(in: storage, at: range)
+        let isLiTagPresent = liFormatter.present(in: storage, at: range)
+
+        if isOlTagPresent != isLiTagPresent {
+            toggle(formatter: liFormatter, atRange: range)
+        }
         forceRedrawCursorAfterDelay()
     }
 
