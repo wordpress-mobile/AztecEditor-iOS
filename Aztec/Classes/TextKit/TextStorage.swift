@@ -233,8 +233,14 @@ open class TextStorage: NSTextStorage {
         let currentAttrs = attributes(at: 0, effectiveRange: nil)
 
         guard
+            // the text currently in storage has a headingRepresentation key
             let headerSize = currentAttrs[.headingRepresentation],
-            attributedString.attribute(.headingRepresentation, at: 0, effectiveRange: nil) == nil
+            // the text coming in doesn't have a headingRepresentation key
+            attributedString.attribute(.headingRepresentation, at: 0, effectiveRange: nil) == nil,
+            // the text coming in has a paragraph style attribute
+            let paragraphStyle = attributedString.attributes(at: 0, effectiveRange: nil)[.paragraphStyle] as? ParagraphStyle,
+            // the paragraph style contains a property that's a Header type
+            paragraphStyle.properties.contains(where: { $0 is Header })
         else {
             // Either the heading attribute wasn't present in the existing string,
             // or the attributed string already had it.

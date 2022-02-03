@@ -580,32 +580,19 @@ class TextStorageTests: XCTestCase {
         XCTAssertEqual(expectedResult, result)
     }
 
-    /// Verifies that missing Heading attributes are retained on string replacements
+    /// Verifies that missing Heading attributes are retained on string replacements when appropriate
     ///
     func testMissingHeadingAttributeIsRetained() {
-        let defaultAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 14),
-            .paragraphStyle: ParagraphStyle.default,
-            .headingRepresentation: 2
-        ]
-
-        let headerString = NSAttributedString(
-            string: "Hello i'm a header",
-            attributes: defaultAttributes
-        )
-
-        storage.setAttributedString(headerString)
+        let formatter = HeaderFormatter(headerLevel: .h2)
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: "Hello i'm a header")
+        formatter.applyAttributes(to: storage, at: storage.rangeOfEntireString)
 
         let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
         XCTAssertEqual(storage.string, "Hello i'm a header")
         XCTAssertEqual(originalAttributes.count, 3)
         XCTAssertNotNil(originalAttributes[.headingRepresentation])
 
-        // autocorrect seemed to strip custom keys, so remove .headingRepresentation
-        let autoCorrectedAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 14),
-            .paragraphStyle: ParagraphStyle.default
-        ]
+        let autoCorrectedAttributes = originalAttributes.filter { $0.key != .headingRepresentation }
 
         let autoCorrectedString = NSAttributedString(
             string: "I'm",
@@ -617,7 +604,33 @@ class TextStorageTests: XCTestCase {
 
         let finalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
         XCTAssertEqual(storage.string, "Hello I'm a header")
-        XCTAssertEqual(finalAttributes.count, 3)
-        XCTAssertNotNil(finalAttributes[.headingRepresentation])
+        XCTAssertEqual(originalAttributes.keys, finalAttributes.keys)
+    }
+
+    /// Verifies that converting a Heading to a Paragraph doesn't retain the heading attribute
+    ///
+    func testHeadingToParagraphDoesNotRetainHeadingAttribute() {
+        let headerFormatter = HeaderFormatter(headerLevel: .h2)
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: "Hello I'm a header")
+        headerFormatter.applyAttributes(to: storage, at: storage.rangeOfEntireString)
+
+        let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a header")
+        XCTAssertNotNil(originalAttributes[.headingRepresentation])
+
+        let paragraphAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14),
+            .paragraphStyle: ParagraphStyle.default
+        ]
+
+        let paragraphString = NSAttributedString(
+            string: "Hello I'm a paragraph",
+            attributes: paragraphAttributes
+        )
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: paragraphString)
+
+        let finalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a paragraph")
+        XCTAssertNil(finalAttributes[.headingRepresentation])
     }
 }
