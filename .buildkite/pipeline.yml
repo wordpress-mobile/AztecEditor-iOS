@@ -1,0 +1,80 @@
+# Nodes with values to reuse in the pipeline.
+common_params:
+  plugins: &common_plugins
+  - &bash_cache automattic/bash-cache#2.0.0: ~
+  # Common environment values to use with the `env` key.
+  env: &common_env
+    IMAGE_ID: xcode-13
+
+# This is the default pipeline – it will build and test the app
+steps:
+  #################
+  # Build and Test
+  #################
+  - label: "🧪 Build and Test"
+    key: "test"
+    command: |
+      # See https://github.com/Automattic/bash-cache-buildkite-plugin/issues/16
+      gem install bundler:2.3.4
+
+      build_and_test_pod
+    env: *common_env
+    plugins: *common_plugins
+
+  #################
+  # Validate Podspecs
+  #################
+  - label: "🔬 Validate Podspecs"
+    key: "validate"
+    command: |
+      # See https://github.com/Automattic/bash-cache-buildkite-plugin/issues/16
+      gem install bundler:2.3.4
+
+      validate_podspec
+    env: *common_env
+    plugins: *common_plugins
+
+  #################
+  # Lint
+  #################
+  - label: "🧹 Lint"
+    key: "lint"
+    command: |
+      # See https://github.com/Automattic/bash-cache-buildkite-plugin/issues/16
+      gem install bundler:2.3.4
+
+      lint_pod
+    env: *common_env
+    plugins: *common_plugins
+
+  #################
+  # Publish the Podspec (if we're building a tag)
+  #################
+  - label: "⬆️ Publish Aztec Podspec"
+    key: "publish-aztec"
+    command: .buildkite/publish-aztec-pod.sh
+    env: *common_env
+    plugins: *common_plugins
+    depends_on:
+      - "test"
+      - "validate"
+      - "lint"
+    if: build.tag != null
+    agents:
+      queue: "mac"
+
+  #################
+  # Publish the Podspec (if we're building a tag)
+  #################
+  - label: "⬆️ Publish Editor Podspec"
+    key: "publish-editor"
+    command: .buildkite/publish-editor-pod.sh
+    env: *common_env
+    plugins: *common_plugins
+    depends_on:
+      - "test"
+      - "validate"
+      - "lint"
+    if: build.tag != null
+    agents:
+      queue: "mac"
