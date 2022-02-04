@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+default_platform(:ios)
+
+IOS_VERSION = '15.0'
+TEST_DEVICES = ['iPhone 11'].freeze
+
+platform :ios do
+  desc 'Builds the project and runs tests'
+  lane :test do
+    run_tests(
+      workspace: 'Aztec.xcworkspace',
+      scheme: 'Aztec',
+      devices: TEST_DEVICES,
+      deployment_target_version: IOS_VERSION,
+      prelaunch_simulator: true,
+      buildlog_path: File.join(__dir__, '.build', 'logs'),
+      derived_data_path: File.join(__dir__, '.build', 'derived-data')
+    )
+  end
+end
