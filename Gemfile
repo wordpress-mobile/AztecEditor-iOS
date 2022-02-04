@@ -1,3 +1,6 @@
-source 'https://rubygems.org' do
-  gem 'cocoapods', '1.7.5'
-end
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'cocoapods', '~> 1.8.0'
+gem 'rubocop', '~> 1.18'
