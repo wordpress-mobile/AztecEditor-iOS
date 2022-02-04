@@ -4,7 +4,7 @@ import UIKit
 
 /// Implemented by a class taking care of handling attachments for the storage.
 ///
-protocol TextStorageAttachmentsDelegate: class {
+protocol TextStorageAttachmentsDelegate: AnyObject {
 
     /// Provides images for attachments that are part of the storage
     ///

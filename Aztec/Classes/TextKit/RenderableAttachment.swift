@@ -4,7 +4,7 @@ import UIKit
 
 /// NSTextAttachment Renderable Delegate Helpers
 ///
-public protocol RenderableAttachmentDelegate: class {
+public protocol RenderableAttachmentDelegate: AnyObject {
 
     /// Returns the Bounds that should be used to render a given attachment
     ///
@@ -29,7 +29,7 @@ public protocol RenderableAttachmentDelegate: class {
 
 /// Protocol to mark attachments object that are renderable through the delegate interface.
 ///
-public protocol RenderableAttachment: class {
+public protocol RenderableAttachment: AnyObject {
 
     var delegate: RenderableAttachmentDelegate? {get set}
 }

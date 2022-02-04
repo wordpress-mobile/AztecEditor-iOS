@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - MediaAttachmentDelegate
 //
-protocol MediaAttachmentDelegate: class {
+protocol MediaAttachmentDelegate: AnyObject {
     func mediaAttachment(
         _ mediaAttachment: MediaAttachment,
         imageFor url: URL,
