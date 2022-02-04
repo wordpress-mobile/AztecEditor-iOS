@@ -4,7 +4,7 @@ import CoreServices
 
 // MARK: - TextViewAttachmentDelegate
 //
-public protocol TextViewAttachmentDelegate: class {
+public protocol TextViewAttachmentDelegate: AnyObject {
 
     /// This method requests from the delegate the image at the specified URL.
     ///
@@ -72,7 +72,7 @@ public protocol TextViewAttachmentDelegate: class {
 
 // MARK: - TextViewAttachmentImageProvider
 //
-public protocol TextViewAttachmentImageProvider: class {
+public protocol TextViewAttachmentImageProvider: AnyObject {
 
     /// Indicates whether the current Attachment Renderer supports a given NSTextAttachment instance, or not.
     ///
@@ -110,7 +110,7 @@ public protocol TextViewAttachmentImageProvider: class {
 
 // MARK: - TextViewFormattingDelegate
 //
-public protocol TextViewFormattingDelegate: class {
+public protocol TextViewFormattingDelegate: AnyObject {
 
     /// Called a text view command toggled a style.
     ///
@@ -121,7 +121,7 @@ public protocol TextViewFormattingDelegate: class {
 
 // MARK: - TextViewPasteboardDelegate
 //
-public protocol TextViewPasteboardDelegate: class {
+public protocol TextViewPasteboardDelegate: AnyObject {
 
     /// Called by the TextView when it's attempting to paste the contents of the pasteboard.
     ///
