@@ -2,20 +2,73 @@
 
 default_platform(:ios)
 
-IOS_VERSION = '15.0'
-TEST_DEVICES = ['iPhone 11'].freeze
+TEST_RUNTIME = 'iOS 14.0'
+TEST_DEVICE = 'iPhone 11'
 
 platform :ios do
   desc 'Builds the project and runs tests'
   lane :test do
+    device = create_simulator(TEST_RUNTIME, TEST_DEVICE)
+
     run_tests(
       workspace: 'Aztec.xcworkspace',
       scheme: 'Aztec',
-      devices: TEST_DEVICES,
-      deployment_target_version: IOS_VERSION,
+      device: device.name,
       prelaunch_simulator: true,
       buildlog_path: File.join(__dir__, '.build', 'logs'),
-      derived_data_path: File.join(__dir__, '.build', 'derived-data')
+      derived_data_path: File.join(__dir__, '.build', 'derived-data'),
+      ensure_devices_found: true
     )
+
+    run_tests(
+      workspace: 'Aztec.xcworkspace',
+      scheme: 'WordPressEditor',
+      device: device.name,
+      prelaunch_simulator: true,
+      buildlog_path: File.join(__dir__, '.build', 'logs'),
+      derived_data_path: File.join(__dir__, '.build', 'derived-data'),
+      ensure_devices_found: true
+    )
+
+    destroy_simulator(device)
   end
+end
+
+def create_simulator(runtime, device)
+  fastlane_require 'simctl'
+  fastlane_require 'securerandom'
+
+  validate_runtime_exists(runtime)
+
+  simulator = SimCtl.create_device(
+    SecureRandom.uuid,
+    SimCtl.devicetype(name: device),
+    SimCtl.runtime(name: runtime)
+  )
+
+  UI.success "Successfully created an #{runtime} #{device} labelled #{simulator.name}"
+
+  simulator
+end
+
+def validate_runtime_exists(runtime)
+  fastlane_require 'simctl'
+
+  begin
+    SimCtl.runtime({ name: runtime })
+  rescue StandardError
+    SimCtl.list_runtimes.each do |existing_runtime|
+      puts existing_runtime.name
+    end
+
+    UI.user_error! "#{runtime} is not available. Available runtimes are listed above."
+  end
+end
+
+def destroy_simulator(simulator)
+  runtime = simulator.runtime.name
+  device_type_name = simulator.devicetype.name
+
+  simulator.delete
+  UI.success "Successfully deleted #{runtime} #{device_type_name}"
 end
