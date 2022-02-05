@@ -2,7 +2,7 @@
 
 default_platform(:ios)
 
-TEST_RUNTIME = 'iOS 14.0'
+TEST_RUNTIME = 'iOS 15.0'
 TEST_DEVICE = 'iPhone 11'
 
 platform :ios do
