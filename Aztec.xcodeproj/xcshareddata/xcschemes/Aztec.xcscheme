@@ -56,6 +56,17 @@
                BlueprintName = "AztecTests"
                ReferencedContainer = "container:Aztec.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "BlockquoteFormatterTests/testToggleBlockquoteTwiceLeavesReturnsIdenticalString()">
+               </Test>
+               <Test
+                  Identifier = "UIImageResizeTests/testResizingImageWorks()">
+               </Test>
+               <Test
+                  Identifier = "UIImageResizeTests/testResizingImageWorks2()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
