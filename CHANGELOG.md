@@ -1,5 +1,6 @@
 1.19.8
 -------
+* Fix Li tag when switching the list style.
 * Retain Heading attribute when headings are autocorrected.
 
 1.19.7
