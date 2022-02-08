@@ -579,4 +579,58 @@ class TextStorageTests: XCTestCase {
         let result = storage.getHTML()
         XCTAssertEqual(expectedResult, result)
     }
+
+    /// Verifies that missing Heading attributes are retained on string replacements when appropriate
+    ///
+    func testMissingHeadingAttributeIsRetained() {
+        let formatter = HeaderFormatter(headerLevel: .h2)
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: "Hello i'm a header")
+        formatter.applyAttributes(to: storage, at: storage.rangeOfEntireString)
+
+        let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello i'm a header")
+        XCTAssertEqual(originalAttributes.count, 3)
+        XCTAssertNotNil(originalAttributes[.headingRepresentation])
+
+        let autoCorrectedAttributes = originalAttributes.filter { $0.key != .headingRepresentation }
+
+        let autoCorrectedString = NSAttributedString(
+            string: "I'm",
+            attributes: autoCorrectedAttributes
+        )
+
+        let range = NSRange(location: 6, length: 3)
+        storage.replaceCharacters(in: range, with: autoCorrectedString)
+
+        let finalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a header")
+        XCTAssertEqual(originalAttributes.keys, finalAttributes.keys)
+    }
+
+    /// Verifies that converting a Heading to a Paragraph doesn't retain the heading attribute
+    ///
+    func testHeadingToParagraphDoesNotRetainHeadingAttribute() {
+        let headerFormatter = HeaderFormatter(headerLevel: .h2)
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: "Hello I'm a header")
+        headerFormatter.applyAttributes(to: storage, at: storage.rangeOfEntireString)
+
+        let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a header")
+        XCTAssertNotNil(originalAttributes[.headingRepresentation])
+
+        let paragraphAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14),
+            .paragraphStyle: ParagraphStyle.default
+        ]
+
+        let paragraphString = NSAttributedString(
+            string: "Hello I'm a paragraph",
+            attributes: paragraphAttributes
+        )
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: paragraphString)
+
+        let finalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a paragraph")
+        XCTAssertNil(finalAttributes[.headingRepresentation])
+    }
 }
