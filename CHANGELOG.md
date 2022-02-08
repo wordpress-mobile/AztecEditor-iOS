@@ -1,3 +1,7 @@
+1.19.8
+-------
+* Retain Heading attribute when headings are autocorrected.
+
 1.19.7
 -------
 * Add variable to control whether typing attributes should be recalculated when deleting backward.
