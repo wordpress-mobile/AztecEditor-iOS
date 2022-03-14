@@ -1160,6 +1160,8 @@ open class TextView: UITextView {
         let formatter = MarkFormatter()
         formatter.placeholderAttributes = self.defaultAttributes
         toggle(formatter: formatter, atRange: range)
+
+        formattingDelegate?.textViewCommandToggledAStyle()
     }
 
     /// Replaces with an horizontal ruler on the specified range

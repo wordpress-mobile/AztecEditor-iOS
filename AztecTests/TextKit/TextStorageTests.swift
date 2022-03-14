@@ -633,4 +633,31 @@ class TextStorageTests: XCTestCase {
         XCTAssertEqual(storage.string, "Hello I'm a paragraph")
         XCTAssertNil(finalAttributes[.headingRepresentation])
     }
+
+    /// Verifies that missing Mark attributes are retained on string replacements when appropriate
+    ///
+    func testMissingMarkAttributeIsRetained() {
+        let formatter = MarkFormatter()
+        storage.replaceCharacters(in: storage.rangeOfEntireString, with: "Hello i'm a text highlighted")
+        formatter.applyAttributes(to: storage, at: storage.rangeOfEntireString)
+
+        let originalAttributes = storage.attributes(at: 0, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello i'm a text highlighted")
+        XCTAssertEqual(originalAttributes.count, 2)
+        XCTAssertNotNil(originalAttributes[.markHtmlRepresentation])
+
+        let autoCorrectedAttributes = originalAttributes.filter { $0.key != .markHtmlRepresentation }
+
+        let autoCorrectedString = NSAttributedString(
+            string: "I'm",
+            attributes: autoCorrectedAttributes
+        )
+
+        let range = NSRange(location: 6, length: 3)
+        storage.replaceCharacters(in: range, with: autoCorrectedString)
+
+        let finalAttributes = storage.attributes(at: range.location, effectiveRange: nil)
+        XCTAssertEqual(storage.string, "Hello I'm a text highlighted")
+        XCTAssertEqual(originalAttributes.keys, finalAttributes.keys)
+    }
 }

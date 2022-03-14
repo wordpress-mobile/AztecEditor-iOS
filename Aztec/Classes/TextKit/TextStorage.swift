@@ -145,7 +145,8 @@ open class TextStorage: NSTextStorage {
 
     private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
-        let preprocessedString = preprocessHeadingsForInsertion(stringWithAttachments)
+        let stringWithHeadings = preprocessHeadingsForInsertion(stringWithAttachments)
+        let preprocessedString = preprocessMarkForInsertion(stringWithHeadings)
 
         return preprocessedString
     }
@@ -249,6 +250,41 @@ open class TextStorage: NSTextStorage {
 
         let processedString = NSMutableAttributedString(attributedString: attributedString)
         processedString.addAttribute(.headingRepresentation, value: headerSize, range: attributedString.rangeOfEntireString)
+
+        return processedString
+    }
+
+    /// Preprocesses an attributed string that is missing a `markHtmlRepresentation` attribute for insertion in the storage, this reuses the same behavior as preprocessHeadingsForInsertion
+    ///
+    /// - Important: This method adds the `markHtmlRepresentation` attribute if it determines the string should contain it.
+    ///  This works around a problem where autocorrected text didn't contain the attribute. This may change in future versions.
+    ///
+    /// - Parameters:
+    ///     - attributedString: the string we need to preprocess.
+    ///
+    /// - Returns: the preprocessed string.
+    ///
+    fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+        guard textStore.length > 0, attributedString.length > 0 else {
+            return attributedString
+        }
+
+        // Get the attributes of the start of the current string in storage.
+        let currentAttrs = attributes(at: 0, effectiveRange: nil)
+
+        guard
+            // the text currently in storage has a markHtmlRepresentation key
+            let markSize = currentAttrs[.markHtmlRepresentation],
+            // the text coming in doesn't have a markHtmlRepresentation key
+            attributedString.attribute(.markHtmlRepresentation, at: 0, effectiveRange: nil) == nil
+        else {
+            // Either the mark attribute wasn't present in the existing string,
+            // or the attributed string already had it.
+            return attributedString
+        }
+
+        let processedString = NSMutableAttributedString(attributedString: attributedString)
+        processedString.addAttribute(.markHtmlRepresentation, value: markSize, range: attributedString.rangeOfEntireString)
 
         return processedString
     }
