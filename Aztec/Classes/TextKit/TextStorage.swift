@@ -143,10 +143,10 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - NSAttributedString preprocessing
 
-    private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+    private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
         let stringWithHeadings = preprocessHeadingsForInsertion(stringWithAttachments)
-        let preprocessedString = preprocessMarkForInsertion(stringWithHeadings)
+        let preprocessedString = preprocessMarkForInsertion(stringWithHeadings, range)
 
         return preprocessedString
     }
@@ -264,13 +264,18 @@ open class TextStorage: NSTextStorage {
     ///
     /// - Returns: the preprocessed string.
     ///
-    fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
-        guard textStore.length > 0, attributedString.length > 0 else {
+    fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
+        guard textStore.length > 0, attributedString.length > 0, range.endLocation != range.lowerBound else {
             return attributedString
+        }
+        var startAt = 0
+
+        if range.endLocation > range.lowerBound {
+            startAt = range.lowerBound
         }
 
         // Get the attributes of the start of the current string in storage.
-        let currentAttrs = attributes(at: 0, effectiveRange: nil)
+        let currentAttrs = attributes(at: startAt, effectiveRange: nil)
 
         guard
             // the text currently in storage has a markHtmlRepresentation key
@@ -341,7 +346,7 @@ open class TextStorage: NSTextStorage {
 
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
 
-        let preprocessedString = preprocessAttributesForInsertion(attrString)
+        let preprocessedString = preprocessAttributesForInsertion(attrString, range)
 
         beginEditing()
 
