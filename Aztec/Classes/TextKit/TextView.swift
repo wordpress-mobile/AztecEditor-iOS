@@ -563,7 +563,7 @@ open class TextView: UITextView {
     }
     
     // MARK: - General Indentation
-    
+
     /// Increases the indentation of the selected range
     open func increaseIndent() {
         let lists = TextListFormatter.lists(in: typingAttributes)
@@ -582,14 +582,14 @@ open class TextView: UITextView {
     open func decreaseIndent() {
         let lists = TextListFormatter.lists(in: typingAttributes)
         let quotes = BlockquoteFormatter.blockquotes(in: typingAttributes)
-        
+
         if let list = lists.last {
             indent(list: list, increase: false)
         } else if let quote = quotes.last {
             indent(blockquote: quote, increase: false)
         }
     }
-    
+
     // MARK: - Text List indent methods
     
     private func indent(list: TextList, increase: Bool = true) {
