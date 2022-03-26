@@ -561,7 +561,7 @@ open class TextView: UITextView {
     @objc func handleTab(command: UIKeyCommand) {
         increaseIndent()
     }
-    
+
     // MARK: - General Indentation
 
     /// Increases the indentation of the selected range
