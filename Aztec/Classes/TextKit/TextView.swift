@@ -555,43 +555,44 @@ open class TextView: UITextView {
     }
 
     @objc func handleShiftTab(command: UIKeyCommand) {
-        
-        let lists = TextListFormatter.lists(in: typingAttributes)
-        let quotes = BlockquoteFormatter.blockquotes(in: typingAttributes)
-        
-        if let list = lists.last {
-            indent(list: list, increase: false)
-            
-        } else if let quote = quotes.last {
-            indent(blockquote: quote, increase: false)
-            
-        } else {
-            return
-        }
+        decreaseIndent()
     }
 
     @objc func handleTab(command: UIKeyCommand) {
-        
+        increaseIndent()
+    }
+    
+    // MARK: - General Indentation
+    
+    /// Increases the indentation of the selected range
+    open func increaseIndent() {
         let lists = TextListFormatter.lists(in: typingAttributes)
         let quotes = BlockquoteFormatter.blockquotes(in: typingAttributes)
 
         if let list = lists.last, lists.count < maximumListIndentationLevels {
             indent(list: list)
-
         } else if let quote = quotes.last, quotes.count < maximumBlockquoteIndentationLevels {
             indent(blockquote: quote)
-
         } else {
             insertText(String(.tab))
         }
-        
     }
     
+    /// Decreases the indentation of the selected range
+    open func decreaseIndent() {
+        let lists = TextListFormatter.lists(in: typingAttributes)
+        let quotes = BlockquoteFormatter.blockquotes(in: typingAttributes)
+        
+        if let list = lists.last {
+            indent(list: list, increase: false)
+        } else if let quote = quotes.last {
+            indent(blockquote: quote, increase: false)
+        }
+    }
     
     // MARK: - Text List indent methods
     
     private func indent(list: TextList, increase: Bool = true) {
-
         let formatter = TextListFormatter(style: list.style, placeholderAttributes: nil, increaseDepth: true)
         let li = LiFormatter(placeholderAttributes: nil)
 
@@ -629,9 +630,6 @@ open class TextView: UITextView {
     // MARK: - Blockquote indent methods
     
     private func indent(blockquote: Blockquote, increase: Bool = true) {
-        
-        
-        
         let formatter = BlockquoteFormatter(placeholderAttributes: typingAttributes, increaseDepth: true)
         let targetRange = formatter.applicationRange(for: selectedRange, in: storage)
 
