@@ -222,7 +222,7 @@ private extension LayoutManager {
             else {
                 return
             }
-            
+
             let attributes = textStorage.attributes(at: enclosingRange.location, effectiveRange: nil)
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
             let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
@@ -234,7 +234,7 @@ private extension LayoutManager {
                     start = textStorage.numberOfItems(in: list, at: enclosingRange.location)
                 }
             }
-            
+
             // determine indentation level
             var indentLevel = 1
             if list.style == .unordered {
@@ -242,14 +242,14 @@ private extension LayoutManager {
                 if firstLevelWidth == nil {
                     firstLevelWidth = paragraphStyle.indentToFirst(TextList.self)
                 }
-                
+
                 // calculate current indent level
                 let indentWidth = paragraphStyle.indentToLast(TextList.self)
                 if let firstLevelWidth = firstLevelWidth {
                     indentLevel = Int(indentWidth / firstLevelWidth)
                 }
             }
-            
+
             markerNumber += start
             let markerString = list.style.markerText(forItemNumber: markerNumber, indentLevel: indentLevel)
             drawItem(markerString, in: markerRect, styled: attributes, at: enclosingRange.location)
