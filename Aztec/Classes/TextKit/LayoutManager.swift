@@ -213,15 +213,16 @@ private extension LayoutManager {
         }
 
         let characterRange = self.characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
+        var firstLevelWidth: CGFloat?
 
         textStorage.enumerateParagraphRanges(spanning: characterRange) { (range, enclosingRange) in
-
             guard textStorage.string.isStartOfNewLine(atUTF16Offset: enclosingRange.location),
                 let paragraphStyle = textStorage.attribute(.paragraphStyle, at: enclosingRange.location, effectiveRange: nil) as? ParagraphStyle,
                 let list = paragraphStyle.lists.last
             else {
                 return
             }
+            
             let attributes = textStorage.attributes(at: enclosingRange.location, effectiveRange: nil)
             let glyphRange = self.glyphRange(forCharacterRange: enclosingRange, actualCharacterRange: nil)
             let markerRect = rectForItem(range: glyphRange, origin: origin, paragraphStyle: paragraphStyle)
@@ -233,8 +234,24 @@ private extension LayoutManager {
                     start = textStorage.numberOfItems(in: list, at: enclosingRange.location)
                 }
             }
+            
+            // determine indentation level
+            var indentLevel = 1
+            if list.style == .unordered {
+                // only get the width of the first level once
+                if firstLevelWidth == nil {
+                    firstLevelWidth = paragraphStyle.indentToFirst(TextList.self)
+                }
+                
+                // calculate current indent level
+                let indentWidth = paragraphStyle.indentToLast(TextList.self)
+                if let firstLevelWidth = firstLevelWidth {
+                    indentLevel = Int(indentWidth / firstLevelWidth)
+                }
+            }
+            
             markerNumber += start
-            let markerString = list.style.markerText(forItemNumber: markerNumber)
+            let markerString = list.style.markerText(forItemNumber: markerNumber, indentLevel: indentLevel)
             drawItem(markerString, in: markerRect, styled: attributes, at: enclosingRange.location)
         }
     }
