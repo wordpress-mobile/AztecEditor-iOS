@@ -23,12 +23,12 @@ open class FormatBar: UIView {
 
     /// Container ScrollView
     ///
-    fileprivate let scrollView = UIScrollView()
+    let scrollView = UIScrollView()
 
 
     /// StackView embedded within the ScrollView
     ///
-    fileprivate let scrollableStackView = UIStackView()
+    let scrollableStackView = UIStackView()
 
 
     /// Top and bottom dividing lines
