@@ -1,7 +1,7 @@
 # Nodes with values to reuse in the pipeline.
 common_params:
   plugins: &common_plugins
-  - &bash_cache automattic/bash-cache#2.8.0
+  - &bash_cache automattic/a8c-ci-toolkit#2.13.0
   # Common environment values to use with the `env` key.
   env: &common_env
     IMAGE_ID: xcode-13
