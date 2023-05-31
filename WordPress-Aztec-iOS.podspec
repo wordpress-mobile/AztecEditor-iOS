@@ -21,11 +21,7 @@ Pod::Spec.new do |s|
   s.source        = { git: 'https://github.com/wordpress-mobile/AztecEditor-iOS.git', tag: s.version.to_s }
   s.module_name = 'Aztec'
   s.source_files = 'Aztec/Classes/**/*'
-  s.resource_bundles = {
-    'WordPress-Aztec-iOS': [
-      'Aztec/Assets/**/*'
-    ]
-  }
+  s.resources = 'Aztec/Assets/**/*'
   s.xcconfig = {
     'OTHER_LDFLAGS' => '-lxml2',
     'HEADER_SEARCH_PATHS' => '/usr/include/libxml2'
