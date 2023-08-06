@@ -39,7 +39,7 @@ open class TextList: ParagraphProperty {
         /// The standard bullet styles for each indentation level (i.e., HTML style)
         case standard
     }
-    
+
     public let reversed: Bool
 
     public let start: Int?

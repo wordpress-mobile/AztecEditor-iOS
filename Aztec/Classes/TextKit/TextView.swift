@@ -238,7 +238,7 @@ open class TextView: UITextView {
             layout.listIndentStyle = newValue
         }
     }
-    
+
     // MARK: - Properties: Blockquotes
     
     /// The max levels of quote indentation allowed
