@@ -31,6 +31,15 @@ open class TextList: ParagraphProperty {
         }
     }
 
+    /// List Indent Styles
+    ///
+    public enum IndentStyle: Int {
+        /// A default single bullet style for each indentation level
+        case `default`
+        /// The standard bullet styles for each indentation level (i.e., HTML style)
+        case standard
+    }
+    
     public let reversed: Bool
 
     public let start: Int?

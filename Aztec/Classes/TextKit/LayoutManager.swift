@@ -27,6 +27,9 @@ class LayoutManager: NSLayoutManager {
     ///
     var blockquoteBorderWidth: CGFloat = 2
 
+    /// The list indent style
+    ///
+    var listIndentStyle: TextList.IndentStyle = .default
 
     /// Draws the background, associated to a given Text Range
     ///
@@ -235,9 +238,9 @@ private extension LayoutManager {
                 }
             }
 
-            // determine indentation level
             var indentLevel = 1
-            if list.style == .unordered {
+            // Determine indentation level, if needed. The indentation level is only used by the standard list style
+            if list.style == .unordered, listIndentStyle == .standard {
                 // only get the width of the first level once
                 if firstLevelWidth == nil {
                     firstLevelWidth = paragraphStyle.indentToFirst(TextList.self)
