@@ -42,7 +42,7 @@ _None._
 
 ### Bug Fixes
 
-_None._
+* Worked around a crash that could occur when calling String.paragraphRange(for:) on iOS 17. [#1373]
 
 ### Internal Changes
 
