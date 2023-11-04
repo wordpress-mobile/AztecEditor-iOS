@@ -173,6 +173,9 @@ open class TextView: UITextView {
     ///
     open var pasteboardDelegate: TextViewPasteboardDelegate = AztecTextViewPasteboardDelegate()
 
+    /// An injectable pasteboard – important for automated testing (where the user can't approve a paste operation)
+    ///
+    var pasteboard: UIPasteboard = UIPasteboard.general
 
     /// If this is true the text view will notify is delegate and notification system when changes happen by calls to methods like setHTML
     ///
@@ -503,10 +506,13 @@ open class TextView: UITextView {
     open override func copy(_ sender: Any?) {
         let data = storage.attributedSubstring(from: selectedRange).archivedData()
         let html = storage.getHTML(range: selectedRange)
+        let plain = storage.getPlainText(range: selectedRange)
+
         super.copy(sender)
 
         storeInPasteboard(encoded: data)
         storeInPasteboard(html: html)
+        storeInPasteboard(plain: plain)
     }
 
     open override func paste(_ sender: Any?) {
@@ -660,7 +666,7 @@ open class TextView: UITextView {
 
     // MARK: - Pasteboard Helpers
 
-    internal func storeInPasteboard(encoded data: Data, pasteboard: UIPasteboard = UIPasteboard.general) {
+    internal func storeInPasteboard(encoded data: Data) {
         if pasteboard.numberOfItems > 0 {
             pasteboard.items[0][NSAttributedString.pastesboardUTI] = data;
         } else {
@@ -668,11 +674,19 @@ open class TextView: UITextView {
         }
     }
 
-    internal func storeInPasteboard(html: String, pasteboard: UIPasteboard = UIPasteboard.general) {
+    internal func storeInPasteboard(html: String) {
         if pasteboard.numberOfItems > 0 {
             pasteboard.items[0][kUTTypeHTML as String] = html;
         } else {
             pasteboard.addItems([[kUTTypeHTML as String: html]])
+        }
+    }
+
+    internal func storeInPasteboard(plain: String) {
+        if pasteboard.numberOfItems > 0 {
+            pasteboard.items[0][kUTTypePlainText as String] = plain;
+        } else {
+            pasteboard.addItems([[kUTTypePlainText as String: plain]])
         }
     }
 
