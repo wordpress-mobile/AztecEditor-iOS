@@ -7,7 +7,7 @@ The format of this document is inspired by [Keep a Changelog](https://keepachang
 When releasing a new version:
 
 1. Remove any empty section (those with `_None._`)
-2. Update the `## Unreleased` header to `## [<version_number>](https://github.com/wordpress-mobile/WordPressKit-iOS/releases/tag/<version_number>)`
+2. Update the `## Unreleased` header to `## [<version_number>](https://github.com/wordpress-mobile/AztecEditor-iOS/releases/tag/<version_number>)`
 3. Add a new "Unreleased" section for the next iteration, by copy/pasting the following template:
 
 ## Unreleased
@@ -43,6 +43,25 @@ _None._
 ### Bug Fixes
 
 _None._
+
+### Internal Changes
+
+_None._
+
+
+## [1.19.9](https://github.com/wordpress-mobile/AztecEditor-iOS/releases/tag/1.19.9)
+
+### Breaking Changes
+
+_None._
+
+### New Features
+
+_None._
+
+### Bug Fixes
+
+* Worked around a crash that could occur when calling String.paragraphRange(for:) on iOS 17. [#1373]
 
 ### Internal Changes
 

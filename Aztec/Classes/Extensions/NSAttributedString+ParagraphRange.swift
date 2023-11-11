@@ -22,14 +22,13 @@ extension NSAttributedString {
     ///
     func paragraphRanges(intersecting range: NSRange, includeParagraphSeparator: Bool = true) -> [NSRange] {
         var paragraphRanges = [NSRange]()
-        let swiftRange = string.range(fromUTF16NSRange: range)
-        let paragraphsRange = string.paragraphRange(for: swiftRange)
-        
-        string.enumerateSubstrings(in: paragraphsRange, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
+        let paragraphsRange = foundationString.paragraphRange(for: range)
+
+        foundationString.enumerateSubstrings(in: paragraphsRange, options: .byParagraphs) { (substring, substringRange, enclosingRange, stop) in
             let paragraphRange = includeParagraphSeparator ? enclosingRange : substringRange
-            paragraphRanges.append(self.string.utf16NSRange(from: paragraphRange))
+            paragraphRanges.append(paragraphRange)
         }
-        
+
         return paragraphRanges
     }
     
@@ -44,16 +43,12 @@ extension NSAttributedString {
     ///
     func paragraphRanges(intersecting range: NSRange) -> ([ParagraphRange]) {
         var paragraphRanges = [ParagraphRange]()
-        let swiftRange = string.range(fromUTF16NSRange: range)
-        let paragraphsRange = string.paragraphRange(for: swiftRange)
-        
-        string.enumerateSubstrings(in: paragraphsRange, options: .byParagraphs) { [unowned self] (substring, substringRange, enclosingRange, stop) in
-            let substringNSRange = self.string.utf16NSRange(from: substringRange)
-            let enclosingNSRange = self.string.utf16NSRange(from: enclosingRange)
-            
-            paragraphRanges.append((substringNSRange, enclosingNSRange))
+        let paragraphsRange = foundationString.paragraphRange(for: range)
+
+        foundationString.enumerateSubstrings(in: paragraphsRange, options: .byParagraphs) { (substring, substringRange, enclosingRange, stop) in
+            paragraphRanges.append((substringRange, enclosingRange))
         }
-        
+
         return paragraphRanges
     }
     
@@ -62,10 +57,7 @@ extension NSAttributedString {
     /// This is an attributed string wrapper for `NSString.paragraphRangeForRange()`
     ///
     func paragraphRange(for range: NSRange) -> NSRange {
-        let swiftRange = string.range(fromUTF16NSRange: range)
-        let outRange = string.paragraphRange(for: swiftRange)
-        
-        return string.utf16NSRange(from: outRange)
+        return foundationString.paragraphRange(for: range)
     }
     
     func paragraphRange(for attachment: NSTextAttachment) -> NSRange {
