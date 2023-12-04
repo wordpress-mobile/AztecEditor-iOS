@@ -67,7 +67,11 @@ class GutenpackAttachmentRendererTests: XCTestCase {
             fatalError()
         }()
         
+#if SPM
+        let bundle = Bundle.module
+#else
         let bundle = Bundle(for: type(of: self))
+#endif
         guard let url = bundle.url(forResource: fileName, withExtension: "dat", subdirectory: nil),
             let expectedPNGRepresentation = try? Data(contentsOf: url, options: []) else {
                 XCTFail()

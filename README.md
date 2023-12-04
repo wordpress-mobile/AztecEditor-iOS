@@ -58,6 +58,38 @@ pod "WordPress-Aztec-iOS", "1.0" # or the version number you want
 pod "WordPress-Editor-iOS", "1.0"
 ```
 
+## Integrating the Library with SPM
+
+Both libraries are available through [SPM](https://www.swift.org/package-manager/). To install them, add the package to your package 
+dependencies and the appropriate library to your target dependencies.
+
+```Swift
+let package = Package(
+    name: "YourPackage",
+    products: [
+        .library(name: "YourLibrary", targets: ["YourTarget"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/wordpress-mobile/AztecEditor-iOS", .upToNextMajor(from: "1.20.0")),
+    ],
+    targets: [
+        .target(
+            name: "YourTarget",
+            dependencies: [
+                .product(name: "Aztec", package: "AztecEditor-iOS"), // You can choose...
+                .product(name: "WordPressEditor", package: "AztecEditor-iOS"), // which library you need.
+            ]
+        ),
+    ]
+)
+```
+
+#### Via Xcode
+
+You can also just use the project repo URL (https://github.com/wordpress-mobile/AztecEditor-iOS) via Xcode!
+
+_**note**_: SPM support was added in version 1.20.0, tags prior to that will fail to resolve in SPM.
+
 ## Usage
 
 After installing Aztec, import the module and use the `Aztec.TextView` view as shown below:

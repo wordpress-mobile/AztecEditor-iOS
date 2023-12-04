@@ -2,6 +2,9 @@ import Foundation
 
 extension Bundle {
     @objc public class var aztecBundle: Bundle {
+#if SPM
+        return .module
+#else
         let defaultBundle = Bundle(for: EditorView.self)
         // If installed with CocoaPods, resources will be in WordPress-Aztec-iOS.bundle
         if let bundleURL = defaultBundle.resourceURL,
@@ -10,5 +13,6 @@ extension Bundle {
         }
         // Otherwise, the default bundle is used for resources
         return defaultBundle
+#endif
     }
 }
