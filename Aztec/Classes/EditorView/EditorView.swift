@@ -42,6 +42,16 @@ public class EditorView: UIView {
         }
     }
 
+    public var horizontalScrollIndicatorInsets: UIEdgeInsets {
+        get {
+            return activeView.horizontalScrollIndicatorInsets
+        }
+        set {
+            htmlTextView.horizontalScrollIndicatorInsets = newValue
+            richTextView.horizontalScrollIndicatorInsets = newValue
+        }
+    }
+
     // MARK: - Editing Mode
     
     public enum EditMode {

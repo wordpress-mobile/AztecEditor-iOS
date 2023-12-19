@@ -55,10 +55,10 @@ class EditorViewTests: XCTestCase {
             defaultMissingImage: UIImage())
         let insets = UIEdgeInsets(top: 10, left: 20, bottom: 30, right: 40)
         
-        editorView.scrollIndicatorInsets = insets
-        
-        XCTAssertEqual(editorView.richTextView.scrollIndicatorInsets, insets)
-        XCTAssertEqual(editorView.htmlTextView.scrollIndicatorInsets, insets)
+        editorView.horizontalScrollIndicatorInsets = insets
+
+        XCTAssertEqual(editorView.richTextView.horizontalScrollIndicatorInsets, insets)
+        XCTAssertEqual(editorView.htmlTextView.horizontalScrollIndicatorInsets, insets)
     }
     
     func testEditingModeAndActiveView() {
