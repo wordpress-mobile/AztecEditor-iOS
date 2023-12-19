@@ -255,6 +255,6 @@ public extension String {
     }
 
     func isValidIndex(_ index: String.UTF16View.Index) -> Bool {
-        (self.startIndex ... self.endIndex).contains(index)
+        (self.startIndex ..< self.endIndex).contains(index)
     }
 }

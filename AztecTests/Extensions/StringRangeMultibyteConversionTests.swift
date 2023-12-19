@@ -73,6 +73,6 @@ class StringRangeMultibyteConversionTests: XCTestCase {
 
     func testThatEndIndexIsReportedAsValid() {
         let candidate = "This is a string 👍🏽"
-        XCTAssertTrue(candidate.isValidIndex(candidate.endIndex))
+        XCTAssertFalse(candidate.isValidIndex(candidate.endIndex))
     }
 }
