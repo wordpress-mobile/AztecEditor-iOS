@@ -41,18 +41,7 @@ public class EditorView: UIView {
             richTextView.contentOffset = newValue
         }
     }
-    
-    public var scrollIndicatorInsets: UIEdgeInsets {
-        get {
-            return activeView.scrollIndicatorInsets
-        }
-        
-        set {
-            htmlTextView.scrollIndicatorInsets = newValue
-            richTextView.scrollIndicatorInsets = newValue
-        }
-    }
-    
+
     // MARK: - Editing Mode
     
     public enum EditMode {

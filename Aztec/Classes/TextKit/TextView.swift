@@ -495,7 +495,7 @@ open class TextView: UITextView {
     // MARK: - Intercept copy paste operations
 
     open override func cut(_ sender: Any?) {
-        let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        let data = try! storage.attributedSubstring(from: selectedRange).archivedData()
         let html = storage.getHTML(range: selectedRange)
         super.cut(sender)
 
@@ -504,7 +504,7 @@ open class TextView: UITextView {
     }
 
     open override func copy(_ sender: Any?) {
-        let data = storage.attributedSubstring(from: selectedRange).archivedData()
+        let data = try! storage.attributedSubstring(from: selectedRange).archivedData()
         let html = storage.getHTML(range: selectedRange)
         let plain = storage.getPlainText(range: selectedRange)
 
