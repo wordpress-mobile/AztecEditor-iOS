@@ -1,7 +1,7 @@
 # Nodes with values to reuse in the pipeline.
 common_params:
   plugins: &common_plugins
-    - automattic/a8c-ci-toolkit#2.13.0
+    - automattic/a8c-ci-toolkit#3.0.1
   # Common environment values to use with the `env` key.
   env: &common_env
     IMAGE_ID: xcode-15.0.1
@@ -24,16 +24,11 @@ steps:
   - label: "🔬 Validate Podspecs"
     key: "validate"
     command: |
-      # validate_podspec
-      echo '+++ ⚠️ validate_podspec was bypassed ⚠️'
-      # post a message in the logs
-      cat .buildkite/validate_podspec_annotation.md
-      # and also as an annotation
-      cat .buildkite/validate_podspec_annotation.md | buildkite-agent annotate --style 'warning'
+      validate_podspec --patch-cocoapods
     env: *common_env
     plugins: *common_plugins
     agents:
-      queue: upload
+      queue: mac
 
   #################
   # Lint
