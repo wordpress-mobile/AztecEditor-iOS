@@ -31,14 +31,6 @@ public class HTMLParagraphFormatter: ParagraphAttributeFormatter {
 
         var resultingAttributes = attributes
         resultingAttributes[.paragraphStyle] = newParagraphStyle
-
-        if let font = attributes[.font] as? UIFont,
-           font.familyName != UIFont.systemFont(ofSize: UIFont.systemFontSize).familyName {
-            let fontMetrics = UIFontMetrics(forTextStyle: .body)
-            let scaledFont = fontMetrics.scaledFont(for: font)
-            resultingAttributes[.font] = scaledFont
-        }
-
         return resultingAttributes
     }
 
