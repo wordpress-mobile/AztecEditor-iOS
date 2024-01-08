@@ -361,7 +361,7 @@ open class TextStorage: NSTextStorage {
 
         textStore.setAttributes(adjustedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
-        
+
         endEditing()
     }
 
@@ -533,15 +533,15 @@ private extension TextStorage {
     ///
     private func adjustAttributesForMark(_ attrs: [NSAttributedString.Key: Any], range: NSRange) -> [NSAttributedString.Key: Any] {
         var adjustedAttributes = attrs
-        
+
         // Check if the range has the 'markHtmlRepresentation' attribute
         let hasMarkAttribute = attribute(.markHtmlRepresentation, at: range.location, effectiveRange: nil) != nil
-        
+
         // If the 'markHtmlRepresentation' attribute is present, retain the existing color
         if hasMarkAttribute, let existingColor = textStore.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor {
             adjustedAttributes[.foregroundColor] = existingColor
         }
-        
+
         return adjustedAttributes
     }
 }
