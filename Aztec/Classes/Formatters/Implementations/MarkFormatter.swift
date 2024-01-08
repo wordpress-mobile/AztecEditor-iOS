@@ -24,7 +24,6 @@ class MarkFormatter: AttributeFormatter {
     func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
 
-        resultingAttributes[.foregroundColor] = placeholderAttributes![.foregroundColor]
         resultingAttributes.removeValue(forKey: .markHtmlRepresentation)
         return resultingAttributes
     }
