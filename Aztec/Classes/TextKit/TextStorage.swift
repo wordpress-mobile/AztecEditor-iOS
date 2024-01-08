@@ -265,33 +265,23 @@ open class TextStorage: NSTextStorage {
     /// - Returns: the preprocessed string.
     ///
     fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
-        guard textStore.length > 0, attributedString.length > 0, range.endLocation != range.lowerBound else {
+        // If the attributed string is empty, return as is
+        if attributedString.length == 0 {
             return attributedString
         }
-        var startAt = 0
+        
+        // Determine the effective range of attributes at the insertion point
+        var effectiveRange = NSRange(location: NSNotFound, length: 0)
+        let insertionPoint = range.location > 0 ? range.location - 1 : 0
+        let currentAttrs = attributes(at: insertionPoint, effectiveRange: &effectiveRange)
 
-        if range.endLocation > range.lowerBound {
-            startAt = range.lowerBound
+        // Apply 'markHtmlRepresentation' attribute if present
+        if let markSize = currentAttrs[.markHtmlRepresentation] {
+            let processedString = NSMutableAttributedString(attributedString: attributedString)
+            processedString.addAttribute(.markHtmlRepresentation, value: markSize, range: NSRange(location: 0, length: attributedString.length))
+            return processedString
         }
-
-        // Get the attributes of the start of the current string in storage.
-        let currentAttrs = attributes(at: startAt, effectiveRange: nil)
-
-        guard
-            // the text currently in storage has a markHtmlRepresentation key
-            let markSize = currentAttrs[.markHtmlRepresentation],
-            // the text coming in doesn't have a markHtmlRepresentation key
-            attributedString.attribute(.markHtmlRepresentation, at: 0, effectiveRange: nil) == nil
-        else {
-            // Either the mark attribute wasn't present in the existing string,
-            // or the attributed string already had it.
-            return attributedString
-        }
-
-        let processedString = NSMutableAttributedString(attributedString: attributedString)
-        processedString.addAttribute(.markHtmlRepresentation, value: markSize, range: attributedString.rangeOfEntireString)
-
-        return processedString
+        return attributedString
     }
 
     fileprivate func detectAttachmentRemoved(in range: NSRange) {
@@ -363,9 +353,13 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [NSAttributedString.Key: Any]?, range: NSRange) {
         beginEditing()
 
+        // Ensure matching styles for the font and paragraph headers
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
-        textStore.setAttributes(fixedAttributes, range: range)
+        // Adjust attributes for 'mark' formatting logic
+        let adjustedAttributes = adjustAttributesForMark(fixedAttributes, range: range)
+
+        textStore.setAttributes(adjustedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
         
         endEditing()
@@ -523,6 +517,34 @@ private extension TextStorage {
     }
 }
 
+// MARK: - Mark Formatting Attribute Fixes
+//
+private extension TextStorage {
+    /// Adjusts text attributes to preserve the color of text marked with 'markHtmlRepresentation'.
+    ///
+    /// This method checks if the specified range of text has the 'markHtmlRepresentation' attribute.
+    /// If it does, the method retains the existing color attribute to preserve the 'mark' formatting.
+    ///
+    /// - Parameters:
+    ///   - attrs: NSAttributedString attributes that are about to be applied.
+    ///   - range: Range of the text being modified.
+    ///
+    /// - Returns: Adjusted collection of attributes, preserving color for 'mark' formatted text.
+    ///
+    private func adjustAttributesForMark(_ attrs: [NSAttributedString.Key: Any], range: NSRange) -> [NSAttributedString.Key: Any] {
+        var adjustedAttributes = attrs
+        
+        // Check if the range has the 'markHtmlRepresentation' attribute
+        let hasMarkAttribute = attribute(.markHtmlRepresentation, at: range.location, effectiveRange: nil) != nil
+        
+        // If the 'markHtmlRepresentation' attribute is present, retain the existing color
+        if hasMarkAttribute, let existingColor = textStore.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor {
+            adjustedAttributes[.foregroundColor] = existingColor
+        }
+        
+        return adjustedAttributes
+    }
+}
 
 // MARK: - TextStorage: MediaAttachmentDelegate Methods
 //
