@@ -146,9 +146,8 @@ open class TextStorage: NSTextStorage {
     private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
         let stringWithHeadings = preprocessHeadingsForInsertion(stringWithAttachments)
-        let preprocessedString = preprocessMarkForInsertion(stringWithHeadings, range)
 
-        return preprocessedString
+        return stringWithHeadings
     }
 
     /// Preprocesses an attributed string's attachments for insertion in the storage.
@@ -254,34 +253,33 @@ open class TextStorage: NSTextStorage {
         return processedString
     }
 
-    /// Preprocesses an attributed string that is missing a `markHtmlRepresentation` attribute for insertion in the storage, this reuses the same behavior as preprocessHeadingsForInsertion
+    /// Preprocesses an attributed string that is missing a `markHtmlRepresentation` attribute for insertion in the storage.
+    /// This method ensures that the `markHtmlRepresentation` attribute, if present in the current text storage,
+    /// is applied to the new attributed string being inserted. This is particularly useful for maintaining
+    /// mark formatting in scenarios like autocorrection or predictive text input.
     ///
-    /// - Important: This method adds the `markHtmlRepresentation` attribute if it determines the string should contain it.
-    ///  This works around a problem where autocorrected text didn't contain the attribute. This may change in future versions.
+    /// - Important: This method adds the `markHtmlRepresentation` attribute to the new string if it's determined
+    ///   that the string should contain it, based on existing attributes in the text storage.
+    ///   This helps to overcome issues where autocorrected text does not carry over the `markHtmlRepresentation` attribute.
     ///
     /// - Parameters:
-    ///     - attributedString: the string we need to preprocess.
+    ///   - attributedString: The new string to be inserted.
+    ///   - range: The range in the current text storage where the new string is to be inserted. This is used to determine
+    ///     if `markHtmlRepresentation` should be applied to the new string.
     ///
-    /// - Returns: the preprocessed string.
+    /// - Returns: The preprocessed attributed string with `markHtmlRepresentation` applied if necessary.
     ///
     fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
-        // If the attributed string is empty, return as is
-        if attributedString.length == 0 {
-            return attributedString
-        }
-        
-        // Determine the effective range of attributes at the insertion point
-        var effectiveRange = NSRange(location: NSNotFound, length: 0)
-        let insertionPoint = range.location > 0 ? range.location - 1 : 0
-        let currentAttrs = attributes(at: insertionPoint, effectiveRange: &effectiveRange)
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
 
-        // Apply 'markHtmlRepresentation' attribute if present
-        if let markSize = currentAttrs[.markHtmlRepresentation] {
-            let processedString = NSMutableAttributedString(attributedString: attributedString)
-            processedString.addAttribute(.markHtmlRepresentation, value: markSize, range: NSRange(location: 0, length: attributedString.length))
-            return processedString
+        if range.location < textStore.length && range.length > 0 {
+            let currentAttrs = textStore.attributes(at: range.location, effectiveRange: nil)
+
+            if let markAttribute = currentAttrs[.markHtmlRepresentation] {
+                mutableAttributedString.addAttribute(.markHtmlRepresentation, value: markAttribute, range: NSRange(location: 0, length: mutableAttributedString.length))
+            }
         }
-        return attributedString
+        return mutableAttributedString
     }
 
     fileprivate func detectAttachmentRemoved(in range: NSRange) {
@@ -335,14 +333,16 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
-
         let preprocessedString = preprocessAttributesForInsertion(attrString, range)
 
         beginEditing()
 
         detectAttachmentRemoved(in: range)
-        textStore.replaceCharacters(in: range, with: preprocessedString)
 
+        // Apply mark formatting to the replacement string
+        let markFormattedString = preprocessMarkForInsertion(preprocessedString, range)
+
+        textStore.replaceCharacters(in: range, with: markFormattedString)
         replaceTextStoreString(range, with: attrString.string)
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
