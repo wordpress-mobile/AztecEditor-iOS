@@ -1,7 +1,6 @@
 import Foundation
 import UIKit
 
-
 /// Converts the mark style information from string attributes and aggregates it into an
 /// existing array of element nodes.
 ///
