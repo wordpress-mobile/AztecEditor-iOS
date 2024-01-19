@@ -1163,14 +1163,14 @@ open class TextView: UITextView {
 
         // If the format exists remove the current formatting
         // this can happen when the color changed.
-        if (formatter.present(in: typingAttributes)) {
+        if formatter.present(in: typingAttributes) {
             typingAttributes = formatter.remove(from: typingAttributes)
             let applicationRange = formatter.applicationRange(for: selectedRange, in: storage)
             formatter.removeAttributes(from: storage, at: applicationRange)
-            typingAttributes = formatter.remove(from:typingAttributes)
-            
+            typingAttributes = formatter.remove(from: typingAttributes)
+
             // Reflect color changes by enabling the formatting again.
-            if (!resetColor) {
+            if !resetColor {
                 toggle(formatter: formatter, atRange: range)
             }
             return
