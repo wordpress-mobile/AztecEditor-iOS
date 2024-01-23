@@ -19,6 +19,12 @@ open class MarkStringAttributeConverter: StringAttributeConverter {
         //
 
         if let elementNode = attributes.storedElement(for: NSAttributedString.Key.markHtmlRepresentation) {
+            let styleAttribute = elementNode.attributes.first(where: { $0.name == "style" })
+            if let elementStyle = styleAttribute?.value.toString() {
+                // Remove spaces between attribute name and value, and between style attributes.
+                let styleAttributes = elementStyle.replacingOccurrences(of: ": ", with: ":").replacingOccurrences(of: "; ", with: ";")
+                elementNode.attributes["style"] = .string(styleAttributes)
+            }
             elementNodes.append(elementNode)
         }
 
