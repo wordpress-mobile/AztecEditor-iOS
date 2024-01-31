@@ -2,7 +2,7 @@
 
 Pod::Spec.new do |s|
   s.name          = 'WordPress-Aztec-iOS'
-  s.version       = '1.19.9'
+  s.version       = '1.19.10'
 
   s.summary       = 'The native HTML Editor.'
   s.description   = <<-DESC
