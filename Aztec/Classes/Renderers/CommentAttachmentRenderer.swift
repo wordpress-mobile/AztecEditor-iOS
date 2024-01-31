@@ -43,6 +43,11 @@ extension CommentAttachmentRenderer: TextViewAttachmentImageProvider {
             return nil
         }
 
+        // Extra safety check to avoid crash when attempting to render image with size smaller than 0
+        guard size.width > 0 && size.height > 0 else {
+            return nil
+        }
+
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let message = messageAttributedString()
