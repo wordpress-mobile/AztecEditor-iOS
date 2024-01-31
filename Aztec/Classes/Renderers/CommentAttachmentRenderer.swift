@@ -36,14 +36,14 @@ extension CommentAttachmentRenderer: TextViewAttachmentImageProvider {
     }
 
     public func textView(_ textView: TextView, imageFor attachment: NSTextAttachment, with size: CGSize) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-
         // Either this is a comment attachment, or the logic is broken.
         let commentAttachment = attachment as! CommentAttachment
 
         guard !isGutenbergComment(commentAttachment) else {
             return nil
         }
+
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
 
         let message = messageAttributedString()
         let targetRect = boundingRect(for: message, size: size)
