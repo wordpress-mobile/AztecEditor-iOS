@@ -30,7 +30,7 @@ _None._
 
 -->
 
-## 1.19.10
+## Unreleased
 
 ### Breaking Changes
 
@@ -42,7 +42,7 @@ _None._
 
 ### Bug Fixes
 
-- Fixed crash when rendering Gutenberg comments. [#1383]
+_None._
 
 ### Internal Changes
 
