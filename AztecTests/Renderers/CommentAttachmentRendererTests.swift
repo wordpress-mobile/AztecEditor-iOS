@@ -46,4 +46,31 @@ class CommentAttachmentRendererTests: XCTestCase {
         
         XCTAssertEqual(bounds, expectedBounds)
     }
+
+    func testImageForGutenbergCommentIsNil() {
+        // Given
+        let textView = TextViewStub()
+        let gutenbergComment = CommentAttachment()
+        gutenbergComment.text = "wp:paragraph"
+        let renderer = CommentAttachmentRenderer(font: .systemFont(ofSize: 12))
+
+        // When
+        let image = renderer.textView(textView, imageFor: gutenbergComment, with: .init(width: 2, height: 2))
+
+        // Then
+        XCTAssertNil(image)
+    }
+
+    func testRenderingImageWithIllegalSizeReturnsNil() {
+        // Given
+        let textView = TextViewStub()
+        let attachment = CommentAttachment()
+        let renderer = CommentAttachmentRenderer(font: .systemFont(ofSize: 12))
+
+        // When
+        let image = renderer.textView(textView, imageFor: attachment, with: .init(width: -1, height: -1))
+
+        // Then
+        XCTAssertNil(image)
+    }
 }
