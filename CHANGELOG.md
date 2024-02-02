@@ -42,7 +42,8 @@ _None._
 
 ### Bug Fixes
 
-_None._
+- Fixed crash when attempting to render Gutenberg comment. [#1383]
+- Fixed crash when underlining text with special glyphs. [#1384]
 
 ### Internal Changes
 
