@@ -24,7 +24,7 @@ steps:
   - label: "🔬 Validate Podspecs"
     key: "validate"
     command: |
-      validate_podspec --patch-cocoapods
+      validate_podspec
     env: *common_env
     plugins: *common_plugins
 

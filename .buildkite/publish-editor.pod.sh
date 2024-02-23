@@ -8,10 +8,10 @@ echo "--- :rubygems: Setting up Gems"
 install_gems
 
 echo "--- :cocoapods: Publishing Pod to CocoaPods CDN"
-publish_pod --patch-cocoapods $PODSPEC_PATH
+publish_pod $PODSPEC_PATH
 
 echo "--- :cocoapods: Publishing Pod to WP Specs Repo"
-publish_private_pod --patch-cocoapods $PODSPEC_PATH $SPECS_REPO "$SPEC_REPO_PUBLIC_DEPLOY_KEY"
+publish_private_pod $PODSPEC_PATH $SPECS_REPO "$SPEC_REPO_PUBLIC_DEPLOY_KEY"
 
 echo "--- :slack: Notifying Slack"
 slack_notify_pod_published $PODSPEC_PATH $SLACK_WEBHOOK
