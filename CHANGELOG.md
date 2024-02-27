@@ -48,8 +48,14 @@ _None._
 
 _None._
 
+## 1.19.10
 
-## [1.19.9](https://github.com/wordpress-mobile/AztecEditor-iOS/releases/tag/1.19.9)
+### Bug Fixes
+
+- Fixed crash when attempting to render Gutenberg comment. [#1383]
+- Fixed crash when underlining text with special glyphs. [#1384]
+
+## 1.19.9
 
 ### Breaking Changes
 
