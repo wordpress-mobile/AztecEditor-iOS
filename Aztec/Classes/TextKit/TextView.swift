@@ -510,10 +510,14 @@ open class TextView: UITextView {
     }
 
     open override func paste(_ sender: Any?) {
+	#if targetEnvironment(macCatalyst)
+	super.paste(sender)
+	#else
         guard pasteboardDelegate.tryPasting(in: self) else {
             super.paste(sender)
             return
         }
+	#endif
     }
 
     @objc open func pasteWithoutFormatting(_ sender: Any?) {
