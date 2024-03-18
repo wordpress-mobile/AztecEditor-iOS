@@ -5,7 +5,7 @@ class MarkFormatter: AttributeFormatter {
 
     var placeholderAttributes: [NSAttributedString.Key: Any]?
     var textColor: String?
-    var defaulTextColor: UIColor?
+    var defaultTextColor: UIColor?
 
     func applicationRange(for range: NSRange, in text: NSAttributedString) -> NSRange {
         return range
@@ -36,8 +36,8 @@ class MarkFormatter: AttributeFormatter {
     func remove(from attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var resultingAttributes = attributes
 
-        if defaulTextColor != nil {
-            resultingAttributes[.foregroundColor] = defaulTextColor
+        if defaultTextColor != nil {
+            resultingAttributes[.foregroundColor] = defaultTextColor
         }
 
         resultingAttributes.removeValue(forKey: .markHtmlRepresentation)

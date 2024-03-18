@@ -1158,7 +1158,7 @@ open class TextView: UITextView {
     open func toggleMark(range: NSRange, color: String?, resetColor: Bool) {
         let formatter = MarkFormatter()
         formatter.placeholderAttributes = self.defaultAttributes
-        formatter.defaulTextColor = self.defaultTextColor
+        formatter.defaultTextColor = self.defaultTextColor
         formatter.textColor = color
 
         // If the format exists remove the current formatting
