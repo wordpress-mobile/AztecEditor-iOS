@@ -26,8 +26,8 @@ class MarkFormatter: AttributeFormatter {
         }
         resultingAttributes[.markHtmlRepresentation] = representationToUse
 
-        if textColor != nil {
-            resultingAttributes[.foregroundColor] = UIColor(hexString: textColor!)
+        if let textColor = textColor {
+            resultingAttributes[.foregroundColor] = UIColor(hexString: textColor)
         }
 
         return resultingAttributes
