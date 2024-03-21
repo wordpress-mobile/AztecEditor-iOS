@@ -16,8 +16,7 @@ class UIPasteboardHelpersTests: XCTestCase {
     }
     
     func testPasteboardAttributedString() {
-        let pasteboardName = UIPasteboard.Name("testPasteboard")
-        let pasteboard = UIPasteboard(name: pasteboardName, create: true)!
+        let pasteboard = UIPasteboard.forTesting
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 12),
             .foregroundColor: UIColor.red
@@ -44,8 +43,7 @@ class UIPasteboardHelpersTests: XCTestCase {
     }
     
     func testPasteboardHTML() {
-        let pasteboardName = UIPasteboard.Name("testPasteboard")
-        let pasteboard = UIPasteboard(name: pasteboardName, create: true)!
+        let pasteboard = UIPasteboard.forTesting
         let html = "<p>testing</p>"
         
         pasteboard.setValue(html, forPasteboardType: String(kUTTypeHTML))

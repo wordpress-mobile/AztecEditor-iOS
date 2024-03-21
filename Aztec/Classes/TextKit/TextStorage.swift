@@ -437,6 +437,11 @@ open class TextStorage: NSTextStorage {
         }
     }
 
+    // MARK: – Plain Text Interaction
+    open func getPlainText(range: NSRange) -> String {
+        self.attributedSubstring(from: range).string
+    }
+
     // MARK: - HTML Interaction
 
     open func getHTML(prettify: Bool = false) -> String {

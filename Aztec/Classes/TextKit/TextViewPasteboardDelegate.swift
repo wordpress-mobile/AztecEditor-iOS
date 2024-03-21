@@ -20,8 +20,8 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingURL(in textView: TextView) -> Bool {
-        guard UIPasteboard.general.hasURLs,
-            let url = UIPasteboard.general.url else {
+        guard textView.pasteboard.hasURLs,
+            let url = textView.pasteboard.url else {
                 return false
         }
 
@@ -44,7 +44,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingHTML(in textView: TextView) -> Bool {
-        guard let html = UIPasteboard.general.html(),
+        guard let html = textView.pasteboard.html(),
             textView.storage.htmlConverter.isSupported(html) else {
                 return false
         }
@@ -62,7 +62,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingAttributedString(in textView: TextView) -> Bool {
-        guard let string = UIPasteboard.general.attributedString() else {
+        guard let string = textView.pasteboard.attributedString() else {
             return false
         }
         string.loadLazyAttachments()
@@ -112,7 +112,7 @@ open class AztecTextViewPasteboardDelegate: TextViewPasteboardDelegate {
     /// - Returns: True if the paste succeeds, false if it does not.
     ///
     open func tryPastingString(in textView: TextView) -> Bool {
-        guard let string = UIPasteboard.general.attributedString() else {
+        guard let string = textView.pasteboard.attributedString() else {
             return false
         }
 

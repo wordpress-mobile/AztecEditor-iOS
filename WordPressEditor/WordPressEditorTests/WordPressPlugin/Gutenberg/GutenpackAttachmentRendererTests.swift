@@ -58,9 +58,9 @@ class GutenpackAttachmentRendererTests: XCTestCase {
         
         let fileName: String = {
             if UIScreen.main.scale == 3 {
-                return "GutenpackAttachmentRender_3x.png"
+                return "GutenpackAttachmentRender_3x"
             } else if UIScreen.main.scale == 2 {
-                return "GutenpackAttachmentRender_2x.png"
+                return "GutenpackAttachmentRender_2x"
             }
             
             // We no longer support 1x
@@ -68,7 +68,7 @@ class GutenpackAttachmentRendererTests: XCTestCase {
         }()
         
         let bundle = Bundle(for: type(of: self))
-        guard let url = bundle.url(forResource: fileName, withExtension: "dat", subdirectory: nil),
+        guard let url = bundle.url(forResource: fileName, withExtension: "png", subdirectory: nil),
             let expectedPNGRepresentation = try? Data(contentsOf: url, options: []) else {
                 XCTFail()
                 return

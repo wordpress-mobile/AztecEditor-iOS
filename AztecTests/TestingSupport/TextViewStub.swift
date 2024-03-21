@@ -17,7 +17,7 @@ class TextViewStub: Aztec.TextView {
         return sample
     }
     
-    init(withHTML html: String? = nil, font: UIFont = .systemFont(ofSize: 14)) {
+    init(withHTML html: String? = nil, font: UIFont = .systemFont(ofSize: 14), pasteboard: UIPasteboard = .forTesting) {
         super.init(
             defaultFont: font,
             defaultMissingImage: UIImage())
@@ -28,6 +28,8 @@ class TextViewStub: Aztec.TextView {
         if let html = html {
             setHTML(html)
         }
+
+        self.pasteboard = pasteboard
     }
     
     convenience init(withSampleHTML: Bool) {
