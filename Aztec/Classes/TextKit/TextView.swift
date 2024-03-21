@@ -229,6 +229,17 @@ open class TextView: UITextView {
 
     var maximumListIndentationLevels = 7
     
+    /// The list indent style
+    /// Default is `default`, single style for each level.
+    public var listIndentStyle: TextList.IndentStyle {
+        get {
+            return layout.listIndentStyle
+        }
+        set {
+            layout.listIndentStyle = newValue
+        }
+    }
+
     // MARK: - Properties: Blockquotes
     
     /// The max levels of quote indentation allowed

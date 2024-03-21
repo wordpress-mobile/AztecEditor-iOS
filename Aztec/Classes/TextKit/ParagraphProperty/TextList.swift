@@ -14,12 +14,30 @@ open class TextList: ParagraphProperty {
         case ordered
         case unordered
 
-        func markerText(forItemNumber number: Int) -> String {
+        func markerText(forItemNumber number: Int, indentLevel: Int = 1) -> String {
             switch self {
-            case .ordered:      return "\(number)."
-            case .unordered:    return "\u{2022}"
+            case .ordered:
+                return "\(number)."
+            case .unordered:
+                switch indentLevel {
+                case 1:
+                    return "\u{2022}"
+                case 2:
+                    return "\u{2E30}"
+                default:
+                    return "\u{2B29}"
+                }
             }
         }
+    }
+
+    /// List Indent Styles
+    ///
+    public enum IndentStyle: Int {
+        /// A default single bullet style for each indentation level
+        case `default`
+        /// The standard bullet styles for each indentation level (i.e., HTML style)
+        case standard
     }
 
     public let reversed: Bool
