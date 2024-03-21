@@ -207,6 +207,7 @@ open class TextView: UITextView {
         HeaderFormatter(headerLevel: .h6),
         FigureFormatter(),
         FigcaptionFormatter(),
+        MarkFormatter(),
     ]
     
     /// At some point moving ahead, this could be dynamically generated from the full list of registered formatters
@@ -1154,9 +1155,26 @@ open class TextView: UITextView {
     ///
     /// - Parameter range: The NSRange to edit.
     ///
-    open func toggleMark(range: NSRange) {
+    open func toggleMark(range: NSRange, color: String?, resetColor: Bool) {
         let formatter = MarkFormatter()
         formatter.placeholderAttributes = self.defaultAttributes
+        formatter.defaultTextColor = self.defaultTextColor
+        formatter.textColor = color
+
+        // If the format exists remove the current formatting
+        // this can happen when the color changed.
+        if formatter.present(in: typingAttributes) {
+            typingAttributes = formatter.remove(from: typingAttributes)
+            let applicationRange = formatter.applicationRange(for: selectedRange, in: storage)
+            formatter.removeAttributes(from: storage, at: applicationRange)
+            typingAttributes = formatter.remove(from: typingAttributes)
+
+            // Reflect color changes by enabling the formatting again.
+            if !resetColor {
+                toggle(formatter: formatter, atRange: range)
+            }
+            return
+        }
         toggle(formatter: formatter, atRange: range)
     }
 

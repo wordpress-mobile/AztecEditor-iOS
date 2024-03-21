@@ -143,11 +143,11 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - NSAttributedString preprocessing
 
-    private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString) -> NSAttributedString {
+    private func preprocessAttributesForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
         let stringWithAttachments = preprocessAttachmentsForInsertion(attributedString)
-        let preprocessedString = preprocessHeadingsForInsertion(stringWithAttachments)
+        let stringWithHeadings = preprocessHeadingsForInsertion(stringWithAttachments)
 
-        return preprocessedString
+        return stringWithHeadings
     }
 
     /// Preprocesses an attributed string's attachments for insertion in the storage.
@@ -253,6 +253,35 @@ open class TextStorage: NSTextStorage {
         return processedString
     }
 
+    /// Preprocesses an attributed string that is missing a `markHtmlRepresentation` attribute for insertion in the storage.
+    /// This method ensures that the `markHtmlRepresentation` attribute, if present in the current text storage,
+    /// is applied to the new attributed string being inserted. This is particularly useful for maintaining
+    /// mark formatting in scenarios like autocorrection or predictive text input.
+    ///
+    /// - Important: This method adds the `markHtmlRepresentation` attribute to the new string if it's determined
+    ///   that the string should contain it, based on existing attributes in the text storage.
+    ///   This helps to overcome issues where autocorrected text does not carry over the `markHtmlRepresentation` attribute.
+    ///
+    /// - Parameters:
+    ///   - attributedString: The new string to be inserted.
+    ///   - range: The range in the current text storage where the new string is to be inserted. This is used to determine
+    ///     if `markHtmlRepresentation` should be applied to the new string.
+    ///
+    /// - Returns: The preprocessed attributed string with `markHtmlRepresentation` applied if necessary.
+    ///
+    fileprivate func preprocessMarkForInsertion(_ attributedString: NSAttributedString, _ range: NSRange) -> NSAttributedString {
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+
+        if range.location < textStore.length && range.length > 0 {
+            let currentAttrs = textStore.attributes(at: range.location, effectiveRange: nil)
+
+            if let markAttribute = currentAttrs[.markHtmlRepresentation] {
+                mutableAttributedString.addAttribute(.markHtmlRepresentation, value: markAttribute, range: NSRange(location: 0, length: mutableAttributedString.length))
+            }
+        }
+        return mutableAttributedString
+    }
+
     fileprivate func detectAttachmentRemoved(in range: NSRange) {
         // Ref. https://github.com/wordpress-mobile/AztecEditor-iOS/issues/727:
         // If the delegate is not set, we *Explicitly* do not want to crash here.
@@ -304,14 +333,16 @@ open class TextStorage: NSTextStorage {
     }
 
     override open func replaceCharacters(in range: NSRange, with attrString: NSAttributedString) {
-
-        let preprocessedString = preprocessAttributesForInsertion(attrString)
+        let preprocessedString = preprocessAttributesForInsertion(attrString, range)
 
         beginEditing()
 
         detectAttachmentRemoved(in: range)
-        textStore.replaceCharacters(in: range, with: preprocessedString)
 
+        // Apply mark formatting to the replacement string
+        let markFormattedString = preprocessMarkForInsertion(preprocessedString, range)
+
+        textStore.replaceCharacters(in: range, with: markFormattedString)
         replaceTextStoreString(range, with: attrString.string)
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
@@ -322,11 +353,15 @@ open class TextStorage: NSTextStorage {
     override open func setAttributes(_ attrs: [NSAttributedString.Key: Any]?, range: NSRange) {
         beginEditing()
 
+        // Ensure matching styles for the font and paragraph headers
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
-        textStore.setAttributes(fixedAttributes, range: range)
+        // Adjust attributes for 'mark' formatting logic
+        let adjustedAttributes = adjustAttributesForMark(fixedAttributes, range: range)
+
+        textStore.setAttributes(adjustedAttributes, range: range)
         edited(.editedAttributes, range: range, changeInLength: 0)
-        
+
         endEditing()
     }
 
@@ -482,6 +517,34 @@ private extension TextStorage {
     }
 }
 
+// MARK: - Mark Formatting Attribute Fixes
+//
+private extension TextStorage {
+    /// Adjusts text attributes to preserve the color of text marked with 'markHtmlRepresentation'.
+    ///
+    /// This method checks if the specified range of text has the 'markHtmlRepresentation' attribute.
+    /// If it does, the method retains the existing color attribute to preserve the 'mark' formatting.
+    ///
+    /// - Parameters:
+    ///   - attrs: NSAttributedString attributes that are about to be applied.
+    ///   - range: Range of the text being modified.
+    ///
+    /// - Returns: Adjusted collection of attributes, preserving color for 'mark' formatted text.
+    ///
+    private func adjustAttributesForMark(_ attrs: [NSAttributedString.Key: Any], range: NSRange) -> [NSAttributedString.Key: Any] {
+        var adjustedAttributes = attrs
+
+        // Check if the range has the 'markHtmlRepresentation' attribute
+        let hasMarkAttribute = attribute(.markHtmlRepresentation, at: range.location, effectiveRange: nil) != nil
+
+        // If the 'markHtmlRepresentation' attribute is present, retain the existing color
+        if hasMarkAttribute, let existingColor = textStore.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor {
+            adjustedAttributes[.foregroundColor] = existingColor
+        }
+
+        return adjustedAttributes
+    }
+}
 
 // MARK: - TextStorage: MediaAttachmentDelegate Methods
 //
