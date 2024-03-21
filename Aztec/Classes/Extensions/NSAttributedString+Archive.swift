@@ -12,8 +12,7 @@ extension NSAttributedString
     }
 
     static func unarchive(with data: Data) -> NSAttributedString? {
-        let attributedString = NSKeyedUnarchiver.unarchiveObject(with: data) as? NSAttributedString
-        return attributedString
+        try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? NSAttributedString
     }
     
 }
