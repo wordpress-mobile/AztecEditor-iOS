@@ -969,8 +969,7 @@
 				F1DC21B22199D58B007C189E /* ElementToAttributedString */,
 				F1E75630215B0C9E004BC254 /* StringAttributesToAttributes */,
 			);
-			name = Converters;
-			path = "New Group";
+			path = Converters;
 			sourceTree = "<group>";
 		};
 		F126ADC521553E25008F7DD1 /* AttributesToStringAttributes */ = {

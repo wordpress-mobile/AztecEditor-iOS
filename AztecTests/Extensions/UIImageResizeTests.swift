@@ -14,7 +14,7 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWorks() {
-        let bundle = Bundle(for: type(of: self))
+        let bundle = Bundle.aztecTestsBundle
         
         guard let image = UIImage(named: "aztec", in: bundle, compatibleWith: nil) else {
             XCTFail()
@@ -52,7 +52,7 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWorks2() {
-        let bundle = Bundle(for: type(of: self))
+        let bundle = Bundle.aztecTestsBundle
         
         guard let image = UIImage(named: "aztec", in: bundle, compatibleWith: nil) else {
             XCTFail()
@@ -90,9 +90,8 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWithoutSizeChangeReturnsSameImage() {
-        let bundle = Bundle(for: type(of: self))
-        
-        guard let image = UIImage(named: "aztec", in: bundle, compatibleWith: nil) else {
+
+        guard let image = UIImage(named: "aztec", in: .aztecTestsBundle, compatibleWith: nil) else {
             XCTFail()
             return
         }

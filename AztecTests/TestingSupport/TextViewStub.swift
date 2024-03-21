@@ -8,7 +8,7 @@ class TextViewStub: Aztec.TextView {
     // MARK: - Sample HTML Retrieval
     
     static func loadSampleHTML() -> String {
-        guard let path = Bundle(for: self).path(forResource: "content", ofType: "html"),
+        guard let path = Bundle.aztecTestsBundle.path(forResource: "content", ofType: "html"),
             let sample = try? String(contentsOfFile: path)
             else {
                 fatalError()

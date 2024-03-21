@@ -46,7 +46,7 @@ _None._
 
 ### Internal Changes
 
-_None._
+* Added SPM support.
 
 ## 1.19.11
 
