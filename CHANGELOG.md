@@ -48,6 +48,12 @@ _None._
 
 _None._
 
+## 1.19.11
+
+### Bug Fixes
+
+- Improve Mark formatting. [#1352]
+
 ## 1.19.10
 
 ### Bug Fixes
