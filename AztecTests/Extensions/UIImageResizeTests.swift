@@ -14,7 +14,7 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWorks() {
-#if SPM
+#if SWIFT_PACKAGE
          let bundle = Bundle.module
  #else
          let bundle = Bundle(for: type(of: self))
@@ -56,7 +56,7 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWorks2() {
-#if SPM
+#if SWIFT_PACKAGE
          let bundle = Bundle.module
  #else
          let bundle = Bundle(for: type(of: self))
@@ -98,7 +98,7 @@ class UIImageResizeTests: XCTestCase {
     }
     
     func testResizingImageWithoutSizeChangeReturnsSameImage() {
-#if SPM
+#if SWIFT_PACKAGE
          let bundle = Bundle.module
  #else
          let bundle = Bundle(for: type(of: self))

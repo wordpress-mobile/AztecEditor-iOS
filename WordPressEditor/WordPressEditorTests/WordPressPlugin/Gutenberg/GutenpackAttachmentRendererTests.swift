@@ -67,7 +67,7 @@ class GutenpackAttachmentRendererTests: XCTestCase {
             fatalError()
         }()
 
-#if SPM
+#if SWIFT_PACKAGE
          let bundle = Bundle.module
  #else
          let bundle = Bundle(for: type(of: self))

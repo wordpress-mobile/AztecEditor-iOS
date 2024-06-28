@@ -15,16 +15,16 @@ let package = Package(
             path: "Aztec",
             resources: [.process("Assets")]
         ),
+        .target(
+            name: "WordPressEditor",
+            dependencies: ["Aztec"],
+            path: "WordPressEditor/WordPressEditor"
+        ),
         .testTarget(
             name: "AztecTests",
             dependencies: ["Aztec"],
             path: "AztecTests",
             resources: [.process("Resources")]
-        ),
-        .target(
-            name: "WordPressEditor",
-            dependencies: ["Aztec"],
-            path: "WordPressEditor/WordPressEditor"
         ),
         .testTarget(
             name: "WordPressEditorTests",
