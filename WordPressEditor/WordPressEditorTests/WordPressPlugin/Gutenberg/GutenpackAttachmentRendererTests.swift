@@ -66,8 +66,12 @@ class GutenpackAttachmentRendererTests: XCTestCase {
             // We no longer support 1x
             fatalError()
         }()
-        
-        let bundle = Bundle(for: type(of: self))
+
+#if SPM
+         let bundle = Bundle.module
+ #else
+         let bundle = Bundle(for: type(of: self))
+ #endif
         guard let url = bundle.url(forResource: fileName, withExtension: "png", subdirectory: nil),
             let expectedPNGRepresentation = try? Data(contentsOf: url, options: []) else {
                 XCTFail()
