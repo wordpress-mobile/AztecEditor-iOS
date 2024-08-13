@@ -38,7 +38,8 @@ _None._
 
 ### New Features
 
-_None._
+* Mark `NSAttributedString.init(attachment:attributes:)` as deprecated, since it has the same name as a new API in iOS 18.
+* Add a new `NSAttributedString.init(attachment:attributes:aztec:)` function.
 
 ### Bug Fixes
 

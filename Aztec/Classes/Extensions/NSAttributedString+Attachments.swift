@@ -15,7 +15,15 @@ extension NSAttributedString
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
+    @available(*, deprecated, renamed: "init(attachment:attributes:aztec:)", message: "This function has the same name as a new API in iOS 18")
     public convenience init(attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) {
+        self.init(attachment: attachment, attributes: attributes, aztec: ())
+    }
+
+    /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
+    /// collection of attributes.
+    ///
+    public convenience init(attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any], aztec: Void) {
         var attributesWithAttachment = attributes
         attributesWithAttachment[.attachment] = attachment
 
@@ -27,8 +35,8 @@ extension NSAttributedString
         let figcaption = Figcaption(defaultFont: UIFont.systemFont(ofSize: 14), storing: nil)
         
         let figureAttributes = attributes.appending(figure)
-        let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)
-        
+        let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes, aztec: ())
+
         let mutableCaption = NSMutableAttributedString(attributedString: caption)
         mutableCaption.append(paragraphProperty: figure)
         mutableCaption.append(paragraphProperty: figcaption)
