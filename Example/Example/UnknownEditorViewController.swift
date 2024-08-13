@@ -11,14 +11,14 @@ class UnknownEditorViewController: UIViewController {
     ///
     fileprivate(set) var saveButton: UIBarButtonItem = {
         let saveTitle = NSLocalizedString("Save", comment: "Save Action")
-        return UIBarButtonItem(title: saveTitle, style: .plain, target: self, action: #selector(saveWasPressed))
+        return UIBarButtonItem(title: saveTitle, style: .plain, target: UnknownEditorViewController.self, action: #selector(saveWasPressed))
     }()
 
     /// Cancel Bar Button
     ///
     fileprivate(set) var cancelButton: UIBarButtonItem = {
         let cancelTitle = NSLocalizedString("Cancel", comment: "Cancel Action")
-        return UIBarButtonItem(title: cancelTitle, style: .plain, target: self, action: #selector(cancelWasPressed))
+        return UIBarButtonItem(title: cancelTitle, style: .plain, target: UnknownEditorViewController.self, action: #selector(cancelWasPressed))
     }()
 
     /// HTML Editor
