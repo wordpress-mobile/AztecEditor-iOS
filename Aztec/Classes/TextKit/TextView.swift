@@ -1472,7 +1472,7 @@ open class TextView: UITextView {
             self?.undoTextReplacement(of: originalText, finalRange: finalRange)
         })
 
-        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes)
+        let attachmentString = NSAttributedString(attachment: attachment, attributes: typingAttributes, aztec: ())
         storage.replaceCharacters(in: range, with: attachmentString)
         selectedRange = NSMakeRange(range.location + NSAttributedString.lengthOfTextAttachment, 0)
         notifyTextViewDidChange()

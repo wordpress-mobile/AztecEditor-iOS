@@ -15,7 +15,7 @@ class ImageElementConverter: AttachmentElementConverter {
         contentSerializer serialize: ContentSerializer) -> (attachment: ImageAttachment, string: NSAttributedString) {
         
         let attachment = self.attachment(for: element)
-        let intrinsicRepresentation = NSAttributedString(attachment: attachment, attributes: attributes)
+        let intrinsicRepresentation = NSAttributedString(attachment: attachment, attributes: attributes, aztec: ())
         let serialization = serialize(element, intrinsicRepresentation, attributes, false)
         
         return (attachment, serialization)

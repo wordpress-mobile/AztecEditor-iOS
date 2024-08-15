@@ -103,7 +103,7 @@ class GenericElementConverter: ElementConverter {
         attachment.rootTagName = element.name
         attachment.rawHTML = serializer.serialize(element)
         
-        let content = NSMutableAttributedString(attachment: attachment, attributes: attributes)
+        let content = NSMutableAttributedString(attachment: attachment, attributes: attributes, aztec: ())
         
         if element.needsClosingParagraphSeparatorIncludingDescendants() {
             content.append(NSAttributedString(.paragraphSeparator, attributes: attributes))
