@@ -89,6 +89,10 @@ public extension String {
     ///
     private func findValidLowerBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
 
+        guard isValidRange(utf16Range) else {
+            return String.UTF16View.Index(utf16Offset: 0, in: self)
+        }
+
         guard self.utf16.count >= utf16Range.lowerBound.utf16Offset(in: self) else {
             return String.UTF16View.Index(utf16Offset: 0, in: self)
         }
@@ -105,6 +109,10 @@ public extension String {
     /// - Returns: A valid upper bound represented as a `String.Index`
     ///
     private func findValidUpperBound(for utf16Range: Range<String.UTF16View.Index>) -> String.Index {
+
+        guard isValidRange(utf16Range) else {
+            return String.Index(utf16Offset: self.utf16.count, in: self)
+        }
 
         guard self.utf16.count >= utf16Range.upperBound.utf16Offset(in: self) else {
             return String.Index(utf16Offset: self.utf16.count, in: self)
@@ -240,5 +248,13 @@ public extension String {
         let endIndex = index(range.upperBound, offsetBy: offset)
 
         return startIndex ..< endIndex
+    }
+
+    func isValidRange(_ range: Range<String.UTF16View.Index>) -> Bool {
+        isValidIndex(range.lowerBound) && isValidIndex(range.upperBound)
+    }
+
+    func isValidIndex(_ index: String.UTF16View.Index) -> Bool {
+        (self.startIndex ..< self.endIndex).contains(index)
     }
 }

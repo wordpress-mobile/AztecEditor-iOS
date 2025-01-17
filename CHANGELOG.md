@@ -48,8 +48,20 @@ _None._
 
 * Added SPM support.
 
+## 1.19.11
 
-## [1.19.9](https://github.com/wordpress-mobile/AztecEditor-iOS/releases/tag/1.19.9)
+### Bug Fixes
+
+- Improve Mark formatting. [#1352]
+
+## 1.19.10
+
+### Bug Fixes
+
+- Fixed crash when attempting to render Gutenberg comment. [#1383]
+- Fixed crash when underlining text with special glyphs. [#1384]
+
+## 1.19.9
 
 ### Breaking Changes
 

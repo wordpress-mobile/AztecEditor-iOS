@@ -2,8 +2,8 @@
 
 default_platform(:ios)
 
-TEST_RUNTIME = 'iOS 15.0'
-TEST_DEVICE = 'iPhone 11'
+TEST_RUNTIME = 'iOS 17.0'
+TEST_DEVICE = 'iPhone 15 Pro'
 
 platform :ios do
   desc 'Builds the project and runs tests'

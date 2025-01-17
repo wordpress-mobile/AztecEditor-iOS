@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		1A830346228583B200798076 /* NSBundle+AztecBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A830345228583B200798076 /* NSBundle+AztecBundle.swift */; };
+		247D2C662AF5B90900301B71 /* UIKit+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247D2C652AF5B90900301B71 /* UIKit+Extensions.swift */; };
 		3FE650A22D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE650A12D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift */; };
 		40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */; };
 		40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */; };
 		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
 		40A298711FD61B6F00AEDF3B /* ImageElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */; };
 		40A298731FD61E1900AEDF3B /* VideoElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */; };
+		5608841E27DBA33600DA8AA7 /* MarkStringAttributeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5608841D27DBA33600DA8AA7 /* MarkStringAttributeConverter.swift */; };
 		568FF25827552BFF0057B2E3 /* MarkFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568FF25727552BFF0057B2E3 /* MarkFormatter.swift */; };
 		594C9D6F1D8BE61F00D74542 /* Aztec.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5951CB8E1D8BC93600E1866F /* Aztec.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEA06B1D8BDFA700D138DF /* InAttributeConverterTests.swift */; };
@@ -283,6 +285,7 @@
 
 /* Begin PBXFileReference section */
 		1A830345228583B200798076 /* NSBundle+AztecBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecBundle.swift"; sourceTree = "<group>"; };
+		247D2C652AF5B90900301B71 /* UIKit+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIKit+Extensions.swift"; sourceTree = "<group>"; };
 		3FE650A12D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecTestsBundle.swift"; sourceTree = "<group>"; };
 		40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRElementConverter.swift; sourceTree = "<group>"; };
 		40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRElementConverter.swift; sourceTree = "<group>"; };
@@ -290,6 +293,7 @@
 		40A298701FD61B6F00AEDF3B /* ImageElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElementConverter.swift; sourceTree = "<group>"; };
 		40A298721FD61E1900AEDF3B /* VideoElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoElementConverter.swift; sourceTree = "<group>"; };
 		50A1CC6E250FEA93001D5517 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		5608841D27DBA33600DA8AA7 /* MarkStringAttributeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkStringAttributeConverter.swift; sourceTree = "<group>"; };
 		568FF25727552BFF0057B2E3 /* MarkFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkFormatter.swift; sourceTree = "<group>"; };
 		5951CB8E1D8BC93600E1866F /* Aztec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Aztec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5951CB921D8BC93600E1866F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -345,7 +349,6 @@
 		B5E607321DA56EC700C8A389 /* TextListFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextListFormatterTests.swift; sourceTree = "<group>"; };
 		B5E94D0F1FE01334000E7C20 /* FigureElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FigureElementConverter.swift; sourceTree = "<group>"; };
 		B5F84B601E70595B0089A76C /* NSAttributedString+Analyzers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Analyzers.swift"; sourceTree = "<group>"; };
-		B5F84B621E706B720089A76C /* NSAttributedStringAnalyzerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributedStringAnalyzerTests.swift; sourceTree = "<group>"; };
 		E109B51B1DC33F2C0099605E /* LayoutManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutManager.swift; sourceTree = "<group>"; };
 		E11B775F1DBA14B40024E455 /* BlockquoteFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockquoteFormatterTests.swift; sourceTree = "<group>"; };
 		F1000CE61EAA44AA0000B15B /* String+EndOfLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+EndOfLine.swift"; sourceTree = "<group>"; };
@@ -614,7 +617,6 @@
 				5951CB9B1D8BC93600E1866F /* AztecTests */,
 				599F255A1D8BCD97002871D6 /* Frameworks */,
 				5951CB8F1D8BC93600E1866F /* Products */,
-				F185A59D2123C07200DDFAB1 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1055,6 +1057,7 @@
 				F15415F8213447D70096D18E /* TextViewStub.swift */,
 				B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */,
 				B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */,
+				247D2C652AF5B90900301B71 /* UIKit+Extensions.swift */,
 			);
 			path = TestingSupport;
 			sourceTree = "<group>";
@@ -1103,6 +1106,7 @@
 				F15BA60C215159A600424120 /* ItalicStringAttributeConverter.swift */,
 				FF94935D245738AC0085ABB3 /* SuperscriptStringAttributeConverter.swift */,
 				FF949361245744090085ABB3 /* SubscriptStringAttributeConverter.swift */,
+				5608841D27DBA33600DA8AA7 /* MarkStringAttributeConverter.swift */,
 				F15BA60E21515C0F00424120 /* UnderlineStringAttributeConverter.swift */,
 			);
 			path = Implementations;
@@ -1263,14 +1267,6 @@
 				F17BC8B41F4E517100398E2B /* AttributedStringSerializerTests.swift */,
 			);
 			path = Conversions;
-			sourceTree = "<group>";
-		};
-		F185A59D2123C07200DDFAB1 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				B5F84B621E706B720089A76C /* NSAttributedStringAnalyzerTests.swift */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		F185A5A02123C0D900DDFAB1 /* Extensions */ = {
@@ -1549,6 +1545,7 @@
 				F1584794203C94AC00EE05A1 /* Dictionary+AttributedStringKey.swift in Sources */,
 				B572AC281E817CFE008948C2 /* CommentAttachment.swift in Sources */,
 				F1E1D5881FEC52EE0086B339 /* GenericElementConverter.swift in Sources */,
+				5608841E27DBA33600DA8AA7 /* MarkStringAttributeConverter.swift in Sources */,
 				F1FA0E861E6EF514009D98EE /* Node.swift in Sources */,
 				FFD3C1712344DB4E00AE8DA0 /* ForegroundColorCSSAttributeMatcher.swift in Sources */,
 				FFD3C1732344DCA900AE8DA0 /* ForegroundColorElementAttributeConverter.swift in Sources */,
@@ -1711,6 +1708,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				247D2C662AF5B90900301B71 /* UIKit+Extensions.swift in Sources */,
 				F185A5B52123C0DA00DDFAB1 /* NSMutableAttributedStringReplaceOcurrencesTests.swift in Sources */,
 				B5D575891F2288E2003A62F6 /* TextViewTests.swift in Sources */,
 				594C9D741D8BE6C700D74542 /* InNodeConverterTests.swift in Sources */,
@@ -1835,7 +1833,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lxml2";
@@ -1897,7 +1895,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-lxml2";
 				SDKROOT = iphoneos;
@@ -1925,7 +1923,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
@@ -1952,7 +1950,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
@@ -2041,7 +2039,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lxml2";
@@ -2069,7 +2067,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;
@@ -2148,7 +2146,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lxml2";
@@ -2177,7 +2175,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Aztec/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.wordpress.Aztec;

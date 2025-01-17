@@ -51,7 +51,7 @@ private extension UIPasteboard {
             return nil
         }
         
-        return NSAttributedString.unarchive(with: data)
+        return try? NSAttributedString.unarchive(with: data)
     }
     
     /// Attempts to unarchive the Pasteboard's Plain Text contents into an Attributed String

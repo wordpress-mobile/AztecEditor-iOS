@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		247D2C712AF5CB3200301B71 /* GutenpackAttachmentRender_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 247D2C6F2AF5CB3200301B71 /* GutenpackAttachmentRender_2x.png */; };
+		247D2C722AF5CB3200301B71 /* GutenpackAttachmentRender_3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 247D2C702AF5CB3200301B71 /* GutenpackAttachmentRender_3x.png */; };
 		F105937520B2FEF1005A836E /* Gutenblock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F105937220B2FEF1005A836E /* Gutenblock.swift */; };
 		F105937720B317D7005A836E /* CommentNode+Gutenberg.swift in Sources */ = {isa = PBXBuildFile; fileRef = F105937620B317D7005A836E /* CommentNode+Gutenberg.swift */; };
 		F1065DBE20ADEECD008C72CC /* WordPressPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */; };
@@ -58,8 +60,6 @@
 		F1FC70782139952C007AAFB3 /* VideoAttachmentWordPressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */; };
 		F1FC708021399A3B007AAFB3 /* GutenblockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */; };
 		F1FC70862139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */; };
-		F1FC70932139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */; };
-		F1FC70972139C778007AAFB3 /* GutenpackAttachmentRender_2x.png.dat in Resources */ = {isa = PBXBuildFile; fileRef = F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */; };
 		F9982CFB218786E8001E606B /* WordPressPasteboardDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFA218786E8001E606B /* WordPressPasteboardDelegate.swift */; };
 		F9982CFD21878789001E606B /* EmbedURLProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFC21878788001E606B /* EmbedURLProcessor.swift */; };
 		F9982CFF2187879E001E606B /* EmbedURLProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */; };
@@ -100,6 +100,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		247D2C6F2AF5CB3200301B71 /* GutenpackAttachmentRender_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GutenpackAttachmentRender_2x.png; sourceTree = "<group>"; };
+		247D2C702AF5CB3200301B71 /* GutenpackAttachmentRender_3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GutenpackAttachmentRender_3x.png; sourceTree = "<group>"; };
 		F105937220B2FEF1005A836E /* Gutenblock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gutenblock.swift; sourceTree = "<group>"; };
 		F105937620B317D7005A836E /* CommentNode+Gutenberg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommentNode+Gutenberg.swift"; sourceTree = "<group>"; };
 		F1065DBD20ADEECD008C72CC /* WordPressPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordPressPlugin.swift; sourceTree = "<group>"; };
@@ -154,9 +156,6 @@
 		F1FC70772139952C007AAFB3 /* VideoAttachmentWordPressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAttachmentWordPressTests.swift; sourceTree = "<group>"; };
 		F1FC707F21399A3B007AAFB3 /* GutenblockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenblockTests.swift; sourceTree = "<group>"; };
 		F1FC70852139A998007AAFB3 /* GutenpackAttachmentRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GutenpackAttachmentRendererTests.swift; sourceTree = "<group>"; };
-		F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_3x.png.dat; sourceTree = "<group>"; };
-		F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = GutenpackAttachmentRender_2x.png.dat; sourceTree = "<group>"; };
-		F1FC70962139C58F007AAFB3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F9982CFA218786E8001E606B /* WordPressPasteboardDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPressPasteboardDelegate.swift; sourceTree = "<group>"; };
 		F9982CFC21878788001E606B /* EmbedURLProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessor.swift; sourceTree = "<group>"; };
 		F9982CFE2187879E001E606B /* EmbedURLProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedURLProcessorTests.swift; sourceTree = "<group>"; };
@@ -483,9 +482,8 @@
 		F1FC70892139B1B4007AAFB3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F1FC70962139C58F007AAFB3 /* README.md */,
-				F1FC70952139C57D007AAFB3 /* GutenpackAttachmentRender_2x.png.dat */,
-				F1FC70922139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat */,
+				247D2C6F2AF5CB3200301B71 /* GutenpackAttachmentRender_2x.png */,
+				247D2C702AF5CB3200301B71 /* GutenpackAttachmentRender_3x.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -622,8 +620,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1FC70972139C778007AAFB3 /* GutenpackAttachmentRender_2x.png.dat in Resources */,
-				F1FC70932139B70A007AAFB3 /* GutenpackAttachmentRender_3x.png.dat in Resources */,
+				247D2C722AF5CB3200301B71 /* GutenpackAttachmentRender_3x.png in Resources */,
+				247D2C712AF5CB3200301B71 /* GutenpackAttachmentRender_2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -809,6 +807,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				INFOPLIST_FILE = WordPressEditorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -818,6 +817,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1010,6 +1010,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				INFOPLIST_FILE = WordPressEditorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1019,6 +1020,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1029,6 +1031,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = PZYM8XX95Q;
 				INFOPLIST_FILE = WordPressEditorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1038,6 +1041,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.automattic.WordPressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

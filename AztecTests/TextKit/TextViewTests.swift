@@ -13,7 +13,9 @@ class TextViewTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+
+        // Ensure there is no shared state between tests
+        UIPasteboard.forTesting.reset()
     }
     
     override func tearDown() {
@@ -1772,15 +1774,13 @@ class TextViewTests: XCTestCase {
     /// doesn't cause Aztec to crash.
     ///
     func testWritingIntoAnEmptyPasteboardDoesNotCauseAztecToCrash() {
-
-        let pasteboard = UIPasteboard.general
-        pasteboard.items.removeAll()
+        UIPasteboard.forTesting.reset()
 
         let data = "Foo".data(using: .utf8)!
         let textView = TextViewStub(withSampleHTML: true)
-        textView.storeInPasteboard(encoded: data, pasteboard: pasteboard)
+        textView.storeInPasteboard(encoded: data)
 
-        XCTAssertEqual(pasteboard.items.count, 1)
+        XCTAssertEqual(UIPasteboard.forTesting.items.count, 1)
     }
 
     /// This test verifies that Japanese Characters do not get hexa encoded anymore, since we actually support UTF8!
@@ -1983,9 +1983,9 @@ class TextViewTests: XCTestCase {
 
     func testPasteOfURLsWithoutSelectedRange() {
         let textView = TextViewStub(withHTML: "")
-        let pasteboard = UIPasteboard.general
+
         let url = URL(string: "http://wordpress.com")!
-        pasteboard.setValue(url, forPasteboardType: String(kUTTypeURL))
+        UIPasteboard.forTesting.setValue(url, forPasteboardType: String(kUTTypeURL))
 
         textView.paste(nil)
 
@@ -1995,9 +1995,9 @@ class TextViewTests: XCTestCase {
 
     func testPasteOfURLsWithSelectedRange() {
         let textView = TextViewStub(withHTML: "WordPress")
-        let pasteboard = UIPasteboard.general
+
         let url = URL(string: "http://wordpress.com")!
-        pasteboard.setValue(url, forPasteboardType: String(kUTTypeURL))
+        UIPasteboard.forTesting.setValue(url, forPasteboardType: String(kUTTypeURL))
         textView.selectedRange = NSRange(location: 0, length: 9)
         textView.paste(nil)
 
@@ -2048,16 +2048,16 @@ class TextViewTests: XCTestCase {
         sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
         sourceTextView.copy(nil)
 
-        XCTAssertEqual(UIPasteboard.general.string, "This is text with attributes: bold")
+        XCTAssertEqual(UIPasteboard.forTesting.string, "This is text with attributes: bold")
     }
 
-    func testCopyHTML() {
+    func testCopyHTML() throws {
         let sourceTextView = TextViewStub(withHTML: "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
 
         sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
         sourceTextView.copy(nil)
 
-        XCTAssertEqual(UIPasteboard.general.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+        XCTAssertEqual(UIPasteboard.forTesting.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
     }
 
     func testCutHTML() {
@@ -2066,7 +2066,7 @@ class TextViewTests: XCTestCase {
         sourceTextView.selectedRange = NSRange(location: 0, length: sourceTextView.text.count)
         sourceTextView.cut(nil)
 
-        XCTAssertEqual(UIPasteboard.general.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
+        XCTAssertEqual(UIPasteboard.forTesting.html(), "<p>This is text with attributes: <strong>bold</strong> and <italic>italic</italic></p>")
     }
 
     func testCopyPartialHTML() {
@@ -2075,7 +2075,7 @@ class TextViewTests: XCTestCase {
         sourceTextView.selectedRange = NSRange(location: 0, length: 3)
         sourceTextView.copy(nil)
 
-        XCTAssertEqual(UIPasteboard.general.html(), "<p><strong>bol</strong></p>")
+        XCTAssertEqual(UIPasteboard.forTesting.html(), "<p><strong>bol</strong></p>")
     }
 
     /// Check if pasting attributed text without color, the color is set to default color
@@ -2083,7 +2083,7 @@ class TextViewTests: XCTestCase {
         let sourceAttributedText = NSAttributedString(string: "Hello world")
         var pasteItems = [String:Any]()
         pasteItems[kUTTypePlainText as String] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
-        UIPasteboard.general.setItems([pasteItems], options: [:])
+        UIPasteboard.forTesting.setItems([pasteItems], options: [:])
         let textView = TextViewStub(withHTML: "")
         textView.textColor = UIColor.red
         textView.paste(nil)

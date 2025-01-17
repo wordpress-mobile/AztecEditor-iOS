@@ -65,4 +65,14 @@ class StringRangeMultibyteConversionTests: XCTestCase {
         XCTAssert(validRange.lowerBound == calculatedOffByOneRange.lowerBound.utf16Offset(in: candidate))
         XCTAssert(validRange.upperBound == calculatedOffByOneRange.upperBound.utf16Offset(in: candidate))
     }
+
+    func testThatStartIndexIsReportedAsValid() {
+        let candidate = "This is a string 👍🏽"
+        XCTAssertTrue(candidate.isValidIndex(candidate.startIndex))
+    }
+
+    func testThatEndIndexIsReportedAsValid() {
+        let candidate = "This is a string 👍🏽"
+        XCTAssertFalse(candidate.isValidIndex(candidate.endIndex))
+    }
 }

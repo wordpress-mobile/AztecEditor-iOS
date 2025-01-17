@@ -366,6 +366,12 @@ extension LayoutManager {
         guard let textStorage = textStorage else {
             return
         }
+
+        guard Range(glyphRange, in: textStorage.string) != nil else {
+            // range out of bound for the glyph, fallback to default behavior
+            return super.underlineGlyphRange(glyphRange, underlineType: underlineVal, lineFragmentRect: lineRect, lineFragmentGlyphRange: lineGlyphRange, containerOrigin: containerOrigin)
+        }
+
         let underlinedString = textStorage.attributedSubstring(from: glyphRange).string
         var updatedGlyphRange = glyphRange
         if glyphRange.endLocation == lineGlyphRange.endLocation,

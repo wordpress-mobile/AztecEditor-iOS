@@ -6,14 +6,12 @@ extension NSAttributedString
 {
     static let pastesboardUTI = "com.wordpress.aztec.attributedString"
 
-    func archivedData() -> Data {
-        let data = NSKeyedArchiver.archivedData(withRootObject: self)
-        return data
+    func archivedData() throws -> Data {
+        return try NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: false)
     }
 
-    static func unarchive(with data: Data) -> NSAttributedString? {
-        let attributedString = NSKeyedUnarchiver.unarchiveObject(with: data) as? NSAttributedString
-        return attributedString
+    static func unarchive(with data: Data) throws -> NSAttributedString? {
+        return try NSKeyedUnarchiver.unarchivedObject(ofClass: NSAttributedString.self, from: data)
     }
     
 }
