@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1A830346228583B200798076 /* NSBundle+AztecBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A830345228583B200798076 /* NSBundle+AztecBundle.swift */; };
+		3FE650A22D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE650A12D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift */; };
 		40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */; };
 		40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */; };
 		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
@@ -282,6 +283,7 @@
 
 /* Begin PBXFileReference section */
 		1A830345228583B200798076 /* NSBundle+AztecBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecBundle.swift"; sourceTree = "<group>"; };
+		3FE650A12D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecTestsBundle.swift"; sourceTree = "<group>"; };
 		40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRElementConverter.swift; sourceTree = "<group>"; };
 		40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRElementConverter.swift; sourceTree = "<group>"; };
 		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
@@ -1049,6 +1051,7 @@
 		F15415F7213447970096D18E /* TestingSupport */ = {
 			isa = PBXGroup;
 			children = (
+				3FE650A12D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift */,
 				F15415F8213447D70096D18E /* TextViewStub.swift */,
 				B5D575851F2288E2003A62F6 /* TextViewStubAttachmentDelegate.swift */,
 				B52220D21F86A05400D7E092 /* TextViewStubDelegate.swift */,
@@ -1714,6 +1717,7 @@
 				B52220D31F86A05400D7E092 /* TextViewStubDelegate.swift in Sources */,
 				F15415FB213454AC0096D18E /* HTMLStorageTests.swift in Sources */,
 				F185A5B92123C0DA00DDFAB1 /* StringParagraphTests.swift in Sources */,
+				3FE650A22D3AFC5500862F57 /* NSBundle+AztecTestsBundle.swift in Sources */,
 				F17BC8B51F4E517100398E2B /* AttributedStringParserTests.swift in Sources */,
 				F1E7562A215B01A2004BC254 /* ItalicElementAttributeConverterTests.swift in Sources */,
 				F17BC8A31F4E4F5A00398E2B /* ElementNodeTests.swift in Sources */,
