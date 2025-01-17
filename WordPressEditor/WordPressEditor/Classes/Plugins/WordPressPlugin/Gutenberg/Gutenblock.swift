@@ -10,4 +10,7 @@ class Gutenblock: ParagraphProperty {
     required public init?(coder aDecoder: NSCoder){
         super.init(coder: aDecoder)
     }
+
+    override open class var supportsSecureCoding: Bool { true }
+
 }

@@ -11,7 +11,7 @@ extension NSAttributedString
     static let lengthOfTextAttachment = NSAttributedString(attachment: NSTextAttachment()).length
 
     // MARK: - Initializers
-    
+
     /// Helper Initializer: returns an Attributed String, with the specified attachment, styled with a given
     /// collection of attributes.
     ///
@@ -21,24 +21,24 @@ extension NSAttributedString
 
         self.init(.textAttachment, attributes: attributesWithAttachment)
     }
-    
+
     public convenience init(attachment: NSTextAttachment, caption: NSAttributedString, attributes: [NSAttributedString.Key: Any]) {
         let figure = Figure()
         let figcaption = Figcaption(defaultFont: UIFont.systemFont(ofSize: 14), storing: nil)
-        
+
         let figureAttributes = attributes.appending(figure)
         let finalString = NSMutableAttributedString(attachment: attachment, attributes: figureAttributes)
-        
+
         let mutableCaption = NSMutableAttributedString(attributedString: caption)
         mutableCaption.append(paragraphProperty: figure)
         mutableCaption.append(paragraphProperty: figcaption)
-        
+
         let paragraphSeparator = NSAttributedString(.paragraphSeparator, attributes: [:])
-        
+
         finalString.append(paragraphSeparator)
         finalString.append(mutableCaption)
         finalString.append(paragraphSeparator)
-        
+
         self.init(attributedString: finalString)
     }
 
@@ -103,13 +103,13 @@ extension NSAttributedString
         guard let captionRange = self.captionRange(for: attachment) else {
             return nil
         }
-        
+
         let string = attributedSubstring(from: captionRange).mutableCopy() as! NSMutableAttributedString
-        
+
         for character in Character.paragraphBreakingCharacters {
             string.replaceOcurrences(of: String(character), with: "")
         }
-        
+
         return NSAttributedString(attributedString: string)
     }
 
@@ -117,7 +117,7 @@ extension NSAttributedString
         guard let figureRange = self.figureRange(for: attachment) else {
             return nil
         }
-        
+
         return figcaptionRanges(within: figureRange).first
     }
 
@@ -125,17 +125,17 @@ extension NSAttributedString
 
     private func figcaptionRanges(within range: NSRange) -> [NSRange] {
         var ranges = [NSRange]()
-        
+
         enumerateParagraphRanges(spanning: range) { (_, enclosingRange) in
             guard let paragraphStyle = attribute(.paragraphStyle, at: enclosingRange.lowerBound, effectiveRange: nil) as? ParagraphStyle else {
                 return
             }
-            
+
             if paragraphStyle.hasProperty(where: { $0 is Figcaption }) {
                 ranges.append(enclosingRange)
             }
         }
-        
+
         return ranges
     }
 
@@ -143,7 +143,7 @@ extension NSAttributedString
         guard let attachmentRange = ranges(forAttachment: attachment).first else {
             return nil
         }
-        
+
         let paragraphRange = self.paragraphRange(for: attachmentRange)
 
         guard let paragraphStyle = self.attribute(.paragraphStyle, at: paragraphRange.lowerBound, effectiveRange: nil) as? ParagraphStyle,

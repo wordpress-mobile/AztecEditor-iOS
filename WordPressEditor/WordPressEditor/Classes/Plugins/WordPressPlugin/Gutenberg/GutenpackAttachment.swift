@@ -17,14 +17,14 @@ class GutenpackAttachment: NSTextAttachment, RenderableAttachment {
     let blockContent: String
     
     required init?(coder aDecoder: NSCoder) {
-        guard let blockName = aDecoder.decodeObject(forKey: EncodingKeys.blockName) as? String,
-            let blockContent = aDecoder.decodeObject(forKey: EncodingKeys.blockContent) as? String
+        guard let blockName = aDecoder.decodeObject(of: NSString.self, forKey: EncodingKeys.blockName),
+              let blockContent = aDecoder.decodeObject(of: NSString.self, forKey: EncodingKeys.blockContent)
         else {
             return nil
         }
         
-        self.blockName = blockName
-        self.blockContent = blockContent
+        self.blockName = blockName as String
+        self.blockContent = blockContent as String
 
         super.init(coder: aDecoder)
     }

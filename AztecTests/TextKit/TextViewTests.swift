@@ -1985,7 +1985,7 @@ class TextViewTests: XCTestCase {
         let textView = TextViewStub(withHTML: "")
 
         let url = URL(string: "http://wordpress.com")!
-        UIPasteboard.forTesting.setValue(url, forPasteboardType: String(kUTTypeURL))
+        UIPasteboard.forTesting.setValue(url, forPasteboardType: UIPasteboard.UTType.URL.identifier)
 
         textView.paste(nil)
 
@@ -1997,7 +1997,7 @@ class TextViewTests: XCTestCase {
         let textView = TextViewStub(withHTML: "WordPress")
 
         let url = URL(string: "http://wordpress.com")!
-        UIPasteboard.forTesting.setValue(url, forPasteboardType: String(kUTTypeURL))
+        UIPasteboard.forTesting.setValue(url, forPasteboardType: UIPasteboard.UTType.URL.identifier)
         textView.selectedRange = NSRange(location: 0, length: 9)
         textView.paste(nil)
 
@@ -2082,7 +2082,7 @@ class TextViewTests: XCTestCase {
     func testPasteAttributedText() {
         let sourceAttributedText = NSAttributedString(string: "Hello world")
         var pasteItems = [String:Any]()
-        pasteItems[kUTTypePlainText as String] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
+        pasteItems[UIPasteboard.UTType.plainText.identifier] = try! sourceAttributedText.data(from: sourceAttributedText.rangeOfEntireString, documentAttributes: [.documentType: DocumentType.plain])
         UIPasteboard.forTesting.setItems([pasteItems], options: [:])
         let textView = TextViewStub(withHTML: "")
         textView.textColor = UIColor.red

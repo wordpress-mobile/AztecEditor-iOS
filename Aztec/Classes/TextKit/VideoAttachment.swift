@@ -39,9 +39,11 @@ open class VideoAttachment: MediaAttachment {
         super.init(coder: aDecoder)
 
         if aDecoder.containsValue(forKey: EncodeKeys.posterURL.rawValue) {
-            posterURL = aDecoder.decodeObject(forKey: EncodeKeys.posterURL.rawValue) as? URL
+            posterURL = aDecoder.decodeObject(of: NSURL.self, forKey: EncodeKeys.posterURL.rawValue) as? URL
         }
     }
+
+    override open class var supportsSecureCoding: Bool { true }
 
     /// Required Initializer
     ///

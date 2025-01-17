@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - UnsupportedHTML
 //
-class UnsupportedHTML: NSObject {
+class UnsupportedHTML: NSObject, NSSecureCoding {
 
     /// ElementRepresentation for Unsupported HTML
     ///
@@ -18,12 +18,20 @@ class UnsupportedHTML: NSObject {
     /// Required Initializers
     ///
     public required init?(coder aDecoder: NSCoder) {
-        guard let representations = aDecoder.decodeObject(forKey: Keys.representations) as? [HTMLElementRepresentation] else {
-            return nil
+        let representations: [HTMLElementRepresentation]?
+        if #available(iOS 14.0, *) {
+            representations = aDecoder.decodeArrayOfObjects(ofClass: HTMLElementRepresentation.self, forKey: Keys.representations)
+        } else {
+            representations = aDecoder.decodeObject(of: NSArray.self, forKey: Keys.representations) as? [HTMLElementRepresentation]
         }
 
+        guard let representations else {
+            return nil
+        }
         self.representations = representations
     }
+
+    open class var supportsSecureCoding: Bool { true }
 }
 
 

@@ -2,35 +2,28 @@
 
 default_platform(:ios)
 
-TEST_RUNTIME = 'iOS 17.0'
-TEST_DEVICE = 'iPhone 15 Pro'
+TEST_RUNTIME = 'iOS 18.2'
+TEST_DEVICE = 'iPhone 16 Pro'
 
 platform :ios do
   desc 'Builds the project and runs tests'
   lane :test do
-    device = create_simulator(TEST_RUNTIME, TEST_DEVICE)
+    # Don't waste time managing Simulators in CI
+    device = create_simulator(TEST_RUNTIME, TEST_DEVICE) unless is_ci
 
-    run_tests(
+    shared_options = {
       workspace: 'Aztec.xcworkspace',
-      scheme: 'Aztec',
-      device: device.name,
       prelaunch_simulator: true,
       buildlog_path: File.join(__dir__, '.build', 'logs'),
       derived_data_path: File.join(__dir__, '.build', 'derived-data'),
+      device: TEST_DEVICE,
       ensure_devices_found: true
-    )
+    }
 
-    run_tests(
-      workspace: 'Aztec.xcworkspace',
-      scheme: 'WordPressEditor',
-      device: device.name,
-      prelaunch_simulator: true,
-      buildlog_path: File.join(__dir__, '.build', 'logs'),
-      derived_data_path: File.join(__dir__, '.build', 'derived-data'),
-      ensure_devices_found: true
-    )
+    run_tests(**shared_options, scheme: 'Aztec')
+    run_tests(**shared_options, scheme: 'WordPressEditor')
 
-    destroy_simulator(device)
+    destroy_simulator(device) unless is_ci
   end
 end
 

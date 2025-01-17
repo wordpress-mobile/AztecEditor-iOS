@@ -83,6 +83,8 @@ open class Header: ParagraphProperty {
         aCoder.encode(level.rawValue, forKey: Keys.level)
     }
 
+    override open class var supportsSecureCoding: Bool { true }
+
     static func ==(lhs: Header, rhs: Header) -> Bool {
         return lhs.level == rhs.level
     }

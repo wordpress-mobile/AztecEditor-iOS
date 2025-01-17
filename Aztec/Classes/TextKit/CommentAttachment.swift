@@ -32,11 +32,11 @@ open class CommentAttachment: NSTextAttachment, RenderableAttachment {
     public required init?(coder aDecoder: NSCoder) {
         super.init(data: nil, ofType: nil)
 
-        guard let text = aDecoder.decodeObject(forKey: Keys.text) as? String else {
+        guard let text = aDecoder.decodeObject(of: NSString.self, forKey: Keys.text) else {
             return
         }
 
-        self.text = text
+        self.text = text as String
     }
 
 
@@ -48,7 +48,7 @@ open class CommentAttachment: NSTextAttachment, RenderableAttachment {
         aCoder.encode(text, forKey: Keys.text)
     }
 
-
+    override open class var supportsSecureCoding: Bool { true }
 
     // MARK: - NSTextAttachmentContainer
 

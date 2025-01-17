@@ -1,6 +1,6 @@
 import Foundation
 
-open class ParagraphProperty: NSObject, NSCoding {
+open class ParagraphProperty: NSObject, NSSecureCoding {
 
     open var representation: HTMLRepresentation?
     
@@ -19,6 +19,8 @@ open class ParagraphProperty: NSObject, NSCoding {
     public func encode(with aCoder: NSCoder) {
     }
 
+    open class var supportsSecureCoding: Bool { true }
+    
     static func ==(lhs: ParagraphProperty, rhs: ParagraphProperty) -> Bool {
         return lhs === rhs
     }

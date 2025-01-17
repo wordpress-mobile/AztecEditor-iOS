@@ -10,7 +10,7 @@ class Figcaption: ParagraphProperty {
     }
     
     required public init?(coder aDecoder: NSCoder){
-        defaultFont = aDecoder.decodeObject(forKey: CodingKeys.defaultFont) as! UIFont
+        defaultFont = aDecoder.decodeObject(of: UIFont.self, forKey: CodingKeys.defaultFont)!
         super.init(coder: aDecoder)
     }
     
@@ -18,6 +18,8 @@ class Figcaption: ParagraphProperty {
         super.encode(with: aCoder)
         aCoder.encode(defaultFont, forKey: CodingKeys.defaultFont)
     }
+
+    override open class var supportsSecureCoding: Bool { true }
 }
 
 private extension Figcaption {

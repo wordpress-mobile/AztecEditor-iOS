@@ -30,7 +30,7 @@ class UIPasteboardHelpersTests: XCTestCase {
                 return
         }
         
-        pasteboard.setData(data, forPasteboardType: String(kUTTypeFlatRTFD))
+        pasteboard.setData(data, forPasteboardType: UIPasteboard.UTType.RTFDText.identifier)
 
         guard let pastedString = pasteboard.attributedString() else {
             XCTFail()
@@ -46,7 +46,7 @@ class UIPasteboardHelpersTests: XCTestCase {
         let pasteboard = UIPasteboard.forTesting
         let html = "<p>testing</p>"
         
-        pasteboard.setValue(html, forPasteboardType: String(kUTTypeHTML))
+        pasteboard.setValue(html, forPasteboardType: UIPasteboard.UTType.html.identifier)
         
         XCTAssertEqual(pasteboard.html(), html)
     }

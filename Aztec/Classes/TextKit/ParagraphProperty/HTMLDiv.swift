@@ -9,6 +9,8 @@ class HTMLDiv: ParagraphProperty {
         super.encode(with: aCoder)
     }
 
+    override open class var supportsSecureCoding: Bool { true }
+
     override public init(with representation: HTMLRepresentation? = nil) {
         super.init(with: representation)
     }

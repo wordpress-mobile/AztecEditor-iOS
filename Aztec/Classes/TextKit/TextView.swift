@@ -668,27 +668,15 @@ open class TextView: UITextView {
     // MARK: - Pasteboard Helpers
 
     internal func storeInPasteboard(encoded data: Data) {
-        if pasteboard.numberOfItems > 0 {
-            pasteboard.items[0][NSAttributedString.pastesboardUTI] = data
-        } else {
-            pasteboard.addItems([[NSAttributedString.pastesboardUTI: data]])
-        }
+        pasteboard.store(data, as: NSAttributedString.pasteboardUTI)
     }
 
     internal func storeInPasteboard(html: String) {
-        if pasteboard.numberOfItems > 0 {
-            pasteboard.items[0][kUTTypeHTML as String] = html
-        } else {
-            pasteboard.addItems([[kUTTypeHTML as String: html]])
-        }
+        pasteboard.store(html, as: .html)
     }
 
     internal func storeInPasteboard(plain: String) {
-        if pasteboard.numberOfItems > 0 {
-            pasteboard.items[0][kUTTypePlainText as String] = plain
-        } else {
-            pasteboard.addItems([[kUTTypePlainText as String: plain]])
-        }
+        pasteboard.store(plain, as: .plainText)
     }
 
     // MARK: - Intercept keyboard operations

@@ -8,11 +8,11 @@ class UnsupportedHTMLTests: XCTestCase {
 
     /// Verifies that a UnsupportedHTML Instance can get properly serialized back and forth
     ///
-    func testSnippetsGetProperlyEncodedAndDecoded() {
+    func testSnippetsGetProperlyEncodedAndDecoded() throws {
         let unsupported = UnsupportedHTML(representations: [sampleRepresentation, sampleRepresentation])
 
-        let data = NSKeyedArchiver.archivedData(withRootObject: unsupported)
-        guard let restored = NSKeyedUnarchiver.unarchiveObject(with: data) as? UnsupportedHTML else {
+        let data = try NSKeyedArchiver.archivedData(withRootObject: unsupported, requiringSecureCoding: false)
+        guard let restored = try NSKeyedUnarchiver.unarchivedObject(ofClass: UnsupportedHTML.self, from: data) else {
             XCTFail()
             return
         }

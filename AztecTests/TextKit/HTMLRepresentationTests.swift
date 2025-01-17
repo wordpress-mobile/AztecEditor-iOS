@@ -8,9 +8,9 @@ class HTMLRepresentationTests: XCTestCase {
 
     /// Verifies that HTMLRepresentation of Attribute kind is properly serialized Back and Forth
     ///
-    func testAttibuteRepresentationGetsProperlySerializedAndRestored() {
+    func testAttibuteRepresentationGetsProperlySerializedAndRestored() throws {
         let representation = HTMLRepresentation(for: .attribute(sampleAttribute))
-        let regenerated = regenerate(representation: representation)
+        let regenerated = try regenerate(representation: representation)
 
         guard case let .attribute(attribute) = regenerated.kind else {
             XCTFail()
@@ -22,9 +22,9 @@ class HTMLRepresentationTests: XCTestCase {
 
     /// Verifies that HTMLRepresentation of Element kind is properly serialized Back and Forth
     ///
-    func testElementRepresentationGetsProperlySerializedAndRestored() {
+    func testElementRepresentationGetsProperlySerializedAndRestored() throws {
         let representation = HTMLRepresentation(for: .element(sampleElement))
-        let regenerated = regenerate(representation: representation)
+        let regenerated = try regenerate(representation: representation)
 
         guard case let .element(element) = regenerated.kind else {
             XCTFail()
@@ -36,9 +36,9 @@ class HTMLRepresentationTests: XCTestCase {
 
     /// Verifies that HTMLRepresentation of inlineCSS kind is properly serialized Back and Forth
     ///
-    func testCssRepresentationGetsProperlySerializedAndRestored() {
+    func testCssRepresentationGetsProperlySerializedAndRestored() throws {
         let representation = HTMLRepresentation(for: .inlineCss(sampleCSS))
-        let regenerated = regenerate(representation: representation)
+        let regenerated = try regenerate(representation: representation)
 
         guard case let .inlineCss(css) = regenerated.kind else {
             XCTFail()
@@ -67,12 +67,10 @@ private extension HTMLRepresentationTests {
         return HTMLElementRepresentation(name: "table", attributes: [sampleAttribute])
     }
 
-    func regenerate(representation: HTMLRepresentation) -> HTMLRepresentation {
-        let data = NSKeyedArchiver.archivedData(withRootObject: representation)
-        guard let restored = NSKeyedUnarchiver.unarchiveObject(with: data) as? HTMLRepresentation else {
-            fatalError()
-        }
+    func regenerate(representation: HTMLRepresentation) throws -> HTMLRepresentation {
+        let data = try NSKeyedArchiver.archivedData(withRootObject: representation, requiringSecureCoding: false)
+        let restored = try NSKeyedUnarchiver.unarchivedObject(ofClass: HTMLRepresentation.self, from: data)
 
-        return restored
+        return restored!
     }
 }

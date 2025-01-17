@@ -2,7 +2,7 @@ import Foundation
 
 /// This enum specifies the different entities that can represent a style in HTML.
 ///
-public class HTMLRepresentation: NSObject, NSCoding {
+public class HTMLRepresentation: NSObject, NSSecureCoding {
     public enum Kind {
         case attribute(Attribute)
         case element(HTMLElementRepresentation)
@@ -24,18 +24,18 @@ public class HTMLRepresentation: NSObject, NSCoding {
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        if let attribute = aDecoder.decodeObject(forKey: Keys.attribute) as? Attribute {
+        if let attribute = aDecoder.decodeObject(of: Attribute.self, forKey: Keys.attribute) {
             kind = .attribute(attribute)
             return
         }
 
-        if let element = aDecoder.decodeObject(forKey: Keys.element) as? HTMLElementRepresentation {
+        if let element = aDecoder.decodeObject(of: HTMLElementRepresentation.self, forKey: Keys.element) {
             kind = .element(element)
             return
         }
 
-        if let rawCSS = aDecoder.decodeObject(forKey: Keys.inline) as? String,
-            let decodedCSS = CSSAttribute(for: rawCSS) {
+        if let rawCSS = aDecoder.decodeObject(of: NSString.self, forKey: Keys.inline),
+            let decodedCSS = CSSAttribute(for: rawCSS as String) {
             kind = .inlineCss(decodedCSS)
             return
         }
@@ -53,12 +53,14 @@ public class HTMLRepresentation: NSObject, NSCoding {
             aCoder.encode(css.toString(), forKey: Keys.inline)
         }
     }
+
+    open class var supportsSecureCoding: Bool { true }
 }
 
 
 // MARK: - HTMLElementRepresentation
 //
-public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
+public class HTMLElementRepresentation: NSObject, CustomReflectable, NSSecureCoding {
     @objc let name: String
     @objc let attributes: [Attribute]
 
@@ -78,19 +80,29 @@ public class HTMLElementRepresentation: NSObject, CustomReflectable, NSCoding {
     // MARK: - NSCoding
 
     public required convenience init?(coder aDecoder: NSCoder) {
-        guard let name = aDecoder.decodeObject(forKey: #keyPath(name)) as? String,
-            let attributes = aDecoder.decodeObject(forKey: #keyPath(attributes)) as? [Attribute]
-        else {
+        guard let name = aDecoder.decodeObject(of: NSString.self, forKey: #keyPath(name)) else {
+            fatalError()
+        }
+        let decodedAttributes: [Attribute]?
+
+        if #available(iOS 14.0, *) {
+            decodedAttributes = aDecoder.decodeArrayOfObjects(ofClass: Attribute.self, forKey: #keyPath(attributes))
+        } else {
+            decodedAttributes = aDecoder.decodeObject(of: NSArray.self, forKey: #keyPath(attributes)) as? [Attribute]
+        }
+        guard let attributes = decodedAttributes else {
             fatalError()
         }
 
-        self.init(name: name, attributes: attributes)
+        self.init(name: name as String, attributes: attributes)
     }
 
     open func encode(with aCoder: NSCoder) {
         aCoder.encode(name, forKey: #keyPath(name))
         aCoder.encode(attributes, forKey: #keyPath(attributes))
     }
+
+    open class var supportsSecureCoding: Bool { true }
 
     // MARK: - CustomReflectable
 

@@ -3,7 +3,7 @@ import Foundation
 /// Represents a basic attribute with no value.  This is also the base class for all other
 /// attributes.
 ///
-public class Attribute: NSObject, CustomReflectable, NSCoding {
+public class Attribute: NSObject, CustomReflectable, NSSecureCoding {
 
     // MARK: - Attribute Definition Properties
 
@@ -52,15 +52,15 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
 
     public required convenience init?(coder aDecoder: NSCoder) {
         // TODO: This is a Work in Progress. Let's also get Attribute conforming to Codable!
-        guard let name = aDecoder.decodeObject(forKey: Keys.name) as? String,
-            let rawValue = aDecoder.decodeObject(forKey: Keys.value) as? Data,
-            let value = try? JSONDecoder().decode(Value.self, from: rawValue) else
+        guard let name = aDecoder.decodeObject(of: NSString.self, forKey: Keys.name),
+              let rawValue = aDecoder.decodeObject(of: NSData.self, forKey: Keys.value),
+            let value = try? JSONDecoder().decode(Value.self, from: rawValue as Data) else
         {
             assertionFailure("Review the logic.")
             return nil
         }
 
-        self.init(name: name, value: value)
+        self.init(name: name as String, value: value)
     }
 
     open func encode(with aCoder: NSCoder) {
@@ -71,6 +71,8 @@ public class Attribute: NSObject, CustomReflectable, NSCoding {
             aCoder.encode(encodedValue, forKey: Keys.value)
         }
     }
+
+    open class var supportsSecureCoding: Bool { true }
 
     // MARK: - Equatable
 

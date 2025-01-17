@@ -84,6 +84,8 @@ open class TextList: ParagraphProperty {
         aCoder.encode(reversed, forKey: AttributeType.reversed.rawValue)
     }
 
+    override open class var supportsSecureCoding: Bool { true }
+
     public static func ==(lhs: TextList, rhs: TextList) -> Bool {
         return lhs.style == rhs.style && lhs.start == rhs.start && lhs.reversed == rhs.reversed
     }

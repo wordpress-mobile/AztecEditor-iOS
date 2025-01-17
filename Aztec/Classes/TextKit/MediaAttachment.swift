@@ -153,9 +153,11 @@ open class MediaAttachment: NSTextAttachment {
         ///
         super.init(coder: aDecoder)
 
-        identifier = aDecoder.decodeObject(forKey: EncodeKeys.identifier.rawValue) as? String ?? identifier
-        url = aDecoder.decodeObject(forKey: EncodeKeys.url.rawValue) as? URL
+        identifier = aDecoder.decodeObject(of: NSString.self, forKey: EncodeKeys.identifier.rawValue) as? String ?? identifier
+        url = aDecoder.decodeObject(of: NSURL.self, forKey: EncodeKeys.url.rawValue) as? URL
     }
+
+    override open class var supportsSecureCoding: Bool { true }
 
     /// Required Initializer
     ///

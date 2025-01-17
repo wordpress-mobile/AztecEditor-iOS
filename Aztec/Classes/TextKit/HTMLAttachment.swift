@@ -40,16 +40,17 @@ open class HTMLAttachment: NSTextAttachment, RenderableAttachment  {
     public required init?(coder aDecoder: NSCoder) {
         super.init(data: nil, ofType: nil)
 
-        guard let rootTagName = aDecoder.decodeObject(forKey: Keys.rootTagName) as? String,
-            let rawHTML = aDecoder.decodeObject(forKey: Keys.rawHTML) as? String
+        guard let rootTagName = aDecoder.decodeObject(of: NSString.self, forKey: Keys.rootTagName),
+              let rawHTML = aDecoder.decodeObject(of: NSString.self, forKey: Keys.rawHTML)
             else {
                 return
         }
 
-        self.rootTagName = rootTagName
-        self.rawHTML = rawHTML
+        self.rootTagName = rootTagName as String
+        self.rawHTML = rawHTML as String
     }
 
+    override open class var supportsSecureCoding: Bool { true }
 
     /// Extracts the root tag name from a given HTML string
     ///

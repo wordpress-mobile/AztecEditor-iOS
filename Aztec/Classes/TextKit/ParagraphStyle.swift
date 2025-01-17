@@ -89,7 +89,14 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
 
     public required init?(coder aDecoder: NSCoder) {
 
-        if let encodedProperties = aDecoder.decodeObject(forKey:String(describing: ParagraphProperty.self)) as? [ParagraphProperty] {
+        let encodedProperties: [ParagraphProperty]?
+        if #available(iOS 14.0, *) {
+            encodedProperties = aDecoder.decodeArrayOfObjects(ofClass: ParagraphProperty.self, forKey: String(describing: ParagraphProperty.self))
+        } else {
+            encodedProperties = aDecoder.decodeObject(of: NSArray.self, forKey: String(describing: ParagraphProperty.self)) as? [ParagraphProperty]
+        }
+
+        if let encodedProperties {
             properties = encodedProperties
         }
 
@@ -104,6 +111,8 @@ open class ParagraphStyle: NSMutableParagraphStyle, CustomReflectable {
         aCoder.encode(properties, forKey: String(describing: ParagraphProperty.self))
         aCoder.encode(headerLevel, forKey: EncodingKeys.headerLevel.rawValue)
     }
+
+    override open class var supportsSecureCoding: Bool { true }
 
     override open func setParagraphStyle(_ baseParagraphStyle: NSParagraphStyle) {
         

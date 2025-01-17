@@ -18,8 +18,8 @@ class CaptionShortcodeInputProcessorTests: XCTestCase {
     /// Verifies that a caption shortcode wrapping [Image + Text + Multiple Line Breaks] is properly processed.
     ///
     func testCaptionShortcodeIsProperlyConvertedIntoFigureTagPreservingNestedTags() {
-        let input = "[caption someattribute]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
-        let expected = "<figure someattribute><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
+        let input = "[caption someattribute=\"value\"]<img src=\".\"><b>Text</b><br><br><br>[/caption]"
+        let expected = "<figure someattribute=\"value\"><img src=\".\"><figcaption><b>Text</b><br><br><br></figcaption></figure>"
 
         XCTAssertEqual(processor.process(input), expected)
     }
