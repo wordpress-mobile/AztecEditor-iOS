@@ -3,5 +3,5 @@
 source 'https://rubygems.org'
 
 gem 'cocoapods', '~> 1.12'
-gem 'fastlane', '~> 2.226'
-gem 'rubocop', '~> 1.18'
+gem 'fastlane', '~> 2.236'
+gem 'rubocop', '~> 1.88'
